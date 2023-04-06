@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,31 +10,31 @@
 //
 // For product documentation, see: https://cloud.google.com/dlp/docs/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/dlp/v2"
-//   ...
-//   ctx := context.Background()
-//   dlpService, err := dlp.NewService(ctx)
+//	import "google.golang.org/api/dlp/v2"
+//	...
+//	ctx := context.Background()
+//	dlpService, err := dlp.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   dlpService, err := dlp.NewService(ctx, option.WithAPIKey("AIza..."))
+//	dlpService, err := dlp.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   dlpService, err := dlp.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	dlpService, err := dlp.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package dlp // import "google.golang.org/api/dlp/v2"
@@ -73,6 +73,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "dlp:v2"
 const apiName = "dlp"
@@ -488,11 +489,15 @@ type ProjectsStoredInfoTypesService struct {
 // job. See https://cloud.google.com/dlp/docs/concepts-actions to learn
 // more.
 type GooglePrivacyDlpV2Action struct {
-	// JobNotificationEmails: Enable email notification for project owners
-	// and editors on job's completion/failure.
+	// Deidentify: Create a de-identified copy of the input data.
+	Deidentify *GooglePrivacyDlpV2Deidentify `json:"deidentify,omitempty"`
+
+	// JobNotificationEmails: Sends an email when the job completes. The
+	// email goes to IAM project owners and technical Essential Contacts
+	// (https://cloud.google.com/resource-manager/docs/managing-notification-contacts).
 	JobNotificationEmails *GooglePrivacyDlpV2JobNotificationEmails `json:"jobNotificationEmails,omitempty"`
 
-	// PubSub: Publish a notification to a pubsub topic.
+	// PubSub: Publish a notification to a Pub/Sub topic.
 	PubSub *GooglePrivacyDlpV2PublishToPubSub `json:"pubSub,omitempty"`
 
 	// PublishFindingsToCloudDataCatalog: Publish findings to Cloud Datahub.
@@ -509,22 +514,20 @@ type GooglePrivacyDlpV2Action struct {
 	// SaveFindings: Save resulting findings in a provided location.
 	SaveFindings *GooglePrivacyDlpV2SaveFindings `json:"saveFindings,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g.
-	// "JobNotificationEmails") to unconditionally include in API requests.
-	// By default, fields with empty or default values are omitted from API
-	// requests. However, any non-pointer, non-interface field appearing in
-	// ForceSendFields will be sent to the server regardless of whether the
-	// field is empty or not. This may be used to include empty fields in
-	// Patch requests.
+	// ForceSendFields is a list of field names (e.g. "Deidentify") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "JobNotificationEmails") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Deidentify") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -534,9 +537,46 @@ func (s *GooglePrivacyDlpV2Action) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GooglePrivacyDlpV2ActionDetails: The results of an Action.
+type GooglePrivacyDlpV2ActionDetails struct {
+	// DeidentifyDetails: Outcome of a de-identification action.
+	DeidentifyDetails *GooglePrivacyDlpV2DeidentifyDataSourceDetails `json:"deidentifyDetails,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DeidentifyDetails")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeidentifyDetails") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2ActionDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2ActionDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GooglePrivacyDlpV2ActivateJobTriggerRequest: Request message for
 // ActivateJobTrigger.
 type GooglePrivacyDlpV2ActivateJobTriggerRequest struct {
+}
+
+// GooglePrivacyDlpV2AllInfoTypes: Apply transformation to all findings.
+type GooglePrivacyDlpV2AllInfoTypes struct {
+}
+
+// GooglePrivacyDlpV2AllText: Apply to all text.
+type GooglePrivacyDlpV2AllText struct {
 }
 
 // GooglePrivacyDlpV2AnalyzeDataSourceRiskDetails: Result of a risk
@@ -1107,7 +1147,15 @@ type GooglePrivacyDlpV2CharacterMaskConfig struct {
 
 	// NumberToMask: Number of characters to mask. If not set, all matching
 	// chars will be masked. Skipped characters do not count towards this
-	// tally.
+	// tally. If `number_to_mask` is negative, this denotes inverse masking.
+	// Cloud DLP masks all but a number of characters. For example, suppose
+	// you have the following values: - `masking_character` is `*` -
+	// `number_to_mask` is `-4` - `reverse_order` is `false` -
+	// `CharsToIgnore` includes `-` - Input string is `1234-5678-9012-3456`
+	// The resulting de-identified string is `****-****-****-3456`. Cloud
+	// DLP masks all but the last four characters. If `reverse_order` is
+	// `true`, all but the first four characters are masked as
+	// `1234-****-****-****`.
 	NumberToMask int64 `json:"numberToMask,omitempty"`
 
 	// ReverseOrder: Mask characters in reverse order. For example, if
@@ -1217,7 +1265,7 @@ func (s *GooglePrivacyDlpV2CloudStorageFileSet) MarshalJSON() ([]byte, error) {
 }
 
 // GooglePrivacyDlpV2CloudStorageOptions: Options defining a file or a
-// set of files within a Google Cloud Storage bucket.
+// set of files within a Cloud Storage bucket.
 type GooglePrivacyDlpV2CloudStorageOptions struct {
 	// BytesLimitPerFile: Max number of bytes to scan from a file. If a
 	// scanned file's size is bigger than this value then the rest of the
@@ -1560,8 +1608,8 @@ func (s *GooglePrivacyDlpV2Conditions) MarshalJSON() ([]byte, error) {
 // database record.
 type GooglePrivacyDlpV2Container struct {
 	// FullPath: A string representation of the full container name.
-	// Examples: - BigQuery: 'Project:DataSetId.TableId' - Google Cloud
-	// Storage: 'gs://Bucket/folders/filename.txt'
+	// Examples: - BigQuery: 'Project:DataSetId.TableId' - Cloud Storage:
+	// 'gs://Bucket/folders/filename.txt'
 	FullPath string `json:"fullPath,omitempty"`
 
 	// ProjectId: Project where the finding was found. Can be different from
@@ -1570,28 +1618,29 @@ type GooglePrivacyDlpV2Container struct {
 
 	// RelativePath: The rest of the path after the root. Examples: - For
 	// BigQuery table `project_id:dataset_id.table_id`, the relative path is
-	// `table_id` - Google Cloud Storage file
+	// `table_id` - For Cloud Storage file
 	// `gs://bucket/folder/filename.txt`, the relative path is
 	// `folder/filename.txt`
 	RelativePath string `json:"relativePath,omitempty"`
 
 	// RootPath: The root of the container. Examples: - For BigQuery table
 	// `project_id:dataset_id.table_id`, the root is `dataset_id` - For
-	// Google Cloud Storage file `gs://bucket/folder/filename.txt`, the root
-	// is `gs://bucket`
+	// Cloud Storage file `gs://bucket/folder/filename.txt`, the root is
+	// `gs://bucket`
 	RootPath string `json:"rootPath,omitempty"`
 
-	// Type: Container type, for example BigQuery or Google Cloud Storage.
+	// Type: Container type, for example BigQuery or Cloud Storage.
 	Type string `json:"type,omitempty"`
 
 	// UpdateTime: Findings container modification timestamp, if applicable.
-	// For Google Cloud Storage contains last file modification timestamp.
-	// For BigQuery table contains last_modified_time property. For
-	// Datastore - not populated.
+	// For Cloud Storage, this field contains the last file modification
+	// timestamp. For a BigQuery table, this field contains the
+	// last_modified_time property. For Datastore, this field isn't
+	// populated.
 	UpdateTime string `json:"updateTime,omitempty"`
 
 	// Version: Findings container version, if available ("generation" for
-	// Google Cloud Storage).
+	// Cloud Storage).
 	Version string `json:"version,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "FullPath") to
@@ -1617,8 +1666,6 @@ func (s *GooglePrivacyDlpV2Container) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GooglePrivacyDlpV2ContentItem: Container structure for the content to
-// inspect.
 type GooglePrivacyDlpV2ContentItem struct {
 	// ByteItem: Content data to inspect or redact. Replaces `type` and
 	// `data`.
@@ -1664,17 +1711,18 @@ type GooglePrivacyDlpV2ContentLocation struct {
 	// tables: `{project_id}:{dataset_id}.{table_id}` * Cloud Storage files:
 	// `gs://{bucket}/{path}` * Datastore namespace: {namespace} Nested
 	// names could be absent if the embedded object has no string identifier
-	// (for an example an image contained within a document).
+	// (for example, an image contained within a document).
 	ContainerName string `json:"containerName,omitempty"`
 
-	// ContainerTimestamp: Findings container modification timestamp, if
-	// applicable. For Google Cloud Storage contains last file modification
-	// timestamp. For BigQuery table contains last_modified_time property.
-	// For Datastore - not populated.
+	// ContainerTimestamp: Finding container modification timestamp, if
+	// applicable. For Cloud Storage, this field contains the last file
+	// modification timestamp. For a BigQuery table, this field contains the
+	// last_modified_time property. For Datastore, this field isn't
+	// populated.
 	ContainerTimestamp string `json:"containerTimestamp,omitempty"`
 
-	// ContainerVersion: Findings container version, if available
-	// ("generation" for Google Cloud Storage).
+	// ContainerVersion: Finding container version, if available
+	// ("generation" for Cloud Storage).
 	ContainerVersion string `json:"containerVersion,omitempty"`
 
 	// DocumentLocation: Location data for document files.
@@ -1927,7 +1975,7 @@ type GooglePrivacyDlpV2CryptoDeterministicConfig struct {
 	// not present when transforming a given value, plaintext would be used
 	// as is for encryption. Note that case (1) is expected when an
 	// `InfoTypeTransformation` is applied to both structured and
-	// non-structured `ContentItem`s.
+	// unstructured `ContentItem`s.
 	Context *GooglePrivacyDlpV2FieldId `json:"context,omitempty"`
 
 	// CryptoKey: The key used by the encryption function. For deterministic
@@ -2088,7 +2136,7 @@ type GooglePrivacyDlpV2CryptoReplaceFfxFpeConfig struct {
 	// transforming a given value or 1. the field is not present when
 	// transforming a given value, a default tweak will be used. Note that
 	// case (1) is expected when an `InfoTypeTransformation` is applied to
-	// both structured and non-structured `ContentItem`s. Currently, the
+	// both structured and unstructured `ContentItem`s. Currently, the
 	// referenced field may be of value type integer or string. The tweak is
 	// constructed as a sequence of bytes in big endian byte order such
 	// that: - a 64 bit integer is encoded followed by a single byte of
@@ -2199,11 +2247,12 @@ type GooglePrivacyDlpV2CustomInfoType struct {
 	//
 	// Possible values:
 	//   "LIKELIHOOD_UNSPECIFIED" - Default value; same as POSSIBLE.
-	//   "VERY_UNLIKELY" - Few matching elements.
-	//   "UNLIKELY"
-	//   "POSSIBLE" - Some matching elements.
-	//   "LIKELY"
-	//   "VERY_LIKELY" - Many matching elements.
+	//   "VERY_UNLIKELY" - Highest chance of a false positive.
+	//   "UNLIKELY" - High chance of a false positive.
+	//   "POSSIBLE" - Some matching signals. The default value.
+	//   "LIKELY" - Low chance of a false positive.
+	//   "VERY_LIKELY" - Confidence level is high. Lowest chance of a false
+	// positive.
 	Likelihood string `json:"likelihood,omitempty"`
 
 	// Regex: Regular expression based CustomInfoType.
@@ -2396,7 +2445,7 @@ func (s *GooglePrivacyDlpV2DataProfileLocation) MarshalJSON() ([]byte, error) {
 }
 
 // GooglePrivacyDlpV2DataProfilePubSubCondition: A condition for
-// determining whether a PubSub should be triggered.
+// determining whether a Pub/Sub should be triggered.
 type GooglePrivacyDlpV2DataProfilePubSubCondition struct {
 	// Expressions: An expression.
 	Expressions *GooglePrivacyDlpV2PubSubExpressions `json:"expressions,omitempty"`
@@ -2424,11 +2473,10 @@ func (s *GooglePrivacyDlpV2DataProfilePubSubCondition) MarshalJSON() ([]byte, er
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GooglePrivacyDlpV2DataProfilePubSubMessage: The message that will be
-// published to a Pub/Sub topic. To receive a message of protocol buffer
-// schema type, convert the message data to an object of this proto
-// class.
-// https://cloud.google.com/pubsub/docs/samples/pubsub-subscribe-proto-messages
+// GooglePrivacyDlpV2DataProfilePubSubMessage: Pub/Sub topic message for
+// a DataProfileAction.PubSubNotification event. To receive a message of
+// protocol buffer schema type, convert the message data to an object of
+// this proto class.
 type GooglePrivacyDlpV2DataProfilePubSubMessage struct {
 	// Event: The event that caused the Pub/Sub message to be sent.
 	//
@@ -2473,7 +2521,7 @@ func (s *GooglePrivacyDlpV2DataProfilePubSubMessage) MarshalJSON() ([]byte, erro
 }
 
 // GooglePrivacyDlpV2DataRiskLevel: Score is a summary of all elements
-// in the data profile. A higher number means more risky.
+// in the data profile. A higher number means more risk.
 type GooglePrivacyDlpV2DataRiskLevel struct {
 	// Score: The score applied to the resource.
 	//
@@ -2483,9 +2531,9 @@ type GooglePrivacyDlpV2DataRiskLevel struct {
 	// appears to have additional access restrictions in place or no
 	// indication of sensitive data found.
 	//   "RISK_MODERATE" - Medium risk - Sensitive data may be present but
-	// additional access or fine grain access restrictions appears to be
-	// present. Consider limiting access even further or transforming data
-	// to mask.
+	// additional access or fine grain access restrictions appear to be
+	// present. Consider limiting access even further or transform data to
+	// mask.
 	//   "RISK_HIGH" - High risk – SPII may be present. Access controls
 	// may include public ACLs. Exfiltration of data may lead to user data
 	// loss. Re-identification of users may be possible. Consider limiting
@@ -2677,9 +2725,108 @@ func (s *GooglePrivacyDlpV2DateTime) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GooglePrivacyDlpV2Deidentify: Create a de-identified copy of the
+// requested table or files. A TransformationDetail will be created for
+// each transformation. If any rows in BigQuery are skipped during
+// de-identification (transformation errors or row size exceeds BigQuery
+// insert API limits) they are placed in the failure output table. If
+// the original row exceeds the BigQuery insert API limit it will be
+// truncated when written to the failure output table. The failure
+// output table can be set in the
+// action.deidentify.output.big_query_output.deidentified_failure_output_
+// table field, if no table is set, a table will be automatically
+// created in the same project and dataset as the original table.
+// Compatible with: Inspect
+type GooglePrivacyDlpV2Deidentify struct {
+	// CloudStorageOutput: Required. User settable Cloud Storage bucket and
+	// folders to store de-identified files. This field must be set for
+	// cloud storage deidentification. The output Cloud Storage bucket must
+	// be different from the input bucket. De-identified files will
+	// overwrite files in the output path. Form of: gs://bucket/folder/ or
+	// gs://bucket
+	CloudStorageOutput string `json:"cloudStorageOutput,omitempty"`
+
+	// FileTypesToTransform: List of user-specified file type groups to
+	// transform. If specified, only the files with these filetypes will be
+	// transformed. If empty, all supported files will be transformed.
+	// Supported types may be automatically added over time. If a file type
+	// is set in this field that isn't supported by the Deidentify action
+	// then the job will fail and will not be successfully created/started.
+	// Currently the only filetypes supported are: IMAGES, TEXT_FILES, CSV,
+	// TSV.
+	//
+	// Possible values:
+	//   "FILE_TYPE_UNSPECIFIED" - Includes all files.
+	//   "BINARY_FILE" - Includes all file extensions not covered by another
+	// entry. Binary scanning attempts to convert the content of the file to
+	// utf_8 to scan the file. If you wish to avoid this fall back, specify
+	// one or more of the other FileType's in your storage scan.
+	//   "TEXT_FILE" - Included file extensions: asc,asp, aspx, brf, c,
+	// cc,cfm, cgi, cpp, csv, cxx, c++, cs, css, dart, dat, dot, eml,,
+	// epbub, ged, go, h, hh, hpp, hxx, h++, hs, html, htm, mkd, markdown,
+	// m, ml, mli, perl, pl, plist, pm, php, phtml, pht, properties, py,
+	// pyw, rb, rbw, rs, rss, rc, scala, sh, sql, swift, tex, shtml, shtm,
+	// xhtml, lhs, ics, ini, java, js, json, kix, kml, ocaml, md, txt, text,
+	// tsv, vb, vcard, vcs, wml, xcodeproj, xml, xsl, xsd, yml, yaml.
+	//   "IMAGE" - Included file extensions: bmp, gif, jpg, jpeg, jpe, png.
+	// bytes_limit_per_file has no effect on image files. Image inspection
+	// is restricted to 'global', 'us', 'asia', and 'europe'.
+	//   "WORD" - Word files >30 MB will be scanned as binary files.
+	// Included file extensions: docx, dotx, docm, dotm
+	//   "PDF" - PDF files >30 MB will be scanned as binary files. Included
+	// file extensions: pdf
+	//   "AVRO" - Included file extensions: avro
+	//   "CSV" - Included file extensions: csv
+	//   "TSV" - Included file extensions: tsv
+	//   "POWERPOINT" - Powerpoint files >30 MB will be scanned as binary
+	// files. Included file extensions: pptx, pptm, potx, potm, pot
+	//   "EXCEL" - Excel files >30 MB will be scanned as binary files.
+	// Included file extensions: xlsx, xlsm, xltx, xltm
+	FileTypesToTransform []string `json:"fileTypesToTransform,omitempty"`
+
+	// TransformationConfig: User specified deidentify templates and configs
+	// for structured, unstructured, and image files.
+	TransformationConfig *GooglePrivacyDlpV2TransformationConfig `json:"transformationConfig,omitempty"`
+
+	// TransformationDetailsStorageConfig: Config for storing transformation
+	// details. This is separate from the de-identified content, and
+	// contains metadata about the successful transformations and/or
+	// failures that occurred while de-identifying. This needs to be set in
+	// order for users to access information about the status of each
+	// transformation (see TransformationDetails message for more
+	// information about what is noted).
+	TransformationDetailsStorageConfig *GooglePrivacyDlpV2TransformationDetailsStorageConfig `json:"transformationDetailsStorageConfig,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CloudStorageOutput")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CloudStorageOutput") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2Deidentify) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2Deidentify
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GooglePrivacyDlpV2DeidentifyConfig: The configuration that controls
 // how the data will change.
 type GooglePrivacyDlpV2DeidentifyConfig struct {
+	// ImageTransformations: Treat the dataset as an image and redact.
+	ImageTransformations *GooglePrivacyDlpV2ImageTransformations `json:"imageTransformations,omitempty"`
+
 	// InfoTypeTransformations: Treat the dataset as free-form text and
 	// apply the same free text transformation everywhere.
 	InfoTypeTransformations *GooglePrivacyDlpV2InfoTypeTransformations `json:"infoTypeTransformations,omitempty"`
@@ -2695,18 +2842,18 @@ type GooglePrivacyDlpV2DeidentifyConfig struct {
 	TransformationErrorHandling *GooglePrivacyDlpV2TransformationErrorHandling `json:"transformationErrorHandling,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
-	// "InfoTypeTransformations") to unconditionally include in API
-	// requests. By default, fields with empty or default values are omitted
-	// from API requests. However, any non-pointer, non-interface field
-	// appearing in ForceSendFields will be sent to the server regardless of
-	// whether the field is empty or not. This may be used to include empty
-	// fields in Patch requests.
+	// "ImageTransformations") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "InfoTypeTransformations")
-	// to include in API requests with the JSON null value. By default,
-	// fields with empty values are omitted from API requests. However, any
-	// field with an empty value appearing in NullFields will be sent to the
+	// NullFields is a list of field names (e.g. "ImageTransformations") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
 	// server as null. It is an error if a field in this list has a
 	// non-empty value. This may be used to include null fields in Patch
 	// requests.
@@ -2720,7 +2867,7 @@ func (s *GooglePrivacyDlpV2DeidentifyConfig) MarshalJSON() ([]byte, error) {
 }
 
 // GooglePrivacyDlpV2DeidentifyContentRequest: Request to de-identify a
-// list of items.
+// ContentItem.
 type GooglePrivacyDlpV2DeidentifyContentRequest struct {
 	// DeidentifyConfig: Configuration for the de-identification of the
 	// content item. Items specified here will override the template
@@ -2746,7 +2893,9 @@ type GooglePrivacyDlpV2DeidentifyContentRequest struct {
 	// Singular sub-messages and groups are recursively merged.
 	InspectTemplateName string `json:"inspectTemplateName,omitempty"`
 
-	// Item: The item to de-identify. Will be treated as text.
+	// Item: The item to de-identify. Will be treated as text. This value
+	// must be of type Table if your deidentify_config is a
+	// RecordTransformations object.
 	Item *GooglePrivacyDlpV2ContentItem `json:"item,omitempty"`
 
 	// LocationId: Deprecated. This field has no effect.
@@ -2808,6 +2957,77 @@ type GooglePrivacyDlpV2DeidentifyContentResponse struct {
 
 func (s *GooglePrivacyDlpV2DeidentifyContentResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod GooglePrivacyDlpV2DeidentifyContentResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2DeidentifyDataSourceDetails: The results of a
+// Deidentify action from an Inspect job.
+type GooglePrivacyDlpV2DeidentifyDataSourceDetails struct {
+	// DeidentifyStats: Stats about de-identification.
+	DeidentifyStats *GooglePrivacyDlpV2DeidentifyDataSourceStats `json:"deidentifyStats,omitempty"`
+
+	// RequestedOptions: De-identification config used for the request.
+	RequestedOptions *GooglePrivacyDlpV2RequestedDeidentifyOptions `json:"requestedOptions,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DeidentifyStats") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeidentifyStats") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2DeidentifyDataSourceDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2DeidentifyDataSourceDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2DeidentifyDataSourceStats: Summary of what was
+// modified during a transformation.
+type GooglePrivacyDlpV2DeidentifyDataSourceStats struct {
+	// TransformationCount: Number of successfully applied transformations.
+	TransformationCount int64 `json:"transformationCount,omitempty,string"`
+
+	// TransformationErrorCount: Number of errors encountered while trying
+	// to apply transformations.
+	TransformationErrorCount int64 `json:"transformationErrorCount,omitempty,string"`
+
+	// TransformedBytes: Total size in bytes that were transformed in some
+	// way.
+	TransformedBytes int64 `json:"transformedBytes,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "TransformationCount")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "TransformationCount") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2DeidentifyDataSourceStats) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2DeidentifyDataSourceStats
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3156,6 +3376,9 @@ func (s *GooglePrivacyDlpV2Dictionary) MarshalJSON() ([]byte, error) {
 // GooglePrivacyDlpV2DlpJob: Combines all of the information about a DLP
 // job.
 type GooglePrivacyDlpV2DlpJob struct {
+	// ActionDetails: Events that should occur after the job has completed.
+	ActionDetails []*GooglePrivacyDlpV2ActionDetails `json:"actionDetails,omitempty"`
+
 	// CreateTime: Time when the job was created.
 	CreateTime string `json:"createTime,omitempty"`
 
@@ -3189,13 +3412,13 @@ type GooglePrivacyDlpV2DlpJob struct {
 	//   "RUNNING" - The job is currently running. Once a job has finished
 	// it will transition to FAILED or DONE.
 	//   "DONE" - The job is no longer running.
-	//   "CANCELED" - The job was canceled before it could complete.
+	//   "CANCELED" - The job was canceled before it could be completed.
 	//   "FAILED" - The job had an error and did not complete.
 	//   "ACTIVE" - The job is currently accepting findings via
 	// hybridInspect. A hybrid job in ACTIVE state may continue to have
-	// findings added to it through calling of hybridInspect. After the job
-	// has finished no more calls to hybridInspect may be made. ACTIVE jobs
-	// can transition to DONE.
+	// findings added to it through the calling of hybridInspect. After the
+	// job has finished no more calls to hybridInspect may be made. ACTIVE
+	// jobs can transition to DONE.
 	State string `json:"state,omitempty"`
 
 	// Type: The type of job.
@@ -3210,7 +3433,7 @@ type GooglePrivacyDlpV2DlpJob struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "CreateTime") to
+	// ForceSendFields is a list of field names (e.g. "ActionDetails") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -3218,10 +3441,10 @@ type GooglePrivacyDlpV2DlpJob struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "CreateTime") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "ActionDetails") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -3330,7 +3553,45 @@ func (s *GooglePrivacyDlpV2Error) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GooglePrivacyDlpV2ExcludeInfoTypes: List of exclude infoTypes.
+// GooglePrivacyDlpV2ExcludeByHotword: The rule to exclude findings
+// based on a hotword. For record inspection of tables, column names are
+// considered hotwords. An example of this is to exclude a finding if it
+// belongs to a BigQuery column that matches a specific pattern.
+type GooglePrivacyDlpV2ExcludeByHotword struct {
+	// HotwordRegex: Regular expression pattern defining what qualifies as a
+	// hotword.
+	HotwordRegex *GooglePrivacyDlpV2Regex `json:"hotwordRegex,omitempty"`
+
+	// Proximity: Range of characters within which the entire hotword must
+	// reside. The total length of the window cannot exceed 1000 characters.
+	// The windowBefore property in proximity should be set to 1 if the
+	// hotword needs to be included in a column header.
+	Proximity *GooglePrivacyDlpV2Proximity `json:"proximity,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "HotwordRegex") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "HotwordRegex") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2ExcludeByHotword) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2ExcludeByHotword
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2ExcludeInfoTypes: List of excluded infoTypes.
 type GooglePrivacyDlpV2ExcludeInfoTypes struct {
 	// InfoTypes: InfoType list in ExclusionRule rule drops a finding when
 	// it overlaps or contained within with a finding of an infoType from
@@ -3371,6 +3632,11 @@ func (s *GooglePrivacyDlpV2ExcludeInfoTypes) MarshalJSON() ([]byte, error) {
 type GooglePrivacyDlpV2ExclusionRule struct {
 	// Dictionary: Dictionary which defines the rule.
 	Dictionary *GooglePrivacyDlpV2Dictionary `json:"dictionary,omitempty"`
+
+	// ExcludeByHotword: Drop if the hotword rule is contained in the
+	// proximate context. For tabular data, the context includes the column
+	// name.
+	ExcludeByHotword *GooglePrivacyDlpV2ExcludeByHotword `json:"excludeByHotword,omitempty"`
 
 	// ExcludeInfoTypes: Set of infoTypes for which findings would affect
 	// this rule.
@@ -3452,7 +3718,7 @@ func (s *GooglePrivacyDlpV2Export) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GooglePrivacyDlpV2Expressions: An expression, consisting or an
+// GooglePrivacyDlpV2Expressions: An expression, consisting of an
 // operator and conditions.
 type GooglePrivacyDlpV2Expressions struct {
 	// Conditions: Conditions to apply to the expression.
@@ -3640,11 +3906,12 @@ type GooglePrivacyDlpV2Finding struct {
 	//
 	// Possible values:
 	//   "LIKELIHOOD_UNSPECIFIED" - Default value; same as POSSIBLE.
-	//   "VERY_UNLIKELY" - Few matching elements.
-	//   "UNLIKELY"
-	//   "POSSIBLE" - Some matching elements.
-	//   "LIKELY"
-	//   "VERY_LIKELY" - Many matching elements.
+	//   "VERY_UNLIKELY" - Highest chance of a false positive.
+	//   "UNLIKELY" - High chance of a false positive.
+	//   "POSSIBLE" - Some matching signals. The default value.
+	//   "LIKELY" - Low chance of a false positive.
+	//   "VERY_LIKELY" - Confidence level is high. Lowest chance of a false
+	// positive.
 	Likelihood string `json:"likelihood,omitempty"`
 
 	// Location: Where the content was found.
@@ -3698,21 +3965,32 @@ func (s *GooglePrivacyDlpV2Finding) MarshalJSON() ([]byte, error) {
 
 // GooglePrivacyDlpV2FindingLimits: Configuration to control the number
 // of findings returned for inspection. This is not used for
-// de-identification or data profiling.
+// de-identification or data profiling. When redacting sensitive data
+// from images, finding limits don't apply. They can cause unexpected or
+// inconsistent results, where only some data is redacted. Don't include
+// finding limits in RedactImage requests. Otherwise, Cloud DLP returns
+// an error.
 type GooglePrivacyDlpV2FindingLimits struct {
 	// MaxFindingsPerInfoType: Configuration of findings limit given for
 	// specified infoTypes.
 	MaxFindingsPerInfoType []*GooglePrivacyDlpV2InfoTypeLimit `json:"maxFindingsPerInfoType,omitempty"`
 
-	// MaxFindingsPerItem: Max number of findings that will be returned for
-	// each item scanned. When set within `InspectJobConfig`, the maximum
-	// returned is 2000 regardless if this is set higher. When set within
-	// `InspectContentRequest`, this field is ignored.
+	// MaxFindingsPerItem: Max number of findings that are returned for each
+	// item scanned. When set within an InspectContentRequest, this field is
+	// ignored. This value isn't a hard limit. If the number of findings for
+	// an item reaches this limit, the inspection of that item ends
+	// gradually, not abruptly. Therefore, the actual number of findings
+	// that Cloud DLP returns for the item can be multiple times higher than
+	// this value.
 	MaxFindingsPerItem int64 `json:"maxFindingsPerItem,omitempty"`
 
-	// MaxFindingsPerRequest: Max number of findings that will be returned
-	// per request/job. When set within `InspectContentRequest`, the maximum
-	// returned is 2000 regardless if this is set higher.
+	// MaxFindingsPerRequest: Max number of findings that are returned per
+	// request or job. If you set this field in an InspectContentRequest,
+	// the resulting maximum value is the value that you set or 3,000,
+	// whichever is lower. This value isn't a hard limit. If an inspection
+	// reaches this limit, the inspection ends gradually, not abruptly.
+	// Therefore, the actual number of findings that Cloud DLP returns can
+	// be multiple times higher than this value.
 	MaxFindingsPerRequest int64 `json:"maxFindingsPerRequest,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -3825,14 +4103,17 @@ type GooglePrivacyDlpV2HotwordRule struct {
 	// findings.
 	LikelihoodAdjustment *GooglePrivacyDlpV2LikelihoodAdjustment `json:"likelihoodAdjustment,omitempty"`
 
-	// Proximity: Proximity of the finding within which the entire hotword
-	// must reside. The total length of the window cannot exceed 1000
-	// characters. Note that the finding itself will be included in the
-	// window, so that hotwords may be used to match substrings of the
-	// finding itself. For example, the certainty of a phone number regex
-	// "\(\d{3}\) \d{3}-\d{4}" could be adjusted upwards if the area code is
-	// known to be the local area code of a company office using the hotword
-	// regex "\(xxx\)", where "xxx" is the area code in question.
+	// Proximity: Range of characters within which the entire hotword must
+	// reside. The total length of the window cannot exceed 1000 characters.
+	// The finding itself will be included in the window, so that hotwords
+	// can be used to match substrings of the finding itself. Suppose you
+	// want Cloud DLP to promote the likelihood of the phone number regex
+	// "\(\d{3}\) \d{3}-\d{4}" if the area code is known to be the area code
+	// of a company's office. In this case, use the hotword regex "\(xxx\)",
+	// where "xxx" is the area code in question. For tabular data, if you
+	// want to modify the likelihood of an entire column of findngs, see
+	// [Hotword example: Set the match likelihood of a table column]
+	// (https://cloud.google.com/dlp/docs/creating-custom-infotypes-likelihood#match-column-values).
 	Proximity *GooglePrivacyDlpV2Proximity `json:"proximity,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "HotwordRegex") to
@@ -4185,13 +4466,84 @@ func (s *GooglePrivacyDlpV2ImageRedactionConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GooglePrivacyDlpV2ImageTransformation: Configuration for determining
+// how redaction of images should occur.
+type GooglePrivacyDlpV2ImageTransformation struct {
+	// AllInfoTypes: Apply transformation to all findings not specified in
+	// other ImageTransformation's selected_info_types. Only one instance is
+	// allowed within the ImageTransformations message.
+	AllInfoTypes *GooglePrivacyDlpV2AllInfoTypes `json:"allInfoTypes,omitempty"`
+
+	// AllText: Apply transformation to all text that doesn't match an
+	// infoType. Only one instance is allowed within the
+	// ImageTransformations message.
+	AllText *GooglePrivacyDlpV2AllText `json:"allText,omitempty"`
+
+	// RedactionColor: The color to use when redacting content from an
+	// image. If not specified, the default is black.
+	RedactionColor *GooglePrivacyDlpV2Color `json:"redactionColor,omitempty"`
+
+	// SelectedInfoTypes: Apply transformation to the selected info_types.
+	SelectedInfoTypes *GooglePrivacyDlpV2SelectedInfoTypes `json:"selectedInfoTypes,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AllInfoTypes") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AllInfoTypes") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2ImageTransformation) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2ImageTransformation
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2ImageTransformations: A type of transformation that
+// is applied over images.
+type GooglePrivacyDlpV2ImageTransformations struct {
+	Transforms []*GooglePrivacyDlpV2ImageTransformation `json:"transforms,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Transforms") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Transforms") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2ImageTransformations) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2ImageTransformations
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GooglePrivacyDlpV2InfoType: Type of information detected by the API.
 type GooglePrivacyDlpV2InfoType struct {
 	// Name: Name of the information type. Either a name of your choosing
 	// when creating a CustomInfoType, or one of the names listed at
 	// https://cloud.google.com/dlp/docs/infotypes-reference when specifying
 	// a built-in type. When sending Cloud DLP results to Data Catalog,
-	// infoType names should conform to the pattern `[A-Za-z0-9$-_]{1,64}`.
+	// infoType names should conform to the pattern `[A-Za-z0-9$_-]{1,64}`.
 	Name string `json:"name,omitempty"`
 
 	// Version: Optional version name for this InfoType.
@@ -4220,8 +4572,124 @@ func (s *GooglePrivacyDlpV2InfoType) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GooglePrivacyDlpV2InfoTypeCategory: Classification of infoTypes to
+// organize them according to geographic location, industry, and data
+// type.
+type GooglePrivacyDlpV2InfoTypeCategory struct {
+	// IndustryCategory: The group of relevant businesses where this
+	// infoType is commonly used
+	//
+	// Possible values:
+	//   "INDUSTRY_UNSPECIFIED" - Unused industry
+	//   "FINANCE" - The infoType is typically used in the finance industry.
+	//   "HEALTH" - The infoType is typically used in the health industry.
+	//   "TELECOMMUNICATIONS" - The infoType is typically used in the
+	// telecommunications industry.
+	IndustryCategory string `json:"industryCategory,omitempty"`
+
+	// LocationCategory: The region or country that issued the ID or
+	// document represented by the infoType.
+	//
+	// Possible values:
+	//   "LOCATION_UNSPECIFIED" - Unused location
+	//   "GLOBAL" - The infoType is not issued by or tied to a specific
+	// region, but is used almost everywhere.
+	//   "ARGENTINA" - The infoType is typically used in Argentina.
+	//   "AUSTRALIA" - The infoType is typically used in Australia.
+	//   "BELGIUM" - The infoType is typically used in Belgium.
+	//   "BRAZIL" - The infoType is typically used in Brazil.
+	//   "CANADA" - The infoType is typically used in Canada.
+	//   "CHILE" - The infoType is typically used in Chile.
+	//   "CHINA" - The infoType is typically used in China.
+	//   "COLOMBIA" - The infoType is typically used in Colombia.
+	//   "CROATIA" - The infoType is typically used in Croatia.
+	//   "DENMARK" - The infoType is typically used in Denmark.
+	//   "FRANCE" - The infoType is typically used in France.
+	//   "FINLAND" - The infoType is typically used in Finland.
+	//   "GERMANY" - The infoType is typically used in Germany.
+	//   "HONG_KONG" - The infoType is typically used in Hong Kong.
+	//   "INDIA" - The infoType is typically used in India.
+	//   "INDONESIA" - The infoType is typically used in Indonesia.
+	//   "IRELAND" - The infoType is typically used in Ireland.
+	//   "ISRAEL" - The infoType is typically used in Israel.
+	//   "ITALY" - The infoType is typically used in Italy.
+	//   "JAPAN" - The infoType is typically used in Japan.
+	//   "KOREA" - The infoType is typically used in Korea.
+	//   "MEXICO" - The infoType is typically used in Mexico.
+	//   "NEW_ZEALAND" - The infoType is typically used in New Zealand.
+	//   "THE_NETHERLANDS" - The infoType is typically used in the
+	// Netherlands.
+	//   "NORWAY" - The infoType is typically used in Norway.
+	//   "PARAGUAY" - The infoType is typically used in Paraguay.
+	//   "PERU" - The infoType is typically used in Peru.
+	//   "POLAND" - The infoType is typically used in Poland.
+	//   "PORTUGAL" - The infoType is typically used in Portugal.
+	//   "SINGAPORE" - The infoType is typically used in Singapore.
+	//   "SOUTH_AFRICA" - The infoType is typically used in South Africa.
+	//   "SPAIN" - The infoType is typically used in Spain.
+	//   "SWEDEN" - The infoType is typically used in Sweden.
+	//   "TAIWAN" - The infoType is typically used in Taiwan.
+	//   "THAILAND" - The infoType is typically used in Thailand.
+	//   "TURKEY" - The infoType is typically used in Turkey.
+	//   "UNITED_KINGDOM" - The infoType is typically used in the United
+	// Kingdom.
+	//   "UNITED_STATES" - The infoType is typically used in the United
+	// States.
+	//   "URUGUAY" - The infoType is typically used in Uruguay.
+	//   "VENEZUELA" - The infoType is typically used in Venezuela.
+	//   "INTERNAL" - The infoType is typically used in Google internally.
+	LocationCategory string `json:"locationCategory,omitempty"`
+
+	// TypeCategory: The class of identifiers where this infoType belongs
+	//
+	// Possible values:
+	//   "TYPE_UNSPECIFIED" - Unused type
+	//   "PII" - Personally identifiable information, for example, a name or
+	// phone number
+	//   "SPII" - Personally identifiable information that is especially
+	// sensitive, for example, a passport number.
+	//   "DEMOGRAPHIC" - Attributes that can partially identify someone,
+	// especially in combination with other attributes, like age, height,
+	// and gender.
+	//   "CREDENTIAL" - Confidential or secret information, for example, a
+	// password.
+	//   "GOVERNMENT_ID" - An identification document issued by a
+	// government.
+	//   "DOCUMENT" - A document, for example, a resume or source code.
+	//   "CONTEXTUAL_INFORMATION" - Information that is not sensitive on its
+	// own, but provides details about the circumstances surrounding an
+	// entity or an event.
+	TypeCategory string `json:"typeCategory,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "IndustryCategory") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "IndustryCategory") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2InfoTypeCategory) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2InfoTypeCategory
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GooglePrivacyDlpV2InfoTypeDescription: InfoType description.
 type GooglePrivacyDlpV2InfoTypeDescription struct {
+	// Categories: The category of the infoType.
+	Categories []*GooglePrivacyDlpV2InfoTypeCategory `json:"categories,omitempty"`
+
 	// Description: Description of the infotype. Translated when language is
 	// provided in the request.
 	Description string `json:"description,omitempty"`
@@ -4232,6 +4700,9 @@ type GooglePrivacyDlpV2InfoTypeDescription struct {
 	// Name: Internal name of the infoType.
 	Name string `json:"name,omitempty"`
 
+	// SensitivityScore: The default sensitivity of the infoType.
+	SensitivityScore *GooglePrivacyDlpV2SensitivityScore `json:"sensitivityScore,omitempty"`
+
 	// SupportedBy: Which parts of the API supports this InfoType.
 	//
 	// Possible values:
@@ -4240,7 +4711,10 @@ type GooglePrivacyDlpV2InfoTypeDescription struct {
 	//   "RISK_ANALYSIS" - Supported by the risk analysis operations.
 	SupportedBy []string `json:"supportedBy,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Description") to
+	// Versions: A list of available versions for the infotype.
+	Versions []*GooglePrivacyDlpV2VersionDescription `json:"versions,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Categories") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -4248,10 +4722,10 @@ type GooglePrivacyDlpV2InfoTypeDescription struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Description") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "Categories") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -4333,8 +4807,7 @@ func (s *GooglePrivacyDlpV2InfoTypeStats) MarshalJSON() ([]byte, error) {
 // GooglePrivacyDlpV2InfoTypeSummary: The infoType details for this
 // column.
 type GooglePrivacyDlpV2InfoTypeSummary struct {
-	// EstimatedPrevalence: Approximate percentage of non-null rows that
-	// contained data detected by this infotype.
+	// EstimatedPrevalence: Not populated for predicted infotypes.
 	EstimatedPrevalence int64 `json:"estimatedPrevalence,omitempty"`
 
 	// InfoType: The infoType.
@@ -4473,7 +4946,15 @@ type GooglePrivacyDlpV2InspectConfig struct {
 	InfoTypes []*GooglePrivacyDlpV2InfoType `json:"infoTypes,omitempty"`
 
 	// Limits: Configuration to control the number of findings returned.
-	// This is not used for data profiling.
+	// This is not used for data profiling. When redacting sensitive data
+	// from images, finding limits don't apply. They can cause unexpected or
+	// inconsistent results, where only some data is redacted. Don't include
+	// finding limits in RedactImage requests. Otherwise, Cloud DLP returns
+	// an error. When set within an InspectJobConfig, the specified maximum
+	// values aren't hard limits. If an inspection job reaches these limits,
+	// the job ends gradually, not abruptly. Therefore, the actual number of
+	// findings that Cloud DLP returns can be multiple times higher than
+	// these maximum values.
 	Limits *GooglePrivacyDlpV2FindingLimits `json:"limits,omitempty"`
 
 	// MinLikelihood: Only returns findings equal or above this threshold.
@@ -4482,11 +4963,12 @@ type GooglePrivacyDlpV2InspectConfig struct {
 	//
 	// Possible values:
 	//   "LIKELIHOOD_UNSPECIFIED" - Default value; same as POSSIBLE.
-	//   "VERY_UNLIKELY" - Few matching elements.
-	//   "UNLIKELY"
-	//   "POSSIBLE" - Some matching elements.
-	//   "LIKELY"
-	//   "VERY_LIKELY" - Many matching elements.
+	//   "VERY_UNLIKELY" - Highest chance of a false positive.
+	//   "UNLIKELY" - High chance of a false positive.
+	//   "POSSIBLE" - Some matching signals. The default value.
+	//   "LIKELY" - Low chance of a false positive.
+	//   "VERY_LIKELY" - Confidence level is high. Lowest chance of a false
+	// positive.
 	MinLikelihood string `json:"minLikelihood,omitempty"`
 
 	// RuleSet: Set of rules to apply to the findings for this
@@ -4828,8 +5310,10 @@ func (s *GooglePrivacyDlpV2InspectionRuleSet) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GooglePrivacyDlpV2JobNotificationEmails: Enable email notification to
-// project owners and editors on jobs's completion/failure.
+// GooglePrivacyDlpV2JobNotificationEmails: Sends an email when the job
+// completes. The email goes to IAM project owners and technical
+// Essential Contacts
+// (https://cloud.google.com/resource-manager/docs/managing-notification-contacts).
 type GooglePrivacyDlpV2JobNotificationEmails struct {
 }
 
@@ -5505,7 +5989,7 @@ func (s *GooglePrivacyDlpV2LDiversityResult) MarshalJSON() ([]byte, error) {
 // custom dictionary created from a data source of any size up to the
 // maximum size defined in the limits
 // (https://cloud.google.com/dlp/limits) page. The artifacts of
-// dictionary creation are stored in the specified Google Cloud Storage
+// dictionary creation are stored in the specified Cloud Storage
 // location. Consider using `CustomInfoType.Dictionary` for smaller
 // dictionaries that satisfy the size requirements.
 type GooglePrivacyDlpV2LargeCustomDictionaryConfig struct {
@@ -5517,10 +6001,10 @@ type GooglePrivacyDlpV2LargeCustomDictionaryConfig struct {
 	// of dictionary phrases.
 	CloudStorageFileSet *GooglePrivacyDlpV2CloudStorageFileSet `json:"cloudStorageFileSet,omitempty"`
 
-	// OutputPath: Location to store dictionary artifacts in Google Cloud
-	// Storage. These files will only be accessible by project owners and
-	// the DLP API. If any of these artifacts are modified, the dictionary
-	// is considered invalid and can no longer be used.
+	// OutputPath: Location to store dictionary artifacts in Cloud Storage.
+	// These files will only be accessible by project owners and the DLP
+	// API. If any of these artifacts are modified, the dictionary is
+	// considered invalid and can no longer be used.
 	OutputPath *GooglePrivacyDlpV2CloudStoragePath `json:"outputPath,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "BigQueryField") to
@@ -5593,11 +6077,12 @@ type GooglePrivacyDlpV2LikelihoodAdjustment struct {
 	//
 	// Possible values:
 	//   "LIKELIHOOD_UNSPECIFIED" - Default value; same as POSSIBLE.
-	//   "VERY_UNLIKELY" - Few matching elements.
-	//   "UNLIKELY"
-	//   "POSSIBLE" - Some matching elements.
-	//   "LIKELY"
-	//   "VERY_LIKELY" - Many matching elements.
+	//   "VERY_UNLIKELY" - Highest chance of a false positive.
+	//   "UNLIKELY" - High chance of a false positive.
+	//   "POSSIBLE" - Some matching signals. The default value.
+	//   "LIKELY" - Low chance of a false positive.
+	//   "VERY_LIKELY" - Confidence level is high. Lowest chance of a false
+	// positive.
 	FixedLikelihood string `json:"fixedLikelihood,omitempty"`
 
 	// RelativeLikelihood: Increase or decrease the likelihood by the
@@ -6060,8 +6545,8 @@ type GooglePrivacyDlpV2OutputStorageConfig struct {
 	//   "OUTPUT_SCHEMA_UNSPECIFIED" - Unused.
 	//   "BASIC_COLUMNS" - Basic schema including only `info_type`, `quote`,
 	// `certainty`, and `timestamp`.
-	//   "GCS_COLUMNS" - Schema tailored to findings from scanning Google
-	// Cloud Storage.
+	//   "GCS_COLUMNS" - Schema tailored to findings from scanning Cloud
+	// Storage.
 	//   "DATASTORE_COLUMNS" - Schema tailored to findings from scanning
 	// Google Datastore.
 	//   "BIG_QUERY_COLUMNS" - Schema tailored to findings from scanning
@@ -6072,8 +6557,8 @@ type GooglePrivacyDlpV2OutputStorageConfig struct {
 	// Table: Store findings in an existing table or a new table in an
 	// existing dataset. If table_id is not set a new one will be generated
 	// for you with the following format:
-	// dlp_googleapis_yyyy_mm_dd_[dlp_job_id]. Pacific timezone will be used
-	// for generating the date details. For Inspect, each column in an
+	// dlp_googleapis_yyyy_mm_dd_[dlp_job_id]. Pacific time zone will be
+	// used for generating the date details. For Inspect, each column in an
 	// existing output table must have the same name, type, and mode of a
 	// field in the `Finding` object. For Risk, an existing output table
 	// should be the output of a previous Risk analysis job run on the same
@@ -6330,6 +6815,10 @@ type GooglePrivacyDlpV2Proximity struct {
 	WindowAfter int64 `json:"windowAfter,omitempty"`
 
 	// WindowBefore: Number of characters before the finding to consider.
+	// For tabular data, if you want to modify the likelihood of an entire
+	// column of findngs, set this to 1. For more information, see [Hotword
+	// example: Set the match likelihood of a table column]
+	// (https://cloud.google.com/dlp/docs/creating-custom-infotypes-likelihood#match-column-values).
 	WindowBefore int64 `json:"windowBefore,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "WindowAfter") to
@@ -6501,32 +6990,38 @@ func (s *GooglePrivacyDlpV2PubSubNotification) MarshalJSON() ([]byte, error) {
 }
 
 // GooglePrivacyDlpV2PublishFindingsToCloudDataCatalog: Publish findings
-// of a DlpJob to Data Catalog. Labels summarizing the results of the
-// DlpJob will be applied to the entry for the resource scanned in Data
-// Catalog. Any labels previously written by another DlpJob will be
-// deleted. InfoType naming patterns are strictly enforced when using
-// this feature. Note that the findings will be persisted in Data
-// Catalog storage and are governed by Data Catalog service-specific
-// policy, see https://cloud.google.com/terms/service-terms Only a
-// single instance of this action can be specified and only allowed if
-// all resources being scanned are BigQuery tables. Compatible with:
+// of a DlpJob to Data Catalog. In Data Catalog, tag templates are
+// applied to the resource that Cloud DLP scanned. Data Catalog tag
+// templates are stored in the same project and region where the
+// BigQuery table exists. For Cloud DLP to create and apply the tag
+// template, the Cloud DLP service agent must have the
+// `roles/datacatalog.tagTemplateOwner` permission on the project. The
+// tag template contains fields summarizing the results of the DlpJob.
+// Any field values previously written by another DlpJob are deleted.
+// InfoType naming patterns are strictly enforced when using this
+// feature. Findings are persisted in Data Catalog storage and are
+// governed by service-specific policies for Data Catalog. For more
+// information, see Service Specific Terms
+// (https://cloud.google.com/terms/service-terms). Only a single
+// instance of this action can be specified. This action is allowed only
+// if all resources being scanned are BigQuery tables. Compatible with:
 // Inspect
 type GooglePrivacyDlpV2PublishFindingsToCloudDataCatalog struct {
 }
 
 // GooglePrivacyDlpV2PublishSummaryToCscc: Publish the result summary of
-// a DlpJob to the Cloud Security Command Center (CSCC Alpha). This
-// action is only available for projects which are parts of an
-// organization and whitelisted for the alpha Cloud Security Command
-// Center. The action will publish count of finding instances and their
-// info types. The summary of findings will be persisted in CSCC and are
-// governed by CSCC service-specific policy, see
-// https://cloud.google.com/terms/service-terms Only a single instance
-// of this action can be specified. Compatible with: Inspect
+// a DlpJob to Security Command Center
+// (https://cloud.google.com/security-command-center). This action is
+// available for only projects that belong to an organization. This
+// action publishes the count of finding instances and their infoTypes.
+// The summary of findings are persisted in Security Command Center and
+// are governed by service-specific policies for Security Command Center
+// (https://cloud.google.com/terms/service-terms). Only a single
+// instance of this action can be specified. Compatible with: Inspect
 type GooglePrivacyDlpV2PublishSummaryToCscc struct {
 }
 
-// GooglePrivacyDlpV2PublishToPubSub: Publish a message into given
+// GooglePrivacyDlpV2PublishToPubSub: Publish a message into a given
 // Pub/Sub topic when DlpJob has completed. The message contains a
 // single field, `DlpJobName`, which is equal to the finished job's
 // `DlpJob.name`
@@ -6872,6 +7367,42 @@ func (s *GooglePrivacyDlpV2RecordSuppression) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+type GooglePrivacyDlpV2RecordTransformation struct {
+	// ContainerTimestamp: Findings container modification timestamp, if
+	// applicable.
+	ContainerTimestamp string `json:"containerTimestamp,omitempty"`
+
+	// ContainerVersion: Container version, if available ("generation" for
+	// Cloud Storage).
+	ContainerVersion string `json:"containerVersion,omitempty"`
+
+	// FieldId: For record transformations, provide a field.
+	FieldId *GooglePrivacyDlpV2FieldId `json:"fieldId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ContainerTimestamp")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ContainerTimestamp") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2RecordTransformation) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2RecordTransformation
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GooglePrivacyDlpV2RecordTransformations: A type of transformation
 // that is applied over structured data such as a table.
 type GooglePrivacyDlpV2RecordTransformations struct {
@@ -7101,7 +7632,7 @@ func (s *GooglePrivacyDlpV2ReidentifyContentRequest) MarshalJSON() ([]byte, erro
 }
 
 // GooglePrivacyDlpV2ReidentifyContentResponse: Results of
-// re-identifying a item.
+// re-identifying an item.
 type GooglePrivacyDlpV2ReidentifyContentResponse struct {
 	// Item: The re-identified item.
 	Item *GooglePrivacyDlpV2ContentItem `json:"item,omitempty"`
@@ -7199,6 +7730,48 @@ func (s *GooglePrivacyDlpV2ReplaceValueConfig) MarshalJSON() ([]byte, error) {
 // GooglePrivacyDlpV2ReplaceWithInfoTypeConfig: Replace each matching
 // finding with the name of the info_type.
 type GooglePrivacyDlpV2ReplaceWithInfoTypeConfig struct {
+}
+
+// GooglePrivacyDlpV2RequestedDeidentifyOptions: De-id options.
+type GooglePrivacyDlpV2RequestedDeidentifyOptions struct {
+	// SnapshotDeidentifyTemplate: Snapshot of the state of the
+	// DeidentifyTemplate from the Deidentify action at the time this job
+	// was run.
+	SnapshotDeidentifyTemplate *GooglePrivacyDlpV2DeidentifyTemplate `json:"snapshotDeidentifyTemplate,omitempty"`
+
+	// SnapshotImageRedactTemplate: Snapshot of the state of the image
+	// redact DeidentifyTemplate from the Deidentify action at the time this
+	// job was run.
+	SnapshotImageRedactTemplate *GooglePrivacyDlpV2DeidentifyTemplate `json:"snapshotImageRedactTemplate,omitempty"`
+
+	// SnapshotStructuredDeidentifyTemplate: Snapshot of the state of the
+	// structured DeidentifyTemplate from the Deidentify action at the time
+	// this job was run.
+	SnapshotStructuredDeidentifyTemplate *GooglePrivacyDlpV2DeidentifyTemplate `json:"snapshotStructuredDeidentifyTemplate,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "SnapshotDeidentifyTemplate") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "SnapshotDeidentifyTemplate") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2RequestedDeidentifyOptions) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2RequestedDeidentifyOptions
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // GooglePrivacyDlpV2RequestedOptions: Snapshot of the inspection
@@ -7401,12 +7974,12 @@ func (s *GooglePrivacyDlpV2SaveFindings) MarshalJSON() ([]byte, error) {
 
 // GooglePrivacyDlpV2Schedule: Schedule for inspect job triggers.
 type GooglePrivacyDlpV2Schedule struct {
-	// RecurrencePeriodDuration: With this option a job is started a regular
-	// periodic basis. For example: every day (86400 seconds). A scheduled
-	// start time will be skipped if the previous execution has not ended
-	// when its scheduled time occurs. This value must be set to a time
-	// duration greater than or equal to 1 day and can be no longer than 60
-	// days.
+	// RecurrencePeriodDuration: With this option a job is started on a
+	// regular periodic basis. For example: every day (86400 seconds). A
+	// scheduled start time will be skipped if the previous execution has
+	// not ended when its scheduled time occurs. This value must be set to a
+	// time duration greater than or equal to 1 day and can be no longer
+	// than 60 days.
 	RecurrencePeriodDuration string `json:"recurrencePeriodDuration,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -7430,6 +8003,37 @@ type GooglePrivacyDlpV2Schedule struct {
 
 func (s *GooglePrivacyDlpV2Schedule) MarshalJSON() ([]byte, error) {
 	type NoMethod GooglePrivacyDlpV2Schedule
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2SelectedInfoTypes: Apply transformation to the
+// selected info_types.
+type GooglePrivacyDlpV2SelectedInfoTypes struct {
+	// InfoTypes: Required. InfoTypes to apply the transformation to.
+	// Required. Provided InfoType must be unique within the
+	// ImageTransformations message.
+	InfoTypes []*GooglePrivacyDlpV2InfoType `json:"infoTypes,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "InfoTypes") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "InfoTypes") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2SelectedInfoTypes) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2SelectedInfoTypes
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -7522,7 +8126,7 @@ type GooglePrivacyDlpV2StorageConfig struct {
 	// BigQueryOptions: BigQuery options.
 	BigQueryOptions *GooglePrivacyDlpV2BigQueryOptions `json:"bigQueryOptions,omitempty"`
 
-	// CloudStorageOptions: Google Cloud Storage options.
+	// CloudStorageOptions: Cloud Storage options.
 	CloudStorageOptions *GooglePrivacyDlpV2CloudStorageOptions `json:"cloudStorageOptions,omitempty"`
 
 	// DatastoreOptions: Google Cloud Datastore options.
@@ -7718,10 +8322,10 @@ type GooglePrivacyDlpV2StoredInfoTypeVersion struct {
 	// version, or anomalies detected in the storedInfoType data that render
 	// it unusable. Only the five most recent errors will be displayed, with
 	// the most recent error appearing first. For example, some of the data
-	// for stored custom dictionaries is put in the user's Google Cloud
-	// Storage bucket, and if this data is modified or deleted by the user
-	// or another system, the dictionary becomes invalid. If any errors
-	// occur, fix the problem indicated by the error message and use the
+	// for stored custom dictionaries is put in the user's Cloud Storage
+	// bucket, and if this data is modified or deleted by the user or
+	// another system, the dictionary becomes invalid. If any errors occur,
+	// fix the problem indicated by the error message and use the
 	// UpdateStoredInfoType API method to create another version of the
 	// storedInfoType to continue using it, reusing the same `config` if it
 	// was not the source of the error.
@@ -7971,6 +8575,7 @@ type GooglePrivacyDlpV2TableDataProfile struct {
 	ResourceVisibility string `json:"resourceVisibility,omitempty"`
 
 	// RowCount: Number of rows in the table when the profile was generated.
+	// This will not be populated for BigLake tables.
 	RowCount int64 `json:"rowCount,omitempty,string"`
 
 	// ScannedColumnCount: The number of columns profiled in the table.
@@ -8206,13 +8811,14 @@ func (s *GooglePrivacyDlpV2TimeZone) MarshalJSON() ([]byte, error) {
 
 // GooglePrivacyDlpV2TimespanConfig: Configuration of the timespan of
 // the items to include in scanning. Currently only supported when
-// inspecting Google Cloud Storage and BigQuery.
+// inspecting Cloud Storage and BigQuery.
 type GooglePrivacyDlpV2TimespanConfig struct {
 	// EnableAutoPopulationOfTimespanConfig: When the job is started by a
 	// JobTrigger we will automatically figure out a valid start_time to
 	// avoid scanning files that have not been modified since the last time
 	// the JobTrigger executed. This will be based on the time of the
-	// execution of the last run of the JobTrigger.
+	// execution of the last run of the JobTrigger or the timespan end_time
+	// used in the last run of the JobTrigger.
 	EnableAutoPopulationOfTimespanConfig bool `json:"enableAutoPopulationOfTimespanConfig,omitempty"`
 
 	// EndTime: Exclude files, tables, or rows newer than this value. If not
@@ -8225,17 +8831,24 @@ type GooglePrivacyDlpV2TimespanConfig struct {
 
 	// TimestampField: Specification of the field containing the timestamp
 	// of scanned items. Used for data sources like Datastore and BigQuery.
-	// For BigQuery: If this value is not specified and the table was
+	// *For BigQuery* If this value is not specified and the table was
 	// modified between the given start and end times, the entire table will
 	// be scanned. If this value is specified, then rows are filtered based
 	// on the given start and end times. Rows with a `NULL` value in the
 	// provided BigQuery column are skipped. Valid data types of the
 	// provided BigQuery column are: `INTEGER`, `DATE`, `TIMESTAMP`, and
-	// `DATETIME`. For Datastore: If this value is specified, then entities
-	// are filtered based on the given start and end times. If an entity
-	// does not contain the provided timestamp property or contains empty or
+	// `DATETIME`. If your BigQuery table is partitioned at ingestion time
+	// (https://cloud.google.com/bigquery/docs/partitioned-tables#ingestion_time),
+	// you can use any of the following pseudo-columns as your timestamp
+	// field. When used with Cloud DLP, these pseudo-column names are case
+	// sensitive. - _PARTITIONTIME - _PARTITIONDATE - _PARTITION_LOAD_TIME
+	// *For Datastore* If this value is specified, then entities are
+	// filtered based on the given start and end times. If an entity does
+	// not contain the provided timestamp property or contains empty or
 	// invalid values, then it is included. Valid data types of the provided
-	// timestamp property are: `TIMESTAMP`.
+	// timestamp property are: `TIMESTAMP`. See the known issue
+	// (https://cloud.google.com/dlp/docs/known-issues#bq-timespan) related
+	// to this operation.
 	TimestampField *GooglePrivacyDlpV2FieldId `json:"timestampField,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -8259,6 +8872,217 @@ type GooglePrivacyDlpV2TimespanConfig struct {
 
 func (s *GooglePrivacyDlpV2TimespanConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod GooglePrivacyDlpV2TimespanConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2TransformationConfig: User specified templates and
+// configs for how to deidentify structured, unstructures, and image
+// files. User must provide either a unstructured deidentify template or
+// at least one redact image config.
+type GooglePrivacyDlpV2TransformationConfig struct {
+	// DeidentifyTemplate: De-identify template. If this template is
+	// specified, it will serve as the default de-identify template. This
+	// template cannot contain `record_transformations` since it can be used
+	// for unstructured content such as free-form text files. If this
+	// template is not set, a default `ReplaceWithInfoTypeConfig` will be
+	// used to de-identify unstructured content.
+	DeidentifyTemplate string `json:"deidentifyTemplate,omitempty"`
+
+	// ImageRedactTemplate: Image redact template. If this template is
+	// specified, it will serve as the de-identify template for images. If
+	// this template is not set, all findings in the image will be redacted
+	// with a black box.
+	ImageRedactTemplate string `json:"imageRedactTemplate,omitempty"`
+
+	// StructuredDeidentifyTemplate: Structured de-identify template. If
+	// this template is specified, it will serve as the de-identify template
+	// for structured content such as delimited files and tables. If this
+	// template is not set but the `deidentify_template` is set, then
+	// `deidentify_template` will also apply to the structured content. If
+	// neither template is set, a default `ReplaceWithInfoTypeConfig` will
+	// be used to de-identify structured content.
+	StructuredDeidentifyTemplate string `json:"structuredDeidentifyTemplate,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DeidentifyTemplate")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeidentifyTemplate") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2TransformationConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2TransformationConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2TransformationDescription: A flattened description
+// of a `PrimitiveTransformation` or `RecordSuppression`.
+type GooglePrivacyDlpV2TransformationDescription struct {
+	// Condition: A human-readable string representation of the
+	// `RecordCondition` corresponding to this transformation. Set if a
+	// `RecordCondition` was used to determine whether or not to apply this
+	// transformation. Examples: * (age_field > 85) * (age_field <= 18) *
+	// (zip_field exists) * (zip_field == 01234) && (city_field !=
+	// "Springville") * (zip_field == 01234) && (age_field <= 18) &&
+	// (city_field exists)
+	Condition string `json:"condition,omitempty"`
+
+	// Description: A description of the transformation. This is empty for a
+	// RECORD_SUPPRESSION, or is the output of calling toString() on the
+	// `PrimitiveTransformation` protocol buffer message for any other type
+	// of transformation.
+	Description string `json:"description,omitempty"`
+
+	// InfoType: Set if the transformation was limited to a specific
+	// `InfoType`.
+	InfoType *GooglePrivacyDlpV2InfoType `json:"infoType,omitempty"`
+
+	// Type: The transformation type.
+	//
+	// Possible values:
+	//   "TRANSFORMATION_TYPE_UNSPECIFIED" - Unused
+	//   "RECORD_SUPPRESSION" - Record suppression
+	//   "REPLACE_VALUE" - Replace value
+	//   "REPLACE_DICTIONARY" - Replace value using a dictionary.
+	//   "REDACT" - Redact
+	//   "CHARACTER_MASK" - Character mask
+	//   "CRYPTO_REPLACE_FFX_FPE" - FFX-FPE
+	//   "FIXED_SIZE_BUCKETING" - Fixed size bucketing
+	//   "BUCKETING" - Bucketing
+	//   "REPLACE_WITH_INFO_TYPE" - Replace with info type
+	//   "TIME_PART" - Time part
+	//   "CRYPTO_HASH" - Crypto hash
+	//   "DATE_SHIFT" - Date shift
+	//   "CRYPTO_DETERMINISTIC_CONFIG" - Deterministic crypto
+	//   "REDACT_IMAGE" - Redact image
+	Type string `json:"type,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Condition") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Condition") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2TransformationDescription) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2TransformationDescription
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2TransformationDetails: Details about a single
+// transformation. This object contains a description of the
+// transformation, information about whether the transformation was
+// successfully applied, and the precise location where the
+// transformation occurred. These details are stored in a user-specified
+// BigQuery table.
+type GooglePrivacyDlpV2TransformationDetails struct {
+	// ContainerName: The top level name of the container where the
+	// transformation is located (this will be the source file name or table
+	// name).
+	ContainerName string `json:"containerName,omitempty"`
+
+	// ResourceName: The name of the job that completed the transformation.
+	ResourceName string `json:"resourceName,omitempty"`
+
+	// StatusDetails: Status of the transformation, if transformation was
+	// not successful, this will specify what caused it to fail, otherwise
+	// it will show that the transformation was successful.
+	StatusDetails *GooglePrivacyDlpV2TransformationResultStatus `json:"statusDetails,omitempty"`
+
+	// Transformation: Description of transformation. This would only
+	// contain more than one element if there were multiple matching
+	// transformations and which one to apply was ambiguous. Not set for
+	// states that contain no transformation, currently only state that
+	// contains no transformation is
+	// TransformationResultStateType.METADATA_UNRETRIEVABLE.
+	Transformation []*GooglePrivacyDlpV2TransformationDescription `json:"transformation,omitempty"`
+
+	// TransformationLocation: The precise location of the transformed
+	// content in the original container.
+	TransformationLocation *GooglePrivacyDlpV2TransformationLocation `json:"transformationLocation,omitempty"`
+
+	// TransformedBytes: The number of bytes that were transformed. If
+	// transformation was unsuccessful or did not take place because there
+	// was no content to transform, this will be zero.
+	TransformedBytes int64 `json:"transformedBytes,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "ContainerName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ContainerName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2TransformationDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2TransformationDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GooglePrivacyDlpV2TransformationDetailsStorageConfig: Config for
+// storing transformation details.
+type GooglePrivacyDlpV2TransformationDetailsStorageConfig struct {
+	// Table: The BigQuery table in which to store the output. This may be
+	// an existing table or in a new table in an existing dataset. If
+	// table_id is not set a new one will be generated for you with the
+	// following format:
+	// dlp_googleapis_transformation_details_yyyy_mm_dd_[dlp_job_id].
+	// Pacific time zone will be used for generating the date details.
+	Table *GooglePrivacyDlpV2BigQueryTable `json:"table,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Table") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Table") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2TransformationDetailsStorageConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2TransformationDetailsStorageConfig
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -8302,6 +9126,53 @@ func (s *GooglePrivacyDlpV2TransformationErrorHandling) MarshalJSON() ([]byte, e
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GooglePrivacyDlpV2TransformationLocation: Specifies the location of a
+// transformation.
+type GooglePrivacyDlpV2TransformationLocation struct {
+	// ContainerType: Information about the functionality of the container
+	// where this finding occurred, if available.
+	//
+	// Possible values:
+	//   "TRANSFORM_UNKNOWN_CONTAINER"
+	//   "TRANSFORM_BODY"
+	//   "TRANSFORM_METADATA"
+	//   "TRANSFORM_TABLE"
+	ContainerType string `json:"containerType,omitempty"`
+
+	// FindingId: For infotype transformations, link to the corresponding
+	// findings ID so that location information does not need to be
+	// duplicated. Each findings ID correlates to an entry in the findings
+	// output table, this table only gets created when users specify to save
+	// findings (add the save findings action to the request).
+	FindingId string `json:"findingId,omitempty"`
+
+	// RecordTransformation: For record transformations, provide a field and
+	// container information.
+	RecordTransformation *GooglePrivacyDlpV2RecordTransformation `json:"recordTransformation,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ContainerType") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ContainerType") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2TransformationLocation) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2TransformationLocation
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GooglePrivacyDlpV2TransformationOverview: Overview of the
 // modifications that occurred.
 type GooglePrivacyDlpV2TransformationOverview struct {
@@ -8333,6 +9204,51 @@ type GooglePrivacyDlpV2TransformationOverview struct {
 
 func (s *GooglePrivacyDlpV2TransformationOverview) MarshalJSON() ([]byte, error) {
 	type NoMethod GooglePrivacyDlpV2TransformationOverview
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type GooglePrivacyDlpV2TransformationResultStatus struct {
+	// Details: Detailed error codes and messages
+	Details *GoogleRpcStatus `json:"details,omitempty"`
+
+	// ResultStatusType: Transformation result status type, this will be
+	// either SUCCESS, or it will be the reason for why the transformation
+	// was not completely successful.
+	//
+	// Possible values:
+	//   "STATE_TYPE_UNSPECIFIED"
+	//   "INVALID_TRANSFORM" - This will be set when a finding could not be
+	// transformed (i.e. outside user set bucket range).
+	//   "BIGQUERY_MAX_ROW_SIZE_EXCEEDED" - This will be set when a BigQuery
+	// transformation was successful but could not be stored back in
+	// BigQuery because the transformed row exceeds BigQuery's max row size.
+	//   "METADATA_UNRETRIEVABLE" - This will be set when there is a finding
+	// in the custom metadata of a file, but at the write time of the
+	// transformed file, this key / value pair is unretrievable.
+	//   "SUCCESS" - This will be set when the transformation and storing of
+	// it is successful.
+	ResultStatusType string `json:"resultStatusType,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Details") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Details") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2TransformationResultStatus) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2TransformationResultStatus
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -8731,6 +9647,38 @@ func (s *GooglePrivacyDlpV2ValueFrequency) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GooglePrivacyDlpV2VersionDescription: Details about each available
+// version for an infotype.
+type GooglePrivacyDlpV2VersionDescription struct {
+	// Description: Description of the version.
+	Description string `json:"description,omitempty"`
+
+	// Version: Name of the version
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Description") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Description") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GooglePrivacyDlpV2VersionDescription) MarshalJSON() ([]byte, error) {
+	type NoMethod GooglePrivacyDlpV2VersionDescription
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GooglePrivacyDlpV2WordList: Message defining a list of words or
 // phrases to search for in the data.
 type GooglePrivacyDlpV2WordList struct {
@@ -8918,9 +9866,9 @@ type InfoTypesListCall struct {
 	header_      http.Header
 }
 
-// List: Returns a list of the sensitive information types that the DLP
-// API supports. See
-// https://cloud.google.com/dlp/docs/infotypes-reference to learn more.
+// List: Returns a list of the sensitive information types that DLP API
+// supports. See https://cloud.google.com/dlp/docs/infotypes-reference
+// to learn more.
 func (r *InfoTypesService) List() *InfoTypesListCall {
 	c := &InfoTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	return c
@@ -9030,17 +9978,17 @@ func (c *InfoTypesListCall) Do(opts ...googleapi.CallOption) (*GooglePrivacyDlpV
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListInfoTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9054,7 +10002,7 @@ func (c *InfoTypesListCall) Do(opts ...googleapi.CallOption) (*GooglePrivacyDlpV
 	}
 	return ret, nil
 	// {
-	//   "description": "Returns a list of the sensitive information types that the DLP API supports. See https://cloud.google.com/dlp/docs/infotypes-reference to learn more.",
+	//   "description": "Returns a list of the sensitive information types that DLP API supports. See https://cloud.google.com/dlp/docs/infotypes-reference to learn more.",
 	//   "flatPath": "v2/infoTypes",
 	//   "httpMethod": "GET",
 	//   "id": "dlp.infoTypes.list",
@@ -9103,12 +10051,12 @@ type LocationsInfoTypesListCall struct {
 	header_      http.Header
 }
 
-// List: Returns a list of the sensitive information types that the DLP
-// API supports. See
-// https://cloud.google.com/dlp/docs/infotypes-reference to learn more.
+// List: Returns a list of the sensitive information types that DLP API
+// supports. See https://cloud.google.com/dlp/docs/infotypes-reference
+// to learn more.
 //
-// - parent: The parent resource name. The format of this value is as
-//   follows: locations/ LOCATION_ID.
+//   - parent: The parent resource name. The format of this value is as
+//     follows: locations/ LOCATION_ID.
 func (r *LocationsInfoTypesService) List(parent string) *LocationsInfoTypesListCall {
 	c := &LocationsInfoTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9215,17 +10163,17 @@ func (c *LocationsInfoTypesListCall) Do(opts ...googleapi.CallOption) (*GooglePr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListInfoTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9239,7 +10187,7 @@ func (c *LocationsInfoTypesListCall) Do(opts ...googleapi.CallOption) (*GooglePr
 	}
 	return ret, nil
 	// {
-	//   "description": "Returns a list of the sensitive information types that the DLP API supports. See https://cloud.google.com/dlp/docs/infotypes-reference to learn more.",
+	//   "description": "Returns a list of the sensitive information types that DLP API supports. See https://cloud.google.com/dlp/docs/infotypes-reference to learn more.",
 	//   "flatPath": "v2/locations/{locationsId}/infoTypes",
 	//   "httpMethod": "GET",
 	//   "id": "dlp.locations.infoTypes.list",
@@ -9292,25 +10240,25 @@ type OrganizationsDeidentifyTemplatesCreateCall struct {
 	header_                                           http.Header
 }
 
-// Create: Creates a DeidentifyTemplate for re-using frequently used
+// Create: Creates a DeidentifyTemplate for reusing frequently used
 // configuration for de-identifying content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsDeidentifyTemplatesService) Create(parentid string, googleprivacydlpv2createdeidentifytemplaterequest *GooglePrivacyDlpV2CreateDeidentifyTemplateRequest) *OrganizationsDeidentifyTemplatesCreateCall {
 	c := &OrganizationsDeidentifyTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -9386,17 +10334,17 @@ func (c *OrganizationsDeidentifyTemplatesCreateCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -9410,7 +10358,7 @@ func (c *OrganizationsDeidentifyTemplatesCreateCall) Do(opts ...googleapi.CallOp
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a DeidentifyTemplate for re-using frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
+	//   "description": "Creates a DeidentifyTemplate for reusing frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
 	//   "flatPath": "v2/organizations/{organizationsId}/deidentifyTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.organizations.deidentifyTemplates.create",
@@ -9454,10 +10402,10 @@ type OrganizationsDeidentifyTemplatesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be deleted, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be deleted, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *OrganizationsDeidentifyTemplatesService) Delete(name string) *OrganizationsDeidentifyTemplatesDeleteCall {
 	c := &OrganizationsDeidentifyTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9526,17 +10474,17 @@ func (c *OrganizationsDeidentifyTemplatesDeleteCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -9592,10 +10540,10 @@ type OrganizationsDeidentifyTemplatesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be read, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be read, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *OrganizationsDeidentifyTemplatesService) Get(name string) *OrganizationsDeidentifyTemplatesGetCall {
 	c := &OrganizationsDeidentifyTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9678,17 +10626,17 @@ func (c *OrganizationsDeidentifyTemplatesGetCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -9744,20 +10692,20 @@ type OrganizationsDeidentifyTemplatesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsDeidentifyTemplatesService) List(parentid string) *OrganizationsDeidentifyTemplatesListCall {
 	c := &OrganizationsDeidentifyTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -9776,18 +10724,18 @@ func (c *OrganizationsDeidentifyTemplatesListCall) LocationId(locationId string)
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *OrganizationsDeidentifyTemplatesListCall) OrderBy(orderBy string) *OrganizationsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *OrganizationsDeidentifyTemplatesListCall) PageSize(pageSize int64) *OrganizationsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -9878,17 +10826,17 @@ func (c *OrganizationsDeidentifyTemplatesListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListDeidentifyTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9916,12 +10864,12 @@ func (c *OrganizationsDeidentifyTemplatesListCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -9986,10 +10934,10 @@ type OrganizationsDeidentifyTemplatesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of organization and deidentify template to be
-//   updated, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of organization and deidentify template to be
+//     updated, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *OrganizationsDeidentifyTemplatesService) Patch(name string, googleprivacydlpv2updatedeidentifytemplaterequest *GooglePrivacyDlpV2UpdateDeidentifyTemplateRequest) *OrganizationsDeidentifyTemplatesPatchCall {
 	c := &OrganizationsDeidentifyTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10065,17 +11013,17 @@ func (c *OrganizationsDeidentifyTemplatesPatchCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -10130,24 +11078,24 @@ type OrganizationsInspectTemplatesCreateCall struct {
 	header_                                        http.Header
 }
 
-// Create: Creates an InspectTemplate for re-using frequently used
+// Create: Creates an InspectTemplate for reusing frequently used
 // configuration for inspecting content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsInspectTemplatesService) Create(parentid string, googleprivacydlpv2createinspecttemplaterequest *GooglePrivacyDlpV2CreateInspectTemplateRequest) *OrganizationsInspectTemplatesCreateCall {
 	c := &OrganizationsInspectTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -10223,17 +11171,17 @@ func (c *OrganizationsInspectTemplatesCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -10247,7 +11195,7 @@ func (c *OrganizationsInspectTemplatesCreateCall) Do(opts ...googleapi.CallOptio
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates an InspectTemplate for re-using frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
+	//   "description": "Creates an InspectTemplate for reusing frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
 	//   "flatPath": "v2/organizations/{organizationsId}/inspectTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.organizations.inspectTemplates.create",
@@ -10290,10 +11238,10 @@ type OrganizationsInspectTemplatesDeleteCall struct {
 // Delete: Deletes an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   deleted, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     deleted, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *OrganizationsInspectTemplatesService) Delete(name string) *OrganizationsInspectTemplatesDeleteCall {
 	c := &OrganizationsInspectTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10362,17 +11310,17 @@ func (c *OrganizationsInspectTemplatesDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -10427,10 +11375,10 @@ type OrganizationsInspectTemplatesGetCall struct {
 // Get: Gets an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   read, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     read, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *OrganizationsInspectTemplatesService) Get(name string) *OrganizationsInspectTemplatesGetCall {
 	c := &OrganizationsInspectTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10513,17 +11461,17 @@ func (c *OrganizationsInspectTemplatesGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -10578,20 +11526,20 @@ type OrganizationsInspectTemplatesListCall struct {
 // List: Lists InspectTemplates. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsInspectTemplatesService) List(parentid string) *OrganizationsInspectTemplatesListCall {
 	c := &OrganizationsInspectTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -10610,18 +11558,18 @@ func (c *OrganizationsInspectTemplatesListCall) LocationId(locationId string) *O
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *OrganizationsInspectTemplatesListCall) OrderBy(orderBy string) *OrganizationsInspectTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *OrganizationsInspectTemplatesListCall) PageSize(pageSize int64) *OrganizationsInspectTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -10712,17 +11660,17 @@ func (c *OrganizationsInspectTemplatesListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListInspectTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10750,12 +11698,12 @@ func (c *OrganizationsInspectTemplatesListCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -10819,10 +11767,10 @@ type OrganizationsInspectTemplatesPatchCall struct {
 // Patch: Updates the InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of organization and inspectTemplate to be
-//   updated, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of organization and inspectTemplate to be
+//     updated, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *OrganizationsInspectTemplatesService) Patch(name string, googleprivacydlpv2updateinspecttemplaterequest *GooglePrivacyDlpV2UpdateInspectTemplateRequest) *OrganizationsInspectTemplatesPatchCall {
 	c := &OrganizationsInspectTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10898,17 +11846,17 @@ func (c *OrganizationsInspectTemplatesPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -10963,25 +11911,25 @@ type OrganizationsLocationsDeidentifyTemplatesCreateCall struct {
 	header_                                           http.Header
 }
 
-// Create: Creates a DeidentifyTemplate for re-using frequently used
+// Create: Creates a DeidentifyTemplate for reusing frequently used
 // configuration for de-identifying content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsDeidentifyTemplatesService) Create(parentid string, googleprivacydlpv2createdeidentifytemplaterequest *GooglePrivacyDlpV2CreateDeidentifyTemplateRequest) *OrganizationsLocationsDeidentifyTemplatesCreateCall {
 	c := &OrganizationsLocationsDeidentifyTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -11057,17 +12005,17 @@ func (c *OrganizationsLocationsDeidentifyTemplatesCreateCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -11081,7 +12029,7 @@ func (c *OrganizationsLocationsDeidentifyTemplatesCreateCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a DeidentifyTemplate for re-using frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
+	//   "description": "Creates a DeidentifyTemplate for reusing frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
 	//   "flatPath": "v2/organizations/{organizationsId}/locations/{locationsId}/deidentifyTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.organizations.locations.deidentifyTemplates.create",
@@ -11125,10 +12073,10 @@ type OrganizationsLocationsDeidentifyTemplatesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be deleted, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be deleted, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *OrganizationsLocationsDeidentifyTemplatesService) Delete(name string) *OrganizationsLocationsDeidentifyTemplatesDeleteCall {
 	c := &OrganizationsLocationsDeidentifyTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11197,17 +12145,17 @@ func (c *OrganizationsLocationsDeidentifyTemplatesDeleteCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -11263,10 +12211,10 @@ type OrganizationsLocationsDeidentifyTemplatesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be read, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be read, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *OrganizationsLocationsDeidentifyTemplatesService) Get(name string) *OrganizationsLocationsDeidentifyTemplatesGetCall {
 	c := &OrganizationsLocationsDeidentifyTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11349,17 +12297,17 @@ func (c *OrganizationsLocationsDeidentifyTemplatesGetCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -11415,20 +12363,20 @@ type OrganizationsLocationsDeidentifyTemplatesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsDeidentifyTemplatesService) List(parentid string) *OrganizationsLocationsDeidentifyTemplatesListCall {
 	c := &OrganizationsLocationsDeidentifyTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -11447,18 +12395,18 @@ func (c *OrganizationsLocationsDeidentifyTemplatesListCall) LocationId(locationI
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *OrganizationsLocationsDeidentifyTemplatesListCall) OrderBy(orderBy string) *OrganizationsLocationsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *OrganizationsLocationsDeidentifyTemplatesListCall) PageSize(pageSize int64) *OrganizationsLocationsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -11549,17 +12497,17 @@ func (c *OrganizationsLocationsDeidentifyTemplatesListCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListDeidentifyTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11587,12 +12535,12 @@ func (c *OrganizationsLocationsDeidentifyTemplatesListCall) Do(opts ...googleapi
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -11657,10 +12605,10 @@ type OrganizationsLocationsDeidentifyTemplatesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of organization and deidentify template to be
-//   updated, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of organization and deidentify template to be
+//     updated, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *OrganizationsLocationsDeidentifyTemplatesService) Patch(name string, googleprivacydlpv2updatedeidentifytemplaterequest *GooglePrivacyDlpV2UpdateDeidentifyTemplateRequest) *OrganizationsLocationsDeidentifyTemplatesPatchCall {
 	c := &OrganizationsLocationsDeidentifyTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11736,17 +12684,17 @@ func (c *OrganizationsLocationsDeidentifyTemplatesPatchCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -11806,16 +12754,16 @@ type OrganizationsLocationsDlpJobsListCall struct {
 // https://cloud.google.com/dlp/docs/compute-risk-analysis to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsDlpJobsService) List(parentid string) *OrganizationsLocationsDlpJobsListCall {
 	c := &OrganizationsLocationsDlpJobsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -11829,13 +12777,13 @@ func (r *OrganizationsLocationsDlpJobsService) List(parentid string) *Organizati
 // restriction has the form of `{field} {operator} {value}`. * Supported
 // fields/values for inspect jobs: - `state` -
 // PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` -
-// DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The resource name
-// of the trigger that created job. - 'end_time` - Corresponds to time
-// the job finished. - 'start_time` - Corresponds to time the job
+// DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The name of the
+// trigger that created the job. - 'end_time` - Corresponds to the time
+// the job finished. - 'start_time` - Corresponds to the time the job
 // finished. * Supported fields for risk analysis jobs: - `state` -
-// RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to time
-// the job finished. - 'start_time` - Corresponds to time the job
-// finished. * The operator must be `=` or `!=`. Examples: *
+// RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the
+// time the job finished. - 'start_time` - Corresponds to the time the
+// job finished. * The operator must be `=` or `!=`. Examples: *
 // inspected_storage = cloud_storage AND state = done *
 // inspected_storage = cloud_storage OR inspected_storage = bigquery *
 // inspected_storage = cloud_storage AND (state = done OR state =
@@ -11858,9 +12806,9 @@ func (c *OrganizationsLocationsDlpJobsListCall) LocationId(locationId string) *O
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc, end_time asc,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the job was created. - `end_time`: corresponds to time the
-// job ended. - `name`: corresponds to job's name. - `state`:
-// corresponds to `state`
+// to the time the job was created. - `end_time`: corresponds to the
+// time the job ended. - `name`: corresponds to the job's name. -
+// `state`: corresponds to `state`
 func (c *OrganizationsLocationsDlpJobsListCall) OrderBy(orderBy string) *OrganizationsLocationsDlpJobsListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -11884,9 +12832,10 @@ func (c *OrganizationsLocationsDlpJobsListCall) PageToken(pageToken string) *Org
 // `DlpJobType.INSPECT`
 //
 // Possible values:
-//   "DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
-//   "INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
-//   "RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
+//
+//	"DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
+//	"INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
+//	"RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
 func (c *OrganizationsLocationsDlpJobsListCall) Type(type_ string) *OrganizationsLocationsDlpJobsListCall {
 	c.urlParams_.Set("type", type_)
 	return c
@@ -11968,17 +12917,17 @@ func (c *OrganizationsLocationsDlpJobsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListDlpJobsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12001,7 +12950,7 @@ func (c *OrganizationsLocationsDlpJobsListCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Allows filtering. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND` or `OR` logical operators. A sequence of restrictions implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * Supported fields/values for inspect jobs: - `state` - PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` - DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The resource name of the trigger that created job. - 'end_time` - Corresponds to time the job finished. - 'start_time` - Corresponds to time the job finished. * Supported fields for risk analysis jobs: - `state` - RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to time the job finished. - 'start_time` - Corresponds to time the job finished. * The operator must be `=` or `!=`. Examples: * inspected_storage = cloud_storage AND state = done * inspected_storage = cloud_storage OR inspected_storage = bigquery * inspected_storage = cloud_storage AND (state = done OR state = canceled) * end_time \u003e \\\"2017-12-12T00:00:00+00:00\\\" The length of this field should be no more than 500 characters.",
+	//       "description": "Allows filtering. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND` or `OR` logical operators. A sequence of restrictions implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * Supported fields/values for inspect jobs: - `state` - PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` - DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The name of the trigger that created the job. - 'end_time` - Corresponds to the time the job finished. - 'start_time` - Corresponds to the time the job finished. * Supported fields for risk analysis jobs: - `state` - RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the time the job finished. - 'start_time` - Corresponds to the time the job finished. * The operator must be `=` or `!=`. Examples: * inspected_storage = cloud_storage AND state = done * inspected_storage = cloud_storage OR inspected_storage = bigquery * inspected_storage = cloud_storage AND (state = done OR state = canceled) * end_time \u003e \\\"2017-12-12T00:00:00+00:00\\\" The length of this field should be no more than 500 characters.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -12011,7 +12960,7 @@ func (c *OrganizationsLocationsDlpJobsListCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, end_time asc, create_time desc` Supported fields are: - `create_time`: corresponds to time the job was created. - `end_time`: corresponds to time the job ended. - `name`: corresponds to job's name. - `state`: corresponds to `state`",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, end_time asc, create_time desc` Supported fields are: - `create_time`: corresponds to the time the job was created. - `end_time`: corresponds to the time the job ended. - `name`: corresponds to the job's name. - `state`: corresponds to `state`",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -12092,24 +13041,24 @@ type OrganizationsLocationsInspectTemplatesCreateCall struct {
 	header_                                        http.Header
 }
 
-// Create: Creates an InspectTemplate for re-using frequently used
+// Create: Creates an InspectTemplate for reusing frequently used
 // configuration for inspecting content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsInspectTemplatesService) Create(parentid string, googleprivacydlpv2createinspecttemplaterequest *GooglePrivacyDlpV2CreateInspectTemplateRequest) *OrganizationsLocationsInspectTemplatesCreateCall {
 	c := &OrganizationsLocationsInspectTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -12185,17 +13134,17 @@ func (c *OrganizationsLocationsInspectTemplatesCreateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -12209,7 +13158,7 @@ func (c *OrganizationsLocationsInspectTemplatesCreateCall) Do(opts ...googleapi.
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates an InspectTemplate for re-using frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
+	//   "description": "Creates an InspectTemplate for reusing frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
 	//   "flatPath": "v2/organizations/{organizationsId}/locations/{locationsId}/inspectTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.organizations.locations.inspectTemplates.create",
@@ -12252,10 +13201,10 @@ type OrganizationsLocationsInspectTemplatesDeleteCall struct {
 // Delete: Deletes an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   deleted, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     deleted, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *OrganizationsLocationsInspectTemplatesService) Delete(name string) *OrganizationsLocationsInspectTemplatesDeleteCall {
 	c := &OrganizationsLocationsInspectTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12324,17 +13273,17 @@ func (c *OrganizationsLocationsInspectTemplatesDeleteCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -12389,10 +13338,10 @@ type OrganizationsLocationsInspectTemplatesGetCall struct {
 // Get: Gets an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   read, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     read, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *OrganizationsLocationsInspectTemplatesService) Get(name string) *OrganizationsLocationsInspectTemplatesGetCall {
 	c := &OrganizationsLocationsInspectTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12475,17 +13424,17 @@ func (c *OrganizationsLocationsInspectTemplatesGetCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -12540,20 +13489,20 @@ type OrganizationsLocationsInspectTemplatesListCall struct {
 // List: Lists InspectTemplates. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsInspectTemplatesService) List(parentid string) *OrganizationsLocationsInspectTemplatesListCall {
 	c := &OrganizationsLocationsInspectTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -12572,18 +13521,18 @@ func (c *OrganizationsLocationsInspectTemplatesListCall) LocationId(locationId s
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *OrganizationsLocationsInspectTemplatesListCall) OrderBy(orderBy string) *OrganizationsLocationsInspectTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *OrganizationsLocationsInspectTemplatesListCall) PageSize(pageSize int64) *OrganizationsLocationsInspectTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -12674,17 +13623,17 @@ func (c *OrganizationsLocationsInspectTemplatesListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListInspectTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12712,12 +13661,12 @@ func (c *OrganizationsLocationsInspectTemplatesListCall) Do(opts ...googleapi.Ca
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -12781,10 +13730,10 @@ type OrganizationsLocationsInspectTemplatesPatchCall struct {
 // Patch: Updates the InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of organization and inspectTemplate to be
-//   updated, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of organization and inspectTemplate to be
+//     updated, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *OrganizationsLocationsInspectTemplatesService) Patch(name string, googleprivacydlpv2updateinspecttemplaterequest *GooglePrivacyDlpV2UpdateInspectTemplateRequest) *OrganizationsLocationsInspectTemplatesPatchCall {
 	c := &OrganizationsLocationsInspectTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12860,17 +13809,17 @@ func (c *OrganizationsLocationsInspectTemplatesPatchCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -12930,16 +13879,16 @@ type OrganizationsLocationsJobTriggersCreateCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsJobTriggersService) Create(parentid string, googleprivacydlpv2createjobtriggerrequest *GooglePrivacyDlpV2CreateJobTriggerRequest) *OrganizationsLocationsJobTriggersCreateCall {
 	c := &OrganizationsLocationsJobTriggersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -13014,17 +13963,17 @@ func (c *OrganizationsLocationsJobTriggersCreateCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -13082,8 +14031,8 @@ type OrganizationsLocationsJobTriggersDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *OrganizationsLocationsJobTriggersService) Delete(name string) *OrganizationsLocationsJobTriggersDeleteCall {
 	c := &OrganizationsLocationsJobTriggersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13152,17 +14101,17 @@ func (c *OrganizationsLocationsJobTriggersDeleteCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -13218,8 +14167,8 @@ type OrganizationsLocationsJobTriggersGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *OrganizationsLocationsJobTriggersService) Get(name string) *OrganizationsLocationsJobTriggersGetCall {
 	c := &OrganizationsLocationsJobTriggersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13301,17 +14250,17 @@ func (c *OrganizationsLocationsJobTriggersGetCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -13367,16 +14316,16 @@ type OrganizationsLocationsJobTriggersListCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsJobTriggersService) List(parentid string) *OrganizationsLocationsJobTriggersListCall {
 	c := &OrganizationsLocationsJobTriggersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -13417,12 +14366,12 @@ func (c *OrganizationsLocationsJobTriggersListCall) LocationId(locationId string
 // postfix. This list is case-insensitive, default sorting order is
 // ascending, redundant space characters are insignificant. Example:
 // `name asc,update_time, create_time desc` Supported fields are: -
-// `create_time`: corresponds to time the JobTrigger was created. -
-// `update_time`: corresponds to time the JobTrigger was last updated. -
-// `last_run_time`: corresponds to the last time the JobTrigger ran. -
-// `name`: corresponds to JobTrigger's name. - `display_name`:
-// corresponds to JobTrigger's display name. - `status`: corresponds to
-// JobTrigger's status.
+// `create_time`: corresponds to the time the JobTrigger was created. -
+// `update_time`: corresponds to the time the JobTrigger was last
+// updated. - `last_run_time`: corresponds to the last time the
+// JobTrigger ran. - `name`: corresponds to the JobTrigger's name. -
+// `display_name`: corresponds to the JobTrigger's display name. -
+// `status`: corresponds to JobTrigger's status.
 func (c *OrganizationsLocationsJobTriggersListCall) OrderBy(orderBy string) *OrganizationsLocationsJobTriggersListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -13447,9 +14396,10 @@ func (c *OrganizationsLocationsJobTriggersListCall) PageToken(pageToken string) 
 // `DlpJobType.INSPECT` if not set.
 //
 // Possible values:
-//   "DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
-//   "INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
-//   "RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
+//
+//	"DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
+//	"INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
+//	"RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
 func (c *OrganizationsLocationsJobTriggersListCall) Type(type_ string) *OrganizationsLocationsJobTriggersListCall {
 	c.urlParams_.Set("type", type_)
 	return c
@@ -13532,17 +14482,17 @@ func (c *OrganizationsLocationsJobTriggersListCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListJobTriggersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13575,7 +14525,7 @@ func (c *OrganizationsLocationsJobTriggersListCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of triggeredJob fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the JobTrigger was created. - `update_time`: corresponds to time the JobTrigger was last updated. - `last_run_time`: corresponds to the last time the JobTrigger ran. - `name`: corresponds to JobTrigger's name. - `display_name`: corresponds to JobTrigger's display name. - `status`: corresponds to JobTrigger's status.",
+	//       "description": "Comma separated list of triggeredJob fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the JobTrigger was created. - `update_time`: corresponds to the time the JobTrigger was last updated. - `last_run_time`: corresponds to the last time the JobTrigger ran. - `name`: corresponds to the JobTrigger's name. - `display_name`: corresponds to the JobTrigger's display name. - `status`: corresponds to JobTrigger's status.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -13660,8 +14610,8 @@ type OrganizationsLocationsJobTriggersPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *OrganizationsLocationsJobTriggersService) Patch(name string, googleprivacydlpv2updatejobtriggerrequest *GooglePrivacyDlpV2UpdateJobTriggerRequest) *OrganizationsLocationsJobTriggersPatchCall {
 	c := &OrganizationsLocationsJobTriggersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13736,17 +14686,17 @@ func (c *OrganizationsLocationsJobTriggersPatchCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -13806,20 +14756,20 @@ type OrganizationsLocationsStoredInfoTypesCreateCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsStoredInfoTypesService) Create(parentid string, googleprivacydlpv2createstoredinfotyperequest *GooglePrivacyDlpV2CreateStoredInfoTypeRequest) *OrganizationsLocationsStoredInfoTypesCreateCall {
 	c := &OrganizationsLocationsStoredInfoTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -13894,17 +14844,17 @@ func (c *OrganizationsLocationsStoredInfoTypesCreateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -13962,10 +14912,10 @@ type OrganizationsLocationsStoredInfoTypesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   deleted, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     deleted, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *OrganizationsLocationsStoredInfoTypesService) Delete(name string) *OrganizationsLocationsStoredInfoTypesDeleteCall {
 	c := &OrganizationsLocationsStoredInfoTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14034,17 +14984,17 @@ func (c *OrganizationsLocationsStoredInfoTypesDeleteCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -14100,10 +15050,10 @@ type OrganizationsLocationsStoredInfoTypesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   read, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     read, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *OrganizationsLocationsStoredInfoTypesService) Get(name string) *OrganizationsLocationsStoredInfoTypesGetCall {
 	c := &OrganizationsLocationsStoredInfoTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14185,17 +15135,17 @@ func (c *OrganizationsLocationsStoredInfoTypesGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -14251,20 +15201,17 @@ type OrganizationsLocationsStoredInfoTypesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsLocationsStoredInfoTypesService) List(parentid string) *OrganizationsLocationsStoredInfoTypesListCall {
 	c := &OrganizationsLocationsStoredInfoTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -14283,7 +15230,7 @@ func (c *OrganizationsLocationsStoredInfoTypesListCall) LocationId(locationId st
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc, display_name,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the most recent version of the resource was created. -
+// to the time the most recent version of the resource was created. -
 // `state`: corresponds to the state of the resource. - `name`:
 // corresponds to resource name. - `display_name`: corresponds to info
 // type's display name.
@@ -14293,8 +15240,8 @@ func (c *OrganizationsLocationsStoredInfoTypesListCall) OrderBy(orderBy string) 
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *OrganizationsLocationsStoredInfoTypesListCall) PageSize(pageSize int64) *OrganizationsLocationsStoredInfoTypesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -14385,17 +15332,17 @@ func (c *OrganizationsLocationsStoredInfoTypesListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListStoredInfoTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14423,12 +15370,12 @@ func (c *OrganizationsLocationsStoredInfoTypesListCall) Do(opts ...googleapi.Cal
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to the time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -14439,7 +15386,7 @@ func (c *OrganizationsLocationsStoredInfoTypesListCall) Do(opts ...googleapi.Cal
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID + Organizations scope, location specified: `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations scope, no location specified (defaults to global): `organizations/`ORG_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
+	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -14495,10 +15442,10 @@ type OrganizationsLocationsStoredInfoTypesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of organization and storedInfoType to be
-//   updated, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of organization and storedInfoType to be
+//     updated, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *OrganizationsLocationsStoredInfoTypesService) Patch(name string, googleprivacydlpv2updatestoredinfotyperequest *GooglePrivacyDlpV2UpdateStoredInfoTypeRequest) *OrganizationsLocationsStoredInfoTypesPatchCall {
 	c := &OrganizationsLocationsStoredInfoTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14573,17 +15520,17 @@ func (c *OrganizationsLocationsStoredInfoTypesPatchCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -14643,20 +15590,20 @@ type OrganizationsStoredInfoTypesCreateCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsStoredInfoTypesService) Create(parentid string, googleprivacydlpv2createstoredinfotyperequest *GooglePrivacyDlpV2CreateStoredInfoTypeRequest) *OrganizationsStoredInfoTypesCreateCall {
 	c := &OrganizationsStoredInfoTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -14731,17 +15678,17 @@ func (c *OrganizationsStoredInfoTypesCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -14799,10 +15746,10 @@ type OrganizationsStoredInfoTypesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   deleted, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     deleted, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *OrganizationsStoredInfoTypesService) Delete(name string) *OrganizationsStoredInfoTypesDeleteCall {
 	c := &OrganizationsStoredInfoTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14871,17 +15818,17 @@ func (c *OrganizationsStoredInfoTypesDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -14937,10 +15884,10 @@ type OrganizationsStoredInfoTypesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   read, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     read, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *OrganizationsStoredInfoTypesService) Get(name string) *OrganizationsStoredInfoTypesGetCall {
 	c := &OrganizationsStoredInfoTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15022,17 +15969,17 @@ func (c *OrganizationsStoredInfoTypesGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -15088,20 +16035,17 @@ type OrganizationsStoredInfoTypesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *OrganizationsStoredInfoTypesService) List(parentid string) *OrganizationsStoredInfoTypesListCall {
 	c := &OrganizationsStoredInfoTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -15120,7 +16064,7 @@ func (c *OrganizationsStoredInfoTypesListCall) LocationId(locationId string) *Or
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc, display_name,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the most recent version of the resource was created. -
+// to the time the most recent version of the resource was created. -
 // `state`: corresponds to the state of the resource. - `name`:
 // corresponds to resource name. - `display_name`: corresponds to info
 // type's display name.
@@ -15130,8 +16074,8 @@ func (c *OrganizationsStoredInfoTypesListCall) OrderBy(orderBy string) *Organiza
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *OrganizationsStoredInfoTypesListCall) PageSize(pageSize int64) *OrganizationsStoredInfoTypesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -15222,17 +16166,17 @@ func (c *OrganizationsStoredInfoTypesListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListStoredInfoTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15260,12 +16204,12 @@ func (c *OrganizationsStoredInfoTypesListCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to the time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -15276,7 +16220,7 @@ func (c *OrganizationsStoredInfoTypesListCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID + Organizations scope, location specified: `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations scope, no location specified (defaults to global): `organizations/`ORG_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
+	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+$",
 	//       "required": true,
@@ -15332,10 +16276,10 @@ type OrganizationsStoredInfoTypesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of organization and storedInfoType to be
-//   updated, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of organization and storedInfoType to be
+//     updated, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *OrganizationsStoredInfoTypesService) Patch(name string, googleprivacydlpv2updatestoredinfotyperequest *GooglePrivacyDlpV2UpdateStoredInfoTypeRequest) *OrganizationsStoredInfoTypesPatchCall {
 	c := &OrganizationsStoredInfoTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15410,17 +16354,17 @@ func (c *OrganizationsStoredInfoTypesPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -15483,16 +16427,16 @@ type ProjectsContentDeidentifyCall struct {
 // run. By default this may be all types, but may change over time as
 // detectors are updated.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsContentService) Deidentify(parentid string, googleprivacydlpv2deidentifycontentrequest *GooglePrivacyDlpV2DeidentifyContentRequest) *ProjectsContentDeidentifyCall {
 	c := &ProjectsContentDeidentifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -15569,17 +16513,17 @@ func (c *ProjectsContentDeidentifyCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15643,16 +16587,16 @@ type ProjectsContentInspectCall struct {
 // https://cloud.google.com/dlp/docs/inspecting-images and
 // https://cloud.google.com/dlp/docs/inspecting-text,
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsContentService) Inspect(parentid string, googleprivacydlpv2inspectcontentrequest *GooglePrivacyDlpV2InspectContentRequest) *ProjectsContentInspectCall {
 	c := &ProjectsContentInspectCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -15729,17 +16673,17 @@ func (c *ProjectsContentInspectCall) Do(opts ...googleapi.CallOption) (*GooglePr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15798,16 +16742,16 @@ type ProjectsContentReidentifyCall struct {
 // https://cloud.google.com/dlp/docs/pseudonymization#re-identification_in_free_text_code_example
 // to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsContentService) Reidentify(parentid string, googleprivacydlpv2reidentifycontentrequest *GooglePrivacyDlpV2ReidentifyContentRequest) *ProjectsContentReidentifyCall {
 	c := &ProjectsContentReidentifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -15884,17 +16828,17 @@ func (c *ProjectsContentReidentifyCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ReidentifyContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15949,25 +16893,25 @@ type ProjectsDeidentifyTemplatesCreateCall struct {
 	header_                                           http.Header
 }
 
-// Create: Creates a DeidentifyTemplate for re-using frequently used
+// Create: Creates a DeidentifyTemplate for reusing frequently used
 // configuration for de-identifying content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsDeidentifyTemplatesService) Create(parentid string, googleprivacydlpv2createdeidentifytemplaterequest *GooglePrivacyDlpV2CreateDeidentifyTemplateRequest) *ProjectsDeidentifyTemplatesCreateCall {
 	c := &ProjectsDeidentifyTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -16043,17 +16987,17 @@ func (c *ProjectsDeidentifyTemplatesCreateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -16067,7 +17011,7 @@ func (c *ProjectsDeidentifyTemplatesCreateCall) Do(opts ...googleapi.CallOption)
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a DeidentifyTemplate for re-using frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
+	//   "description": "Creates a DeidentifyTemplate for reusing frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
 	//   "flatPath": "v2/projects/{projectsId}/deidentifyTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.projects.deidentifyTemplates.create",
@@ -16111,10 +17055,10 @@ type ProjectsDeidentifyTemplatesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be deleted, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be deleted, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *ProjectsDeidentifyTemplatesService) Delete(name string) *ProjectsDeidentifyTemplatesDeleteCall {
 	c := &ProjectsDeidentifyTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -16183,17 +17127,17 @@ func (c *ProjectsDeidentifyTemplatesDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -16249,10 +17193,10 @@ type ProjectsDeidentifyTemplatesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be read, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be read, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *ProjectsDeidentifyTemplatesService) Get(name string) *ProjectsDeidentifyTemplatesGetCall {
 	c := &ProjectsDeidentifyTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -16335,17 +17279,17 @@ func (c *ProjectsDeidentifyTemplatesGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -16401,20 +17345,20 @@ type ProjectsDeidentifyTemplatesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsDeidentifyTemplatesService) List(parentid string) *ProjectsDeidentifyTemplatesListCall {
 	c := &ProjectsDeidentifyTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -16433,18 +17377,18 @@ func (c *ProjectsDeidentifyTemplatesListCall) LocationId(locationId string) *Pro
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *ProjectsDeidentifyTemplatesListCall) OrderBy(orderBy string) *ProjectsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *ProjectsDeidentifyTemplatesListCall) PageSize(pageSize int64) *ProjectsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -16535,17 +17479,17 @@ func (c *ProjectsDeidentifyTemplatesListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListDeidentifyTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16573,12 +17517,12 @@ func (c *ProjectsDeidentifyTemplatesListCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -16643,10 +17587,10 @@ type ProjectsDeidentifyTemplatesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of organization and deidentify template to be
-//   updated, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of organization and deidentify template to be
+//     updated, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *ProjectsDeidentifyTemplatesService) Patch(name string, googleprivacydlpv2updatedeidentifytemplaterequest *GooglePrivacyDlpV2UpdateDeidentifyTemplateRequest) *ProjectsDeidentifyTemplatesPatchCall {
 	c := &ProjectsDeidentifyTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -16722,17 +17666,17 @@ func (c *ProjectsDeidentifyTemplatesPatchCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -16869,17 +17813,17 @@ func (c *ProjectsDlpJobsCancelCall) Do(opts ...googleapi.CallOption) (*GooglePro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -16942,16 +17886,16 @@ type ProjectsDlpJobsCreateCall struct {
 // default this may be all types, but may change over time as detectors
 // are updated.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsDlpJobsService) Create(parentid string, googleprivacydlpv2createdlpjobrequest *GooglePrivacyDlpV2CreateDlpJobRequest) *ProjectsDlpJobsCreateCall {
 	c := &ProjectsDlpJobsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -17026,17 +17970,17 @@ func (c *ProjectsDlpJobsCreateCall) Do(opts ...googleapi.CallOption) (*GooglePri
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DlpJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -17092,7 +18036,7 @@ type ProjectsDlpJobsDeleteCall struct {
 
 // Delete: Deletes a long-running DlpJob. This method indicates that the
 // client is no longer interested in the DlpJob result. The job will be
-// cancelled if possible. See
+// canceled if possible. See
 // https://cloud.google.com/dlp/docs/inspecting-storage and
 // https://cloud.google.com/dlp/docs/compute-risk-analysis to learn
 // more.
@@ -17166,17 +18110,17 @@ func (c *ProjectsDlpJobsDeleteCall) Do(opts ...googleapi.CallOption) (*GooglePro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -17190,7 +18134,7 @@ func (c *ProjectsDlpJobsDeleteCall) Do(opts ...googleapi.CallOption) (*GooglePro
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes a long-running DlpJob. This method indicates that the client is no longer interested in the DlpJob result. The job will be cancelled if possible. See https://cloud.google.com/dlp/docs/inspecting-storage and https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.",
+	//   "description": "Deletes a long-running DlpJob. This method indicates that the client is no longer interested in the DlpJob result. The job will be canceled if possible. See https://cloud.google.com/dlp/docs/inspecting-storage and https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.",
 	//   "flatPath": "v2/projects/{projectsId}/dlpJobs/{dlpJobsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "dlp.projects.dlpJobs.delete",
@@ -17315,17 +18259,17 @@ func (c *ProjectsDlpJobsGetCall) Do(opts ...googleapi.CallOption) (*GooglePrivac
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DlpJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -17382,16 +18326,16 @@ type ProjectsDlpJobsListCall struct {
 // https://cloud.google.com/dlp/docs/compute-risk-analysis to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsDlpJobsService) List(parentid string) *ProjectsDlpJobsListCall {
 	c := &ProjectsDlpJobsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -17405,13 +18349,13 @@ func (r *ProjectsDlpJobsService) List(parentid string) *ProjectsDlpJobsListCall 
 // restriction has the form of `{field} {operator} {value}`. * Supported
 // fields/values for inspect jobs: - `state` -
 // PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` -
-// DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The resource name
-// of the trigger that created job. - 'end_time` - Corresponds to time
-// the job finished. - 'start_time` - Corresponds to time the job
+// DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The name of the
+// trigger that created the job. - 'end_time` - Corresponds to the time
+// the job finished. - 'start_time` - Corresponds to the time the job
 // finished. * Supported fields for risk analysis jobs: - `state` -
-// RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to time
-// the job finished. - 'start_time` - Corresponds to time the job
-// finished. * The operator must be `=` or `!=`. Examples: *
+// RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the
+// time the job finished. - 'start_time` - Corresponds to the time the
+// job finished. * The operator must be `=` or `!=`. Examples: *
 // inspected_storage = cloud_storage AND state = done *
 // inspected_storage = cloud_storage OR inspected_storage = bigquery *
 // inspected_storage = cloud_storage AND (state = done OR state =
@@ -17434,9 +18378,9 @@ func (c *ProjectsDlpJobsListCall) LocationId(locationId string) *ProjectsDlpJobs
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc, end_time asc,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the job was created. - `end_time`: corresponds to time the
-// job ended. - `name`: corresponds to job's name. - `state`:
-// corresponds to `state`
+// to the time the job was created. - `end_time`: corresponds to the
+// time the job ended. - `name`: corresponds to the job's name. -
+// `state`: corresponds to `state`
 func (c *ProjectsDlpJobsListCall) OrderBy(orderBy string) *ProjectsDlpJobsListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -17460,9 +18404,10 @@ func (c *ProjectsDlpJobsListCall) PageToken(pageToken string) *ProjectsDlpJobsLi
 // `DlpJobType.INSPECT`
 //
 // Possible values:
-//   "DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
-//   "INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
-//   "RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
+//
+//	"DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
+//	"INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
+//	"RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
 func (c *ProjectsDlpJobsListCall) Type(type_ string) *ProjectsDlpJobsListCall {
 	c.urlParams_.Set("type", type_)
 	return c
@@ -17544,17 +18489,17 @@ func (c *ProjectsDlpJobsListCall) Do(opts ...googleapi.CallOption) (*GooglePriva
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListDlpJobsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17577,7 +18522,7 @@ func (c *ProjectsDlpJobsListCall) Do(opts ...googleapi.CallOption) (*GooglePriva
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Allows filtering. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND` or `OR` logical operators. A sequence of restrictions implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * Supported fields/values for inspect jobs: - `state` - PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` - DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The resource name of the trigger that created job. - 'end_time` - Corresponds to time the job finished. - 'start_time` - Corresponds to time the job finished. * Supported fields for risk analysis jobs: - `state` - RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to time the job finished. - 'start_time` - Corresponds to time the job finished. * The operator must be `=` or `!=`. Examples: * inspected_storage = cloud_storage AND state = done * inspected_storage = cloud_storage OR inspected_storage = bigquery * inspected_storage = cloud_storage AND (state = done OR state = canceled) * end_time \u003e \\\"2017-12-12T00:00:00+00:00\\\" The length of this field should be no more than 500 characters.",
+	//       "description": "Allows filtering. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND` or `OR` logical operators. A sequence of restrictions implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * Supported fields/values for inspect jobs: - `state` - PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` - DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The name of the trigger that created the job. - 'end_time` - Corresponds to the time the job finished. - 'start_time` - Corresponds to the time the job finished. * Supported fields for risk analysis jobs: - `state` - RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the time the job finished. - 'start_time` - Corresponds to the time the job finished. * The operator must be `=` or `!=`. Examples: * inspected_storage = cloud_storage AND state = done * inspected_storage = cloud_storage OR inspected_storage = bigquery * inspected_storage = cloud_storage AND (state = done OR state = canceled) * end_time \u003e \\\"2017-12-12T00:00:00+00:00\\\" The length of this field should be no more than 500 characters.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -17587,7 +18532,7 @@ func (c *ProjectsDlpJobsListCall) Do(opts ...googleapi.CallOption) (*GooglePriva
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, end_time asc, create_time desc` Supported fields are: - `create_time`: corresponds to time the job was created. - `end_time`: corresponds to time the job ended. - `name`: corresponds to job's name. - `state`: corresponds to `state`",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, end_time asc, create_time desc` Supported fields are: - `create_time`: corresponds to the time the job was created. - `end_time`: corresponds to the time the job ended. - `name`: corresponds to the job's name. - `state`: corresponds to `state`",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -17676,16 +18621,16 @@ type ProjectsImageRedactCall struct {
 // run. By default this may be all types, but may change over time as
 // detectors are updated.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsImageService) Redact(parentid string, googleprivacydlpv2redactimagerequest *GooglePrivacyDlpV2RedactImageRequest) *ProjectsImageRedactCall {
 	c := &ProjectsImageRedactCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -17761,17 +18706,17 @@ func (c *ProjectsImageRedactCall) Do(opts ...googleapi.CallOption) (*GooglePriva
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2RedactImageResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17826,24 +18771,24 @@ type ProjectsInspectTemplatesCreateCall struct {
 	header_                                        http.Header
 }
 
-// Create: Creates an InspectTemplate for re-using frequently used
+// Create: Creates an InspectTemplate for reusing frequently used
 // configuration for inspecting content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsInspectTemplatesService) Create(parentid string, googleprivacydlpv2createinspecttemplaterequest *GooglePrivacyDlpV2CreateInspectTemplateRequest) *ProjectsInspectTemplatesCreateCall {
 	c := &ProjectsInspectTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -17919,17 +18864,17 @@ func (c *ProjectsInspectTemplatesCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -17943,7 +18888,7 @@ func (c *ProjectsInspectTemplatesCreateCall) Do(opts ...googleapi.CallOption) (*
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates an InspectTemplate for re-using frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
+	//   "description": "Creates an InspectTemplate for reusing frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
 	//   "flatPath": "v2/projects/{projectsId}/inspectTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.projects.inspectTemplates.create",
@@ -17986,10 +18931,10 @@ type ProjectsInspectTemplatesDeleteCall struct {
 // Delete: Deletes an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   deleted, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     deleted, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *ProjectsInspectTemplatesService) Delete(name string) *ProjectsInspectTemplatesDeleteCall {
 	c := &ProjectsInspectTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18058,17 +19003,17 @@ func (c *ProjectsInspectTemplatesDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -18123,10 +19068,10 @@ type ProjectsInspectTemplatesGetCall struct {
 // Get: Gets an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   read, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     read, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *ProjectsInspectTemplatesService) Get(name string) *ProjectsInspectTemplatesGetCall {
 	c := &ProjectsInspectTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18209,17 +19154,17 @@ func (c *ProjectsInspectTemplatesGetCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -18274,20 +19219,20 @@ type ProjectsInspectTemplatesListCall struct {
 // List: Lists InspectTemplates. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsInspectTemplatesService) List(parentid string) *ProjectsInspectTemplatesListCall {
 	c := &ProjectsInspectTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -18306,18 +19251,18 @@ func (c *ProjectsInspectTemplatesListCall) LocationId(locationId string) *Projec
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *ProjectsInspectTemplatesListCall) OrderBy(orderBy string) *ProjectsInspectTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *ProjectsInspectTemplatesListCall) PageSize(pageSize int64) *ProjectsInspectTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -18408,17 +19353,17 @@ func (c *ProjectsInspectTemplatesListCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListInspectTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18446,12 +19391,12 @@ func (c *ProjectsInspectTemplatesListCall) Do(opts ...googleapi.CallOption) (*Go
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -18515,10 +19460,10 @@ type ProjectsInspectTemplatesPatchCall struct {
 // Patch: Updates the InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of organization and inspectTemplate to be
-//   updated, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of organization and inspectTemplate to be
+//     updated, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *ProjectsInspectTemplatesService) Patch(name string, googleprivacydlpv2updateinspecttemplaterequest *GooglePrivacyDlpV2UpdateInspectTemplateRequest) *ProjectsInspectTemplatesPatchCall {
 	c := &ProjectsInspectTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18594,17 +19539,17 @@ func (c *ProjectsInspectTemplatesPatchCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -18662,8 +19607,8 @@ type ProjectsJobTriggersActivateCall struct {
 // Activate: Activate a job trigger. Causes the immediate execute of a
 // trigger instead of waiting on the trigger event to occur.
 //
-// - name: Resource name of the trigger to activate, for example
-//   `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the trigger to activate, for example
+//     `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsJobTriggersService) Activate(name string, googleprivacydlpv2activatejobtriggerrequest *GooglePrivacyDlpV2ActivateJobTriggerRequest) *ProjectsJobTriggersActivateCall {
 	c := &ProjectsJobTriggersActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18738,17 +19683,17 @@ func (c *ProjectsJobTriggersActivateCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DlpJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -18808,16 +19753,16 @@ type ProjectsJobTriggersCreateCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsJobTriggersService) Create(parentid string, googleprivacydlpv2createjobtriggerrequest *GooglePrivacyDlpV2CreateJobTriggerRequest) *ProjectsJobTriggersCreateCall {
 	c := &ProjectsJobTriggersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -18892,17 +19837,17 @@ func (c *ProjectsJobTriggersCreateCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -18960,8 +19905,8 @@ type ProjectsJobTriggersDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsJobTriggersService) Delete(name string) *ProjectsJobTriggersDeleteCall {
 	c := &ProjectsJobTriggersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19030,17 +19975,17 @@ func (c *ProjectsJobTriggersDeleteCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -19096,8 +20041,8 @@ type ProjectsJobTriggersGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsJobTriggersService) Get(name string) *ProjectsJobTriggersGetCall {
 	c := &ProjectsJobTriggersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19179,17 +20124,17 @@ func (c *ProjectsJobTriggersGetCall) Do(opts ...googleapi.CallOption) (*GooglePr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -19245,16 +20190,16 @@ type ProjectsJobTriggersListCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsJobTriggersService) List(parentid string) *ProjectsJobTriggersListCall {
 	c := &ProjectsJobTriggersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -19295,12 +20240,12 @@ func (c *ProjectsJobTriggersListCall) LocationId(locationId string) *ProjectsJob
 // postfix. This list is case-insensitive, default sorting order is
 // ascending, redundant space characters are insignificant. Example:
 // `name asc,update_time, create_time desc` Supported fields are: -
-// `create_time`: corresponds to time the JobTrigger was created. -
-// `update_time`: corresponds to time the JobTrigger was last updated. -
-// `last_run_time`: corresponds to the last time the JobTrigger ran. -
-// `name`: corresponds to JobTrigger's name. - `display_name`:
-// corresponds to JobTrigger's display name. - `status`: corresponds to
-// JobTrigger's status.
+// `create_time`: corresponds to the time the JobTrigger was created. -
+// `update_time`: corresponds to the time the JobTrigger was last
+// updated. - `last_run_time`: corresponds to the last time the
+// JobTrigger ran. - `name`: corresponds to the JobTrigger's name. -
+// `display_name`: corresponds to the JobTrigger's display name. -
+// `status`: corresponds to JobTrigger's status.
 func (c *ProjectsJobTriggersListCall) OrderBy(orderBy string) *ProjectsJobTriggersListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -19325,9 +20270,10 @@ func (c *ProjectsJobTriggersListCall) PageToken(pageToken string) *ProjectsJobTr
 // `DlpJobType.INSPECT` if not set.
 //
 // Possible values:
-//   "DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
-//   "INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
-//   "RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
+//
+//	"DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
+//	"INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
+//	"RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
 func (c *ProjectsJobTriggersListCall) Type(type_ string) *ProjectsJobTriggersListCall {
 	c.urlParams_.Set("type", type_)
 	return c
@@ -19410,17 +20356,17 @@ func (c *ProjectsJobTriggersListCall) Do(opts ...googleapi.CallOption) (*GoogleP
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListJobTriggersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19453,7 +20399,7 @@ func (c *ProjectsJobTriggersListCall) Do(opts ...googleapi.CallOption) (*GoogleP
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of triggeredJob fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the JobTrigger was created. - `update_time`: corresponds to time the JobTrigger was last updated. - `last_run_time`: corresponds to the last time the JobTrigger ran. - `name`: corresponds to JobTrigger's name. - `display_name`: corresponds to JobTrigger's display name. - `status`: corresponds to JobTrigger's status.",
+	//       "description": "Comma separated list of triggeredJob fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the JobTrigger was created. - `update_time`: corresponds to the time the JobTrigger was last updated. - `last_run_time`: corresponds to the last time the JobTrigger ran. - `name`: corresponds to the JobTrigger's name. - `display_name`: corresponds to the JobTrigger's display name. - `status`: corresponds to JobTrigger's status.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -19538,8 +20484,8 @@ type ProjectsJobTriggersPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsJobTriggersService) Patch(name string, googleprivacydlpv2updatejobtriggerrequest *GooglePrivacyDlpV2UpdateJobTriggerRequest) *ProjectsJobTriggersPatchCall {
 	c := &ProjectsJobTriggersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19614,17 +20560,17 @@ func (c *ProjectsJobTriggersPatchCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -19687,16 +20633,16 @@ type ProjectsLocationsContentDeidentifyCall struct {
 // run. By default this may be all types, but may change over time as
 // detectors are updated.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsContentService) Deidentify(parentid string, googleprivacydlpv2deidentifycontentrequest *GooglePrivacyDlpV2DeidentifyContentRequest) *ProjectsLocationsContentDeidentifyCall {
 	c := &ProjectsLocationsContentDeidentifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -19773,17 +20719,17 @@ func (c *ProjectsLocationsContentDeidentifyCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19847,16 +20793,16 @@ type ProjectsLocationsContentInspectCall struct {
 // https://cloud.google.com/dlp/docs/inspecting-images and
 // https://cloud.google.com/dlp/docs/inspecting-text,
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsContentService) Inspect(parentid string, googleprivacydlpv2inspectcontentrequest *GooglePrivacyDlpV2InspectContentRequest) *ProjectsLocationsContentInspectCall {
 	c := &ProjectsLocationsContentInspectCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -19933,17 +20879,17 @@ func (c *ProjectsLocationsContentInspectCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20002,16 +20948,16 @@ type ProjectsLocationsContentReidentifyCall struct {
 // https://cloud.google.com/dlp/docs/pseudonymization#re-identification_in_free_text_code_example
 // to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsContentService) Reidentify(parentid string, googleprivacydlpv2reidentifycontentrequest *GooglePrivacyDlpV2ReidentifyContentRequest) *ProjectsLocationsContentReidentifyCall {
 	c := &ProjectsLocationsContentReidentifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -20088,17 +21034,17 @@ func (c *ProjectsLocationsContentReidentifyCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ReidentifyContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20153,25 +21099,25 @@ type ProjectsLocationsDeidentifyTemplatesCreateCall struct {
 	header_                                           http.Header
 }
 
-// Create: Creates a DeidentifyTemplate for re-using frequently used
+// Create: Creates a DeidentifyTemplate for reusing frequently used
 // configuration for de-identifying content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsDeidentifyTemplatesService) Create(parentid string, googleprivacydlpv2createdeidentifytemplaterequest *GooglePrivacyDlpV2CreateDeidentifyTemplateRequest) *ProjectsLocationsDeidentifyTemplatesCreateCall {
 	c := &ProjectsLocationsDeidentifyTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -20247,17 +21193,17 @@ func (c *ProjectsLocationsDeidentifyTemplatesCreateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -20271,7 +21217,7 @@ func (c *ProjectsLocationsDeidentifyTemplatesCreateCall) Do(opts ...googleapi.Ca
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a DeidentifyTemplate for re-using frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
+	//   "description": "Creates a DeidentifyTemplate for reusing frequently used configuration for de-identifying content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates-deid to learn more.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/deidentifyTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.projects.locations.deidentifyTemplates.create",
@@ -20315,10 +21261,10 @@ type ProjectsLocationsDeidentifyTemplatesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be deleted, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be deleted, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *ProjectsLocationsDeidentifyTemplatesService) Delete(name string) *ProjectsLocationsDeidentifyTemplatesDeleteCall {
 	c := &ProjectsLocationsDeidentifyTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -20387,17 +21333,17 @@ func (c *ProjectsLocationsDeidentifyTemplatesDeleteCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -20453,10 +21399,10 @@ type ProjectsLocationsDeidentifyTemplatesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of the organization and deidentify template to
-//   be read, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of the organization and deidentify template to
+//     be read, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *ProjectsLocationsDeidentifyTemplatesService) Get(name string) *ProjectsLocationsDeidentifyTemplatesGetCall {
 	c := &ProjectsLocationsDeidentifyTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -20539,17 +21485,17 @@ func (c *ProjectsLocationsDeidentifyTemplatesGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -20605,20 +21551,20 @@ type ProjectsLocationsDeidentifyTemplatesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsDeidentifyTemplatesService) List(parentid string) *ProjectsLocationsDeidentifyTemplatesListCall {
 	c := &ProjectsLocationsDeidentifyTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -20637,18 +21583,18 @@ func (c *ProjectsLocationsDeidentifyTemplatesListCall) LocationId(locationId str
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *ProjectsLocationsDeidentifyTemplatesListCall) OrderBy(orderBy string) *ProjectsLocationsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *ProjectsLocationsDeidentifyTemplatesListCall) PageSize(pageSize int64) *ProjectsLocationsDeidentifyTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -20739,17 +21685,17 @@ func (c *ProjectsLocationsDeidentifyTemplatesListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListDeidentifyTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20777,12 +21723,12 @@ func (c *ProjectsLocationsDeidentifyTemplatesListCall) Do(opts ...googleapi.Call
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -20847,10 +21793,10 @@ type ProjectsLocationsDeidentifyTemplatesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-templates-deid to learn
 // more.
 //
-// - name: Resource name of organization and deidentify template to be
-//   updated, for example
-//   `organizations/433245324/deidentifyTemplates/432452342` or
-//   projects/project-id/deidentifyTemplates/432452342.
+//   - name: Resource name of organization and deidentify template to be
+//     updated, for example
+//     `organizations/433245324/deidentifyTemplates/432452342` or
+//     projects/project-id/deidentifyTemplates/432452342.
 func (r *ProjectsLocationsDeidentifyTemplatesService) Patch(name string, googleprivacydlpv2updatedeidentifytemplaterequest *GooglePrivacyDlpV2UpdateDeidentifyTemplateRequest) *ProjectsLocationsDeidentifyTemplatesPatchCall {
 	c := &ProjectsLocationsDeidentifyTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -20926,17 +21872,17 @@ func (c *ProjectsLocationsDeidentifyTemplatesPatchCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DeidentifyTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -21073,17 +22019,17 @@ func (c *ProjectsLocationsDlpJobsCancelCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -21146,16 +22092,16 @@ type ProjectsLocationsDlpJobsCreateCall struct {
 // default this may be all types, but may change over time as detectors
 // are updated.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsDlpJobsService) Create(parentid string, googleprivacydlpv2createdlpjobrequest *GooglePrivacyDlpV2CreateDlpJobRequest) *ProjectsLocationsDlpJobsCreateCall {
 	c := &ProjectsLocationsDlpJobsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -21230,17 +22176,17 @@ func (c *ProjectsLocationsDlpJobsCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DlpJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -21296,7 +22242,7 @@ type ProjectsLocationsDlpJobsDeleteCall struct {
 
 // Delete: Deletes a long-running DlpJob. This method indicates that the
 // client is no longer interested in the DlpJob result. The job will be
-// cancelled if possible. See
+// canceled if possible. See
 // https://cloud.google.com/dlp/docs/inspecting-storage and
 // https://cloud.google.com/dlp/docs/compute-risk-analysis to learn
 // more.
@@ -21370,17 +22316,17 @@ func (c *ProjectsLocationsDlpJobsDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -21394,7 +22340,7 @@ func (c *ProjectsLocationsDlpJobsDeleteCall) Do(opts ...googleapi.CallOption) (*
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes a long-running DlpJob. This method indicates that the client is no longer interested in the DlpJob result. The job will be cancelled if possible. See https://cloud.google.com/dlp/docs/inspecting-storage and https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.",
+	//   "description": "Deletes a long-running DlpJob. This method indicates that the client is no longer interested in the DlpJob result. The job will be canceled if possible. See https://cloud.google.com/dlp/docs/inspecting-storage and https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/dlpJobs/{dlpJobsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "dlp.projects.locations.dlpJobs.delete",
@@ -21510,17 +22456,17 @@ func (c *ProjectsLocationsDlpJobsFinishCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -21662,17 +22608,17 @@ func (c *ProjectsLocationsDlpJobsGetCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DlpJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -21728,8 +22674,8 @@ type ProjectsLocationsDlpJobsHybridInspectCall struct {
 // review the findings, inspect the job. Inspection will occur
 // asynchronously.
 //
-// - name: Resource name of the job to execute a hybrid inspect on, for
-//   example `projects/dlp-test-project/dlpJob/53234423`.
+//   - name: Resource name of the job to execute a hybrid inspect on, for
+//     example `projects/dlp-test-project/dlpJob/53234423`.
 func (r *ProjectsLocationsDlpJobsService) HybridInspect(name string, googleprivacydlpv2hybridinspectdlpjobrequest *GooglePrivacyDlpV2HybridInspectDlpJobRequest) *ProjectsLocationsDlpJobsHybridInspectCall {
 	c := &ProjectsLocationsDlpJobsHybridInspectCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -21805,17 +22751,17 @@ func (c *ProjectsLocationsDlpJobsHybridInspectCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2HybridInspectResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -21875,16 +22821,16 @@ type ProjectsLocationsDlpJobsListCall struct {
 // https://cloud.google.com/dlp/docs/compute-risk-analysis to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsDlpJobsService) List(parentid string) *ProjectsLocationsDlpJobsListCall {
 	c := &ProjectsLocationsDlpJobsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -21898,13 +22844,13 @@ func (r *ProjectsLocationsDlpJobsService) List(parentid string) *ProjectsLocatio
 // restriction has the form of `{field} {operator} {value}`. * Supported
 // fields/values for inspect jobs: - `state` -
 // PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` -
-// DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The resource name
-// of the trigger that created job. - 'end_time` - Corresponds to time
-// the job finished. - 'start_time` - Corresponds to time the job
+// DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The name of the
+// trigger that created the job. - 'end_time` - Corresponds to the time
+// the job finished. - 'start_time` - Corresponds to the time the job
 // finished. * Supported fields for risk analysis jobs: - `state` -
-// RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to time
-// the job finished. - 'start_time` - Corresponds to time the job
-// finished. * The operator must be `=` or `!=`. Examples: *
+// RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the
+// time the job finished. - 'start_time` - Corresponds to the time the
+// job finished. * The operator must be `=` or `!=`. Examples: *
 // inspected_storage = cloud_storage AND state = done *
 // inspected_storage = cloud_storage OR inspected_storage = bigquery *
 // inspected_storage = cloud_storage AND (state = done OR state =
@@ -21927,9 +22873,9 @@ func (c *ProjectsLocationsDlpJobsListCall) LocationId(locationId string) *Projec
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc, end_time asc,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the job was created. - `end_time`: corresponds to time the
-// job ended. - `name`: corresponds to job's name. - `state`:
-// corresponds to `state`
+// to the time the job was created. - `end_time`: corresponds to the
+// time the job ended. - `name`: corresponds to the job's name. -
+// `state`: corresponds to `state`
 func (c *ProjectsLocationsDlpJobsListCall) OrderBy(orderBy string) *ProjectsLocationsDlpJobsListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -21953,9 +22899,10 @@ func (c *ProjectsLocationsDlpJobsListCall) PageToken(pageToken string) *Projects
 // `DlpJobType.INSPECT`
 //
 // Possible values:
-//   "DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
-//   "INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
-//   "RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
+//
+//	"DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
+//	"INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
+//	"RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
 func (c *ProjectsLocationsDlpJobsListCall) Type(type_ string) *ProjectsLocationsDlpJobsListCall {
 	c.urlParams_.Set("type", type_)
 	return c
@@ -22037,17 +22984,17 @@ func (c *ProjectsLocationsDlpJobsListCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListDlpJobsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -22070,7 +23017,7 @@ func (c *ProjectsLocationsDlpJobsListCall) Do(opts ...googleapi.CallOption) (*Go
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Allows filtering. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND` or `OR` logical operators. A sequence of restrictions implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * Supported fields/values for inspect jobs: - `state` - PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` - DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The resource name of the trigger that created job. - 'end_time` - Corresponds to time the job finished. - 'start_time` - Corresponds to time the job finished. * Supported fields for risk analysis jobs: - `state` - RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to time the job finished. - 'start_time` - Corresponds to time the job finished. * The operator must be `=` or `!=`. Examples: * inspected_storage = cloud_storage AND state = done * inspected_storage = cloud_storage OR inspected_storage = bigquery * inspected_storage = cloud_storage AND (state = done OR state = canceled) * end_time \u003e \\\"2017-12-12T00:00:00+00:00\\\" The length of this field should be no more than 500 characters.",
+	//       "description": "Allows filtering. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND` or `OR` logical operators. A sequence of restrictions implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * Supported fields/values for inspect jobs: - `state` - PENDING|RUNNING|CANCELED|FINISHED|FAILED - `inspected_storage` - DATASTORE|CLOUD_STORAGE|BIGQUERY - `trigger_name` - The name of the trigger that created the job. - 'end_time` - Corresponds to the time the job finished. - 'start_time` - Corresponds to the time the job finished. * Supported fields for risk analysis jobs: - `state` - RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the time the job finished. - 'start_time` - Corresponds to the time the job finished. * The operator must be `=` or `!=`. Examples: * inspected_storage = cloud_storage AND state = done * inspected_storage = cloud_storage OR inspected_storage = bigquery * inspected_storage = cloud_storage AND (state = done OR state = canceled) * end_time \u003e \\\"2017-12-12T00:00:00+00:00\\\" The length of this field should be no more than 500 characters.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -22080,7 +23027,7 @@ func (c *ProjectsLocationsDlpJobsListCall) Do(opts ...googleapi.CallOption) (*Go
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, end_time asc, create_time desc` Supported fields are: - `create_time`: corresponds to time the job was created. - `end_time`: corresponds to time the job ended. - `name`: corresponds to job's name. - `state`: corresponds to `state`",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, end_time asc, create_time desc` Supported fields are: - `create_time`: corresponds to the time the job was created. - `end_time`: corresponds to the time the job ended. - `name`: corresponds to the job's name. - `state`: corresponds to `state`",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -22169,16 +23116,16 @@ type ProjectsLocationsImageRedactCall struct {
 // run. By default this may be all types, but may change over time as
 // detectors are updated.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsImageService) Redact(parentid string, googleprivacydlpv2redactimagerequest *GooglePrivacyDlpV2RedactImageRequest) *ProjectsLocationsImageRedactCall {
 	c := &ProjectsLocationsImageRedactCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -22254,17 +23201,17 @@ func (c *ProjectsLocationsImageRedactCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2RedactImageResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -22319,24 +23266,24 @@ type ProjectsLocationsInspectTemplatesCreateCall struct {
 	header_                                        http.Header
 }
 
-// Create: Creates an InspectTemplate for re-using frequently used
+// Create: Creates an InspectTemplate for reusing frequently used
 // configuration for inspecting content, images, and storage. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsInspectTemplatesService) Create(parentid string, googleprivacydlpv2createinspecttemplaterequest *GooglePrivacyDlpV2CreateInspectTemplateRequest) *ProjectsLocationsInspectTemplatesCreateCall {
 	c := &ProjectsLocationsInspectTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -22412,17 +23359,17 @@ func (c *ProjectsLocationsInspectTemplatesCreateCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -22436,7 +23383,7 @@ func (c *ProjectsLocationsInspectTemplatesCreateCall) Do(opts ...googleapi.CallO
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates an InspectTemplate for re-using frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
+	//   "description": "Creates an InspectTemplate for reusing frequently used configuration for inspecting content, images, and storage. See https://cloud.google.com/dlp/docs/creating-templates to learn more.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/inspectTemplates",
 	//   "httpMethod": "POST",
 	//   "id": "dlp.projects.locations.inspectTemplates.create",
@@ -22479,10 +23426,10 @@ type ProjectsLocationsInspectTemplatesDeleteCall struct {
 // Delete: Deletes an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   deleted, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     deleted, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *ProjectsLocationsInspectTemplatesService) Delete(name string) *ProjectsLocationsInspectTemplatesDeleteCall {
 	c := &ProjectsLocationsInspectTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -22551,17 +23498,17 @@ func (c *ProjectsLocationsInspectTemplatesDeleteCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -22616,10 +23563,10 @@ type ProjectsLocationsInspectTemplatesGetCall struct {
 // Get: Gets an InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of the organization and inspectTemplate to be
-//   read, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of the organization and inspectTemplate to be
+//     read, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *ProjectsLocationsInspectTemplatesService) Get(name string) *ProjectsLocationsInspectTemplatesGetCall {
 	c := &ProjectsLocationsInspectTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -22702,17 +23649,17 @@ func (c *ProjectsLocationsInspectTemplatesGetCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -22767,20 +23714,20 @@ type ProjectsLocationsInspectTemplatesListCall struct {
 // List: Lists InspectTemplates. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsInspectTemplatesService) List(parentid string) *ProjectsLocationsInspectTemplatesListCall {
 	c := &ProjectsLocationsInspectTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -22799,18 +23746,18 @@ func (c *ProjectsLocationsInspectTemplatesListCall) LocationId(locationId string
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc,update_time,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the template was created. - `update_time`: corresponds to
-// time the template was last updated. - `name`: corresponds to
-// template's name. - `display_name`: corresponds to template's display
-// name.
+// to the time the template was created. - `update_time`: corresponds to
+// the time the template was last updated. - `name`: corresponds to the
+// template's name. - `display_name`: corresponds to the template's
+// display name.
 func (c *ProjectsLocationsInspectTemplatesListCall) OrderBy(orderBy string) *ProjectsLocationsInspectTemplatesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *ProjectsLocationsInspectTemplatesListCall) PageSize(pageSize int64) *ProjectsLocationsInspectTemplatesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -22901,17 +23848,17 @@ func (c *ProjectsLocationsInspectTemplatesListCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListInspectTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -22939,12 +23886,12 @@ func (c *ProjectsLocationsInspectTemplatesListCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the template was created. - `update_time`: corresponds to time the template was last updated. - `name`: corresponds to template's name. - `display_name`: corresponds to template's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the template was created. - `update_time`: corresponds to the time the template was last updated. - `name`: corresponds to the template's name. - `display_name`: corresponds to the template's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -23008,10 +23955,10 @@ type ProjectsLocationsInspectTemplatesPatchCall struct {
 // Patch: Updates the InspectTemplate. See
 // https://cloud.google.com/dlp/docs/creating-templates to learn more.
 //
-// - name: Resource name of organization and inspectTemplate to be
-//   updated, for example
-//   `organizations/433245324/inspectTemplates/432452342` or
-//   projects/project-id/inspectTemplates/432452342.
+//   - name: Resource name of organization and inspectTemplate to be
+//     updated, for example
+//     `organizations/433245324/inspectTemplates/432452342` or
+//     projects/project-id/inspectTemplates/432452342.
 func (r *ProjectsLocationsInspectTemplatesService) Patch(name string, googleprivacydlpv2updateinspecttemplaterequest *GooglePrivacyDlpV2UpdateInspectTemplateRequest) *ProjectsLocationsInspectTemplatesPatchCall {
 	c := &ProjectsLocationsInspectTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23087,17 +24034,17 @@ func (c *ProjectsLocationsInspectTemplatesPatchCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2InspectTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -23155,8 +24102,8 @@ type ProjectsLocationsJobTriggersActivateCall struct {
 // Activate: Activate a job trigger. Causes the immediate execute of a
 // trigger instead of waiting on the trigger event to occur.
 //
-// - name: Resource name of the trigger to activate, for example
-//   `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the trigger to activate, for example
+//     `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsLocationsJobTriggersService) Activate(name string, googleprivacydlpv2activatejobtriggerrequest *GooglePrivacyDlpV2ActivateJobTriggerRequest) *ProjectsLocationsJobTriggersActivateCall {
 	c := &ProjectsLocationsJobTriggersActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23231,17 +24178,17 @@ func (c *ProjectsLocationsJobTriggersActivateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2DlpJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -23301,16 +24248,16 @@ type ProjectsLocationsJobTriggersCreateCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsJobTriggersService) Create(parentid string, googleprivacydlpv2createjobtriggerrequest *GooglePrivacyDlpV2CreateJobTriggerRequest) *ProjectsLocationsJobTriggersCreateCall {
 	c := &ProjectsLocationsJobTriggersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -23385,17 +24332,17 @@ func (c *ProjectsLocationsJobTriggersCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -23453,8 +24400,8 @@ type ProjectsLocationsJobTriggersDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsLocationsJobTriggersService) Delete(name string) *ProjectsLocationsJobTriggersDeleteCall {
 	c := &ProjectsLocationsJobTriggersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23523,17 +24470,17 @@ func (c *ProjectsLocationsJobTriggersDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -23589,8 +24536,8 @@ type ProjectsLocationsJobTriggersGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsLocationsJobTriggersService) Get(name string) *ProjectsLocationsJobTriggersGetCall {
 	c := &ProjectsLocationsJobTriggersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23672,17 +24619,17 @@ func (c *ProjectsLocationsJobTriggersGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -23738,8 +24685,8 @@ type ProjectsLocationsJobTriggersHybridInspectCall struct {
 // trigger. The inspection will be processed asynchronously. To review
 // the findings monitor the jobs within the trigger.
 //
-// - name: Resource name of the trigger to execute a hybrid inspect on,
-//   for example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the trigger to execute a hybrid inspect on,
+//     for example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsLocationsJobTriggersService) HybridInspect(name string, googleprivacydlpv2hybridinspectjobtriggerrequest *GooglePrivacyDlpV2HybridInspectJobTriggerRequest) *ProjectsLocationsJobTriggersHybridInspectCall {
 	c := &ProjectsLocationsJobTriggersHybridInspectCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23815,17 +24762,17 @@ func (c *ProjectsLocationsJobTriggersHybridInspectCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2HybridInspectResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23884,16 +24831,16 @@ type ProjectsLocationsJobTriggersListCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID The
-//   following example `parent` string specifies a parent project with
-//   the identifier `example-project`, and specifies the `europe-west3`
-//   location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsJobTriggersService) List(parentid string) *ProjectsLocationsJobTriggersListCall {
 	c := &ProjectsLocationsJobTriggersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -23934,12 +24881,12 @@ func (c *ProjectsLocationsJobTriggersListCall) LocationId(locationId string) *Pr
 // postfix. This list is case-insensitive, default sorting order is
 // ascending, redundant space characters are insignificant. Example:
 // `name asc,update_time, create_time desc` Supported fields are: -
-// `create_time`: corresponds to time the JobTrigger was created. -
-// `update_time`: corresponds to time the JobTrigger was last updated. -
-// `last_run_time`: corresponds to the last time the JobTrigger ran. -
-// `name`: corresponds to JobTrigger's name. - `display_name`:
-// corresponds to JobTrigger's display name. - `status`: corresponds to
-// JobTrigger's status.
+// `create_time`: corresponds to the time the JobTrigger was created. -
+// `update_time`: corresponds to the time the JobTrigger was last
+// updated. - `last_run_time`: corresponds to the last time the
+// JobTrigger ran. - `name`: corresponds to the JobTrigger's name. -
+// `display_name`: corresponds to the JobTrigger's display name. -
+// `status`: corresponds to JobTrigger's status.
 func (c *ProjectsLocationsJobTriggersListCall) OrderBy(orderBy string) *ProjectsLocationsJobTriggersListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -23964,9 +24911,10 @@ func (c *ProjectsLocationsJobTriggersListCall) PageToken(pageToken string) *Proj
 // `DlpJobType.INSPECT` if not set.
 //
 // Possible values:
-//   "DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
-//   "INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
-//   "RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
+//
+//	"DLP_JOB_TYPE_UNSPECIFIED" - Defaults to INSPECT_JOB.
+//	"INSPECT_JOB" - The job inspected Google Cloud for sensitive data.
+//	"RISK_ANALYSIS_JOB" - The job executed a Risk Analysis computation.
 func (c *ProjectsLocationsJobTriggersListCall) Type(type_ string) *ProjectsLocationsJobTriggersListCall {
 	c.urlParams_.Set("type", type_)
 	return c
@@ -24049,17 +24997,17 @@ func (c *ProjectsLocationsJobTriggersListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListJobTriggersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24092,7 +25040,7 @@ func (c *ProjectsLocationsJobTriggersListCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of triggeredJob fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to time the JobTrigger was created. - `update_time`: corresponds to time the JobTrigger was last updated. - `last_run_time`: corresponds to the last time the JobTrigger ran. - `name`: corresponds to JobTrigger's name. - `display_name`: corresponds to JobTrigger's display name. - `status`: corresponds to JobTrigger's status.",
+	//       "description": "Comma separated list of triggeredJob fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc,update_time, create_time desc` Supported fields are: - `create_time`: corresponds to the time the JobTrigger was created. - `update_time`: corresponds to the time the JobTrigger was last updated. - `last_run_time`: corresponds to the last time the JobTrigger ran. - `name`: corresponds to the JobTrigger's name. - `display_name`: corresponds to the JobTrigger's display name. - `status`: corresponds to JobTrigger's status.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -24177,8 +25125,8 @@ type ProjectsLocationsJobTriggersPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-job-triggers to learn
 // more.
 //
-// - name: Resource name of the project and the triggeredJob, for
-//   example `projects/dlp-test-project/jobTriggers/53234423`.
+//   - name: Resource name of the project and the triggeredJob, for
+//     example `projects/dlp-test-project/jobTriggers/53234423`.
 func (r *ProjectsLocationsJobTriggersService) Patch(name string, googleprivacydlpv2updatejobtriggerrequest *GooglePrivacyDlpV2UpdateJobTriggerRequest) *ProjectsLocationsJobTriggersPatchCall {
 	c := &ProjectsLocationsJobTriggersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -24253,17 +25201,17 @@ func (c *ProjectsLocationsJobTriggersPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2JobTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -24323,20 +25271,20 @@ type ProjectsLocationsStoredInfoTypesCreateCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsStoredInfoTypesService) Create(parentid string, googleprivacydlpv2createstoredinfotyperequest *GooglePrivacyDlpV2CreateStoredInfoTypeRequest) *ProjectsLocationsStoredInfoTypesCreateCall {
 	c := &ProjectsLocationsStoredInfoTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -24411,17 +25359,17 @@ func (c *ProjectsLocationsStoredInfoTypesCreateCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -24479,10 +25427,10 @@ type ProjectsLocationsStoredInfoTypesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   deleted, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     deleted, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *ProjectsLocationsStoredInfoTypesService) Delete(name string) *ProjectsLocationsStoredInfoTypesDeleteCall {
 	c := &ProjectsLocationsStoredInfoTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -24551,17 +25499,17 @@ func (c *ProjectsLocationsStoredInfoTypesDeleteCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -24617,10 +25565,10 @@ type ProjectsLocationsStoredInfoTypesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   read, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     read, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *ProjectsLocationsStoredInfoTypesService) Get(name string) *ProjectsLocationsStoredInfoTypesGetCall {
 	c := &ProjectsLocationsStoredInfoTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -24702,17 +25650,17 @@ func (c *ProjectsLocationsStoredInfoTypesGetCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -24768,20 +25716,17 @@ type ProjectsLocationsStoredInfoTypesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsLocationsStoredInfoTypesService) List(parentid string) *ProjectsLocationsStoredInfoTypesListCall {
 	c := &ProjectsLocationsStoredInfoTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -24800,7 +25745,7 @@ func (c *ProjectsLocationsStoredInfoTypesListCall) LocationId(locationId string)
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc, display_name,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the most recent version of the resource was created. -
+// to the time the most recent version of the resource was created. -
 // `state`: corresponds to the state of the resource. - `name`:
 // corresponds to resource name. - `display_name`: corresponds to info
 // type's display name.
@@ -24810,8 +25755,8 @@ func (c *ProjectsLocationsStoredInfoTypesListCall) OrderBy(orderBy string) *Proj
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *ProjectsLocationsStoredInfoTypesListCall) PageSize(pageSize int64) *ProjectsLocationsStoredInfoTypesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -24902,17 +25847,17 @@ func (c *ProjectsLocationsStoredInfoTypesListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListStoredInfoTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24940,12 +25885,12 @@ func (c *ProjectsLocationsStoredInfoTypesListCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to the time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -24956,7 +25901,7 @@ func (c *ProjectsLocationsStoredInfoTypesListCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID + Organizations scope, location specified: `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations scope, no location specified (defaults to global): `organizations/`ORG_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
+	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -25012,10 +25957,10 @@ type ProjectsLocationsStoredInfoTypesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of organization and storedInfoType to be
-//   updated, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of organization and storedInfoType to be
+//     updated, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *ProjectsLocationsStoredInfoTypesService) Patch(name string, googleprivacydlpv2updatestoredinfotyperequest *GooglePrivacyDlpV2UpdateStoredInfoTypeRequest) *ProjectsLocationsStoredInfoTypesPatchCall {
 	c := &ProjectsLocationsStoredInfoTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -25090,17 +26035,17 @@ func (c *ProjectsLocationsStoredInfoTypesPatchCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -25160,20 +26105,20 @@ type ProjectsStoredInfoTypesCreateCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID +
+//     Organizations scope, location specified:
+//     `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
+//     scope, no location specified (defaults to global):
+//     `organizations/`ORG_ID The following example `parent` string
+//     specifies a parent project with the identifier `example-project`,
+//     and specifies the `europe-west3` location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsStoredInfoTypesService) Create(parentid string, googleprivacydlpv2createstoredinfotyperequest *GooglePrivacyDlpV2CreateStoredInfoTypeRequest) *ProjectsStoredInfoTypesCreateCall {
 	c := &ProjectsStoredInfoTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -25248,17 +26193,17 @@ func (c *ProjectsStoredInfoTypesCreateCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -25316,10 +26261,10 @@ type ProjectsStoredInfoTypesDeleteCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   deleted, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     deleted, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *ProjectsStoredInfoTypesService) Delete(name string) *ProjectsStoredInfoTypesDeleteCall {
 	c := &ProjectsStoredInfoTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -25388,17 +26333,17 @@ func (c *ProjectsStoredInfoTypesDeleteCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -25454,10 +26399,10 @@ type ProjectsStoredInfoTypesGetCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of the organization and storedInfoType to be
-//   read, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of the organization and storedInfoType to be
+//     read, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *ProjectsStoredInfoTypesService) Get(name string) *ProjectsStoredInfoTypesGetCall {
 	c := &ProjectsStoredInfoTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -25539,17 +26484,17 @@ func (c *ProjectsStoredInfoTypesGetCall) Do(opts ...googleapi.CallOption) (*Goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{
@@ -25605,20 +26550,17 @@ type ProjectsStoredInfoTypesListCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - parent: Parent resource name. The format of this value varies
-//   depending on the scope of the request (project or organization) and
-//   whether you have specified a processing location
-//   (https://cloud.google.com/dlp/docs/specifying-location): + Projects
-//   scope, location specified:
-//   `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
-//   location specified (defaults to global): `projects/`PROJECT_ID +
-//   Organizations scope, location specified:
-//   `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations
-//   scope, no location specified (defaults to global):
-//   `organizations/`ORG_ID The following example `parent` string
-//   specifies a parent project with the identifier `example-project`,
-//   and specifies the `europe-west3` location for processing data:
-//   parent=projects/example-project/locations/europe-west3.
+//   - parent: Parent resource name. The format of this value varies
+//     depending on the scope of the request (project or organization) and
+//     whether you have specified a processing location
+//     (https://cloud.google.com/dlp/docs/specifying-location): + Projects
+//     scope, location specified:
+//     `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no
+//     location specified (defaults to global): `projects/`PROJECT_ID The
+//     following example `parent` string specifies a parent project with
+//     the identifier `example-project`, and specifies the `europe-west3`
+//     location for processing data:
+//     parent=projects/example-project/locations/europe-west3.
 func (r *ProjectsStoredInfoTypesService) List(parentid string) *ProjectsStoredInfoTypesListCall {
 	c := &ProjectsStoredInfoTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -25637,7 +26579,7 @@ func (c *ProjectsStoredInfoTypesListCall) LocationId(locationId string) *Project
 // is case-insensitive, default sorting order is ascending, redundant
 // space characters are insignificant. Example: `name asc, display_name,
 // create_time desc` Supported fields are: - `create_time`: corresponds
-// to time the most recent version of the resource was created. -
+// to the time the most recent version of the resource was created. -
 // `state`: corresponds to the state of the resource. - `name`:
 // corresponds to resource name. - `display_name`: corresponds to info
 // type's display name.
@@ -25647,8 +26589,8 @@ func (c *ProjectsStoredInfoTypesListCall) OrderBy(orderBy string) *ProjectsStore
 }
 
 // PageSize sets the optional parameter "pageSize": Size of the page,
-// can be limited by server. If zero server returns a page of max size
-// 100.
+// can be limited by the server. If zero server returns a page of max
+// size 100.
 func (c *ProjectsStoredInfoTypesListCall) PageSize(pageSize int64) *ProjectsStoredInfoTypesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -25739,17 +26681,17 @@ func (c *ProjectsStoredInfoTypesListCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2ListStoredInfoTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -25777,12 +26719,12 @@ func (c *ProjectsStoredInfoTypesListCall) Do(opts ...googleapi.CallOption) (*Goo
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
+	//       "description": "Comma separated list of fields to order by, followed by `asc` or `desc` postfix. This list is case-insensitive, default sorting order is ascending, redundant space characters are insignificant. Example: `name asc, display_name, create_time desc` Supported fields are: - `create_time`: corresponds to the time the most recent version of the resource was created. - `state`: corresponds to the state of the resource. - `name`: corresponds to resource name. - `display_name`: corresponds to info type's display name.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Size of the page, can be limited by server. If zero server returns a page of max size 100.",
+	//       "description": "Size of the page, can be limited by the server. If zero server returns a page of max size 100.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -25793,7 +26735,7 @@ func (c *ProjectsStoredInfoTypesListCall) Do(opts ...googleapi.CallOption) (*Goo
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID + Organizations scope, location specified: `organizations/`ORG_ID`/locations/`LOCATION_ID + Organizations scope, no location specified (defaults to global): `organizations/`ORG_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
+	//       "description": "Required. Parent resource name. The format of this value varies depending on the scope of the request (project or organization) and whether you have [specified a processing location](https://cloud.google.com/dlp/docs/specifying-location): + Projects scope, location specified: `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location specified (defaults to global): `projects/`PROJECT_ID The following example `parent` string specifies a parent project with the identifier `example-project`, and specifies the `europe-west3` location for processing data: parent=projects/example-project/locations/europe-west3",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
@@ -25849,10 +26791,10 @@ type ProjectsStoredInfoTypesPatchCall struct {
 // https://cloud.google.com/dlp/docs/creating-stored-infotypes to learn
 // more.
 //
-// - name: Resource name of organization and storedInfoType to be
-//   updated, for example
-//   `organizations/433245324/storedInfoTypes/432452342` or
-//   projects/project-id/storedInfoTypes/432452342.
+//   - name: Resource name of organization and storedInfoType to be
+//     updated, for example
+//     `organizations/433245324/storedInfoTypes/432452342` or
+//     projects/project-id/storedInfoTypes/432452342.
 func (r *ProjectsStoredInfoTypesService) Patch(name string, googleprivacydlpv2updatestoredinfotyperequest *GooglePrivacyDlpV2UpdateStoredInfoTypeRequest) *ProjectsStoredInfoTypesPatchCall {
 	c := &ProjectsStoredInfoTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -25927,17 +26869,17 @@ func (c *ProjectsStoredInfoTypesPatchCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GooglePrivacyDlpV2StoredInfoType{
 		ServerResponse: googleapi.ServerResponse{

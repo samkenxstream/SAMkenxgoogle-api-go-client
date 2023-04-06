@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/appengine/docs/admin-api/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/appengine/v1alpha"
-//   ...
-//   ctx := context.Background()
-//   appengineService, err := appengine.NewService(ctx)
+//	import "google.golang.org/api/appengine/v1alpha"
+//	...
+//	ctx := context.Background()
+//	appengineService, err := appengine.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   appengineService, err := appengine.NewService(ctx, option.WithScopes(appengine.CloudPlatformReadOnlyScope))
+//	appengineService, err := appengine.NewService(ctx, option.WithScopes(appengine.CloudPlatformReadOnlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   appengineService, err := appengine.NewService(ctx, option.WithAPIKey("AIza..."))
+//	appengineService, err := appengine.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   appengineService, err := appengine.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	appengineService, err := appengine.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package appengine // import "google.golang.org/api/appengine/v1alpha"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "appengine:v1alpha"
 const apiName = "appengine"
@@ -1179,6 +1180,309 @@ func (s *OperationMetadataV1Beta) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// ProjectEvent: The request sent to CLHs during project events.
+type ProjectEvent struct {
+	// EventId: The unique ID for this project event. CLHs can use this
+	// value to dedup repeated calls. required
+	EventId string `json:"eventId,omitempty"`
+
+	// Possible values:
+	//   "UNKNOWN"
+	//   "BEFORE_RESOURCE_HANDLING"
+	//   "AFTER_RESOURCE_HANDLING"
+	Phase string `json:"phase,omitempty"`
+
+	// ProjectMetadata: The projects metadata for this project. required
+	ProjectMetadata *ProjectsMetadata `json:"projectMetadata,omitempty"`
+
+	// State: The state of the project that led to this event.
+	State *ProjectState `json:"state,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "EventId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "EventId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ProjectEvent) MarshalJSON() ([]byte, error) {
+	type NoMethod ProjectEvent
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ProjectState: ProjectState contains the externally-visible project
+// state that is used to communicate the state and reasoning for that
+// state to the CLH. This data is not persisted by CCFE, but is instead
+// derived from CCFE's internal representation of the project state.
+type ProjectState struct {
+	CurrentReasons *Reasons `json:"currentReasons,omitempty"`
+
+	// PreviousReasons: The previous and current reasons for a project state
+	// will be sent for a project event. CLHs that need to know the signal
+	// that caused the project event to trigger (edges) as opposed to just
+	// knowing the state can act upon differences in the previous and
+	// current reasons.Reasons will be provided for every system: service
+	// management, data governance, abuse, and billing.If this is a
+	// CCFE-triggered event used for reconciliation then the current reasons
+	// will be set to their *_CONTROL_PLANE_SYNC state. The previous reasons
+	// will contain the last known set of non-unknown non-control_plane_sync
+	// reasons for the state.Reasons fields are deprecated. New tenants
+	// should only use the state field. If you must know the reason(s)
+	// behind a specific state, please consult with CCFE team first
+	// (cloud-ccfe-discuss@google.com).
+	PreviousReasons *Reasons `json:"previousReasons,omitempty"`
+
+	// State: The current state of the project. This state is the
+	// culmination of all of the opinions from external systems that CCFE
+	// knows about of the project.
+	//
+	// Possible values:
+	//   "UNKNOWN_STATE" - A project should never be in an unknown state.
+	// Receipt of a project with this state is an error.
+	//   "ON" - CCFE considers the project to be serving or transitioning
+	// into serving.
+	//   "OFF" - CCFE considers the project to be in an OFF state. This
+	// could occur due to various factors. The state could be triggered by
+	// Google-internal audits (ex. abuse suspension, billing closed) or
+	// cleanups trigged by compliance systems (ex. data governance hide).
+	// User-initiated events such as service management deactivation trigger
+	// a project to an OFF state.CLHs might choose to do nothing in this
+	// case or to turn off costly resources. CLHs need to consider the
+	// customer experience if an ON/OFF/ON sequence of state transitions
+	// occurs vs. the cost of deleting resources, keeping metadata about
+	// resources, or even keeping resources live for a period of time.CCFE
+	// will not send any new customer requests to the CLH when the project
+	// is in an OFF state. However, CCFE will allow all previous customer
+	// requests relayed to CLH to complete.
+	//   "DELETED" - This state indicates that the project has been (or is
+	// being) completely removed. This is often due to a data governance
+	// purge request and therefore resources should be deleted when this
+	// state is reached.
+	State string `json:"state,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CurrentReasons") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CurrentReasons") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ProjectState) MarshalJSON() ([]byte, error) {
+	type NoMethod ProjectState
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ProjectsMetadata: ProjectsMetadata is the metadata CCFE stores about
+// the all the relevant projects (tenant, consumer, producer).
+type ProjectsMetadata struct {
+	// ConsumerProjectId: The consumer project id.
+	ConsumerProjectId string `json:"consumerProjectId,omitempty"`
+
+	// ConsumerProjectNumber: The consumer project number.
+	ConsumerProjectNumber int64 `json:"consumerProjectNumber,omitempty,string"`
+
+	// ConsumerProjectState: The CCFE state of the consumer project. It is
+	// the same state that is communicated to the CLH during project events.
+	// Notice that this field is not set in the DB, it is only set in this
+	// proto when communicated to CLH in the side channel.
+	//
+	// Possible values:
+	//   "UNKNOWN_STATE" - A project should never be in an unknown state.
+	// Receipt of a project with this state is an error.
+	//   "ON" - CCFE considers the project to be serving or transitioning
+	// into serving.
+	//   "OFF" - CCFE considers the project to be in an OFF state. This
+	// could occur due to various factors. The state could be triggered by
+	// Google-internal audits (ex. abuse suspension, billing closed) or
+	// cleanups trigged by compliance systems (ex. data governance hide).
+	// User-initiated events such as service management deactivation trigger
+	// a project to an OFF state.CLHs might choose to do nothing in this
+	// case or to turn off costly resources. CLHs need to consider the
+	// customer experience if an ON/OFF/ON sequence of state transitions
+	// occurs vs. the cost of deleting resources, keeping metadata about
+	// resources, or even keeping resources live for a period of time.CCFE
+	// will not send any new customer requests to the CLH when the project
+	// is in an OFF state. However, CCFE will allow all previous customer
+	// requests relayed to CLH to complete.
+	//   "DELETED" - This state indicates that the project has been (or is
+	// being) completely removed. This is often due to a data governance
+	// purge request and therefore resources should be deleted when this
+	// state is reached.
+	ConsumerProjectState string `json:"consumerProjectState,omitempty"`
+
+	// P4ServiceAccount: The service account authorized to operate on the
+	// consumer project. Note: CCFE only propagates P4SA with default tag to
+	// CLH.
+	P4ServiceAccount string `json:"p4ServiceAccount,omitempty"`
+
+	// ProducerProjectId: The producer project id.
+	ProducerProjectId string `json:"producerProjectId,omitempty"`
+
+	// ProducerProjectNumber: The producer project number.
+	ProducerProjectNumber int64 `json:"producerProjectNumber,omitempty,string"`
+
+	// TenantProjectId: The tenant project id.
+	TenantProjectId string `json:"tenantProjectId,omitempty"`
+
+	// TenantProjectNumber: The tenant project number.
+	TenantProjectNumber int64 `json:"tenantProjectNumber,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "ConsumerProjectId")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ConsumerProjectId") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ProjectsMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod ProjectsMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Reasons: Projects transition between and within states based on
+// reasons sent from various systems. CCFE will provide the CLH with
+// reasons for the current state per system.The current systems that
+// CCFE supports are: Service Management (Inception) Data Governance
+// (Wipeout) Abuse (Ares) Billing (Internal Cloud Billing API)
+type Reasons struct {
+	// Possible values:
+	//   "ABUSE_UNKNOWN_REASON" - An unknown reason indicates that the abuse
+	// system has not sent a signal for this project.
+	//   "ABUSE_CONTROL_PLANE_SYNC" - Due to various reasons CCFE might
+	// proactively restate a project state to a CLH to ensure that the CLH
+	// and CCFE are both aware of the project state. This reason can be tied
+	// to any of the states.
+	//   "SUSPEND" - If a project is deemed abusive we receive a suspend
+	// signal. Suspend is a reason to put the project into an INTERNAL_OFF
+	// state.
+	//   "REINSTATE" - Projects that were once considered abusive can later
+	// be deemed non-abusive. When this happens we must reinstate the
+	// project. Reinstate is a reason to put the project into an ON state.
+	Abuse string `json:"abuse,omitempty"`
+
+	// Possible values:
+	//   "BILLING_UNKNOWN_REASON" - An unknown reason indicates that the
+	// billing system has not sent a signal for this project.
+	//   "BILLING_CONTROL_PLANE_SYNC" - Due to various reasons CCFE might
+	// proactively restate a project state to a CLH to ensure that the CLH
+	// and CCFE are both aware of the project state. This reason can be tied
+	// to any of the states.
+	//   "PROBATION" - Minor infractions cause a probation signal to be
+	// sent. Probation is a reason to put the project into a ON state even
+	// though it is a negative signal. CCFE will block mutations for this
+	// project while it is on billing probation, but the CLH is expected to
+	// serve non-mutation requests.
+	//   "CLOSE" - When a billing account is closed, it is a stronger signal
+	// about non-payment. Close is a reason to put the project into an
+	// INTERNAL_OFF state.
+	//   "OPEN" - Consumers can re-open billing accounts and update accounts
+	// to pull them out of probation. When this happens, we get a signal
+	// that the account is open. Open is a reason to put the project into an
+	// ON state.
+	Billing string `json:"billing,omitempty"`
+
+	// Possible values:
+	//   "DATA_GOVERNANCE_UNKNOWN_REASON" - An unknown reason indicates that
+	// data governance has not sent a signal for this project.
+	//   "DATA_GOVERNANCE_CONTROL_PLANE_SYNC" - Due to various reasons CCFE
+	// might proactively restate a project state to a CLH to ensure that the
+	// CLH and CCFE are both aware of the project state. This reason can be
+	// tied to any of the states.
+	//   "HIDE" - When a project is deleted we retain some data for a period
+	// of time to allow the consumer to change their mind. Data governance
+	// sends a signal to hide the data when this occurs. Hide is a reason to
+	// put the project in an INTERNAL_OFF state.
+	//   "UNHIDE" - The decision to un-delete a project can be made. When
+	// this happens data governance tells us to unhide any hidden data.
+	// Unhide is a reason to put the project in an ON state.
+	//   "PURGE" - After a period of time data must be completely removed
+	// from our systems. When data governance sends a purge signal we need
+	// to remove data. Purge is a reason to put the project in a DELETED
+	// state. Purge is the only event that triggers a delete mutation. All
+	// other events have update semantics.
+	DataGovernance string `json:"dataGovernance,omitempty"`
+
+	// Possible values:
+	//   "SERVICE_MANAGEMENT_UNKNOWN_REASON" - An unknown reason indicates
+	// that we have not received a signal from service management about this
+	// project. Since projects are created by request of service management,
+	// this reason should never be set.
+	//   "SERVICE_MANAGEMENT_CONTROL_PLANE_SYNC" - Due to various reasons
+	// CCFE might proactively restate a project state to a CLH to ensure
+	// that the CLH and CCFE are both aware of the project state. This
+	// reason can be tied to any of the states.
+	//   "ACTIVATION" - When a customer activates an API CCFE notifies the
+	// CLH and sets the project to the ON state.
+	//   "PREPARE_DEACTIVATION" - When a customer deactivates and API
+	// service management starts a two-step process to perform the
+	// deactivation. The first step is to prepare. Prepare is a reason to
+	// put the project in a EXTERNAL_OFF state.
+	//   "ABORT_DEACTIVATION" - If the deactivation is cancelled, service
+	// managed needs to abort the deactivation. Abort is a reason to put the
+	// project in an ON state.
+	//   "COMMIT_DEACTIVATION" - If the deactivation is followed through
+	// with, service management needs to finish deactivation. Commit is a
+	// reason to put the project in a DELETED state.
+	ServiceManagement string `json:"serviceManagement,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Abuse") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Abuse") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Reasons) MarshalJSON() ([]byte, error) {
+	type NoMethod Reasons
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ResourceRecord: A DNS resource record.
 type ResourceRecord struct {
 	// Name: Relative name of the object affected by this record. Only
@@ -1319,8 +1623,8 @@ type AppsAuthorizedCertificatesCreateCall struct {
 
 // Create: Uploads the specified SSL certificate.
 //
-// - appsId: Part of `parent`. Name of the parent Application resource.
-//   Example: apps/myapp.
+//   - appsId: Part of `parent`. Name of the parent Application resource.
+//     Example: apps/myapp.
 func (r *AppsAuthorizedCertificatesService) Create(appsId string, authorizedcertificate *AuthorizedCertificate) *AppsAuthorizedCertificatesCreateCall {
 	c := &AppsAuthorizedCertificatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -1395,17 +1699,17 @@ func (c *AppsAuthorizedCertificatesCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuthorizedCertificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -1461,10 +1765,10 @@ type AppsAuthorizedCertificatesDeleteCall struct {
 
 // Delete: Deletes the specified SSL certificate.
 //
-// - appsId: Part of `name`. Name of the resource to delete. Example:
-//   apps/myapp/authorizedCertificates/12345.
-// - authorizedCertificatesId: Part of `name`. See documentation of
-//   `appsId`.
+//   - appsId: Part of `name`. Name of the resource to delete. Example:
+//     apps/myapp/authorizedCertificates/12345.
+//   - authorizedCertificatesId: Part of `name`. See documentation of
+//     `appsId`.
 func (r *AppsAuthorizedCertificatesService) Delete(appsId string, authorizedCertificatesId string) *AppsAuthorizedCertificatesDeleteCall {
 	c := &AppsAuthorizedCertificatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -1535,17 +1839,17 @@ func (c *AppsAuthorizedCertificatesDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1606,10 +1910,10 @@ type AppsAuthorizedCertificatesGetCall struct {
 
 // Get: Gets the specified SSL certificate.
 //
-// - appsId: Part of `name`. Name of the resource requested. Example:
-//   apps/myapp/authorizedCertificates/12345.
-// - authorizedCertificatesId: Part of `name`. See documentation of
-//   `appsId`.
+//   - appsId: Part of `name`. Name of the resource requested. Example:
+//     apps/myapp/authorizedCertificates/12345.
+//   - authorizedCertificatesId: Part of `name`. See documentation of
+//     `appsId`.
 func (r *AppsAuthorizedCertificatesService) Get(appsId string, authorizedCertificatesId string) *AppsAuthorizedCertificatesGetCall {
 	c := &AppsAuthorizedCertificatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -1621,9 +1925,13 @@ func (r *AppsAuthorizedCertificatesService) Get(appsId string, authorizedCertifi
 // returned in the GET response.
 //
 // Possible values:
-//   "BASIC_CERTIFICATE" - Basic certificate information, including
+//
+//	"BASIC_CERTIFICATE" - Basic certificate information, including
+//
 // applicable domains and expiration date.
-//   "FULL_CERTIFICATE" - The information from BASIC_CERTIFICATE, plus
+//
+//	"FULL_CERTIFICATE" - The information from BASIC_CERTIFICATE, plus
+//
 // detailed information on the domain mappings that have this
 // certificate mapped.
 func (c *AppsAuthorizedCertificatesGetCall) View(view string) *AppsAuthorizedCertificatesGetCall {
@@ -1707,17 +2015,17 @@ func (c *AppsAuthorizedCertificatesGetCall) Do(opts ...googleapi.CallOption) (*A
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuthorizedCertificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -1793,8 +2101,8 @@ type AppsAuthorizedCertificatesListCall struct {
 // List: Lists all SSL certificates the user is authorized to
 // administer.
 //
-// - appsId: Part of `parent`. Name of the parent Application resource.
-//   Example: apps/myapp.
+//   - appsId: Part of `parent`. Name of the parent Application resource.
+//     Example: apps/myapp.
 func (r *AppsAuthorizedCertificatesService) List(appsId string) *AppsAuthorizedCertificatesListCall {
 	c := &AppsAuthorizedCertificatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -1819,9 +2127,13 @@ func (c *AppsAuthorizedCertificatesListCall) PageToken(pageToken string) *AppsAu
 // returned in the LIST response.
 //
 // Possible values:
-//   "BASIC_CERTIFICATE" - Basic certificate information, including
+//
+//	"BASIC_CERTIFICATE" - Basic certificate information, including
+//
 // applicable domains and expiration date.
-//   "FULL_CERTIFICATE" - The information from BASIC_CERTIFICATE, plus
+//
+//	"FULL_CERTIFICATE" - The information from BASIC_CERTIFICATE, plus
+//
 // detailed information on the domain mappings that have this
 // certificate mapped.
 func (c *AppsAuthorizedCertificatesListCall) View(view string) *AppsAuthorizedCertificatesListCall {
@@ -1905,17 +2217,17 @@ func (c *AppsAuthorizedCertificatesListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAuthorizedCertificatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2020,10 +2332,10 @@ type AppsAuthorizedCertificatesPatchCall struct {
 // same domains as the original certificate. The certificate
 // display_name may also be updated.
 //
-// - appsId: Part of `name`. Name of the resource to update. Example:
-//   apps/myapp/authorizedCertificates/12345.
-// - authorizedCertificatesId: Part of `name`. See documentation of
-//   `appsId`.
+//   - appsId: Part of `name`. Name of the resource to update. Example:
+//     apps/myapp/authorizedCertificates/12345.
+//   - authorizedCertificatesId: Part of `name`. See documentation of
+//     `appsId`.
 func (r *AppsAuthorizedCertificatesService) Patch(appsId string, authorizedCertificatesId string, authorizedcertificate *AuthorizedCertificate) *AppsAuthorizedCertificatesPatchCall {
 	c := &AppsAuthorizedCertificatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -2108,17 +2420,17 @@ func (c *AppsAuthorizedCertificatesPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuthorizedCertificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -2187,8 +2499,8 @@ type AppsAuthorizedDomainsListCall struct {
 
 // List: Lists all domains the user is authorized to administer.
 //
-// - appsId: Part of `parent`. Name of the parent Application resource.
-//   Example: apps/myapp.
+//   - appsId: Part of `parent`. Name of the parent Application resource.
+//     Example: apps/myapp.
 func (r *AppsAuthorizedDomainsService) List(appsId string) *AppsAuthorizedDomainsListCall {
 	c := &AppsAuthorizedDomainsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -2284,17 +2596,17 @@ func (c *AppsAuthorizedDomainsListCall) Do(opts ...googleapi.CallOption) (*ListA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAuthorizedDomainsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2384,8 +2696,8 @@ type AppsDomainMappingsCreateCall struct {
 // of available authorized domains, see
 // AuthorizedDomains.ListAuthorizedDomains.
 //
-// - appsId: Part of `parent`. Name of the parent Application resource.
-//   Example: apps/myapp.
+//   - appsId: Part of `parent`. Name of the parent Application resource.
+//     Example: apps/myapp.
 func (r *AppsDomainMappingsService) Create(appsId string, domainmapping *DomainMapping) *AppsDomainMappingsCreateCall {
 	c := &AppsDomainMappingsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -2409,12 +2721,18 @@ func (c *AppsDomainMappingsCreateCall) NoManagedCertificate(noManagedCertificate
 // this domain. By default, overrides are rejected.
 //
 // Possible values:
-//   "UNSPECIFIED_DOMAIN_OVERRIDE_STRATEGY" - Strategy unspecified.
+//
+//	"UNSPECIFIED_DOMAIN_OVERRIDE_STRATEGY" - Strategy unspecified.
+//
 // Defaults to STRICT.
-//   "STRICT" - Overrides not allowed. If a mapping already exists for
+//
+//	"STRICT" - Overrides not allowed. If a mapping already exists for
+//
 // the specified domain, the request will return an ALREADY_EXISTS
 // (409).
-//   "OVERRIDE" - Overrides allowed. If a mapping already exists for the
+//
+//	"OVERRIDE" - Overrides allowed. If a mapping already exists for the
+//
 // specified domain, the request will overwrite it. Note that this might
 // stop another Google product from serving. For example, if the domain
 // is mapped to another App Engine application, that app will no longer
@@ -2491,17 +2809,17 @@ func (c *AppsDomainMappingsCreateCall) Do(opts ...googleapi.CallOption) (*Operat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2579,9 +2897,9 @@ type AppsDomainMappingsDeleteCall struct {
 // authorized to administer the associated domain in order to delete a
 // DomainMapping resource.
 //
-// - appsId: Part of `name`. Name of the resource to delete. Example:
-//   apps/myapp/domainMappings/example.com.
-// - domainMappingsId: Part of `name`. See documentation of `appsId`.
+//   - appsId: Part of `name`. Name of the resource to delete. Example:
+//     apps/myapp/domainMappings/example.com.
+//   - domainMappingsId: Part of `name`. See documentation of `appsId`.
 func (r *AppsDomainMappingsService) Delete(appsId string, domainMappingsId string) *AppsDomainMappingsDeleteCall {
 	c := &AppsDomainMappingsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -2652,17 +2970,17 @@ func (c *AppsDomainMappingsDeleteCall) Do(opts ...googleapi.CallOption) (*Operat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2723,9 +3041,9 @@ type AppsDomainMappingsGetCall struct {
 
 // Get: Gets the specified domain mapping.
 //
-// - appsId: Part of `name`. Name of the resource requested. Example:
-//   apps/myapp/domainMappings/example.com.
-// - domainMappingsId: Part of `name`. See documentation of `appsId`.
+//   - appsId: Part of `name`. Name of the resource requested. Example:
+//     apps/myapp/domainMappings/example.com.
+//   - domainMappingsId: Part of `name`. See documentation of `appsId`.
 func (r *AppsDomainMappingsService) Get(appsId string, domainMappingsId string) *AppsDomainMappingsGetCall {
 	c := &AppsDomainMappingsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -2809,17 +3127,17 @@ func (c *AppsDomainMappingsGetCall) Do(opts ...googleapi.CallOption) (*DomainMap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DomainMapping{
 		ServerResponse: googleapi.ServerResponse{
@@ -2881,8 +3199,8 @@ type AppsDomainMappingsListCall struct {
 
 // List: Lists the domain mappings on an application.
 //
-// - appsId: Part of `parent`. Name of the parent Application resource.
-//   Example: apps/myapp.
+//   - appsId: Part of `parent`. Name of the parent Application resource.
+//     Example: apps/myapp.
 func (r *AppsDomainMappingsService) List(appsId string) *AppsDomainMappingsListCall {
 	c := &AppsDomainMappingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -2978,17 +3296,17 @@ func (c *AppsDomainMappingsListCall) Do(opts ...googleapi.CallOption) (*ListDoma
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDomainMappingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3080,9 +3398,9 @@ type AppsDomainMappingsPatchCall struct {
 // administer the associated domain in order to update a DomainMapping
 // resource.
 //
-// - appsId: Part of `name`. Name of the resource to update. Example:
-//   apps/myapp/domainMappings/example.com.
-// - domainMappingsId: Part of `name`. See documentation of `appsId`.
+//   - appsId: Part of `name`. Name of the resource to update. Example:
+//     apps/myapp/domainMappings/example.com.
+//   - domainMappingsId: Part of `name`. See documentation of `appsId`.
 func (r *AppsDomainMappingsService) Patch(appsId string, domainMappingsId string, domainmapping *DomainMapping) *AppsDomainMappingsPatchCall {
 	c := &AppsDomainMappingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -3178,17 +3496,17 @@ func (c *AppsDomainMappingsPatchCall) Do(opts ...googleapi.CallOption) (*Operati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3348,17 +3666,17 @@ func (c *AppsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -3421,8 +3739,8 @@ type AppsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - appsId: Part of `name`. The resource that owns the locations
-//   collection, if applicable.
+//   - appsId: Part of `name`. The resource that owns the locations
+//     collection, if applicable.
 func (r *AppsLocationsService) List(appsId string) *AppsLocationsListCall {
 	c := &AppsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -3528,17 +3846,17 @@ func (c *AppsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocations
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3718,17 +4036,17 @@ func (c *AppsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3790,17 +4108,10 @@ type AppsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// UNIMPLEMENTED.NOTE: the name binding allows API services to override
-// the binding to use different resource name schemes, such as
-// users/*/operations. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// UNIMPLEMENTED.
 //
-// - appsId: Part of `name`. The name of the operation's parent
-//   resource.
+//   - appsId: Part of `name`. The name of the operation's parent
+//     resource.
 func (r *AppsOperationsService) List(appsId string) *AppsOperationsListCall {
 	c := &AppsOperationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appsId = appsId
@@ -3903,17 +4214,17 @@ func (c *AppsOperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperatio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3927,7 +4238,7 @@ func (c *AppsOperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperatio
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns UNIMPLEMENTED.NOTE: the name binding allows API services to override the binding to use different resource name schemes, such as users/*/operations. To override the binding, API services can add a binding such as \"/v1/{name=users/*}/operations\" to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns UNIMPLEMENTED.",
 	//   "flatPath": "v1alpha/apps/{appsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "appengine.apps.operations.list",
@@ -4091,17 +4402,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -4164,8 +4475,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - projectsId: Part of `name`. The resource that owns the locations
-//   collection, if applicable.
+//   - projectsId: Part of `name`. The resource that owns the locations
+//     collection, if applicable.
 func (r *ProjectsLocationsService) List(projectsId string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectsId = projectsId
@@ -4271,17 +4582,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4465,17 +4776,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4545,18 +4856,11 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// UNIMPLEMENTED.NOTE: the name binding allows API services to override
-// the binding to use different resource name schemes, such as
-// users/*/operations. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// UNIMPLEMENTED.
 //
-// - locationsId: Part of `name`. See documentation of `projectsId`.
-// - projectsId: Part of `name`. The name of the operation's parent
-//   resource.
+//   - locationsId: Part of `name`. See documentation of `projectsId`.
+//   - projectsId: Part of `name`. The name of the operation's parent
+//     resource.
 func (r *ProjectsLocationsOperationsService) List(projectsId string, locationsId string) *ProjectsLocationsOperationsListCall {
 	c := &ProjectsLocationsOperationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectsId = projectsId
@@ -4661,17 +4965,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4685,7 +4989,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns UNIMPLEMENTED.NOTE: the name binding allows API services to override the binding to use different resource name schemes, such as users/*/operations. To override the binding, API services can add a binding such as \"/v1/{name=users/*}/operations\" to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns UNIMPLEMENTED.",
 	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "appengine.projects.locations.operations.list",

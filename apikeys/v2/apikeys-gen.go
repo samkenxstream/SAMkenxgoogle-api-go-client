@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/api-keys/docs
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/apikeys/v2"
-//   ...
-//   ctx := context.Background()
-//   apikeysService, err := apikeys.NewService(ctx)
+//	import "google.golang.org/api/apikeys/v2"
+//	...
+//	ctx := context.Background()
+//	apikeysService, err := apikeys.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   apikeysService, err := apikeys.NewService(ctx, option.WithScopes(apikeys.CloudPlatformReadOnlyScope))
+//	apikeysService, err := apikeys.NewService(ctx, option.WithScopes(apikeys.CloudPlatformReadOnlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   apikeysService, err := apikeys.NewService(ctx, option.WithAPIKey("AIza..."))
+//	apikeysService, err := apikeys.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   apikeysService, err := apikeys.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	apikeysService, err := apikeys.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package apikeys // import "google.golang.org/api/apikeys/v2"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "apikeys:v2"
 const apiName = "apikeys"
@@ -835,17 +836,17 @@ func (c *KeysLookupKeyCall) Do(opts ...googleapi.CallOption) (*V2LookupKeyRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &V2LookupKeyResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -980,17 +981,17 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1133,17 +1134,17 @@ func (c *ProjectsLocationsKeysCreateCall) Do(opts ...googleapi.CallOption) (*Ope
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1284,17 +1285,17 @@ func (c *ProjectsLocationsKeysDeleteCall) Do(opts ...googleapi.CallOption) (*Ope
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1437,17 +1438,17 @@ func (c *ProjectsLocationsKeysGetCall) Do(opts ...googleapi.CallOption) (*V2Key,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &V2Key{
 		ServerResponse: googleapi.ServerResponse{
@@ -1586,17 +1587,17 @@ func (c *ProjectsLocationsKeysGetKeyStringCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &V2GetKeyStringResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1756,17 +1757,17 @@ func (c *ProjectsLocationsKeysListCall) Do(opts ...googleapi.CallOption) (*V2Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &V2ListKeysResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1860,11 +1861,11 @@ type ProjectsLocationsKeysPatchCall struct {
 // the API key isn't included in the response. NOTE: Key is a global
 // resource; hence the only supported value for location is `global`.
 //
-// - name: Output only. The resource name of the key. The `name` has the
-//   form: `projects//locations/global/keys/`. For example:
-//   `projects/123456867718/locations/global/keys/b7ff1f9f-8275-410a-94dd
-//   -3855ee9b5dd2` NOTE: Key is a global resource; hence the only
-//   supported value for location is `global`.
+//   - name: Output only. The resource name of the key. The `name` has the
+//     form: `projects//locations/global/keys/`. For example:
+//     `projects/123456867718/locations/global/keys/b7ff1f9f-8275-410a-94dd
+//     -3855ee9b5dd2` NOTE: Key is a global resource; hence the only
+//     supported value for location is `global`.
 func (r *ProjectsLocationsKeysService) Patch(name string, v2key *V2Key) *ProjectsLocationsKeysPatchCall {
 	c := &ProjectsLocationsKeysPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1874,12 +1875,12 @@ func (r *ProjectsLocationsKeysService) Patch(name string, v2key *V2Key) *Project
 
 // UpdateMask sets the optional parameter "updateMask": The field mask
 // specifies which fields to be updated as part of this request. All
-// other fields are ignored. Mutable fields are:
-// `display_name`,`restrictions` and `annotations`. If an update mask is
-// not provided, the service treats it as an implied mask equivalent to
-// all allowed fields that are set on the wire. If the field mask has a
-// special value "*", the service treats it equivalent to replace all
-// allowed mutable fields.
+// other fields are ignored. Mutable fields are: `display_name`,
+// `restrictions`, and `annotations`. If an update mask is not provided,
+// the service treats it as an implied mask equivalent to all allowed
+// fields that are set on the wire. If the field mask has a special
+// value "*", the service treats it equivalent to replace all allowed
+// mutable fields.
 func (c *ProjectsLocationsKeysPatchCall) UpdateMask(updateMask string) *ProjectsLocationsKeysPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -1952,17 +1953,17 @@ func (c *ProjectsLocationsKeysPatchCall) Do(opts ...googleapi.CallOption) (*Oper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1992,7 +1993,7 @@ func (c *ProjectsLocationsKeysPatchCall) Do(opts ...googleapi.CallOption) (*Oper
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "The field mask specifies which fields to be updated as part of this request. All other fields are ignored. Mutable fields are: `display_name`,`restrictions` and `annotations`. If an update mask is not provided, the service treats it as an implied mask equivalent to all allowed fields that are set on the wire. If the field mask has a special value \"*\", the service treats it equivalent to replace all allowed mutable fields.",
+	//       "description": "The field mask specifies which fields to be updated as part of this request. All other fields are ignored. Mutable fields are: `display_name`, `restrictions`, and `annotations`. If an update mask is not provided, the service treats it as an implied mask equivalent to all allowed fields that are set on the wire. If the field mask has a special value \"*\", the service treats it equivalent to replace all allowed mutable fields.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -2102,17 +2103,17 @@ func (c *ProjectsLocationsKeysUndeleteCall) Do(opts ...googleapi.CallOption) (*O
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

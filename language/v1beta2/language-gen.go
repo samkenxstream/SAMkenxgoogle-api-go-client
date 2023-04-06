@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/natural-language/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/language/v1beta2"
-//   ...
-//   ctx := context.Background()
-//   languageService, err := language.NewService(ctx)
+//	import "google.golang.org/api/language/v1beta2"
+//	...
+//	ctx := context.Background()
+//	languageService, err := language.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   languageService, err := language.NewService(ctx, option.WithScopes(language.CloudPlatformScope))
+//	languageService, err := language.NewService(ctx, option.WithScopes(language.CloudPlatformScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   languageService, err := language.NewService(ctx, option.WithAPIKey("AIza..."))
+//	languageService, err := language.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   languageService, err := language.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	languageService, err := language.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package language // import "google.golang.org/api/language/v1beta2"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "language:v1beta2"
 const apiName = "language"
@@ -653,12 +654,20 @@ func (s *ClassificationCategory) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// ClassifyTextRequest: The document classification request message.
-type ClassifyTextRequest struct {
-	// Document: Required. Input document.
-	Document *Document `json:"document,omitempty"`
+// ClassificationModelOptions: Model options available for
+// classification requests.
+type ClassificationModelOptions struct {
+	// V1Model: Setting this field will use the V1 model and V1 content
+	// categories version. The V1 model is a legacy model; support for this
+	// will be discontinued in the future.
+	V1Model *V1Model `json:"v1Model,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Document") to
+	// V2Model: Setting this field will use the V2 model with the
+	// appropriate content categories version. The V2 model is a better
+	// performing model.
+	V2Model *V2Model `json:"v2Model,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "V1Model") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -666,12 +675,46 @@ type ClassifyTextRequest struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Document") to include in
+	// NullFields is a list of field names (e.g. "V1Model") to include in
 	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ClassificationModelOptions) MarshalJSON() ([]byte, error) {
+	type NoMethod ClassificationModelOptions
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ClassifyTextRequest: The document classification request message.
+type ClassifyTextRequest struct {
+	// ClassificationModelOptions: Model options to use for classification.
+	// Defaults to v1 options if not specified.
+	ClassificationModelOptions *ClassificationModelOptions `json:"classificationModelOptions,omitempty"`
+
+	// Document: Required. Input document.
+	Document *Document `json:"document,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "ClassificationModelOptions") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "ClassificationModelOptions") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -837,9 +880,7 @@ func (s *DependencyEdge) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Document:
-// ################################################################ #
-// Represents the input to API methods.
+// Document: Represents the input to API methods.
 type Document struct {
 	// BoilerplateHandling: Indicates how detected boilerplate(e.g.
 	// advertisements, copyright declarations, banners) should be handled
@@ -1059,8 +1100,13 @@ func (s *EntityMention) MarshalJSON() ([]byte, error) {
 
 // Features: All available features for sentiment, syntax, and semantic
 // analysis. Setting each one to true will enable that specific analysis
-// for the input. Next ID: 10
+// for the input. Next ID: 11
 type Features struct {
+	// ClassificationModelOptions: The model options to use for
+	// classification. Defaults to v1 options if not specified. Only used if
+	// `classify_text` is set to true.
+	ClassificationModelOptions *ClassificationModelOptions `json:"classificationModelOptions,omitempty"`
+
 	// ClassifyText: Classify the full document into categories. If this is
 	// true, the API will use the default model which classifies into a
 	// predefined taxonomy
@@ -1080,20 +1126,22 @@ type Features struct {
 	// ExtractSyntax: Extract syntax information.
 	ExtractSyntax bool `json:"extractSyntax,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "ClassifyText") to
-	// unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "ClassificationModelOptions") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "ClassifyText") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g.
+	// "ClassificationModelOptions") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -1481,6 +1529,48 @@ func (s *Token) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// V1Model: Options for the V1 model.
+type V1Model struct {
+}
+
+// V2Model: Options for the V2 model.
+type V2Model struct {
+	// ContentCategoriesVersion: The content categories used for
+	// classification.
+	//
+	// Possible values:
+	//   "CONTENT_CATEGORIES_VERSION_UNSPECIFIED" - If
+	// `ContentCategoriesVersion` is not specified, this option will default
+	// to `V1`.
+	//   "V1" - Legacy content categories of our initial launch in 2017.
+	//   "V2" - Updated content categories in 2022.
+	ContentCategoriesVersion string `json:"contentCategoriesVersion,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "ContentCategoriesVersion") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ContentCategoriesVersion")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *V2Model) MarshalJSON() ([]byte, error) {
+	type NoMethod V2Model
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // method id "language.documents.analyzeEntities":
 
 type DocumentsAnalyzeEntitiesCall struct {
@@ -1564,17 +1654,17 @@ func (c *DocumentsAnalyzeEntitiesCall) Do(opts ...googleapi.CallOption) (*Analyz
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AnalyzeEntitiesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1692,17 +1782,17 @@ func (c *DocumentsAnalyzeEntitySentimentCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AnalyzeEntitySentimentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1818,17 +1908,17 @@ func (c *DocumentsAnalyzeSentimentCall) Do(opts ...googleapi.CallOption) (*Analy
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AnalyzeSentimentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1946,17 +2036,17 @@ func (c *DocumentsAnalyzeSyntaxCall) Do(opts ...googleapi.CallOption) (*AnalyzeS
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AnalyzeSyntaxResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2073,17 +2163,17 @@ func (c *DocumentsAnnotateTextCall) Do(opts ...googleapi.CallOption) (*AnnotateT
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AnnotateTextResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2199,17 +2289,17 @@ func (c *DocumentsClassifyTextCall) Do(opts ...googleapi.CallOption) (*ClassifyT
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClassifyTextResponse{
 		ServerResponse: googleapi.ServerResponse{

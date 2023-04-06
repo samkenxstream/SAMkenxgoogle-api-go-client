@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/dialogflow/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/dialogflow/v2"
-//   ...
-//   ctx := context.Background()
-//   dialogflowService, err := dialogflow.NewService(ctx)
+//	import "google.golang.org/api/dialogflow/v2"
+//	...
+//	ctx := context.Background()
+//	dialogflowService, err := dialogflow.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   dialogflowService, err := dialogflow.NewService(ctx, option.WithScopes(dialogflow.DialogflowScope))
+//	dialogflowService, err := dialogflow.NewService(ctx, option.WithScopes(dialogflow.DialogflowScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   dialogflowService, err := dialogflow.NewService(ctx, option.WithAPIKey("AIza..."))
+//	dialogflowService, err := dialogflow.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   dialogflowService, err := dialogflow.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	dialogflowService, err := dialogflow.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package dialogflow // import "google.golang.org/api/dialogflow/v2"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "dialogflow:v2"
 const apiName = "dialogflow"
@@ -424,6 +425,7 @@ func NewProjectsConversationsService(s *Service) *ProjectsConversationsService {
 	rs := &ProjectsConversationsService{s: s}
 	rs.Messages = NewProjectsConversationsMessagesService(s)
 	rs.Participants = NewProjectsConversationsParticipantsService(s)
+	rs.Suggestions = NewProjectsConversationsSuggestionsService(s)
 	return rs
 }
 
@@ -433,6 +435,8 @@ type ProjectsConversationsService struct {
 	Messages *ProjectsConversationsMessagesService
 
 	Participants *ProjectsConversationsParticipantsService
+
+	Suggestions *ProjectsConversationsSuggestionsService
 }
 
 func NewProjectsConversationsMessagesService(s *Service) *ProjectsConversationsMessagesService {
@@ -462,6 +466,15 @@ func NewProjectsConversationsParticipantsSuggestionsService(s *Service) *Project
 }
 
 type ProjectsConversationsParticipantsSuggestionsService struct {
+	s *Service
+}
+
+func NewProjectsConversationsSuggestionsService(s *Service) *ProjectsConversationsSuggestionsService {
+	rs := &ProjectsConversationsSuggestionsService{s: s}
+	return rs
+}
+
+type ProjectsConversationsSuggestionsService struct {
 	s *Service
 }
 
@@ -736,6 +749,7 @@ func NewProjectsLocationsConversationsService(s *Service) *ProjectsLocationsConv
 	rs := &ProjectsLocationsConversationsService{s: s}
 	rs.Messages = NewProjectsLocationsConversationsMessagesService(s)
 	rs.Participants = NewProjectsLocationsConversationsParticipantsService(s)
+	rs.Suggestions = NewProjectsLocationsConversationsSuggestionsService(s)
 	return rs
 }
 
@@ -745,6 +759,8 @@ type ProjectsLocationsConversationsService struct {
 	Messages *ProjectsLocationsConversationsMessagesService
 
 	Participants *ProjectsLocationsConversationsParticipantsService
+
+	Suggestions *ProjectsLocationsConversationsSuggestionsService
 }
 
 func NewProjectsLocationsConversationsMessagesService(s *Service) *ProjectsLocationsConversationsMessagesService {
@@ -774,6 +790,15 @@ func NewProjectsLocationsConversationsParticipantsSuggestionsService(s *Service)
 }
 
 type ProjectsLocationsConversationsParticipantsSuggestionsService struct {
+	s *Service
+}
+
+func NewProjectsLocationsConversationsSuggestionsService(s *Service) *ProjectsLocationsConversationsSuggestionsService {
+	rs := &ProjectsLocationsConversationsSuggestionsService{s: s}
+	return rs
+}
+
+type ProjectsLocationsConversationsSuggestionsService struct {
 	s *Service
 }
 
@@ -820,7 +845,7 @@ type ProjectsOperationsService struct {
 // audio to be processed.
 type GoogleCloudDialogflowCxV3AudioInput struct {
 	// Audio: The natural language speech audio to be processed. A single
-	// request can contain up to 1 minute of speech audio data. The
+	// request can contain up to 2 minutes of speech audio data. The
 	// transcribed text cannot contain more than 256 bytes. For
 	// non-streaming audio detect intent, both `config` and `audio` must be
 	// provided. For streaming audio detect intent, `config` must be
@@ -957,6 +982,36 @@ type GoogleCloudDialogflowCxV3ContinuousTestResult struct {
 
 func (s *GoogleCloudDialogflowCxV3ContinuousTestResult) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudDialogflowCxV3ContinuousTestResult
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowCxV3ConversationSignals: This message is used to
+// hold all the Conversation Signals data, which will be converted to
+// JSON and exported to BigQuery.
+type GoogleCloudDialogflowCxV3ConversationSignals struct {
+	// TurnSignals: Required. Turn signals for the current turn.
+	TurnSignals *GoogleCloudDialogflowCxV3TurnSignals `json:"turnSignals,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "TurnSignals") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "TurnSignals") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3ConversationSignals) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3ConversationSignals
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1306,10 +1361,13 @@ type GoogleCloudDialogflowCxV3Environment struct {
 	// UpdateTime: Output only. Update time of this environment.
 	UpdateTime string `json:"updateTime,omitempty"`
 
-	// VersionConfigs: Required. A list of configurations for flow versions.
-	// You should include version configs for all flows that are reachable
-	// from `Start Flow` in the agent. Otherwise, an error will be returned.
+	// VersionConfigs: A list of configurations for flow versions. You
+	// should include version configs for all flows that are reachable from
+	// `Start Flow` in the agent. Otherwise, an error will be returned.
 	VersionConfigs []*GoogleCloudDialogflowCxV3EnvironmentVersionConfig `json:"versionConfigs,omitempty"`
+
+	// WebhookConfig: The webhook configuration for this environment.
+	WebhookConfig *GoogleCloudDialogflowCxV3EnvironmentWebhookConfig `json:"webhookConfig,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Description") to
 	// unconditionally include in API requests. By default, fields with
@@ -1402,6 +1460,38 @@ type GoogleCloudDialogflowCxV3EnvironmentVersionConfig struct {
 
 func (s *GoogleCloudDialogflowCxV3EnvironmentVersionConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudDialogflowCxV3EnvironmentVersionConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowCxV3EnvironmentWebhookConfig: Configuration for
+// webhooks.
+type GoogleCloudDialogflowCxV3EnvironmentWebhookConfig struct {
+	// WebhookOverrides: The list of webhooks to override for the agent
+	// environment. The webhook must exist in the agent. You can override
+	// fields in `generic_web_service` and `service_directory`.
+	WebhookOverrides []*GoogleCloudDialogflowCxV3Webhook `json:"webhookOverrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "WebhookOverrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "WebhookOverrides") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3EnvironmentWebhookConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3EnvironmentWebhookConfig
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2183,7 +2273,11 @@ type GoogleCloudDialogflowCxV3InputAudioConfig struct {
 	// using the standard version of the specified model. Refer to Cloud
 	// Speech API documentation
 	// (https://cloud.google.com/speech-to-text/docs/basics#select-model)
-	// for more details.
+	// for more details. If you specify a model, the following models
+	// typically have the best performance: - phone_call (best for Agent
+	// Assist and telephony) - latest_short (best for Dialogflow
+	// non-telephony) - command_and_search (best for very short utterances
+	// and commands)
 	Model string `json:"model,omitempty"`
 
 	// ModelVariant: Optional. Which variant of the Speech model to use.
@@ -2259,7 +2353,7 @@ func (s *GoogleCloudDialogflowCxV3InputAudioConfig) MarshalJSON() ([]byte, error
 // to interact with a conversational agent. You can provide information
 // for the Dialogflow API to use to match user input to an intent by
 // adding training phrases (i.e., examples of user input) to your
-// intent.
+// intent. Next ID: 15
 type GoogleCloudDialogflowCxV3Intent struct {
 	// Description: Human readable description for better understanding an
 	// intent like its scope, content, result etc. Maximum character limit:
@@ -2804,6 +2898,11 @@ func (s *GoogleCloudDialogflowCxV3ReloadDocumentOperationMetadata) MarshalJSON()
 // more sophisticated user experience scenarios, where the text
 // displayed to the user may differ from what is heard.
 type GoogleCloudDialogflowCxV3ResponseMessage struct {
+	// Channel: The channel which the response is associated with. Clients
+	// can specify the channel via QueryParameters.channel, and only
+	// associated channel response will be returned.
+	Channel string `json:"channel,omitempty"`
+
 	// ConversationSuccess: Indicates that the conversation succeeded.
 	ConversationSuccess *GoogleCloudDialogflowCxV3ResponseMessageConversationSuccess `json:"conversationSuccess,omitempty"`
 
@@ -2845,21 +2944,20 @@ type GoogleCloudDialogflowCxV3ResponseMessage struct {
 	// Text: Returns a text response.
 	Text *GoogleCloudDialogflowCxV3ResponseMessageText `json:"text,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "ConversationSuccess")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "Channel") to
+	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "ConversationSuccess") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Channel") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -3665,6 +3763,64 @@ func (s *GoogleCloudDialogflowCxV3TransitionRoute) MarshalJSON() ([]byte, error)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudDialogflowCxV3TurnSignals: Collection of all signals that
+// were extracted for a single turn of the conversation.
+type GoogleCloudDialogflowCxV3TurnSignals struct {
+	// AgentEscalated: Whether agent responded with LiveAgentHandoff
+	// fulfillment.
+	AgentEscalated bool `json:"agentEscalated,omitempty"`
+
+	// DtmfUsed: Whether user was using DTMF input.
+	DtmfUsed bool `json:"dtmfUsed,omitempty"`
+
+	// FailureReasons: Failure reasons of the turn.
+	//
+	// Possible values:
+	//   "FAILURE_REASON_UNSPECIFIED" - Failure reason is not assigned.
+	//   "FAILED_INTENT" - Whether NLU failed to recognize user intent.
+	//   "FAILED_WEBHOOK" - Whether webhook failed during the turn.
+	FailureReasons []string `json:"failureReasons,omitempty"`
+
+	// NoMatch: Whether NLU predicted NO_MATCH.
+	NoMatch bool `json:"noMatch,omitempty"`
+
+	// NoUserInput: Whether user provided no input.
+	NoUserInput bool `json:"noUserInput,omitempty"`
+
+	// ReachedEndPage: Whether turn resulted in End Session page.
+	ReachedEndPage bool `json:"reachedEndPage,omitempty"`
+
+	// UserEscalated: Whether user was specifically asking for a live agent.
+	UserEscalated bool `json:"userEscalated,omitempty"`
+
+	// WebhookStatuses: Human-readable statuses of the webhooks triggered
+	// during this turn.
+	WebhookStatuses []string `json:"webhookStatuses,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AgentEscalated") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AgentEscalated") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3TurnSignals) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3TurnSignals
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudDialogflowCxV3UpdateDocumentOperationMetadata: Metadata
 // for UpdateDocument operation.
 type GoogleCloudDialogflowCxV3UpdateDocumentOperationMetadata struct {
@@ -3695,13 +3851,126 @@ func (s *GoogleCloudDialogflowCxV3UpdateDocumentOperationMetadata) MarshalJSON()
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudDialogflowCxV3Webhook: Webhooks host the developer's
+// business logic. During a session, webhooks allow the developer to use
+// the data extracted by Dialogflow's natural language processing to
+// generate dynamic responses, validate collected data, or trigger
+// actions on the backend.
+type GoogleCloudDialogflowCxV3Webhook struct {
+	// Disabled: Indicates whether the webhook is disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// DisplayName: Required. The human-readable name of the webhook, unique
+	// within the agent.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// GenericWebService: Configuration for a generic web service.
+	GenericWebService *GoogleCloudDialogflowCxV3WebhookGenericWebService `json:"genericWebService,omitempty"`
+
+	// Name: The unique identifier of the webhook. Required for the
+	// Webhooks.UpdateWebhook method. Webhooks.CreateWebhook populates the
+	// name automatically. Format: `projects//locations//agents//webhooks/`.
+	Name string `json:"name,omitempty"`
+
+	// ServiceDirectory: Configuration for a Service Directory
+	// (https://cloud.google.com/service-directory) service.
+	ServiceDirectory *GoogleCloudDialogflowCxV3WebhookServiceDirectoryConfig `json:"serviceDirectory,omitempty"`
+
+	// Timeout: Webhook execution timeout. Execution is considered failed if
+	// Dialogflow doesn't receive a response from webhook at the end of the
+	// timeout period. Defaults to 5 seconds, maximum allowed timeout is 30
+	// seconds.
+	Timeout string `json:"timeout,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Disabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Disabled") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3Webhook) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3Webhook
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowCxV3WebhookGenericWebService: Represents
+// configuration for a generic web service.
+type GoogleCloudDialogflowCxV3WebhookGenericWebService struct {
+	// AllowedCaCerts: Optional. Specifies a list of allowed custom CA
+	// certificates (in DER format) for HTTPS verification. This overrides
+	// the default SSL trust store. If this is empty or unspecified,
+	// Dialogflow will use Google's default trust store to verify
+	// certificates. N.B. Make sure the HTTPS server certificates are signed
+	// with "subject alt name". For instance a certificate can be
+	// self-signed using the following command, ``` openssl x509 -req -days
+	// 200 -in example.com.csr \ -signkey example.com.key \ -out
+	// example.com.crt \ -extfile <(printf
+	// "\nsubjectAltName='DNS:www.example.com'") ```
+	AllowedCaCerts []string `json:"allowedCaCerts,omitempty"`
+
+	// Password: The password for HTTP Basic authentication.
+	Password string `json:"password,omitempty"`
+
+	// RequestHeaders: The HTTP request headers to send together with
+	// webhook requests.
+	RequestHeaders map[string]string `json:"requestHeaders,omitempty"`
+
+	// Uri: Required. The webhook URI for receiving POST requests. It must
+	// use https protocol.
+	Uri string `json:"uri,omitempty"`
+
+	// Username: The user name for HTTP Basic authentication.
+	Username string `json:"username,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AllowedCaCerts") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AllowedCaCerts") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3WebhookGenericWebService) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3WebhookGenericWebService
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudDialogflowCxV3WebhookRequest: The request message for a
 // webhook call. The request is sent as a JSON object and the field
-// names will be presented in camel cases.
+// names will be presented in camel cases. You may see undocumented
+// fields in an actual request. These fields are used internally by
+// Dialogflow and should be ignored.
 type GoogleCloudDialogflowCxV3WebhookRequest struct {
 	// DetectIntentResponseId: Always present. The unique identifier of the
 	// DetectIntentResponse that will be returned to the API caller.
 	DetectIntentResponseId string `json:"detectIntentResponseId,omitempty"`
+
+	// DtmfDigits: If DTMF was provided as input, this field will contain
+	// the DTMF digits.
+	DtmfDigits string `json:"dtmfDigits,omitempty"`
 
 	// FulfillmentInfo: Always present. Information about the fulfillment
 	// that triggered this webhook call.
@@ -3867,7 +4136,8 @@ func (s *GoogleCloudDialogflowCxV3WebhookRequestIntentInfo) UnmarshalJSON(data [
 }
 
 // GoogleCloudDialogflowCxV3WebhookRequestIntentInfoIntentParameterValue:
-//  Represents a value for an intent parameter.
+//
+//	Represents a value for an intent parameter.
 type GoogleCloudDialogflowCxV3WebhookRequestIntentInfoIntentParameterValue struct {
 	// OriginalValue: Always present. Original text value extracted from
 	// user utterance.
@@ -4043,11 +4313,48 @@ func (s *GoogleCloudDialogflowCxV3WebhookResponseFulfillmentResponse) MarshalJSO
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudDialogflowCxV3WebhookServiceDirectoryConfig: Represents
+// configuration for a Service Directory
+// (https://cloud.google.com/service-directory) service.
+type GoogleCloudDialogflowCxV3WebhookServiceDirectoryConfig struct {
+	// GenericWebService: Generic Service configuration of this webhook.
+	GenericWebService *GoogleCloudDialogflowCxV3WebhookGenericWebService `json:"genericWebService,omitempty"`
+
+	// Service: Required. The name of Service Directory
+	// (https://cloud.google.com/service-directory) service. Format:
+	// `projects//locations//namespaces//services/`. `Location ID` of the
+	// service directory must be the same as the location of the agent.
+	Service string `json:"service,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "GenericWebService")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GenericWebService") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3WebhookServiceDirectoryConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3WebhookServiceDirectoryConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudDialogflowCxV3beta1AudioInput: Represents the natural
 // speech audio to be processed.
 type GoogleCloudDialogflowCxV3beta1AudioInput struct {
 	// Audio: The natural language speech audio to be processed. A single
-	// request can contain up to 1 minute of speech audio data. The
+	// request can contain up to 2 minutes of speech audio data. The
 	// transcribed text cannot contain more than 256 bytes. For
 	// non-streaming audio detect intent, both `config` and `audio` must be
 	// provided. For streaming audio detect intent, `config` must be
@@ -4184,6 +4491,36 @@ type GoogleCloudDialogflowCxV3beta1ContinuousTestResult struct {
 
 func (s *GoogleCloudDialogflowCxV3beta1ContinuousTestResult) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudDialogflowCxV3beta1ContinuousTestResult
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowCxV3beta1ConversationSignals: This message is
+// used to hold all the Conversation Signals data, which will be
+// converted to JSON and exported to BigQuery.
+type GoogleCloudDialogflowCxV3beta1ConversationSignals struct {
+	// TurnSignals: Required. Turn signals for the current turn.
+	TurnSignals *GoogleCloudDialogflowCxV3beta1TurnSignals `json:"turnSignals,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "TurnSignals") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "TurnSignals") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3beta1ConversationSignals) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3beta1ConversationSignals
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -4533,10 +4870,13 @@ type GoogleCloudDialogflowCxV3beta1Environment struct {
 	// UpdateTime: Output only. Update time of this environment.
 	UpdateTime string `json:"updateTime,omitempty"`
 
-	// VersionConfigs: Required. A list of configurations for flow versions.
-	// You should include version configs for all flows that are reachable
-	// from `Start Flow` in the agent. Otherwise, an error will be returned.
+	// VersionConfigs: A list of configurations for flow versions. You
+	// should include version configs for all flows that are reachable from
+	// `Start Flow` in the agent. Otherwise, an error will be returned.
 	VersionConfigs []*GoogleCloudDialogflowCxV3beta1EnvironmentVersionConfig `json:"versionConfigs,omitempty"`
+
+	// WebhookConfig: The webhook configuration for this environment.
+	WebhookConfig *GoogleCloudDialogflowCxV3beta1EnvironmentWebhookConfig `json:"webhookConfig,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Description") to
 	// unconditionally include in API requests. By default, fields with
@@ -4629,6 +4969,38 @@ type GoogleCloudDialogflowCxV3beta1EnvironmentVersionConfig struct {
 
 func (s *GoogleCloudDialogflowCxV3beta1EnvironmentVersionConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudDialogflowCxV3beta1EnvironmentVersionConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowCxV3beta1EnvironmentWebhookConfig: Configuration
+// for webhooks.
+type GoogleCloudDialogflowCxV3beta1EnvironmentWebhookConfig struct {
+	// WebhookOverrides: The list of webhooks to override for the agent
+	// environment. The webhook must exist in the agent. You can override
+	// fields in `generic_web_service` and `service_directory`.
+	WebhookOverrides []*GoogleCloudDialogflowCxV3beta1Webhook `json:"webhookOverrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "WebhookOverrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "WebhookOverrides") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3beta1EnvironmentWebhookConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3beta1EnvironmentWebhookConfig
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -5413,7 +5785,11 @@ type GoogleCloudDialogflowCxV3beta1InputAudioConfig struct {
 	// using the standard version of the specified model. Refer to Cloud
 	// Speech API documentation
 	// (https://cloud.google.com/speech-to-text/docs/basics#select-model)
-	// for more details.
+	// for more details. If you specify a model, the following models
+	// typically have the best performance: - phone_call (best for Agent
+	// Assist and telephony) - latest_short (best for Dialogflow
+	// non-telephony) - command_and_search (best for very short utterances
+	// and commands)
 	Model string `json:"model,omitempty"`
 
 	// ModelVariant: Optional. Which variant of the Speech model to use.
@@ -5641,7 +6017,8 @@ func (s *GoogleCloudDialogflowCxV3beta1IntentParameter) MarshalJSON() ([]byte, e
 }
 
 // GoogleCloudDialogflowCxV3beta1IntentTrainingPhrase: Represents an
-// example that the agent is trained on to identify the intent.
+// example that the agent is trained on to identify the intent. Next ID:
+// 15
 type GoogleCloudDialogflowCxV3beta1IntentTrainingPhrase struct {
 	// Id: Output only. The unique identifier of the training phrase.
 	Id string `json:"id,omitempty"`
@@ -6035,6 +6412,11 @@ func (s *GoogleCloudDialogflowCxV3beta1ReloadDocumentOperationMetadata) MarshalJ
 // more sophisticated user experience scenarios, where the text
 // displayed to the user may differ from what is heard.
 type GoogleCloudDialogflowCxV3beta1ResponseMessage struct {
+	// Channel: The channel which the response is associated with. Clients
+	// can specify the channel via QueryParameters.channel, and only
+	// associated channel response will be returned.
+	Channel string `json:"channel,omitempty"`
+
 	// ConversationSuccess: Indicates that the conversation succeeded.
 	ConversationSuccess *GoogleCloudDialogflowCxV3beta1ResponseMessageConversationSuccess `json:"conversationSuccess,omitempty"`
 
@@ -6076,21 +6458,20 @@ type GoogleCloudDialogflowCxV3beta1ResponseMessage struct {
 	// Text: Returns a text response.
 	Text *GoogleCloudDialogflowCxV3beta1ResponseMessageText `json:"text,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "ConversationSuccess")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "Channel") to
+	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "ConversationSuccess") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Channel") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -6898,6 +7279,64 @@ func (s *GoogleCloudDialogflowCxV3beta1TransitionRoute) MarshalJSON() ([]byte, e
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudDialogflowCxV3beta1TurnSignals: Collection of all signals
+// that were extracted for a single turn of the conversation.
+type GoogleCloudDialogflowCxV3beta1TurnSignals struct {
+	// AgentEscalated: Whether agent responded with LiveAgentHandoff
+	// fulfillment.
+	AgentEscalated bool `json:"agentEscalated,omitempty"`
+
+	// DtmfUsed: Whether user was using DTMF input.
+	DtmfUsed bool `json:"dtmfUsed,omitempty"`
+
+	// FailureReasons: Failure reasons of the turn.
+	//
+	// Possible values:
+	//   "FAILURE_REASON_UNSPECIFIED" - Failure reason is not assigned.
+	//   "FAILED_INTENT" - Whether NLU failed to recognize user intent.
+	//   "FAILED_WEBHOOK" - Whether webhook failed during the turn.
+	FailureReasons []string `json:"failureReasons,omitempty"`
+
+	// NoMatch: Whether NLU predicted NO_MATCH.
+	NoMatch bool `json:"noMatch,omitempty"`
+
+	// NoUserInput: Whether user provided no input.
+	NoUserInput bool `json:"noUserInput,omitempty"`
+
+	// ReachedEndPage: Whether turn resulted in End Session page.
+	ReachedEndPage bool `json:"reachedEndPage,omitempty"`
+
+	// UserEscalated: Whether user was specifically asking for a live agent.
+	UserEscalated bool `json:"userEscalated,omitempty"`
+
+	// WebhookStatuses: Human-readable statuses of the webhooks triggered
+	// during this turn.
+	WebhookStatuses []string `json:"webhookStatuses,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AgentEscalated") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AgentEscalated") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3beta1TurnSignals) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3beta1TurnSignals
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudDialogflowCxV3beta1UpdateDocumentOperationMetadata:
 // Metadata for UpdateDocument operation.
 type GoogleCloudDialogflowCxV3beta1UpdateDocumentOperationMetadata struct {
@@ -6928,13 +7367,126 @@ func (s *GoogleCloudDialogflowCxV3beta1UpdateDocumentOperationMetadata) MarshalJ
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudDialogflowCxV3beta1Webhook: Webhooks host the developer's
+// business logic. During a session, webhooks allow the developer to use
+// the data extracted by Dialogflow's natural language processing to
+// generate dynamic responses, validate collected data, or trigger
+// actions on the backend.
+type GoogleCloudDialogflowCxV3beta1Webhook struct {
+	// Disabled: Indicates whether the webhook is disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// DisplayName: Required. The human-readable name of the webhook, unique
+	// within the agent.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// GenericWebService: Configuration for a generic web service.
+	GenericWebService *GoogleCloudDialogflowCxV3beta1WebhookGenericWebService `json:"genericWebService,omitempty"`
+
+	// Name: The unique identifier of the webhook. Required for the
+	// Webhooks.UpdateWebhook method. Webhooks.CreateWebhook populates the
+	// name automatically. Format: `projects//locations//agents//webhooks/`.
+	Name string `json:"name,omitempty"`
+
+	// ServiceDirectory: Configuration for a Service Directory
+	// (https://cloud.google.com/service-directory) service.
+	ServiceDirectory *GoogleCloudDialogflowCxV3beta1WebhookServiceDirectoryConfig `json:"serviceDirectory,omitempty"`
+
+	// Timeout: Webhook execution timeout. Execution is considered failed if
+	// Dialogflow doesn't receive a response from webhook at the end of the
+	// timeout period. Defaults to 5 seconds, maximum allowed timeout is 30
+	// seconds.
+	Timeout string `json:"timeout,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Disabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Disabled") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3beta1Webhook) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3beta1Webhook
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowCxV3beta1WebhookGenericWebService: Represents
+// configuration for a generic web service.
+type GoogleCloudDialogflowCxV3beta1WebhookGenericWebService struct {
+	// AllowedCaCerts: Optional. Specifies a list of allowed custom CA
+	// certificates (in DER format) for HTTPS verification. This overrides
+	// the default SSL trust store. If this is empty or unspecified,
+	// Dialogflow will use Google's default trust store to verify
+	// certificates. N.B. Make sure the HTTPS server certificates are signed
+	// with "subject alt name". For instance a certificate can be
+	// self-signed using the following command, ``` openssl x509 -req -days
+	// 200 -in example.com.csr \ -signkey example.com.key \ -out
+	// example.com.crt \ -extfile <(printf
+	// "\nsubjectAltName='DNS:www.example.com'") ```
+	AllowedCaCerts []string `json:"allowedCaCerts,omitempty"`
+
+	// Password: The password for HTTP Basic authentication.
+	Password string `json:"password,omitempty"`
+
+	// RequestHeaders: The HTTP request headers to send together with
+	// webhook requests.
+	RequestHeaders map[string]string `json:"requestHeaders,omitempty"`
+
+	// Uri: Required. The webhook URI for receiving POST requests. It must
+	// use https protocol.
+	Uri string `json:"uri,omitempty"`
+
+	// Username: The user name for HTTP Basic authentication.
+	Username string `json:"username,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AllowedCaCerts") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AllowedCaCerts") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3beta1WebhookGenericWebService) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3beta1WebhookGenericWebService
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudDialogflowCxV3beta1WebhookRequest: The request message for
 // a webhook call. The request is sent as a JSON object and the field
-// names will be presented in camel cases.
+// names will be presented in camel cases. You may see undocumented
+// fields in an actual request. These fields are used internally by
+// Dialogflow and should be ignored.
 type GoogleCloudDialogflowCxV3beta1WebhookRequest struct {
 	// DetectIntentResponseId: Always present. The unique identifier of the
 	// DetectIntentResponse that will be returned to the API caller.
 	DetectIntentResponseId string `json:"detectIntentResponseId,omitempty"`
+
+	// DtmfDigits: If DTMF was provided as input, this field will contain
+	// the DTMF digits.
+	DtmfDigits string `json:"dtmfDigits,omitempty"`
 
 	// FulfillmentInfo: Always present. Information about the fulfillment
 	// that triggered this webhook call.
@@ -7276,6 +7828,43 @@ func (s *GoogleCloudDialogflowCxV3beta1WebhookResponseFulfillmentResponse) Marsh
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudDialogflowCxV3beta1WebhookServiceDirectoryConfig:
+// Represents configuration for a Service Directory
+// (https://cloud.google.com/service-directory) service.
+type GoogleCloudDialogflowCxV3beta1WebhookServiceDirectoryConfig struct {
+	// GenericWebService: Generic Service configuration of this webhook.
+	GenericWebService *GoogleCloudDialogflowCxV3beta1WebhookGenericWebService `json:"genericWebService,omitempty"`
+
+	// Service: Required. The name of Service Directory
+	// (https://cloud.google.com/service-directory) service. Format:
+	// `projects//locations//namespaces//services/`. `Location ID` of the
+	// service directory must be the same as the location of the agent.
+	Service string `json:"service,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "GenericWebService")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GenericWebService") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowCxV3beta1WebhookServiceDirectoryConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowCxV3beta1WebhookServiceDirectoryConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudDialogflowV2Agent: A Dialogflow agent is a virtual agent
 // that handles conversations with your end-users. It is a natural
 // language understanding module that understands the nuances of human
@@ -7453,6 +8042,10 @@ type GoogleCloudDialogflowV2AgentAssistantFeedback struct {
 	//   "EFFICIENT" - Document is efficient.
 	DocumentEfficiency string `json:"documentEfficiency,omitempty"`
 
+	// SummarizationFeedback: Optional. Feedback for conversation
+	// summarization.
+	SummarizationFeedback *GoogleCloudDialogflowV2AgentAssistantFeedbackSummarizationFeedback `json:"summarizationFeedback,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "AnswerRelevance") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
@@ -7473,6 +8066,41 @@ type GoogleCloudDialogflowV2AgentAssistantFeedback struct {
 
 func (s *GoogleCloudDialogflowV2AgentAssistantFeedback) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudDialogflowV2AgentAssistantFeedback
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowV2AgentAssistantFeedbackSummarizationFeedback:
+// Feedback for conversation summarization.
+type GoogleCloudDialogflowV2AgentAssistantFeedbackSummarizationFeedback struct {
+	// StartTime: Timestamp when composing of the summary starts.
+	StartTime string `json:"startTime,omitempty"`
+
+	// SubmitTime: Timestamp when the summary was submitted.
+	SubmitTime string `json:"submitTime,omitempty"`
+
+	// SummaryText: Text of actual submitted summary.
+	SummaryText string `json:"summaryText,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "StartTime") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "StartTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowV2AgentAssistantFeedbackSummarizationFeedback) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowV2AgentAssistantFeedbackSummarizationFeedback
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -8002,6 +8630,11 @@ type GoogleCloudDialogflowV2AutomatedAgentReply struct {
 	//   "FINAL" - Final reply.
 	AutomatedAgentReplyType string `json:"automatedAgentReplyType,omitempty"`
 
+	// CxCurrentPage: The unique identifier of the current Dialogflow CX
+	// conversation page. Format:
+	// `projects//locations//agents//flows//pages/`.
+	CxCurrentPage string `json:"cxCurrentPage,omitempty"`
+
 	// DetectIntentResponse: Response of the Dialogflow
 	// Sessions.DetectIntent call.
 	DetectIntentResponse *GoogleCloudDialogflowV2DetectIntentResponse `json:"detectIntentResponse,omitempty"`
@@ -8387,9 +9020,9 @@ type GoogleCloudDialogflowV2ClearSuggestionFeatureConfigOperationMetadata struct
 	//
 	// Possible values:
 	//   "TYPE_UNSPECIFIED" - Unspecified feature type.
-	//   "ARTICLE_SUGGESTION" - Run article suggestion model.
-	//   "FAQ" - Run FAQ model.
-	//   "SMART_REPLY" - Run smart reply model.
+	//   "ARTICLE_SUGGESTION" - Run article suggestion model for chat.
+	//   "FAQ" - Run FAQ model for chat.
+	//   "SMART_REPLY" - Run smart reply model for chat.
 	SuggestionFeatureType string `json:"suggestionFeatureType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ConversationProfile")
@@ -8436,9 +9069,9 @@ type GoogleCloudDialogflowV2ClearSuggestionFeatureConfigRequest struct {
 	//
 	// Possible values:
 	//   "TYPE_UNSPECIFIED" - Unspecified feature type.
-	//   "ARTICLE_SUGGESTION" - Run article suggestion model.
-	//   "FAQ" - Run FAQ model.
-	//   "SMART_REPLY" - Run smart reply model.
+	//   "ARTICLE_SUGGESTION" - Run article suggestion model for chat.
+	//   "FAQ" - Run FAQ model for chat.
+	//   "SMART_REPLY" - Run smart reply model for chat.
 	SuggestionFeatureType string `json:"suggestionFeatureType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ParticipantRole") to
@@ -8872,6 +9505,22 @@ type GoogleCloudDialogflowV2ConversationModelEvaluation struct {
 	// `projects//conversationModels//evaluations/`
 	Name string `json:"name,omitempty"`
 
+	// RawHumanEvalTemplateCsv: Output only. Human eval template in csv
+	// format. It tooks real-world conversations provided through input
+	// dataset, generates example suggestions for customer to verify quality
+	// of the model. For Smart Reply, the generated csv file contains
+	// columns of Context, (Suggestions,Q1,Q2)*3, Actual reply. Context
+	// contains at most 10 latest messages in the conversation prior to the
+	// current suggestion. Q1: "Would you send it as the next message of
+	// agent?" Evaluated based on whether the suggest is appropriate to be
+	// sent by agent in current context. Q2: "Does the suggestion move the
+	// conversation closer to resolution?" Evaluated based on whether the
+	// suggestion provide solutions, or answers customer's question or
+	// collect information from customer to resolve the customer's issue.
+	// Actual reply column contains the actual agent reply sent in the
+	// context.
+	RawHumanEvalTemplateCsv string `json:"rawHumanEvalTemplateCsv,omitempty"`
+
 	// SmartReplyMetrics: Output only. Only available when model is for
 	// smart reply.
 	SmartReplyMetrics *GoogleCloudDialogflowV2SmartReplyMetrics `json:"smartReplyMetrics,omitempty"`
@@ -8992,6 +9641,12 @@ type GoogleCloudDialogflowV2ConversationProfile struct {
 	// America/New_York, Europe/Paris. Defaults to America/New_York.
 	TimeZone string `json:"timeZone,omitempty"`
 
+	// TtsConfig: Configuration for Text-to-Speech synthesization. Used by
+	// Phone Gateway to specify synthesization options. If agent defines
+	// synthesization options as well, agent settings overrides the option
+	// here.
+	TtsConfig *GoogleCloudDialogflowV2SynthesizeSpeechConfig `json:"ttsConfig,omitempty"`
+
 	// UpdateTime: Output only. Update time of the conversation profile.
 	UpdateTime string `json:"updateTime,omitempty"`
 
@@ -9027,6 +9682,33 @@ func (s *GoogleCloudDialogflowV2ConversationProfile) MarshalJSON() ([]byte, erro
 // GoogleCloudDialogflowV2CreateConversationDatasetOperationMetadata:
 // Metadata for ConversationDatasets.
 type GoogleCloudDialogflowV2CreateConversationDatasetOperationMetadata struct {
+	// ConversationDataset: The resource name of the conversation dataset
+	// that will be created. Format:
+	// `projects//locations//conversationDatasets/`
+	ConversationDataset string `json:"conversationDataset,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ConversationDataset")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ConversationDataset") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowV2CreateConversationDatasetOperationMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowV2CreateConversationDatasetOperationMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // GoogleCloudDialogflowV2CreateConversationModelEvaluationOperationMetad
@@ -9952,7 +10634,7 @@ func (s *GoogleCloudDialogflowV2EvaluationConfigSmartReplyConfig) MarshalJSON() 
 
 // GoogleCloudDialogflowV2EventInput: Events allow for matching intents
 // by event name instead of the natural language input. For instance,
-// input `` can trigger a personalized welcome response. The parameter
+// input “ can trigger a personalized welcome response. The parameter
 // `name` may be used by the agent in the response: "Hello
 // #welcome_event.name! What can I do for you today?".
 type GoogleCloudDialogflowV2EventInput struct {
@@ -10457,7 +11139,8 @@ func (s *GoogleCloudDialogflowV2HumanAgentAssistantConfig) MarshalJSON() ([]byte
 
 // GoogleCloudDialogflowV2HumanAgentAssistantConfigConversationModelConfi
 // g: Custom conversation models used in agent assist feature. Supported
-// feature: ARTICLE_SUGGESTION, SMART_COMPOSE, SMART_REPLY.
+// feature: ARTICLE_SUGGESTION, SMART_COMPOSE, SMART_REPLY,
+// CONVERSATION_SUMMARIZATION.
 type GoogleCloudDialogflowV2HumanAgentAssistantConfigConversationModelConfig struct {
 	// Model: Conversation model resource name. Format:
 	// `projects//conversationModels/`.
@@ -10519,7 +11202,8 @@ func (s *GoogleCloudDialogflowV2HumanAgentAssistantConfigConversationProcessConf
 }
 
 // GoogleCloudDialogflowV2HumanAgentAssistantConfigMessageAnalysisConfig:
-//  Configuration for analyses to run on each conversation message.
+//
+//	Configuration for analyses to run on each conversation message.
 type GoogleCloudDialogflowV2HumanAgentAssistantConfigMessageAnalysisConfig struct {
 	// EnableEntityExtraction: Enable entity extraction in conversation
 	// messages on agent assist stage
@@ -10662,7 +11346,8 @@ func (s *GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionFeatureConfig
 }
 
 // GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionQueryConfig:
-//  Config for suggestion query.
+//
+//	Config for suggestion query.
 type GoogleCloudDialogflowV2HumanAgentAssistantConfigSuggestionQueryConfig struct {
 	// ConfidenceThreshold: Confidence threshold of query result. Agent
 	// Assist gives each suggestion a score in the range [0.0, 1.0], based
@@ -11396,7 +12081,11 @@ type GoogleCloudDialogflowV2InputAudioConfig struct {
 	// the standard version of the specified model. Refer to Cloud Speech
 	// API documentation
 	// (https://cloud.google.com/speech-to-text/docs/basics#select-model)
-	// for more details.
+	// for more details. If you specify a model, the following models
+	// typically have the best performance: - phone_call (best for Agent
+	// Assist and telephony) - latest_short (best for Dialogflow
+	// non-telephony) - command_and_search (best for very short utterances
+	// and commands)
 	Model string `json:"model,omitempty"`
 
 	// ModelVariant: Which variant of the Speech model to use.
@@ -14040,6 +14729,23 @@ type GoogleCloudDialogflowV2Participant struct {
 	// `projects//locations//conversations//participants/`.
 	Name string `json:"name,omitempty"`
 
+	// ObfuscatedExternalUserId: Optional. Obfuscated user id that should be
+	// associated with the created participant. You can specify a user id as
+	// follows: 1. If you set this field in CreateParticipantRequest or
+	// UpdateParticipantRequest, Dialogflow adds the obfuscated user id with
+	// the participant. 2. If you set this field in AnalyzeContent or
+	// StreamingAnalyzeContent, Dialogflow will update
+	// Participant.obfuscated_external_user_id. Dialogflow returns an error
+	// if you try to add a user id for a non-END_USER participant.
+	// Dialogflow uses this user id for billing and measurement purposes.
+	// For example, Dialogflow determines whether a user in one conversation
+	// returned in a later conversation. Note: * Please never pass raw user
+	// ids to Dialogflow. Always obfuscate your user id first. * Dialogflow
+	// only accepts a UTF-8 encoded string, e.g., a hex digest of a hash
+	// function like SHA-512. * The length of the user id must be <= 256
+	// characters.
+	ObfuscatedExternalUserId string `json:"obfuscatedExternalUserId,omitempty"`
+
 	// Role: Immutable. The role this participant plays in the conversation.
 	// This field must be set during participant creation and is then
 	// immutable.
@@ -14101,7 +14807,8 @@ type GoogleCloudDialogflowV2QueryInput struct {
 	// Event: The event to be processed.
 	Event *GoogleCloudDialogflowV2EventInput `json:"event,omitempty"`
 
-	// Text: The natural language text to be processed.
+	// Text: The natural language text to be processed. Text length must not
+	// exceed 256 character for virtual agent interactions.
 	Text *GoogleCloudDialogflowV2TextInput `json:"text,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AudioConfig") to
@@ -14212,7 +14919,9 @@ type GoogleCloudDialogflowV2QueryResult struct {
 	AllRequiredParamsPresent bool `json:"allRequiredParamsPresent,omitempty"`
 
 	// CancelsSlotFilling: Indicates whether the conversational query
-	// triggers a cancellation for slot filling.
+	// triggers a cancellation for slot filling. For more information, see
+	// the cancel slot filling documentation
+	// (https://cloud.google.com/dialogflow/es/docs/intents-actions-parameters#cancel).
 	CancelsSlotFilling bool `json:"cancelsSlotFilling,omitempty"`
 
 	// DiagnosticInfo: Free-form diagnostic information for the associated
@@ -14459,7 +15168,9 @@ func (s *GoogleCloudDialogflowV2SearchAgentsResponse) MarshalJSON() ([]byte, err
 
 // GoogleCloudDialogflowV2Sentiment: The sentiment, such as
 // positive/negative feeling or association, for a unit of analysis,
-// such as the query text.
+// such as the query text. See:
+// https://cloud.google.com/natural-language/docs/basics#interpreting_sentiment_analysis_values
+// for how to interpret the result.
 type GoogleCloudDialogflowV2Sentiment struct {
 	// Magnitude: A non-negative number in the [0, +inf) range, which
 	// represents the absolute magnitude of sentiment, regardless of score
@@ -14678,9 +15389,9 @@ type GoogleCloudDialogflowV2SetSuggestionFeatureConfigOperationMetadata struct {
 	//
 	// Possible values:
 	//   "TYPE_UNSPECIFIED" - Unspecified feature type.
-	//   "ARTICLE_SUGGESTION" - Run article suggestion model.
-	//   "FAQ" - Run FAQ model.
-	//   "SMART_REPLY" - Run smart reply model.
+	//   "ARTICLE_SUGGESTION" - Run article suggestion model for chat.
+	//   "FAQ" - Run FAQ model for chat.
+	//   "SMART_REPLY" - Run smart reply model for chat.
 	SuggestionFeatureType string `json:"suggestionFeatureType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ConversationProfile")
@@ -15005,6 +15716,14 @@ func (s *GoogleCloudDialogflowV2SpeechContext) UnmarshalJSON(data []byte) error 
 // GoogleCloudDialogflowV2SpeechToTextConfig: Configures speech
 // transcription for ConversationProfile.
 type GoogleCloudDialogflowV2SpeechToTextConfig struct {
+	// Model: Which Speech model to select. Select the model best suited to
+	// your domain to get best results. If a model is not explicitly
+	// specified, then a default model is used. Refer to Cloud Speech API
+	// documentation
+	// (https://cloud.google.com/speech-to-text/docs/basics#select-model)
+	// for more details.
+	Model string `json:"model,omitempty"`
+
 	// SpeechModelVariant: The speech model used in speech to text.
 	// `SPEECH_MODEL_VARIANT_UNSPECIFIED`, `USE_BEST_AVAILABLE` will be
 	// treated as `USE_ENHANCED`. It can be overridden in
@@ -15035,21 +15754,20 @@ type GoogleCloudDialogflowV2SpeechToTextConfig struct {
 	// to make your project eligible.
 	SpeechModelVariant string `json:"speechModelVariant,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "SpeechModelVariant")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "Model") to
+	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "SpeechModelVariant") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Model") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -15141,6 +15859,129 @@ type GoogleCloudDialogflowV2SuggestArticlesResponse struct {
 
 func (s *GoogleCloudDialogflowV2SuggestArticlesResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudDialogflowV2SuggestArticlesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowV2SuggestConversationSummaryRequest: The request
+// message for Conversations.SuggestConversationSummary.
+type GoogleCloudDialogflowV2SuggestConversationSummaryRequest struct {
+	// AssistQueryParams: Parameters for a human assist query.
+	AssistQueryParams *GoogleCloudDialogflowV2AssistQueryParameters `json:"assistQueryParams,omitempty"`
+
+	// ContextSize: Max number of messages prior to and including
+	// [latest_message] to use as context when compiling the suggestion. By
+	// default 500 and at most 1000.
+	ContextSize int64 `json:"contextSize,omitempty"`
+
+	// LatestMessage: The name of the latest conversation message used as
+	// context for compiling suggestion. If empty, the latest message of the
+	// conversation will be used. Format:
+	// `projects//locations//conversations//messages/`.
+	LatestMessage string `json:"latestMessage,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AssistQueryParams")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AssistQueryParams") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowV2SuggestConversationSummaryRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowV2SuggestConversationSummaryRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowV2SuggestConversationSummaryResponse: The
+// response message for Conversations.SuggestConversationSummary.
+type GoogleCloudDialogflowV2SuggestConversationSummaryResponse struct {
+	// ContextSize: Number of messages prior to and including
+	// last_conversation_message used to compile the suggestion. It may be
+	// smaller than the SuggestSummaryRequest.context_size field in the
+	// request if there weren't that many messages in the conversation.
+	ContextSize int64 `json:"contextSize,omitempty"`
+
+	// LatestMessage: The name of the latest conversation message used as
+	// context for compiling suggestion. Format:
+	// `projects//locations//conversations//messages/`.
+	LatestMessage string `json:"latestMessage,omitempty"`
+
+	// Summary: Generated summary.
+	Summary *GoogleCloudDialogflowV2SuggestConversationSummaryResponseSummary `json:"summary,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "ContextSize") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ContextSize") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowV2SuggestConversationSummaryResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowV2SuggestConversationSummaryResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowV2SuggestConversationSummaryResponseSummary:
+// Generated summary for a conversation.
+type GoogleCloudDialogflowV2SuggestConversationSummaryResponseSummary struct {
+	// AnswerRecord: The name of the answer record. Format:
+	// "projects//answerRecords/"
+	AnswerRecord string `json:"answerRecord,omitempty"`
+
+	// Text: The summary content that is concatenated into one string.
+	Text string `json:"text,omitempty"`
+
+	// TextSections: The summary content that is divided into sections. The
+	// key is the section's name and the value is the section's content.
+	// There is no specific format for the key or value.
+	TextSections map[string]string `json:"textSections,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AnswerRecord") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AnswerRecord") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowV2SuggestConversationSummaryResponseSummary) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowV2SuggestConversationSummaryResponseSummary
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -15329,9 +16170,9 @@ type GoogleCloudDialogflowV2SuggestionFeature struct {
 	//
 	// Possible values:
 	//   "TYPE_UNSPECIFIED" - Unspecified feature type.
-	//   "ARTICLE_SUGGESTION" - Run article suggestion model.
-	//   "FAQ" - Run FAQ model.
-	//   "SMART_REPLY" - Run smart reply model.
+	//   "ARTICLE_SUGGESTION" - Run article suggestion model for chat.
+	//   "FAQ" - Run FAQ model for chat.
+	//   "SMART_REPLY" - Run smart reply model for chat.
 	Type string `json:"type,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Type") to
@@ -15477,8 +16318,10 @@ func (s *GoogleCloudDialogflowV2SynthesizeSpeechConfig) UnmarshalJSON(data []byt
 	return nil
 }
 
-// GoogleCloudDialogflowV2TextInput: Represents the natural language
-// text to be processed.
+// GoogleCloudDialogflowV2TextInput:
+// ======================================================================
+// ====== Auxiliary proto messages. Represents the natural language text
+// to be processed.
 type GoogleCloudDialogflowV2TextInput struct {
 	// LanguageCode: Required. The language of this conversational query.
 	// See Language Support
@@ -15489,7 +16332,8 @@ type GoogleCloudDialogflowV2TextInput struct {
 	LanguageCode string `json:"languageCode,omitempty"`
 
 	// Text: Required. The UTF-8 encoded natural language text to be
-	// processed. Text length must not exceed 256 characters.
+	// processed. Text length must not exceed 256 characters for virtual
+	// agent interactions.
 	Text string `json:"text,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "LanguageCode") to
@@ -16132,9 +16976,11 @@ type GoogleCloudDialogflowV2beta1ClearSuggestionFeatureConfigOperationMetadata s
 	//
 	// Possible values:
 	//   "TYPE_UNSPECIFIED" - Unspecified feature type.
-	//   "ARTICLE_SUGGESTION" - Run article suggestion model.
+	//   "ARTICLE_SUGGESTION" - Run article suggestion model for chat.
 	//   "FAQ" - Run FAQ model.
-	//   "SMART_REPLY" - Run smart reply model.
+	//   "SMART_REPLY" - Run smart reply model for chat.
+	//   "CONVERSATION_SUMMARIZATION" - Run conversation summarization model
+	// for chat.
 	SuggestionFeatureType string `json:"suggestionFeatureType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ConversationProfile")
@@ -16413,7 +17259,7 @@ func (s *GoogleCloudDialogflowV2beta1EntityTypeEntity) MarshalJSON() ([]byte, er
 
 // GoogleCloudDialogflowV2beta1EventInput: Events allow for matching
 // intents by event name instead of the natural language input. For
-// instance, input `` can trigger a personalized welcome response. The
+// instance, input “ can trigger a personalized welcome response. The
 // parameter `name` may be used by the agent in the response: "Hello
 // #welcome_event.name! What can I do for you today?".
 type GoogleCloudDialogflowV2beta1EventInput struct {
@@ -17091,7 +17937,8 @@ func (s *GoogleCloudDialogflowV2beta1IntentMessageBasicCardButton) MarshalJSON()
 }
 
 // GoogleCloudDialogflowV2beta1IntentMessageBasicCardButtonOpenUriAction:
-//  Opens the given URI.
+//
+//	Opens the given URI.
 type GoogleCloudDialogflowV2beta1IntentMessageBasicCardButtonOpenUriAction struct {
 	// Uri: Required. The HTTP or HTTPS scheme URI.
 	Uri string `json:"uri,omitempty"`
@@ -18979,7 +19826,9 @@ type GoogleCloudDialogflowV2beta1QueryResult struct {
 	AllRequiredParamsPresent bool `json:"allRequiredParamsPresent,omitempty"`
 
 	// CancelsSlotFilling: Indicates whether the conversational query
-	// triggers a cancellation for slot filling.
+	// triggers a cancellation for slot filling. For more information, see
+	// the cancel slot filling documentation
+	// (https://cloud.google.com/dialogflow/es/docs/intents-actions-parameters#cancel).
 	CancelsSlotFilling bool `json:"cancelsSlotFilling,omitempty"`
 
 	// DiagnosticInfo: Free-form diagnostic information for the associated
@@ -19113,7 +19962,9 @@ func (s *GoogleCloudDialogflowV2beta1QueryResult) UnmarshalJSON(data []byte) err
 
 // GoogleCloudDialogflowV2beta1Sentiment: The sentiment, such as
 // positive/negative feeling or association, for a unit of analysis,
-// such as the query text.
+// such as the query text. See:
+// https://cloud.google.com/natural-language/docs/basics#interpreting_sentiment_analysis_values
+// for how to interpret the result.
 type GoogleCloudDialogflowV2beta1Sentiment struct {
 	// Magnitude: A non-negative number in the [0, +inf) range, which
 	// represents the absolute magnitude of sentiment, regardless of score
@@ -19299,9 +20150,11 @@ type GoogleCloudDialogflowV2beta1SetSuggestionFeatureConfigOperationMetadata str
 	//
 	// Possible values:
 	//   "TYPE_UNSPECIFIED" - Unspecified feature type.
-	//   "ARTICLE_SUGGESTION" - Run article suggestion model.
+	//   "ARTICLE_SUGGESTION" - Run article suggestion model for chat.
 	//   "FAQ" - Run FAQ model.
-	//   "SMART_REPLY" - Run smart reply model.
+	//   "SMART_REPLY" - Run smart reply model for chat.
+	//   "CONVERSATION_SUMMARIZATION" - Run conversation summarization model
+	// for chat.
 	SuggestionFeatureType string `json:"suggestionFeatureType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ConversationProfile")
@@ -19696,6 +20549,36 @@ func (s *GoogleCloudDialogflowV2beta1WebhookResponse) MarshalJSON() ([]byte, err
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudDialogflowV3alpha1ConversationSignals: This message is
+// used to hold all the Conversation Signals data, which will be
+// converted to JSON and exported to BigQuery.
+type GoogleCloudDialogflowV3alpha1ConversationSignals struct {
+	// TurnSignals: Required. Turn signals for the current turn.
+	TurnSignals *GoogleCloudDialogflowV3alpha1TurnSignals `json:"turnSignals,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "TurnSignals") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "TurnSignals") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowV3alpha1ConversationSignals) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowV3alpha1ConversationSignals
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudDialogflowV3alpha1CreateDocumentOperationMetadata:
 // Metadata for CreateDocument operation.
 type GoogleCloudDialogflowV3alpha1CreateDocumentOperationMetadata struct {
@@ -19877,6 +20760,68 @@ type GoogleCloudDialogflowV3alpha1ReloadDocumentOperationMetadata struct {
 
 func (s *GoogleCloudDialogflowV3alpha1ReloadDocumentOperationMetadata) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudDialogflowV3alpha1ReloadDocumentOperationMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudDialogflowV3alpha1TurnSignals: Collection of all signals
+// that were extracted for a single turn of the conversation.
+type GoogleCloudDialogflowV3alpha1TurnSignals struct {
+	// AgentEscalated: Whether agent responded with LiveAgentHandoff
+	// fulfillment.
+	AgentEscalated bool `json:"agentEscalated,omitempty"`
+
+	// DtmfUsed: Whether user was using DTMF input.
+	DtmfUsed bool `json:"dtmfUsed,omitempty"`
+
+	// FailureReasons: Failure reasons of the turn.
+	//
+	// Possible values:
+	//   "FAILURE_REASON_UNSPECIFIED" - Failure reason is not assigned.
+	//   "FAILED_INTENT" - Whether NLU failed to recognize user intent.
+	//   "FAILED_WEBHOOK" - Whether webhook failed during the turn.
+	FailureReasons []string `json:"failureReasons,omitempty"`
+
+	// NoMatch: Whether NLU predicted NO_MATCH.
+	NoMatch bool `json:"noMatch,omitempty"`
+
+	// NoUserInput: Whether user provided no input.
+	NoUserInput bool `json:"noUserInput,omitempty"`
+
+	// ReachedEndPage: Whether turn resulted in End Session page.
+	ReachedEndPage bool `json:"reachedEndPage,omitempty"`
+
+	// TriggeredAbandonmentEvent: Whether agent has triggered the event
+	// corresponding to user abandoning the conversation.
+	TriggeredAbandonmentEvent bool `json:"triggeredAbandonmentEvent,omitempty"`
+
+	// UserEscalated: Whether user was specifically asking for a live agent.
+	UserEscalated bool `json:"userEscalated,omitempty"`
+
+	// WebhookStatuses: Human-readable statuses of the webhooks triggered
+	// during this turn.
+	WebhookStatuses []string `json:"webhookStatuses,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AgentEscalated") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AgentEscalated") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudDialogflowV3alpha1TurnSignals) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudDialogflowV3alpha1TurnSignals
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -20218,8 +21163,8 @@ type ProjectsDeleteAgentCall struct {
 
 // DeleteAgent: Deletes the specified agent.
 //
-// - parent: The project that the agent to delete is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to delete is associated with.
+//     Format: `projects/`.
 func (r *ProjectsService) DeleteAgent(parent string) *ProjectsDeleteAgentCall {
 	c := &ProjectsDeleteAgentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -20288,17 +21233,17 @@ func (c *ProjectsDeleteAgentCall) Do(opts ...googleapi.CallOption) (*GoogleProto
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -20353,8 +21298,8 @@ type ProjectsGetAgentCall struct {
 
 // GetAgent: Retrieves the specified agent.
 //
-// - parent: The project that the agent to fetch is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to fetch is associated with.
+//     Format: `projects/`.
 func (r *ProjectsService) GetAgent(parent string) *ProjectsGetAgentCall {
 	c := &ProjectsGetAgentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -20436,17 +21381,17 @@ func (c *ProjectsGetAgentCall) Do(opts ...googleapi.CallOption) (*GoogleCloudDia
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Agent{
 		ServerResponse: googleapi.ServerResponse{
@@ -20585,17 +21530,17 @@ func (c *ProjectsSetAgentCall) Do(opts ...googleapi.CallOption) (*GoogleCloudDia
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Agent{
 		ServerResponse: googleapi.ServerResponse{
@@ -20665,8 +21610,8 @@ type ProjectsAgentExportCall struct {
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#struct)
 // - `response`: ExportAgentResponse
 //
-// - parent: The project that the agent to export is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to export is associated with.
+//     Format: `projects/`.
 func (r *ProjectsAgentService) Export(parent string, googleclouddialogflowv2exportagentrequest *GoogleCloudDialogflowV2ExportAgentRequest) *ProjectsAgentExportCall {
 	c := &ProjectsAgentExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -20741,17 +21686,17 @@ func (c *ProjectsAgentExportCall) Do(opts ...googleapi.CallOption) (*GoogleLongr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -20809,8 +21754,8 @@ type ProjectsAgentGetFulfillmentCall struct {
 
 // GetFulfillment: Retrieves the fulfillment.
 //
-// - name: The name of the fulfillment. Format:
-//   `projects//agent/fulfillment`.
+//   - name: The name of the fulfillment. Format:
+//     `projects//agent/fulfillment`.
 func (r *ProjectsAgentService) GetFulfillment(name string) *ProjectsAgentGetFulfillmentCall {
 	c := &ProjectsAgentGetFulfillmentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -20893,17 +21838,17 @@ func (c *ProjectsAgentGetFulfillmentCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Fulfillment{
 		ServerResponse: googleapi.ServerResponse{
@@ -20960,8 +21905,8 @@ type ProjectsAgentGetValidationResultCall struct {
 // is performed during training time and is updated automatically when
 // training is completed.
 //
-// - parent: The project that the agent is associated with. Format:
-//   `projects/`.
+//   - parent: The project that the agent is associated with. Format:
+//     `projects/`.
 func (r *ProjectsAgentService) GetValidationResult(parent string) *ProjectsAgentGetValidationResultCall {
 	c := &ProjectsAgentGetValidationResultCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -21055,17 +22000,17 @@ func (c *ProjectsAgentGetValidationResultCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ValidationResult{
 		ServerResponse: googleapi.ServerResponse{
@@ -21143,8 +22088,8 @@ type ProjectsAgentImportCall struct {
 // sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The project that the agent to import is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to import is associated with.
+//     Format: `projects/`.
 func (r *ProjectsAgentService) Import(parent string, googleclouddialogflowv2importagentrequest *GoogleCloudDialogflowV2ImportAgentRequest) *ProjectsAgentImportCall {
 	c := &ProjectsAgentImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -21219,17 +22164,17 @@ func (c *ProjectsAgentImportCall) Do(opts ...googleapi.CallOption) (*GoogleLongr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -21304,8 +22249,8 @@ type ProjectsAgentRestoreCall struct {
 // sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The project that the agent to restore is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to restore is associated with.
+//     Format: `projects/`.
 func (r *ProjectsAgentService) Restore(parent string, googleclouddialogflowv2restoreagentrequest *GoogleCloudDialogflowV2RestoreAgentRequest) *ProjectsAgentRestoreCall {
 	c := &ProjectsAgentRestoreCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -21380,17 +22325,17 @@ func (c *ProjectsAgentRestoreCall) Do(opts ...googleapi.CallOption) (*GoogleLong
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -21551,17 +22496,17 @@ func (c *ProjectsAgentSearchCall) Do(opts ...googleapi.CallOption) (*GoogleCloud
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SearchAgentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -21658,8 +22603,8 @@ type ProjectsAgentTrainCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The project that the agent to train is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to train is associated with.
+//     Format: `projects/`.
 func (r *ProjectsAgentService) Train(parent string, googleclouddialogflowv2trainagentrequest *GoogleCloudDialogflowV2TrainAgentRequest) *ProjectsAgentTrainCall {
 	c := &ProjectsAgentTrainCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -21734,17 +22679,17 @@ func (c *ProjectsAgentTrainCall) Do(opts ...googleapi.CallOption) (*GoogleLongru
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -21804,8 +22749,8 @@ type ProjectsAgentUpdateFulfillmentCall struct {
 //
 // - name: The unique identifier of the fulfillment. Supported formats:
 //   - `projects//agent/fulfillment` -
-//   `projects//locations//agent/fulfillment` This field is not used for
-//   Fulfillment in an Environment.
+//     `projects//locations//agent/fulfillment` This field is not used for
+//     Fulfillment in an Environment.
 func (r *ProjectsAgentService) UpdateFulfillment(nameid string, googleclouddialogflowv2fulfillment *GoogleCloudDialogflowV2Fulfillment) *ProjectsAgentUpdateFulfillmentCall {
 	c := &ProjectsAgentUpdateFulfillmentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -21889,17 +22834,17 @@ func (c *ProjectsAgentUpdateFulfillmentCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Fulfillment{
 		ServerResponse: googleapi.ServerResponse{
@@ -21973,8 +22918,8 @@ type ProjectsAgentEntityTypesBatchDeleteCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to delete all entities types for.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to delete all entities types for.
+//     Format: `projects//agent`.
 func (r *ProjectsAgentEntityTypesService) BatchDelete(parent string, googleclouddialogflowv2batchdeleteentitytypesrequest *GoogleCloudDialogflowV2BatchDeleteEntityTypesRequest) *ProjectsAgentEntityTypesBatchDeleteCall {
 	c := &ProjectsAgentEntityTypesBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -22049,17 +22994,17 @@ func (c *ProjectsAgentEntityTypesBatchDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -22125,8 +23070,8 @@ type ProjectsAgentEntityTypesBatchUpdateCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to update or create entity types in.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to update or create entity types in.
+//     Format: `projects//agent`.
 func (r *ProjectsAgentEntityTypesService) BatchUpdate(parent string, googleclouddialogflowv2batchupdateentitytypesrequest *GoogleCloudDialogflowV2BatchUpdateEntityTypesRequest) *ProjectsAgentEntityTypesBatchUpdateCall {
 	c := &ProjectsAgentEntityTypesBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -22201,17 +23146,17 @@ func (c *ProjectsAgentEntityTypesBatchUpdateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -22272,8 +23217,8 @@ type ProjectsAgentEntityTypesCreateCall struct {
 // training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The agent to create a entity type for. Format:
-//   `projects//agent`.
+//   - parent: The agent to create a entity type for. Format:
+//     `projects//agent`.
 func (r *ProjectsAgentEntityTypesService) Create(parent string, googleclouddialogflowv2entitytype *GoogleCloudDialogflowV2EntityType) *ProjectsAgentEntityTypesCreateCall {
 	c := &ProjectsAgentEntityTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -22359,17 +23304,17 @@ func (c *ProjectsAgentEntityTypesCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -22433,8 +23378,8 @@ type ProjectsAgentEntityTypesDeleteCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: The name of the entity type to delete. Format:
-//   `projects//agent/entityTypes/`.
+//   - name: The name of the entity type to delete. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsAgentEntityTypesService) Delete(name string) *ProjectsAgentEntityTypesDeleteCall {
 	c := &ProjectsAgentEntityTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -22503,17 +23448,17 @@ func (c *ProjectsAgentEntityTypesDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -22568,8 +23513,8 @@ type ProjectsAgentEntityTypesGetCall struct {
 
 // Get: Retrieves the specified entity type.
 //
-// - name: The name of the entity type. Format:
-//   `projects//agent/entityTypes/`.
+//   - name: The name of the entity type. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsAgentEntityTypesService) Get(name string) *ProjectsAgentEntityTypesGetCall {
 	c := &ProjectsAgentEntityTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -22662,17 +23607,17 @@ func (c *ProjectsAgentEntityTypesGetCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -22732,8 +23677,8 @@ type ProjectsAgentEntityTypesListCall struct {
 
 // List: Returns the list of all entity types in the specified agent.
 //
-// - parent: The agent to list all entity types from. Format:
-//   `projects//agent`.
+//   - parent: The agent to list all entity types from. Format:
+//     `projects//agent`.
 func (r *ProjectsAgentEntityTypesService) List(parent string) *ProjectsAgentEntityTypesListCall {
 	c := &ProjectsAgentEntityTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -22841,17 +23786,17 @@ func (c *ProjectsAgentEntityTypesListCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListEntityTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -22945,9 +23890,9 @@ type ProjectsAgentEntityTypesPatchCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: The unique identifier of the entity type. Required for
-//   EntityTypes.UpdateEntityType and EntityTypes.BatchUpdateEntityTypes
-//   methods. Format: `projects//agent/entityTypes/`.
+//   - name: The unique identifier of the entity type. Required for
+//     EntityTypes.UpdateEntityType and EntityTypes.BatchUpdateEntityTypes
+//     methods. Format: `projects//agent/entityTypes/`.
 func (r *ProjectsAgentEntityTypesService) Patch(nameid string, googleclouddialogflowv2entitytype *GoogleCloudDialogflowV2EntityType) *ProjectsAgentEntityTypesPatchCall {
 	c := &ProjectsAgentEntityTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -23040,17 +23985,17 @@ func (c *ProjectsAgentEntityTypesPatchCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -23129,8 +24074,8 @@ type ProjectsAgentEntityTypesEntitiesBatchCreateCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the entity type to create entities in. Format:
-//   `projects//agent/entityTypes/`.
+//   - parent: The name of the entity type to create entities in. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsAgentEntityTypesEntitiesService) BatchCreate(parent string, googleclouddialogflowv2batchcreateentitiesrequest *GoogleCloudDialogflowV2BatchCreateEntitiesRequest) *ProjectsAgentEntityTypesEntitiesBatchCreateCall {
 	c := &ProjectsAgentEntityTypesEntitiesBatchCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -23205,17 +24150,17 @@ func (c *ProjectsAgentEntityTypesEntitiesBatchCreateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -23283,8 +24228,8 @@ type ProjectsAgentEntityTypesEntitiesBatchDeleteCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the entity type to delete entries for. Format:
-//   `projects//agent/entityTypes/`.
+//   - parent: The name of the entity type to delete entries for. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsAgentEntityTypesEntitiesService) BatchDelete(parent string, googleclouddialogflowv2batchdeleteentitiesrequest *GoogleCloudDialogflowV2BatchDeleteEntitiesRequest) *ProjectsAgentEntityTypesEntitiesBatchDeleteCall {
 	c := &ProjectsAgentEntityTypesEntitiesBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -23359,17 +24304,17 @@ func (c *ProjectsAgentEntityTypesEntitiesBatchDeleteCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -23439,8 +24384,8 @@ type ProjectsAgentEntityTypesEntitiesBatchUpdateCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the entity type to update or create entities
-//   in. Format: `projects//agent/entityTypes/`.
+//   - parent: The name of the entity type to update or create entities
+//     in. Format: `projects//agent/entityTypes/`.
 func (r *ProjectsAgentEntityTypesEntitiesService) BatchUpdate(parent string, googleclouddialogflowv2batchupdateentitiesrequest *GoogleCloudDialogflowV2BatchUpdateEntitiesRequest) *ProjectsAgentEntityTypesEntitiesBatchUpdateCall {
 	c := &ProjectsAgentEntityTypesEntitiesBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -23515,17 +24460,17 @@ func (c *ProjectsAgentEntityTypesEntitiesBatchUpdateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -23667,17 +24612,17 @@ func (c *ProjectsAgentEnvironmentsCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Environment{
 		ServerResponse: googleapi.ServerResponse{
@@ -23739,10 +24684,10 @@ type ProjectsAgentEnvironmentsDeleteCall struct {
 
 // Delete: Deletes the specified agent environment.
 //
-// - name: The name of the environment to delete. / Format: -
-//   `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - name: The name of the environment to delete. / Format: -
+//     `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsAgentEnvironmentsService) Delete(name string) *ProjectsAgentEnvironmentsDeleteCall {
 	c := &ProjectsAgentEnvironmentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23811,17 +24756,17 @@ func (c *ProjectsAgentEnvironmentsDeleteCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -23876,10 +24821,10 @@ type ProjectsAgentEnvironmentsGetCall struct {
 
 // Get: Retrieves the specified agent environment.
 //
-// - name: The name of the environment. Supported formats: -
-//   `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - name: The name of the environment. Supported formats: -
+//     `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsAgentEnvironmentsService) Get(name string) *ProjectsAgentEnvironmentsGetCall {
 	c := &ProjectsAgentEnvironmentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23962,17 +24907,17 @@ func (c *ProjectsAgentEnvironmentsGetCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Environment{
 		ServerResponse: googleapi.ServerResponse{
@@ -24027,10 +24972,10 @@ type ProjectsAgentEnvironmentsGetHistoryCall struct {
 
 // GetHistory: Gets the history of the specified environment.
 //
-// - parent: The name of the environment to retrieve history for.
-//   Supported formats: - `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - parent: The name of the environment to retrieve history for.
+//     Supported formats: - `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsAgentEnvironmentsService) GetHistory(parent string) *ProjectsAgentEnvironmentsGetHistoryCall {
 	c := &ProjectsAgentEnvironmentsGetHistoryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -24128,17 +25073,17 @@ func (c *ProjectsAgentEnvironmentsGetHistoryCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EnvironmentHistory{
 		ServerResponse: googleapi.ServerResponse{
@@ -24226,8 +25171,8 @@ type ProjectsAgentEnvironmentsListCall struct {
 // List: Returns the list of all non-default environments of the
 // specified agent.
 //
-// - parent: The agent to list all environments from. Format: -
-//   `projects//agent` - `projects//locations//agent`.
+//   - parent: The agent to list all environments from. Format: -
+//     `projects//agent` - `projects//locations//agent`.
 func (r *ProjectsAgentEnvironmentsService) List(parent string) *ProjectsAgentEnvironmentsListCall {
 	c := &ProjectsAgentEnvironmentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -24314,7 +25259,9 @@ func (c *ProjectsAgentEnvironmentsListCall) doRequest(alt string) (*http.Respons
 // error will be non-nil. Any non-2xx status code is an error. Response
 // headers are in either
 // *GoogleCloudDialogflowV2ListEnvironmentsResponse.ServerResponse.Header
-//  or (if a response was returned at all) in
+//
+//	or (if a response was returned at all) in
+//
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
@@ -24325,17 +25272,17 @@ func (c *ProjectsAgentEnvironmentsListCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListEnvironmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24433,10 +25380,10 @@ type ProjectsAgentEnvironmentsPatchCall struct {
 // undone. You may want to save the draft agent to a version before
 // calling this method.
 //
-// - name: Output only. The unique identifier of this agent environment.
-//   Supported formats: - `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - name: Output only. The unique identifier of this agent environment.
+//     Supported formats: - `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsAgentEnvironmentsService) Patch(nameid string, googleclouddialogflowv2environment *GoogleCloudDialogflowV2Environment) *ProjectsAgentEnvironmentsPatchCall {
 	c := &ProjectsAgentEnvironmentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -24530,17 +25477,17 @@ func (c *ProjectsAgentEnvironmentsPatchCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Environment{
 		ServerResponse: googleapi.ServerResponse{
@@ -24609,12 +25556,12 @@ type ProjectsAgentEnvironmentsIntentsListCall struct {
 
 // List: Returns the list of all intents in the specified agent.
 //
-// - parent: The agent to list all intents from. Format:
-//   `projects//agent` or `projects//locations//agent`. Alternatively,
-//   you can specify the environment to list intents for. Format:
-//   `projects//agent/environments/` or
-//   `projects//locations//agent/environments/`. Note: training phrases
-//   of the intents will not be returned for non-draft environment.
+//   - parent: The agent to list all intents from. Format:
+//     `projects//agent` or `projects//locations//agent`. Alternatively,
+//     you can specify the environment to list intents for. Format:
+//     `projects//agent/environments/` or
+//     `projects//locations//agent/environments/`. Note: training phrases
+//     of the intents will not be returned for non-draft environment.
 func (r *ProjectsAgentEnvironmentsIntentsService) List(parent string) *ProjectsAgentEnvironmentsIntentsListCall {
 	c := &ProjectsAgentEnvironmentsIntentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -24625,9 +25572,12 @@ func (r *ProjectsAgentEnvironmentsIntentsService) List(parent string) *ProjectsA
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsAgentEnvironmentsIntentsListCall) IntentView(intentView string) *ProjectsAgentEnvironmentsIntentsListCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -24734,17 +25684,17 @@ func (c *ProjectsAgentEnvironmentsIntentsListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListIntentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24848,11 +25798,11 @@ type ProjectsAgentEnvironmentsUsersSessionsDeleteContextsCall struct {
 
 // DeleteContexts: Deletes all active contexts in the specified session.
 //
-// - parent: The name of the session to delete all contexts from.
-//   Format: `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The name of the session to delete all contexts from.
+//     Format: `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsService) DeleteContexts(parent string) *ProjectsAgentEnvironmentsUsersSessionsDeleteContextsCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsDeleteContextsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -24921,17 +25871,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsDeleteContextsCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -24996,21 +25946,21 @@ type ProjectsAgentEnvironmentsUsersSessionsDetectIntentCall struct {
 // for production traffic. See Versions and environments
 // (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 //
-// - session: The name of the session this query is sent to. Format:
-//   `projects//agent/sessions/`, or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment
-//   (`Environment ID` might be referred to as environment name at some
-//   places). If `User ID` is not specified, we are using "-". It's up
-//   to the API caller to choose an appropriate `Session ID` and `User
-//   Id`. They can be a random number or some type of user and session
-//   identifiers (preferably hashed). The length of the `Session ID` and
-//   `User ID` must not exceed 36 characters. For more information, see
-//   the API interactions guide
-//   (https://cloud.google.com/dialogflow/docs/api-overview). Note:
-//   Always use agent versions for production traffic. See Versions and
-//   environments
-//   (https://cloud.google.com/dialogflow/es/docs/agents-versions).
+//   - session: The name of the session this query is sent to. Format:
+//     `projects//agent/sessions/`, or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment
+//     (`Environment ID` might be referred to as environment name at some
+//     places). If `User ID` is not specified, we are using "-". It's up
+//     to the API caller to choose an appropriate `Session ID` and `User
+//     Id`. They can be a random number or some type of user and session
+//     identifiers (preferably hashed). The length of the `Session ID` and
+//     `User ID` must not exceed 36 characters. For more information, see
+//     the API interactions guide
+//     (https://cloud.google.com/dialogflow/docs/api-overview). Note:
+//     Always use agent versions for production traffic. See Versions and
+//     environments
+//     (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 func (r *ProjectsAgentEnvironmentsUsersSessionsService) DetectIntent(sessionid string, googleclouddialogflowv2detectintentrequest *GoogleCloudDialogflowV2DetectIntentRequest) *ProjectsAgentEnvironmentsUsersSessionsDetectIntentCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsDetectIntentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.sessionid = sessionid
@@ -25087,17 +26037,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsDetectIntentCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2DetectIntentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -25156,11 +26106,11 @@ type ProjectsAgentEnvironmentsUsersSessionsContextsCreateCall struct {
 // Create: Creates a context. If the specified context already exists,
 // overrides the context.
 //
-// - parent: The session to create a context for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a context for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsContextsService) Create(parent string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsAgentEnvironmentsUsersSessionsContextsCreateCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsContextsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -25235,17 +26185,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsContextsCreateCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -25302,12 +26252,12 @@ type ProjectsAgentEnvironmentsUsersSessionsContextsDeleteCall struct {
 
 // Delete: Deletes the specified context.
 //
-// - name: The name of the context to delete. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context to delete. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsContextsService) Delete(name string) *ProjectsAgentEnvironmentsUsersSessionsContextsDeleteCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsContextsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -25376,17 +26326,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsContextsDeleteCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -25441,12 +26391,12 @@ type ProjectsAgentEnvironmentsUsersSessionsContextsGetCall struct {
 
 // Get: Retrieves the specified context.
 //
-// - name: The name of the context. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsContextsService) Get(name string) *ProjectsAgentEnvironmentsUsersSessionsContextsGetCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsContextsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -25528,17 +26478,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsContextsGetCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -25593,11 +26543,11 @@ type ProjectsAgentEnvironmentsUsersSessionsContextsListCall struct {
 
 // List: Returns the list of all contexts in the specified session.
 //
-// - parent: The session to list all contexts from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all contexts from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsContextsService) List(parent string) *ProjectsAgentEnvironmentsUsersSessionsContextsListCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsContextsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -25695,17 +26645,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsContextsListCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListContextsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -25792,17 +26742,17 @@ type ProjectsAgentEnvironmentsUsersSessionsContextsPatchCall struct {
 
 // Patch: Updates the specified context.
 //
-// - name: The unique identifier of the context. Format:
-//   `projects//agent/sessions//contexts/`, or
-//   `projects//agent/environments//users//sessions//contexts/`. The
-//   `Context ID` is always converted to lowercase, may only contain
-//   characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. The following context names are reserved for internal use by
-//   Dialogflow. You should not use these contexts or create contexts
-//   with these names: * `__system_counters__` * `*_id_dialog_context` *
-//   `*_dialog_params_size`.
+//   - name: The unique identifier of the context. Format:
+//     `projects//agent/sessions//contexts/`, or
+//     `projects//agent/environments//users//sessions//contexts/`. The
+//     `Context ID` is always converted to lowercase, may only contain
+//     characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. The following context names are reserved for internal use by
+//     Dialogflow. You should not use these contexts or create contexts
+//     with these names: * `__system_counters__` * `*_id_dialog_context` *
+//     `*_dialog_params_size`.
 func (r *ProjectsAgentEnvironmentsUsersSessionsContextsService) Patch(nameid string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsAgentEnvironmentsUsersSessionsContextsPatchCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsContextsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -25884,17 +26834,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsContextsPatchCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -25962,11 +26912,11 @@ type ProjectsAgentEnvironmentsUsersSessionsEntityTypesCreateCall struct {
 // Dialogflow support if you need to use session entities with Google
 // Assistant integration.
 //
-// - parent: The session to create a session entity type for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a session entity type for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsEntityTypesService) Create(parent string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsAgentEnvironmentsUsersSessionsEntityTypesCreateCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsEntityTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -26043,17 +26993,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsEntityTypesCreateCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -26113,12 +27063,12 @@ type ProjectsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall struct {
 // support if you need to use session entities with Google Assistant
 // integration.
 //
-// - name: The name of the entity type to delete. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the entity type to delete. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsEntityTypesService) Delete(name string) *ProjectsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -26187,17 +27137,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -26254,12 +27204,12 @@ type ProjectsAgentEnvironmentsUsersSessionsEntityTypesGetCall struct {
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The name of the session entity type. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the session entity type. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsEntityTypesService) Get(name string) *ProjectsAgentEnvironmentsUsersSessionsEntityTypesGetCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsEntityTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -26343,17 +27293,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsEntityTypesGetCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -26411,11 +27361,11 @@ type ProjectsAgentEnvironmentsUsersSessionsEntityTypesListCall struct {
 // Contact Dialogflow support if you need to use session entities with
 // Google Assistant integration.
 //
-// - parent: The session to list all session entity types from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all session entity types from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentEnvironmentsUsersSessionsEntityTypesService) List(parent string) *ProjectsAgentEnvironmentsUsersSessionsEntityTypesListCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsEntityTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -26513,17 +27463,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsEntityTypesListCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListSessionEntityTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -26612,13 +27562,13 @@ type ProjectsAgentEnvironmentsUsersSessionsEntityTypesPatchCall struct {
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The unique identifier of this session entity type. Format:
-//   `projects//agent/sessions//entityTypes/`, or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. `` must be the display name of an existing entity type in the
-//   same agent that will be overridden or supplemented.
+//   - name: The unique identifier of this session entity type. Format:
+//     `projects//agent/sessions//entityTypes/`, or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. “ must be the display name of an existing entity type in the
+//     same agent that will be overridden or supplemented.
 func (r *ProjectsAgentEnvironmentsUsersSessionsEntityTypesService) Patch(nameid string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsAgentEnvironmentsUsersSessionsEntityTypesPatchCall {
 	c := &ProjectsAgentEnvironmentsUsersSessionsEntityTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -26702,17 +27652,17 @@ func (c *ProjectsAgentEnvironmentsUsersSessionsEntityTypesPatchCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -26786,8 +27736,8 @@ type ProjectsAgentIntentsBatchDeleteCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to delete all entities types for.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to delete all entities types for.
+//     Format: `projects//agent`.
 func (r *ProjectsAgentIntentsService) BatchDelete(parent string, googleclouddialogflowv2batchdeleteintentsrequest *GoogleCloudDialogflowV2BatchDeleteIntentsRequest) *ProjectsAgentIntentsBatchDeleteCall {
 	c := &ProjectsAgentIntentsBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -26862,17 +27812,17 @@ func (c *ProjectsAgentIntentsBatchDeleteCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -26938,8 +27888,8 @@ type ProjectsAgentIntentsBatchUpdateCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to update or create intents in.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to update or create intents in.
+//     Format: `projects//agent`.
 func (r *ProjectsAgentIntentsService) BatchUpdate(parent string, googleclouddialogflowv2batchupdateintentsrequest *GoogleCloudDialogflowV2BatchUpdateIntentsRequest) *ProjectsAgentIntentsBatchUpdateCall {
 	c := &ProjectsAgentIntentsBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -27014,17 +27964,17 @@ func (c *ProjectsAgentIntentsBatchUpdateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -27084,8 +28034,8 @@ type ProjectsAgentIntentsCreateCall struct {
 // always train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The agent to create a intent for. Format:
-//   `projects//agent`.
+//   - parent: The agent to create a intent for. Format:
+//     `projects//agent`.
 func (r *ProjectsAgentIntentsService) Create(parent string, googleclouddialogflowv2intent *GoogleCloudDialogflowV2Intent) *ProjectsAgentIntentsCreateCall {
 	c := &ProjectsAgentIntentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -27097,9 +28047,12 @@ func (r *ProjectsAgentIntentsService) Create(parent string, googleclouddialogflo
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsAgentIntentsCreateCall) IntentView(intentView string) *ProjectsAgentIntentsCreateCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -27182,17 +28135,17 @@ func (c *ProjectsAgentIntentsCreateCall) Do(opts ...googleapi.CallOption) (*Goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Intent{
 		ServerResponse: googleapi.ServerResponse{
@@ -27270,9 +28223,9 @@ type ProjectsAgentIntentsDeleteCall struct {
 // sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: The name of the intent to delete. If this intent has direct
-//   or indirect followup intents, we also delete them. Format:
-//   `projects//agent/intents/`.
+//   - name: The name of the intent to delete. If this intent has direct
+//     or indirect followup intents, we also delete them. Format:
+//     `projects//agent/intents/`.
 func (r *ProjectsAgentIntentsService) Delete(name string) *ProjectsAgentIntentsDeleteCall {
 	c := &ProjectsAgentIntentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -27341,17 +28294,17 @@ func (c *ProjectsAgentIntentsDeleteCall) Do(opts ...googleapi.CallOption) (*Goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -27417,9 +28370,12 @@ func (r *ProjectsAgentIntentsService) Get(name string) *ProjectsAgentIntentsGetC
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsAgentIntentsGetCall) IntentView(intentView string) *ProjectsAgentIntentsGetCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -27510,17 +28466,17 @@ func (c *ProjectsAgentIntentsGetCall) Do(opts ...googleapi.CallOption) (*GoogleC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Intent{
 		ServerResponse: googleapi.ServerResponse{
@@ -27593,12 +28549,12 @@ type ProjectsAgentIntentsListCall struct {
 
 // List: Returns the list of all intents in the specified agent.
 //
-// - parent: The agent to list all intents from. Format:
-//   `projects//agent` or `projects//locations//agent`. Alternatively,
-//   you can specify the environment to list intents for. Format:
-//   `projects//agent/environments/` or
-//   `projects//locations//agent/environments/`. Note: training phrases
-//   of the intents will not be returned for non-draft environment.
+//   - parent: The agent to list all intents from. Format:
+//     `projects//agent` or `projects//locations//agent`. Alternatively,
+//     you can specify the environment to list intents for. Format:
+//     `projects//agent/environments/` or
+//     `projects//locations//agent/environments/`. Note: training phrases
+//     of the intents will not be returned for non-draft environment.
 func (r *ProjectsAgentIntentsService) List(parent string) *ProjectsAgentIntentsListCall {
 	c := &ProjectsAgentIntentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -27609,9 +28565,12 @@ func (r *ProjectsAgentIntentsService) List(parent string) *ProjectsAgentIntentsL
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsAgentIntentsListCall) IntentView(intentView string) *ProjectsAgentIntentsListCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -27718,17 +28677,17 @@ func (c *ProjectsAgentIntentsListCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListIntentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -27835,9 +28794,9 @@ type ProjectsAgentIntentsPatchCall struct {
 // agent prior to sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: Optional. The unique identifier of this intent. Required for
-//   Intents.UpdateIntent and Intents.BatchUpdateIntents methods.
-//   Format: `projects//agent/intents/`.
+//   - name: Optional. The unique identifier of this intent. Required for
+//     Intents.UpdateIntent and Intents.BatchUpdateIntents methods.
+//     Format: `projects//agent/intents/`.
 func (r *ProjectsAgentIntentsService) Patch(nameid string, googleclouddialogflowv2intent *GoogleCloudDialogflowV2Intent) *ProjectsAgentIntentsPatchCall {
 	c := &ProjectsAgentIntentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -27849,9 +28808,12 @@ func (r *ProjectsAgentIntentsService) Patch(nameid string, googleclouddialogflow
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsAgentIntentsPatchCall) IntentView(intentView string) *ProjectsAgentIntentsPatchCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -27941,17 +28903,17 @@ func (c *ProjectsAgentIntentsPatchCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Intent{
 		ServerResponse: googleapi.ServerResponse{
@@ -28033,8 +28995,8 @@ type ProjectsAgentKnowledgeBasesCreateCall struct {
 
 // Create: Creates a knowledge base.
 //
-// - parent: The project to create a knowledge base for. Format:
-//   `projects//locations/`.
+//   - parent: The project to create a knowledge base for. Format:
+//     `projects//locations/`.
 func (r *ProjectsAgentKnowledgeBasesService) Create(parent string, googleclouddialogflowv2knowledgebase *GoogleCloudDialogflowV2KnowledgeBase) *ProjectsAgentKnowledgeBasesCreateCall {
 	c := &ProjectsAgentKnowledgeBasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -28110,17 +29072,17 @@ func (c *ProjectsAgentKnowledgeBasesCreateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -28177,8 +29139,8 @@ type ProjectsAgentKnowledgeBasesDeleteCall struct {
 
 // Delete: Deletes the specified knowledge base.
 //
-// - name: The name of the knowledge base to delete. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - name: The name of the knowledge base to delete. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsAgentKnowledgeBasesService) Delete(name string) *ProjectsAgentKnowledgeBasesDeleteCall {
 	c := &ProjectsAgentKnowledgeBasesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -28255,17 +29217,17 @@ func (c *ProjectsAgentKnowledgeBasesDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -28325,8 +29287,8 @@ type ProjectsAgentKnowledgeBasesGetCall struct {
 
 // Get: Retrieves the specified knowledge base.
 //
-// - name: The name of the knowledge base to retrieve. Format
-//   `projects//locations//knowledgeBases/`.
+//   - name: The name of the knowledge base to retrieve. Format
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsAgentKnowledgeBasesService) Get(name string) *ProjectsAgentKnowledgeBasesGetCall {
 	c := &ProjectsAgentKnowledgeBasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -28409,17 +29371,17 @@ func (c *ProjectsAgentKnowledgeBasesGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -28474,8 +29436,8 @@ type ProjectsAgentKnowledgeBasesListCall struct {
 
 // List: Returns the list of all knowledge bases of the specified agent.
 //
-// - parent: The project to list of knowledge bases for. Format:
-//   `projects//locations/`.
+//   - parent: The project to list of knowledge bases for. Format:
+//     `projects//locations/`.
 func (r *ProjectsAgentKnowledgeBasesService) List(parent string) *ProjectsAgentKnowledgeBasesListCall {
 	c := &ProjectsAgentKnowledgeBasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -28592,17 +29554,17 @@ func (c *ProjectsAgentKnowledgeBasesListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListKnowledgeBasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -28694,9 +29656,9 @@ type ProjectsAgentKnowledgeBasesPatchCall struct {
 
 // Patch: Updates the specified knowledge base.
 //
-// - name: The knowledge base resource name. The name must be empty when
-//   creating a knowledge base. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - name: The knowledge base resource name. The name must be empty when
+//     creating a knowledge base. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsAgentKnowledgeBasesService) Patch(name string, googleclouddialogflowv2knowledgebase *GoogleCloudDialogflowV2KnowledgeBase) *ProjectsAgentKnowledgeBasesPatchCall {
 	c := &ProjectsAgentKnowledgeBasesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -28781,17 +29743,17 @@ func (c *ProjectsAgentKnowledgeBasesPatchCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -28860,8 +29822,8 @@ type ProjectsAgentKnowledgeBasesDocumentsCreateCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - parent: The knowledge base to create a document for. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to create a document for. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsAgentKnowledgeBasesDocumentsService) Create(parent string, googleclouddialogflowv2document *GoogleCloudDialogflowV2Document) *ProjectsAgentKnowledgeBasesDocumentsCreateCall {
 	c := &ProjectsAgentKnowledgeBasesDocumentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -28936,17 +29898,17 @@ func (c *ProjectsAgentKnowledgeBasesDocumentsCreateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -29009,8 +29971,8 @@ type ProjectsAgentKnowledgeBasesDocumentsDeleteCall struct {
 // Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The name of the document to delete. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to delete. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsAgentKnowledgeBasesDocumentsService) Delete(name string) *ProjectsAgentKnowledgeBasesDocumentsDeleteCall {
 	c := &ProjectsAgentKnowledgeBasesDocumentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -29079,17 +30041,17 @@ func (c *ProjectsAgentKnowledgeBasesDocumentsDeleteCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -29144,8 +30106,8 @@ type ProjectsAgentKnowledgeBasesDocumentsGetCall struct {
 
 // Get: Retrieves the specified document.
 //
-// - name: The name of the document to retrieve. Format
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to retrieve. Format
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsAgentKnowledgeBasesDocumentsService) Get(name string) *ProjectsAgentKnowledgeBasesDocumentsGetCall {
 	c := &ProjectsAgentKnowledgeBasesDocumentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -29227,17 +30189,17 @@ func (c *ProjectsAgentKnowledgeBasesDocumentsGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Document{
 		ServerResponse: googleapi.ServerResponse{
@@ -29292,8 +30254,8 @@ type ProjectsAgentKnowledgeBasesDocumentsListCall struct {
 
 // List: Returns the list of all documents of the knowledge base.
 //
-// - parent: The knowledge base to list all documents for. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to list all documents for. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsAgentKnowledgeBasesDocumentsService) List(parent string) *ProjectsAgentKnowledgeBasesDocumentsListCall {
 	c := &ProjectsAgentKnowledgeBasesDocumentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -29407,17 +30369,17 @@ func (c *ProjectsAgentKnowledgeBasesDocumentsListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListDocumentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -29514,9 +30476,9 @@ type ProjectsAgentKnowledgeBasesDocumentsPatchCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - name: Optional. The document resource name. The name must be empty
-//   when creating a document. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: Optional. The document resource name. The name must be empty
+//     when creating a document. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsAgentKnowledgeBasesDocumentsService) Patch(name string, googleclouddialogflowv2document *GoogleCloudDialogflowV2Document) *ProjectsAgentKnowledgeBasesDocumentsPatchCall {
 	c := &ProjectsAgentKnowledgeBasesDocumentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -29600,17 +30562,17 @@ func (c *ProjectsAgentKnowledgeBasesDocumentsPatchCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -29683,8 +30645,8 @@ type ProjectsAgentKnowledgeBasesDocumentsReloadCall struct {
 // Document Note: The `projects.agent.knowledgeBases.documents` resource
 // is deprecated; only use `projects.knowledgeBases.documents`.
 //
-// - name: The name of the document to reload. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to reload. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsAgentKnowledgeBasesDocumentsService) Reload(name string, googleclouddialogflowv2reloaddocumentrequest *GoogleCloudDialogflowV2ReloadDocumentRequest) *ProjectsAgentKnowledgeBasesDocumentsReloadCall {
 	c := &ProjectsAgentKnowledgeBasesDocumentsReloadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -29759,17 +30721,17 @@ func (c *ProjectsAgentKnowledgeBasesDocumentsReloadCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -29826,11 +30788,11 @@ type ProjectsAgentSessionsDeleteContextsCall struct {
 
 // DeleteContexts: Deletes all active contexts in the specified session.
 //
-// - parent: The name of the session to delete all contexts from.
-//   Format: `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The name of the session to delete all contexts from.
+//     Format: `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentSessionsService) DeleteContexts(parent string) *ProjectsAgentSessionsDeleteContextsCall {
 	c := &ProjectsAgentSessionsDeleteContextsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -29899,17 +30861,17 @@ func (c *ProjectsAgentSessionsDeleteContextsCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -29974,21 +30936,21 @@ type ProjectsAgentSessionsDetectIntentCall struct {
 // for production traffic. See Versions and environments
 // (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 //
-// - session: The name of the session this query is sent to. Format:
-//   `projects//agent/sessions/`, or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment
-//   (`Environment ID` might be referred to as environment name at some
-//   places). If `User ID` is not specified, we are using "-". It's up
-//   to the API caller to choose an appropriate `Session ID` and `User
-//   Id`. They can be a random number or some type of user and session
-//   identifiers (preferably hashed). The length of the `Session ID` and
-//   `User ID` must not exceed 36 characters. For more information, see
-//   the API interactions guide
-//   (https://cloud.google.com/dialogflow/docs/api-overview). Note:
-//   Always use agent versions for production traffic. See Versions and
-//   environments
-//   (https://cloud.google.com/dialogflow/es/docs/agents-versions).
+//   - session: The name of the session this query is sent to. Format:
+//     `projects//agent/sessions/`, or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment
+//     (`Environment ID` might be referred to as environment name at some
+//     places). If `User ID` is not specified, we are using "-". It's up
+//     to the API caller to choose an appropriate `Session ID` and `User
+//     Id`. They can be a random number or some type of user and session
+//     identifiers (preferably hashed). The length of the `Session ID` and
+//     `User ID` must not exceed 36 characters. For more information, see
+//     the API interactions guide
+//     (https://cloud.google.com/dialogflow/docs/api-overview). Note:
+//     Always use agent versions for production traffic. See Versions and
+//     environments
+//     (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 func (r *ProjectsAgentSessionsService) DetectIntent(sessionid string, googleclouddialogflowv2detectintentrequest *GoogleCloudDialogflowV2DetectIntentRequest) *ProjectsAgentSessionsDetectIntentCall {
 	c := &ProjectsAgentSessionsDetectIntentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.sessionid = sessionid
@@ -30065,17 +31027,17 @@ func (c *ProjectsAgentSessionsDetectIntentCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2DetectIntentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -30134,11 +31096,11 @@ type ProjectsAgentSessionsContextsCreateCall struct {
 // Create: Creates a context. If the specified context already exists,
 // overrides the context.
 //
-// - parent: The session to create a context for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a context for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentSessionsContextsService) Create(parent string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsAgentSessionsContextsCreateCall {
 	c := &ProjectsAgentSessionsContextsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -30213,17 +31175,17 @@ func (c *ProjectsAgentSessionsContextsCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -30280,12 +31242,12 @@ type ProjectsAgentSessionsContextsDeleteCall struct {
 
 // Delete: Deletes the specified context.
 //
-// - name: The name of the context to delete. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context to delete. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentSessionsContextsService) Delete(name string) *ProjectsAgentSessionsContextsDeleteCall {
 	c := &ProjectsAgentSessionsContextsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -30354,17 +31316,17 @@ func (c *ProjectsAgentSessionsContextsDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -30419,12 +31381,12 @@ type ProjectsAgentSessionsContextsGetCall struct {
 
 // Get: Retrieves the specified context.
 //
-// - name: The name of the context. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentSessionsContextsService) Get(name string) *ProjectsAgentSessionsContextsGetCall {
 	c := &ProjectsAgentSessionsContextsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -30506,17 +31468,17 @@ func (c *ProjectsAgentSessionsContextsGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -30571,11 +31533,11 @@ type ProjectsAgentSessionsContextsListCall struct {
 
 // List: Returns the list of all contexts in the specified session.
 //
-// - parent: The session to list all contexts from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all contexts from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentSessionsContextsService) List(parent string) *ProjectsAgentSessionsContextsListCall {
 	c := &ProjectsAgentSessionsContextsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -30673,17 +31635,17 @@ func (c *ProjectsAgentSessionsContextsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListContextsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -30770,17 +31732,17 @@ type ProjectsAgentSessionsContextsPatchCall struct {
 
 // Patch: Updates the specified context.
 //
-// - name: The unique identifier of the context. Format:
-//   `projects//agent/sessions//contexts/`, or
-//   `projects//agent/environments//users//sessions//contexts/`. The
-//   `Context ID` is always converted to lowercase, may only contain
-//   characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. The following context names are reserved for internal use by
-//   Dialogflow. You should not use these contexts or create contexts
-//   with these names: * `__system_counters__` * `*_id_dialog_context` *
-//   `*_dialog_params_size`.
+//   - name: The unique identifier of the context. Format:
+//     `projects//agent/sessions//contexts/`, or
+//     `projects//agent/environments//users//sessions//contexts/`. The
+//     `Context ID` is always converted to lowercase, may only contain
+//     characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. The following context names are reserved for internal use by
+//     Dialogflow. You should not use these contexts or create contexts
+//     with these names: * `__system_counters__` * `*_id_dialog_context` *
+//     `*_dialog_params_size`.
 func (r *ProjectsAgentSessionsContextsService) Patch(nameid string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsAgentSessionsContextsPatchCall {
 	c := &ProjectsAgentSessionsContextsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -30862,17 +31824,17 @@ func (c *ProjectsAgentSessionsContextsPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -30940,11 +31902,11 @@ type ProjectsAgentSessionsEntityTypesCreateCall struct {
 // Dialogflow support if you need to use session entities with Google
 // Assistant integration.
 //
-// - parent: The session to create a session entity type for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a session entity type for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentSessionsEntityTypesService) Create(parent string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsAgentSessionsEntityTypesCreateCall {
 	c := &ProjectsAgentSessionsEntityTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -31021,17 +31983,17 @@ func (c *ProjectsAgentSessionsEntityTypesCreateCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -31091,12 +32053,12 @@ type ProjectsAgentSessionsEntityTypesDeleteCall struct {
 // support if you need to use session entities with Google Assistant
 // integration.
 //
-// - name: The name of the entity type to delete. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the entity type to delete. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentSessionsEntityTypesService) Delete(name string) *ProjectsAgentSessionsEntityTypesDeleteCall {
 	c := &ProjectsAgentSessionsEntityTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -31165,17 +32127,17 @@ func (c *ProjectsAgentSessionsEntityTypesDeleteCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -31232,12 +32194,12 @@ type ProjectsAgentSessionsEntityTypesGetCall struct {
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The name of the session entity type. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the session entity type. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsAgentSessionsEntityTypesService) Get(name string) *ProjectsAgentSessionsEntityTypesGetCall {
 	c := &ProjectsAgentSessionsEntityTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -31321,17 +32283,17 @@ func (c *ProjectsAgentSessionsEntityTypesGetCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -31389,11 +32351,11 @@ type ProjectsAgentSessionsEntityTypesListCall struct {
 // Contact Dialogflow support if you need to use session entities with
 // Google Assistant integration.
 //
-// - parent: The session to list all session entity types from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all session entity types from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsAgentSessionsEntityTypesService) List(parent string) *ProjectsAgentSessionsEntityTypesListCall {
 	c := &ProjectsAgentSessionsEntityTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -31491,17 +32453,17 @@ func (c *ProjectsAgentSessionsEntityTypesListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListSessionEntityTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -31590,13 +32552,13 @@ type ProjectsAgentSessionsEntityTypesPatchCall struct {
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The unique identifier of this session entity type. Format:
-//   `projects//agent/sessions//entityTypes/`, or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. `` must be the display name of an existing entity type in the
-//   same agent that will be overridden or supplemented.
+//   - name: The unique identifier of this session entity type. Format:
+//     `projects//agent/sessions//entityTypes/`, or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. “ must be the display name of an existing entity type in the
+//     same agent that will be overridden or supplemented.
 func (r *ProjectsAgentSessionsEntityTypesService) Patch(nameid string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsAgentSessionsEntityTypesPatchCall {
 	c := &ProjectsAgentSessionsEntityTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -31680,17 +32642,17 @@ func (c *ProjectsAgentSessionsEntityTypesPatchCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -31755,8 +32717,8 @@ type ProjectsAgentVersionsCreateCall struct {
 // Create: Creates an agent version. The new version points to the agent
 // instance in the "default" environment.
 //
-// - parent: The agent to create a version for. Supported formats: -
-//   `projects//agent` - `projects//locations//agent`.
+//   - parent: The agent to create a version for. Supported formats: -
+//     `projects//agent` - `projects//locations//agent`.
 func (r *ProjectsAgentVersionsService) Create(parent string, googleclouddialogflowv2version *GoogleCloudDialogflowV2Version) *ProjectsAgentVersionsCreateCall {
 	c := &ProjectsAgentVersionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -31831,17 +32793,17 @@ func (c *ProjectsAgentVersionsCreateCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -31898,9 +32860,9 @@ type ProjectsAgentVersionsDeleteCall struct {
 
 // Delete: Delete the specified agent version.
 //
-// - name: The name of the version to delete. Supported formats: -
-//   `projects//agent/versions/` -
-//   `projects//locations//agent/versions/`.
+//   - name: The name of the version to delete. Supported formats: -
+//     `projects//agent/versions/` -
+//     `projects//locations//agent/versions/`.
 func (r *ProjectsAgentVersionsService) Delete(name string) *ProjectsAgentVersionsDeleteCall {
 	c := &ProjectsAgentVersionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -31969,17 +32931,17 @@ func (c *ProjectsAgentVersionsDeleteCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -32034,9 +32996,9 @@ type ProjectsAgentVersionsGetCall struct {
 
 // Get: Retrieves the specified agent version.
 //
-// - name: The name of the version. Supported formats: -
-//   `projects//agent/versions/` -
-//   `projects//locations//agent/versions/`.
+//   - name: The name of the version. Supported formats: -
+//     `projects//agent/versions/` -
+//     `projects//locations//agent/versions/`.
 func (r *ProjectsAgentVersionsService) Get(name string) *ProjectsAgentVersionsGetCall {
 	c := &ProjectsAgentVersionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -32118,17 +33080,17 @@ func (c *ProjectsAgentVersionsGetCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -32183,8 +33145,8 @@ type ProjectsAgentVersionsListCall struct {
 
 // List: Returns the list of all versions of the specified agent.
 //
-// - parent: The agent to list all versions from. Supported formats: -
-//   `projects//agent` - `projects//locations//agent`.
+//   - parent: The agent to list all versions from. Supported formats: -
+//     `projects//agent` - `projects//locations//agent`.
 func (r *ProjectsAgentVersionsService) List(parent string) *ProjectsAgentVersionsListCall {
 	c := &ProjectsAgentVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -32282,17 +33244,17 @@ func (c *ProjectsAgentVersionsListCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -32382,9 +33344,9 @@ type ProjectsAgentVersionsPatchCall struct {
 // points to. It allows you to update only mutable properties of the
 // version resource.
 //
-// - name: Output only. The unique identifier of this agent version.
-//   Supported formats: - `projects//agent/versions/` -
-//   `projects//locations//agent/versions/`.
+//   - name: Output only. The unique identifier of this agent version.
+//     Supported formats: - `projects//agent/versions/` -
+//     `projects//locations//agent/versions/`.
 func (r *ProjectsAgentVersionsService) Patch(nameid string, googleclouddialogflowv2version *GoogleCloudDialogflowV2Version) *ProjectsAgentVersionsPatchCall {
 	c := &ProjectsAgentVersionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -32466,17 +33428,17 @@ func (c *ProjectsAgentVersionsPatchCall) Do(opts ...googleapi.CallOption) (*Goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -32541,19 +33503,18 @@ type ProjectsAnswerRecordsListCall struct {
 // List: Returns the list of all answer records in the specified project
 // in reverse chronological order.
 //
-// - parent: The project to list all answer records for in reverse
-//   chronological order. Format: `projects//locations/`.
+//   - parent: The project to list all answer records for in reverse
+//     chronological order. Format: `projects//locations/`.
 func (r *ProjectsAnswerRecordsService) List(parent string) *ProjectsAnswerRecordsListCall {
 	c := &ProjectsAnswerRecordsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
 	return c
 }
 
-// Filter sets the optional parameter "filter": Required. Filters to
-// restrict results to specific answer records. Filter on answer record
-// type. Currently predicates on `type` is supported, valid values are
-// `ARTICLE_ANSWER`, `FAQ_ANSWER`. For more information about filtering,
-// see API Filtering (https://aip.dev/160).
+// Filter sets the optional parameter "filter": Filters to restrict
+// results to specific answer records. Marked deprecated as it hasn't
+// been, and isn't currently, supported. For more information about
+// filtering, see API Filtering (https://aip.dev/160).
 func (c *ProjectsAnswerRecordsListCall) Filter(filter string) *ProjectsAnswerRecordsListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -32652,17 +33613,17 @@ func (c *ProjectsAnswerRecordsListCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListAnswerRecordsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -32685,7 +33646,7 @@ func (c *ProjectsAnswerRecordsListCall) Do(opts ...googleapi.CallOption) (*Googl
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Required. Filters to restrict results to specific answer records. Filter on answer record type. Currently predicates on `type` is supported, valid values are `ARTICLE_ANSWER`, `FAQ_ANSWER`. For more information about filtering, see [API Filtering](https://aip.dev/160).",
+	//       "description": "Optional. Filters to restrict results to specific answer records. Marked deprecated as it hasn't been, and isn't currently, supported. For more information about filtering, see [API Filtering](https://aip.dev/160).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -32754,8 +33715,8 @@ type ProjectsAnswerRecordsPatchCall struct {
 
 // Patch: Updates the specified answer record.
 //
-// - name: The unique identifier of this answer record. Format:
-//   `projects//locations//answerRecords/`.
+//   - name: The unique identifier of this answer record. Format:
+//     `projects//locations//answerRecords/`.
 func (r *ProjectsAnswerRecordsService) Patch(nameid string, googleclouddialogflowv2answerrecord *GoogleCloudDialogflowV2AnswerRecord) *ProjectsAnswerRecordsPatchCall {
 	c := &ProjectsAnswerRecordsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -32838,17 +33799,17 @@ func (c *ProjectsAnswerRecordsPatchCall) Do(opts ...googleapi.CallOption) (*Goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2AnswerRecord{
 		ServerResponse: googleapi.ServerResponse{
@@ -32912,8 +33873,8 @@ type ProjectsConversationDatasetsGetCall struct {
 
 // Get: Retrieves the specified conversation dataset.
 //
-// - name: The conversation dataset to retrieve. Format:
-//   `projects//locations//conversationDatasets/`.
+//   - name: The conversation dataset to retrieve. Format:
+//     `projects//locations//conversationDatasets/`.
 func (r *ProjectsConversationDatasetsService) Get(name string) *ProjectsConversationDatasetsGetCall {
 	c := &ProjectsConversationDatasetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -32997,17 +33958,17 @@ func (c *ProjectsConversationDatasetsGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationDataset{
 		ServerResponse: googleapi.ServerResponse{
@@ -33069,8 +34030,8 @@ type ProjectsConversationDatasetsImportConversationDataCall struct {
 // fields: - `metadata`: ImportConversationDataOperationMetadata -
 // `response`: ImportConversationDataOperationResponse
 //
-// - name: Dataset resource name. Format:
-//   `projects//locations//conversationDatasets/`.
+//   - name: Dataset resource name. Format:
+//     `projects//locations//conversationDatasets/`.
 func (r *ProjectsConversationDatasetsService) ImportConversationData(name string, googleclouddialogflowv2importconversationdatarequest *GoogleCloudDialogflowV2ImportConversationDataRequest) *ProjectsConversationDatasetsImportConversationDataCall {
 	c := &ProjectsConversationDatasetsImportConversationDataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -33145,17 +34106,17 @@ func (c *ProjectsConversationDatasetsImportConversationDataCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -33214,8 +34175,8 @@ type ProjectsConversationDatasetsListCall struct {
 // List: Returns the list of all conversation datasets in the specified
 // project and location.
 //
-// - parent: The project and location name to list all conversation
-//   datasets for. Format: `projects//locations/`.
+//   - parent: The project and location name to list all conversation
+//     datasets for. Format: `projects//locations/`.
 func (r *ProjectsConversationDatasetsService) List(parent string) *ProjectsConversationDatasetsListCall {
 	c := &ProjectsConversationDatasetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -33315,17 +34276,17 @@ func (c *ProjectsConversationDatasetsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationDatasetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -33416,8 +34377,8 @@ type ProjectsConversationModelsCreateCall struct {
 // fields: - `metadata`: CreateConversationModelOperationMetadata -
 // `response`: ConversationModel
 //
-// - parent: The project to create conversation model for. Format:
-//   `projects/`.
+//   - parent: The project to create conversation model for. Format:
+//     `projects/`.
 func (r *ProjectsConversationModelsService) Create(parent string, googleclouddialogflowv2conversationmodel *GoogleCloudDialogflowV2ConversationModel) *ProjectsConversationModelsCreateCall {
 	c := &ProjectsConversationModelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -33492,17 +34453,17 @@ func (c *ProjectsConversationModelsCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -33564,8 +34525,8 @@ type ProjectsConversationModelsDeleteCall struct {
 // `response`: An Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The conversation model to delete. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to delete. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsConversationModelsService) Delete(name string) *ProjectsConversationModelsDeleteCall {
 	c := &ProjectsConversationModelsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -33634,17 +34595,17 @@ func (c *ProjectsConversationModelsDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -33707,8 +34668,8 @@ type ProjectsConversationModelsDeployCall struct {
 // `response`: An Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The conversation model to deploy. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to deploy. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsConversationModelsService) Deploy(name string, googleclouddialogflowv2deployconversationmodelrequest *GoogleCloudDialogflowV2DeployConversationModelRequest) *ProjectsConversationModelsDeployCall {
 	c := &ProjectsConversationModelsDeployCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -33783,17 +34744,17 @@ func (c *ProjectsConversationModelsDeployCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -33851,8 +34812,8 @@ type ProjectsConversationModelsGetCall struct {
 
 // Get: Gets conversation model.
 //
-// - name: The conversation model to retrieve. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to retrieve. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsConversationModelsService) Get(name string) *ProjectsConversationModelsGetCall {
 	c := &ProjectsConversationModelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -33936,17 +34897,17 @@ func (c *ProjectsConversationModelsGetCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationModel{
 		ServerResponse: googleapi.ServerResponse{
@@ -34001,8 +34962,8 @@ type ProjectsConversationModelsListCall struct {
 
 // List: Lists conversation models.
 //
-// - parent: The project to list all conversation models for. Format:
-//   `projects/`.
+//   - parent: The project to list all conversation models for. Format:
+//     `projects/`.
 func (r *ProjectsConversationModelsService) List(parent string) *ProjectsConversationModelsListCall {
 	c := &ProjectsConversationModelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -34101,17 +35062,17 @@ func (c *ProjectsConversationModelsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationModelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -34206,8 +35167,8 @@ type ProjectsConversationModelsUndeployCall struct {
 // `response`: An Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The conversation model to undeploy. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to undeploy. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsConversationModelsService) Undeploy(name string, googleclouddialogflowv2undeployconversationmodelrequest *GoogleCloudDialogflowV2UndeployConversationModelRequest) *ProjectsConversationModelsUndeployCall {
 	c := &ProjectsConversationModelsUndeployCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -34282,17 +35243,17 @@ func (c *ProjectsConversationModelsUndeployCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -34350,8 +35311,8 @@ type ProjectsConversationModelsEvaluationsGetCall struct {
 
 // Get: Gets an evaluation of conversation model.
 //
-// - name: The conversation model evaluation resource name. Format:
-//   `projects//conversationModels//evaluations/`.
+//   - name: The conversation model evaluation resource name. Format:
+//     `projects//conversationModels//evaluations/`.
 func (r *ProjectsConversationModelsEvaluationsService) Get(name string) *ProjectsConversationModelsEvaluationsGetCall {
 	c := &ProjectsConversationModelsEvaluationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -34435,17 +35396,17 @@ func (c *ProjectsConversationModelsEvaluationsGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationModelEvaluation{
 		ServerResponse: googleapi.ServerResponse{
@@ -34500,8 +35461,8 @@ type ProjectsConversationModelsEvaluationsListCall struct {
 
 // List: Lists evaluations of a conversation model.
 //
-// - parent: The conversation model resource name. Format:
-//   `projects//conversationModels/`.
+//   - parent: The conversation model resource name. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsConversationModelsEvaluationsService) List(parent string) *ProjectsConversationModelsEvaluationsListCall {
 	c := &ProjectsConversationModelsEvaluationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -34601,17 +35562,17 @@ func (c *ProjectsConversationModelsEvaluationsListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationModelEvaluationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -34704,9 +35665,9 @@ type ProjectsConversationProfilesClearSuggestionFeatureConfigCall struct {
 // fields: - `metadata`: ClearSuggestionFeatureConfigOperationMetadata -
 // `response`: ConversationProfile
 //
-// - conversationProfile: The Conversation Profile to add or update the
-//   suggestion feature config. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - conversationProfile: The Conversation Profile to add or update the
+//     suggestion feature config. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsConversationProfilesService) ClearSuggestionFeatureConfig(conversationProfile string, googleclouddialogflowv2clearsuggestionfeatureconfigrequest *GoogleCloudDialogflowV2ClearSuggestionFeatureConfigRequest) *ProjectsConversationProfilesClearSuggestionFeatureConfigCall {
 	c := &ProjectsConversationProfilesClearSuggestionFeatureConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.conversationProfile = conversationProfile
@@ -34781,17 +35742,17 @@ func (c *ProjectsConversationProfilesClearSuggestionFeatureConfigCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -34852,8 +35813,8 @@ type ProjectsConversationProfilesCreateCall struct {
 // aren't populated in the response. You can retrieve them via
 // GetConversationProfile API.
 //
-// - parent: The project to create a conversation profile for. Format:
-//   `projects//locations/`.
+//   - parent: The project to create a conversation profile for. Format:
+//     `projects//locations/`.
 func (r *ProjectsConversationProfilesService) Create(parent string, googleclouddialogflowv2conversationprofile *GoogleCloudDialogflowV2ConversationProfile) *ProjectsConversationProfilesCreateCall {
 	c := &ProjectsConversationProfilesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -34930,17 +35891,17 @@ func (c *ProjectsConversationProfilesCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -34997,8 +35958,8 @@ type ProjectsConversationProfilesDeleteCall struct {
 
 // Delete: Deletes the specified conversation profile.
 //
-// - name: The name of the conversation profile to delete. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - name: The name of the conversation profile to delete. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsConversationProfilesService) Delete(name string) *ProjectsConversationProfilesDeleteCall {
 	c := &ProjectsConversationProfilesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -35067,17 +36028,17 @@ func (c *ProjectsConversationProfilesDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -35132,8 +36093,8 @@ type ProjectsConversationProfilesGetCall struct {
 
 // Get: Retrieves the specified conversation profile.
 //
-// - name: The resource name of the conversation profile. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - name: The resource name of the conversation profile. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsConversationProfilesService) Get(name string) *ProjectsConversationProfilesGetCall {
 	c := &ProjectsConversationProfilesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -35217,17 +36178,17 @@ func (c *ProjectsConversationProfilesGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -35283,8 +36244,8 @@ type ProjectsConversationProfilesListCall struct {
 // List: Returns the list of all conversation profiles in the specified
 // project.
 //
-// - parent: The project to list all conversation profiles from. Format:
-//   `projects//locations/`.
+//   - parent: The project to list all conversation profiles from. Format:
+//     `projects//locations/`.
 func (r *ProjectsConversationProfilesService) List(parent string) *ProjectsConversationProfilesListCall {
 	c := &ProjectsConversationProfilesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -35383,17 +36344,17 @@ func (c *ProjectsConversationProfilesListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationProfilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -35483,8 +36444,8 @@ type ProjectsConversationProfilesPatchCall struct {
 // aren't populated in the response. You can retrieve them via
 // GetConversationProfile API.
 //
-// - name: The unique identifier of this conversation profile. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - name: The unique identifier of this conversation profile. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsConversationProfilesService) Patch(nameid string, googleclouddialogflowv2conversationprofile *GoogleCloudDialogflowV2ConversationProfile) *ProjectsConversationProfilesPatchCall {
 	c := &ProjectsConversationProfilesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -35568,17 +36529,17 @@ func (c *ProjectsConversationProfilesPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -35654,9 +36615,9 @@ type ProjectsConversationProfilesSetSuggestionFeatureConfigCall struct {
 // the existing long running operation before sending such request,
 // otherwise the request will be rejected.
 //
-// - conversationProfile: The Conversation Profile to add or update the
-//   suggestion feature config. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - conversationProfile: The Conversation Profile to add or update the
+//     suggestion feature config. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsConversationProfilesService) SetSuggestionFeatureConfig(conversationProfile string, googleclouddialogflowv2setsuggestionfeatureconfigrequest *GoogleCloudDialogflowV2SetSuggestionFeatureConfigRequest) *ProjectsConversationProfilesSetSuggestionFeatureConfigCall {
 	c := &ProjectsConversationProfilesSetSuggestionFeatureConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.conversationProfile = conversationProfile
@@ -35731,17 +36692,17 @@ func (c *ProjectsConversationProfilesSetSuggestionFeatureConfigCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -35800,8 +36761,8 @@ type ProjectsConversationsCompleteCall struct {
 // Complete: Completes the specified conversation. Finished
 // conversations are purged from the database after 30 days.
 //
-// - name: Resource identifier of the conversation to close. Format:
-//   `projects//locations//conversations/`.
+//   - name: Resource identifier of the conversation to close. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsConversationsService) Complete(nameid string, googleclouddialogflowv2completeconversationrequest *GoogleCloudDialogflowV2CompleteConversationRequest) *ProjectsConversationsCompleteCall {
 	c := &ProjectsConversationsCompleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -35877,17 +36838,17 @@ func (c *ProjectsConversationsCompleteCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Conversation{
 		ServerResponse: googleapi.ServerResponse{
@@ -35956,8 +36917,8 @@ type ProjectsConversationsCreateCall struct {
 // Intent.live_agent_handoff is triggered, conversation will transfer to
 // Assist Stage.
 //
-// - parent: Resource identifier of the project creating the
-//   conversation. Format: `projects//locations/`.
+//   - parent: Resource identifier of the project creating the
+//     conversation. Format: `projects//locations/`.
 func (r *ProjectsConversationsService) Create(parentid string, googleclouddialogflowv2conversation *GoogleCloudDialogflowV2Conversation) *ProjectsConversationsCreateCall {
 	c := &ProjectsConversationsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -36047,17 +37008,17 @@ func (c *ProjectsConversationsCreateCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Conversation{
 		ServerResponse: googleapi.ServerResponse{
@@ -36120,8 +37081,8 @@ type ProjectsConversationsGetCall struct {
 
 // Get: Retrieves the specific conversation.
 //
-// - name: The name of the conversation. Format:
-//   `projects//locations//conversations/`.
+//   - name: The name of the conversation. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsConversationsService) Get(name string) *ProjectsConversationsGetCall {
 	c := &ProjectsConversationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -36204,17 +37165,17 @@ func (c *ProjectsConversationsGetCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Conversation{
 		ServerResponse: googleapi.ServerResponse{
@@ -36269,8 +37230,8 @@ type ProjectsConversationsListCall struct {
 
 // List: Returns the list of all conversations in the specified project.
 //
-// - parent: The project from which to list all conversation. Format:
-//   `projects//locations/`.
+//   - parent: The project from which to list all conversation. Format:
+//     `projects//locations/`.
 func (r *ProjectsConversationsService) List(parent string) *ProjectsConversationsListCall {
 	c := &ProjectsConversationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -36385,17 +37346,17 @@ func (c *ProjectsConversationsListCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -36491,8 +37452,8 @@ type ProjectsConversationsMessagesListCall struct {
 // `create_time_epoch_microseconds > [first item's create_time of
 // previous request]` and empty page_token.
 //
-// - parent: The name of the conversation to list messages for. Format:
-//   `projects//locations//conversations/`.
+//   - parent: The name of the conversation to list messages for. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsConversationsMessagesService) List(parent string) *ProjectsConversationsMessagesListCall {
 	c := &ProjectsConversationsMessagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -36602,17 +37563,17 @@ func (c *ProjectsConversationsMessagesListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListMessagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -36708,8 +37669,8 @@ type ProjectsConversationsParticipantsAnalyzeContentCall struct {
 // sent to virtual agents. See Versions and environments
 // (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 //
-// - participant: The name of the participant this text comes from.
-//   Format: `projects//locations//conversations//participants/`.
+//   - participant: The name of the participant this text comes from.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsConversationsParticipantsService) AnalyzeContent(participant string, googleclouddialogflowv2analyzecontentrequest *GoogleCloudDialogflowV2AnalyzeContentRequest) *ProjectsConversationsParticipantsAnalyzeContentCall {
 	c := &ProjectsConversationsParticipantsAnalyzeContentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.participant = participant
@@ -36786,17 +37747,17 @@ func (c *ProjectsConversationsParticipantsAnalyzeContentCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2AnalyzeContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -36854,8 +37815,8 @@ type ProjectsConversationsParticipantsCreateCall struct {
 
 // Create: Creates a new participant in a conversation.
 //
-// - parent: Resource identifier of the conversation adding the
-//   participant. Format: `projects//locations//conversations/`.
+//   - parent: Resource identifier of the conversation adding the
+//     participant. Format: `projects//locations//conversations/`.
 func (r *ProjectsConversationsParticipantsService) Create(parentid string, googleclouddialogflowv2participant *GoogleCloudDialogflowV2Participant) *ProjectsConversationsParticipantsCreateCall {
 	c := &ProjectsConversationsParticipantsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -36931,17 +37892,17 @@ func (c *ProjectsConversationsParticipantsCreateCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Participant{
 		ServerResponse: googleapi.ServerResponse{
@@ -36999,8 +37960,8 @@ type ProjectsConversationsParticipantsGetCall struct {
 
 // Get: Retrieves a conversation participant.
 //
-// - name: The name of the participant. Format:
-//   `projects//locations//conversations//participants/`.
+//   - name: The name of the participant. Format:
+//     `projects//locations//conversations//participants/`.
 func (r *ProjectsConversationsParticipantsService) Get(name string) *ProjectsConversationsParticipantsGetCall {
 	c := &ProjectsConversationsParticipantsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -37083,17 +38044,17 @@ func (c *ProjectsConversationsParticipantsGetCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Participant{
 		ServerResponse: googleapi.ServerResponse{
@@ -37149,8 +38110,8 @@ type ProjectsConversationsParticipantsListCall struct {
 // List: Returns the list of all participants in the specified
 // conversation.
 //
-// - parent: The conversation to list all participants from. Format:
-//   `projects//locations//conversations/`.
+//   - parent: The conversation to list all participants from. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsConversationsParticipantsService) List(parent string) *ProjectsConversationsParticipantsListCall {
 	c := &ProjectsConversationsParticipantsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -37237,7 +38198,9 @@ func (c *ProjectsConversationsParticipantsListCall) doRequest(alt string) (*http
 // error will be non-nil. Any non-2xx status code is an error. Response
 // headers are in either
 // *GoogleCloudDialogflowV2ListParticipantsResponse.ServerResponse.Header
-//  or (if a response was returned at all) in
+//
+//	or (if a response was returned at all) in
+//
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
@@ -37248,17 +38211,17 @@ func (c *ProjectsConversationsParticipantsListCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListParticipantsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -37345,8 +38308,8 @@ type ProjectsConversationsParticipantsPatchCall struct {
 
 // Patch: Updates the specified participant.
 //
-// - name: Optional. The unique identifier of this participant. Format:
-//   `projects//locations//conversations//participants/`.
+//   - name: Optional. The unique identifier of this participant. Format:
+//     `projects//locations//conversations//participants/`.
 func (r *ProjectsConversationsParticipantsService) Patch(nameid string, googleclouddialogflowv2participant *GoogleCloudDialogflowV2Participant) *ProjectsConversationsParticipantsPatchCall {
 	c := &ProjectsConversationsParticipantsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -37429,17 +38392,17 @@ func (c *ProjectsConversationsParticipantsPatchCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Participant{
 		ServerResponse: googleapi.ServerResponse{
@@ -37504,8 +38467,8 @@ type ProjectsConversationsParticipantsSuggestionsSuggestArticlesCall struct {
 // SuggestArticles: Gets suggested articles for a participant based on
 // specific historical messages.
 //
-// - parent: The name of the participant to fetch suggestion for.
-//   Format: `projects//locations//conversations//participants/`.
+//   - parent: The name of the participant to fetch suggestion for.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsConversationsParticipantsSuggestionsService) SuggestArticles(parent string, googleclouddialogflowv2suggestarticlesrequest *GoogleCloudDialogflowV2SuggestArticlesRequest) *ProjectsConversationsParticipantsSuggestionsSuggestArticlesCall {
 	c := &ProjectsConversationsParticipantsSuggestionsSuggestArticlesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -37582,17 +38545,17 @@ func (c *ProjectsConversationsParticipantsSuggestionsSuggestArticlesCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SuggestArticlesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -37651,8 +38614,8 @@ type ProjectsConversationsParticipantsSuggestionsSuggestFaqAnswersCall struct {
 // SuggestFaqAnswers: Gets suggested faq answers for a participant based
 // on specific historical messages.
 //
-// - parent: The name of the participant to fetch suggestion for.
-//   Format: `projects//locations//conversations//participants/`.
+//   - parent: The name of the participant to fetch suggestion for.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsConversationsParticipantsSuggestionsService) SuggestFaqAnswers(parent string, googleclouddialogflowv2suggestfaqanswersrequest *GoogleCloudDialogflowV2SuggestFaqAnswersRequest) *ProjectsConversationsParticipantsSuggestionsSuggestFaqAnswersCall {
 	c := &ProjectsConversationsParticipantsSuggestionsSuggestFaqAnswersCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -37729,17 +38692,17 @@ func (c *ProjectsConversationsParticipantsSuggestionsSuggestFaqAnswersCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SuggestFaqAnswersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -37798,8 +38761,8 @@ type ProjectsConversationsParticipantsSuggestionsSuggestSmartRepliesCall struct 
 // SuggestSmartReplies: Gets smart replies for a participant based on
 // specific historical messages.
 //
-// - parent: The name of the participant to fetch suggestion for.
-//   Format: `projects//locations//conversations//participants/`.
+//   - parent: The name of the participant to fetch suggestion for.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsConversationsParticipantsSuggestionsService) SuggestSmartReplies(parent string, googleclouddialogflowv2suggestsmartrepliesrequest *GoogleCloudDialogflowV2SuggestSmartRepliesRequest) *ProjectsConversationsParticipantsSuggestionsSuggestSmartRepliesCall {
 	c := &ProjectsConversationsParticipantsSuggestionsSuggestSmartRepliesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -37876,17 +38839,17 @@ func (c *ProjectsConversationsParticipantsSuggestionsSuggestSmartRepliesCall) Do
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SuggestSmartRepliesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -37931,6 +38894,155 @@ func (c *ProjectsConversationsParticipantsSuggestionsSuggestSmartRepliesCall) Do
 
 }
 
+// method id "dialogflow.projects.conversations.suggestions.suggestConversationSummary":
+
+type ProjectsConversationsSuggestionsSuggestConversationSummaryCall struct {
+	s                                                        *Service
+	conversation                                             string
+	googleclouddialogflowv2suggestconversationsummaryrequest *GoogleCloudDialogflowV2SuggestConversationSummaryRequest
+	urlParams_                                               gensupport.URLParams
+	ctx_                                                     context.Context
+	header_                                                  http.Header
+}
+
+// SuggestConversationSummary: Suggests summary for a conversation based
+// on specific historical messages. The range of the messages to be used
+// for summary can be specified in the request.
+//
+//   - conversation: The conversation to fetch suggestion for. Format:
+//     `projects//locations//conversations/`.
+func (r *ProjectsConversationsSuggestionsService) SuggestConversationSummary(conversation string, googleclouddialogflowv2suggestconversationsummaryrequest *GoogleCloudDialogflowV2SuggestConversationSummaryRequest) *ProjectsConversationsSuggestionsSuggestConversationSummaryCall {
+	c := &ProjectsConversationsSuggestionsSuggestConversationSummaryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.conversation = conversation
+	c.googleclouddialogflowv2suggestconversationsummaryrequest = googleclouddialogflowv2suggestconversationsummaryrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsConversationsSuggestionsSuggestConversationSummaryCall) Fields(s ...googleapi.Field) *ProjectsConversationsSuggestionsSuggestConversationSummaryCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsConversationsSuggestionsSuggestConversationSummaryCall) Context(ctx context.Context) *ProjectsConversationsSuggestionsSuggestConversationSummaryCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsConversationsSuggestionsSuggestConversationSummaryCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsConversationsSuggestionsSuggestConversationSummaryCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleclouddialogflowv2suggestconversationsummaryrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v2/{+conversation}/suggestions:suggestConversationSummary")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"conversation": c.conversation,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "dialogflow.projects.conversations.suggestions.suggestConversationSummary" call.
+// Exactly one of
+// *GoogleCloudDialogflowV2SuggestConversationSummaryResponse or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudDialogflowV2SuggestConversationSummaryResponse.ServerRespo
+// nse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsConversationsSuggestionsSuggestConversationSummaryCall) Do(opts ...googleapi.CallOption) (*GoogleCloudDialogflowV2SuggestConversationSummaryResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudDialogflowV2SuggestConversationSummaryResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Suggests summary for a conversation based on specific historical messages. The range of the messages to be used for summary can be specified in the request.",
+	//   "flatPath": "v2/projects/{projectsId}/conversations/{conversationsId}/suggestions:suggestConversationSummary",
+	//   "httpMethod": "POST",
+	//   "id": "dialogflow.projects.conversations.suggestions.suggestConversationSummary",
+	//   "parameterOrder": [
+	//     "conversation"
+	//   ],
+	//   "parameters": {
+	//     "conversation": {
+	//       "description": "Required. The conversation to fetch suggestion for. Format: `projects//locations//conversations/`.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/conversations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v2/{+conversation}/suggestions:suggestConversationSummary",
+	//   "request": {
+	//     "$ref": "GoogleCloudDialogflowV2SuggestConversationSummaryRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudDialogflowV2SuggestConversationSummaryResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/dialogflow"
+	//   ]
+	// }
+
+}
+
 // method id "dialogflow.projects.knowledgeBases.create":
 
 type ProjectsKnowledgeBasesCreateCall struct {
@@ -37944,8 +39056,8 @@ type ProjectsKnowledgeBasesCreateCall struct {
 
 // Create: Creates a knowledge base.
 //
-// - parent: The project to create a knowledge base for. Format:
-//   `projects//locations/`.
+//   - parent: The project to create a knowledge base for. Format:
+//     `projects//locations/`.
 func (r *ProjectsKnowledgeBasesService) Create(parent string, googleclouddialogflowv2knowledgebase *GoogleCloudDialogflowV2KnowledgeBase) *ProjectsKnowledgeBasesCreateCall {
 	c := &ProjectsKnowledgeBasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -38021,17 +39133,17 @@ func (c *ProjectsKnowledgeBasesCreateCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -38088,8 +39200,8 @@ type ProjectsKnowledgeBasesDeleteCall struct {
 
 // Delete: Deletes the specified knowledge base.
 //
-// - name: The name of the knowledge base to delete. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - name: The name of the knowledge base to delete. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsKnowledgeBasesService) Delete(name string) *ProjectsKnowledgeBasesDeleteCall {
 	c := &ProjectsKnowledgeBasesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -38166,17 +39278,17 @@ func (c *ProjectsKnowledgeBasesDeleteCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -38236,8 +39348,8 @@ type ProjectsKnowledgeBasesGetCall struct {
 
 // Get: Retrieves the specified knowledge base.
 //
-// - name: The name of the knowledge base to retrieve. Format
-//   `projects//locations//knowledgeBases/`.
+//   - name: The name of the knowledge base to retrieve. Format
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsKnowledgeBasesService) Get(name string) *ProjectsKnowledgeBasesGetCall {
 	c := &ProjectsKnowledgeBasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -38320,17 +39432,17 @@ func (c *ProjectsKnowledgeBasesGetCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -38385,8 +39497,8 @@ type ProjectsKnowledgeBasesListCall struct {
 
 // List: Returns the list of all knowledge bases of the specified agent.
 //
-// - parent: The project to list of knowledge bases for. Format:
-//   `projects//locations/`.
+//   - parent: The project to list of knowledge bases for. Format:
+//     `projects//locations/`.
 func (r *ProjectsKnowledgeBasesService) List(parent string) *ProjectsKnowledgeBasesListCall {
 	c := &ProjectsKnowledgeBasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -38503,17 +39615,17 @@ func (c *ProjectsKnowledgeBasesListCall) Do(opts ...googleapi.CallOption) (*Goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListKnowledgeBasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -38605,9 +39717,9 @@ type ProjectsKnowledgeBasesPatchCall struct {
 
 // Patch: Updates the specified knowledge base.
 //
-// - name: The knowledge base resource name. The name must be empty when
-//   creating a knowledge base. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - name: The knowledge base resource name. The name must be empty when
+//     creating a knowledge base. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsKnowledgeBasesService) Patch(name string, googleclouddialogflowv2knowledgebase *GoogleCloudDialogflowV2KnowledgeBase) *ProjectsKnowledgeBasesPatchCall {
 	c := &ProjectsKnowledgeBasesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -38692,17 +39804,17 @@ func (c *ProjectsKnowledgeBasesPatchCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -38771,8 +39883,8 @@ type ProjectsKnowledgeBasesDocumentsCreateCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - parent: The knowledge base to create a document for. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to create a document for. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) Create(parent string, googleclouddialogflowv2document *GoogleCloudDialogflowV2Document) *ProjectsKnowledgeBasesDocumentsCreateCall {
 	c := &ProjectsKnowledgeBasesDocumentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -38847,17 +39959,17 @@ func (c *ProjectsKnowledgeBasesDocumentsCreateCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -38920,8 +40032,8 @@ type ProjectsKnowledgeBasesDocumentsDeleteCall struct {
 // Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The name of the document to delete. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to delete. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) Delete(name string) *ProjectsKnowledgeBasesDocumentsDeleteCall {
 	c := &ProjectsKnowledgeBasesDocumentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -38990,17 +40102,17 @@ func (c *ProjectsKnowledgeBasesDocumentsDeleteCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -39060,8 +40172,8 @@ type ProjectsKnowledgeBasesDocumentsExportCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - name: The name of the document to export. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to export. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) Export(name string, googleclouddialogflowv2exportdocumentrequest *GoogleCloudDialogflowV2ExportDocumentRequest) *ProjectsKnowledgeBasesDocumentsExportCall {
 	c := &ProjectsKnowledgeBasesDocumentsExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -39136,17 +40248,17 @@ func (c *ProjectsKnowledgeBasesDocumentsExportCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -39204,8 +40316,8 @@ type ProjectsKnowledgeBasesDocumentsGetCall struct {
 
 // Get: Retrieves the specified document.
 //
-// - name: The name of the document to retrieve. Format
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to retrieve. Format
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) Get(name string) *ProjectsKnowledgeBasesDocumentsGetCall {
 	c := &ProjectsKnowledgeBasesDocumentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -39287,17 +40399,17 @@ func (c *ProjectsKnowledgeBasesDocumentsGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Document{
 		ServerResponse: googleapi.ServerResponse{
@@ -39359,8 +40471,8 @@ type ProjectsKnowledgeBasesDocumentsImportCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // ImportDocumentsResponse
 //
-// - parent: The knowledge base to import documents into. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to import documents into. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) Import(parent string, googleclouddialogflowv2importdocumentsrequest *GoogleCloudDialogflowV2ImportDocumentsRequest) *ProjectsKnowledgeBasesDocumentsImportCall {
 	c := &ProjectsKnowledgeBasesDocumentsImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -39435,17 +40547,17 @@ func (c *ProjectsKnowledgeBasesDocumentsImportCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -39503,8 +40615,8 @@ type ProjectsKnowledgeBasesDocumentsListCall struct {
 
 // List: Returns the list of all documents of the knowledge base.
 //
-// - parent: The knowledge base to list all documents for. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to list all documents for. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) List(parent string) *ProjectsKnowledgeBasesDocumentsListCall {
 	c := &ProjectsKnowledgeBasesDocumentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -39618,17 +40730,17 @@ func (c *ProjectsKnowledgeBasesDocumentsListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListDocumentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -39725,9 +40837,9 @@ type ProjectsKnowledgeBasesDocumentsPatchCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - name: Optional. The document resource name. The name must be empty
-//   when creating a document. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: Optional. The document resource name. The name must be empty
+//     when creating a document. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) Patch(name string, googleclouddialogflowv2document *GoogleCloudDialogflowV2Document) *ProjectsKnowledgeBasesDocumentsPatchCall {
 	c := &ProjectsKnowledgeBasesDocumentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -39811,17 +40923,17 @@ func (c *ProjectsKnowledgeBasesDocumentsPatchCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -39894,8 +41006,8 @@ type ProjectsKnowledgeBasesDocumentsReloadCall struct {
 // Document Note: The `projects.agent.knowledgeBases.documents` resource
 // is deprecated; only use `projects.knowledgeBases.documents`.
 //
-// - name: The name of the document to reload. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to reload. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsKnowledgeBasesDocumentsService) Reload(name string, googleclouddialogflowv2reloaddocumentrequest *GoogleCloudDialogflowV2ReloadDocumentRequest) *ProjectsKnowledgeBasesDocumentsReloadCall {
 	c := &ProjectsKnowledgeBasesDocumentsReloadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -39970,17 +41082,17 @@ func (c *ProjectsKnowledgeBasesDocumentsReloadCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -40037,8 +41149,8 @@ type ProjectsLocationsDeleteAgentCall struct {
 
 // DeleteAgent: Deletes the specified agent.
 //
-// - parent: The project that the agent to delete is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to delete is associated with.
+//     Format: `projects/`.
 func (r *ProjectsLocationsService) DeleteAgent(parent string) *ProjectsLocationsDeleteAgentCall {
 	c := &ProjectsLocationsDeleteAgentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -40107,17 +41219,17 @@ func (c *ProjectsLocationsDeleteAgentCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -40254,17 +41366,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*GoogleClou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudLocationLocation{
 		ServerResponse: googleapi.ServerResponse{
@@ -40319,8 +41431,8 @@ type ProjectsLocationsGetAgentCall struct {
 
 // GetAgent: Retrieves the specified agent.
 //
-// - parent: The project that the agent to fetch is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to fetch is associated with.
+//     Format: `projects/`.
 func (r *ProjectsLocationsService) GetAgent(parent string) *ProjectsLocationsGetAgentCall {
 	c := &ProjectsLocationsGetAgentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -40402,17 +41514,17 @@ func (c *ProjectsLocationsGetAgentCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Agent{
 		ServerResponse: googleapi.ServerResponse{
@@ -40468,8 +41580,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -40577,17 +41689,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*GoogleClo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudLocationListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -40763,17 +41875,17 @@ func (c *ProjectsLocationsSetAgentCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Agent{
 		ServerResponse: googleapi.ServerResponse{
@@ -40843,8 +41955,8 @@ type ProjectsLocationsAgentExportCall struct {
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#struct)
 // - `response`: ExportAgentResponse
 //
-// - parent: The project that the agent to export is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to export is associated with.
+//     Format: `projects/`.
 func (r *ProjectsLocationsAgentService) Export(parent string, googleclouddialogflowv2exportagentrequest *GoogleCloudDialogflowV2ExportAgentRequest) *ProjectsLocationsAgentExportCall {
 	c := &ProjectsLocationsAgentExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -40919,17 +42031,17 @@ func (c *ProjectsLocationsAgentExportCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -40987,8 +42099,8 @@ type ProjectsLocationsAgentGetFulfillmentCall struct {
 
 // GetFulfillment: Retrieves the fulfillment.
 //
-// - name: The name of the fulfillment. Format:
-//   `projects//agent/fulfillment`.
+//   - name: The name of the fulfillment. Format:
+//     `projects//agent/fulfillment`.
 func (r *ProjectsLocationsAgentService) GetFulfillment(name string) *ProjectsLocationsAgentGetFulfillmentCall {
 	c := &ProjectsLocationsAgentGetFulfillmentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -41071,17 +42183,17 @@ func (c *ProjectsLocationsAgentGetFulfillmentCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Fulfillment{
 		ServerResponse: googleapi.ServerResponse{
@@ -41138,8 +42250,8 @@ type ProjectsLocationsAgentGetValidationResultCall struct {
 // is performed during training time and is updated automatically when
 // training is completed.
 //
-// - parent: The project that the agent is associated with. Format:
-//   `projects/`.
+//   - parent: The project that the agent is associated with. Format:
+//     `projects/`.
 func (r *ProjectsLocationsAgentService) GetValidationResult(parent string) *ProjectsLocationsAgentGetValidationResultCall {
 	c := &ProjectsLocationsAgentGetValidationResultCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -41233,17 +42345,17 @@ func (c *ProjectsLocationsAgentGetValidationResultCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ValidationResult{
 		ServerResponse: googleapi.ServerResponse{
@@ -41321,8 +42433,8 @@ type ProjectsLocationsAgentImportCall struct {
 // sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The project that the agent to import is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to import is associated with.
+//     Format: `projects/`.
 func (r *ProjectsLocationsAgentService) Import(parent string, googleclouddialogflowv2importagentrequest *GoogleCloudDialogflowV2ImportAgentRequest) *ProjectsLocationsAgentImportCall {
 	c := &ProjectsLocationsAgentImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -41397,17 +42509,17 @@ func (c *ProjectsLocationsAgentImportCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -41482,8 +42594,8 @@ type ProjectsLocationsAgentRestoreCall struct {
 // sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The project that the agent to restore is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to restore is associated with.
+//     Format: `projects/`.
 func (r *ProjectsLocationsAgentService) Restore(parent string, googleclouddialogflowv2restoreagentrequest *GoogleCloudDialogflowV2RestoreAgentRequest) *ProjectsLocationsAgentRestoreCall {
 	c := &ProjectsLocationsAgentRestoreCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -41558,17 +42670,17 @@ func (c *ProjectsLocationsAgentRestoreCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -41729,17 +42841,17 @@ func (c *ProjectsLocationsAgentSearchCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SearchAgentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -41836,8 +42948,8 @@ type ProjectsLocationsAgentTrainCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The project that the agent to train is associated with.
-//   Format: `projects/`.
+//   - parent: The project that the agent to train is associated with.
+//     Format: `projects/`.
 func (r *ProjectsLocationsAgentService) Train(parent string, googleclouddialogflowv2trainagentrequest *GoogleCloudDialogflowV2TrainAgentRequest) *ProjectsLocationsAgentTrainCall {
 	c := &ProjectsLocationsAgentTrainCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -41912,17 +43024,17 @@ func (c *ProjectsLocationsAgentTrainCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -41982,8 +43094,8 @@ type ProjectsLocationsAgentUpdateFulfillmentCall struct {
 //
 // - name: The unique identifier of the fulfillment. Supported formats:
 //   - `projects//agent/fulfillment` -
-//   `projects//locations//agent/fulfillment` This field is not used for
-//   Fulfillment in an Environment.
+//     `projects//locations//agent/fulfillment` This field is not used for
+//     Fulfillment in an Environment.
 func (r *ProjectsLocationsAgentService) UpdateFulfillment(nameid string, googleclouddialogflowv2fulfillment *GoogleCloudDialogflowV2Fulfillment) *ProjectsLocationsAgentUpdateFulfillmentCall {
 	c := &ProjectsLocationsAgentUpdateFulfillmentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -42067,17 +43179,17 @@ func (c *ProjectsLocationsAgentUpdateFulfillmentCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Fulfillment{
 		ServerResponse: googleapi.ServerResponse{
@@ -42151,8 +43263,8 @@ type ProjectsLocationsAgentEntityTypesBatchDeleteCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to delete all entities types for.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to delete all entities types for.
+//     Format: `projects//agent`.
 func (r *ProjectsLocationsAgentEntityTypesService) BatchDelete(parent string, googleclouddialogflowv2batchdeleteentitytypesrequest *GoogleCloudDialogflowV2BatchDeleteEntityTypesRequest) *ProjectsLocationsAgentEntityTypesBatchDeleteCall {
 	c := &ProjectsLocationsAgentEntityTypesBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -42227,17 +43339,17 @@ func (c *ProjectsLocationsAgentEntityTypesBatchDeleteCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -42303,8 +43415,8 @@ type ProjectsLocationsAgentEntityTypesBatchUpdateCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to update or create entity types in.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to update or create entity types in.
+//     Format: `projects//agent`.
 func (r *ProjectsLocationsAgentEntityTypesService) BatchUpdate(parent string, googleclouddialogflowv2batchupdateentitytypesrequest *GoogleCloudDialogflowV2BatchUpdateEntityTypesRequest) *ProjectsLocationsAgentEntityTypesBatchUpdateCall {
 	c := &ProjectsLocationsAgentEntityTypesBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -42379,17 +43491,17 @@ func (c *ProjectsLocationsAgentEntityTypesBatchUpdateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -42450,8 +43562,8 @@ type ProjectsLocationsAgentEntityTypesCreateCall struct {
 // training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The agent to create a entity type for. Format:
-//   `projects//agent`.
+//   - parent: The agent to create a entity type for. Format:
+//     `projects//agent`.
 func (r *ProjectsLocationsAgentEntityTypesService) Create(parent string, googleclouddialogflowv2entitytype *GoogleCloudDialogflowV2EntityType) *ProjectsLocationsAgentEntityTypesCreateCall {
 	c := &ProjectsLocationsAgentEntityTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -42537,17 +43649,17 @@ func (c *ProjectsLocationsAgentEntityTypesCreateCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -42611,8 +43723,8 @@ type ProjectsLocationsAgentEntityTypesDeleteCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: The name of the entity type to delete. Format:
-//   `projects//agent/entityTypes/`.
+//   - name: The name of the entity type to delete. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsLocationsAgentEntityTypesService) Delete(name string) *ProjectsLocationsAgentEntityTypesDeleteCall {
 	c := &ProjectsLocationsAgentEntityTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -42681,17 +43793,17 @@ func (c *ProjectsLocationsAgentEntityTypesDeleteCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -42746,8 +43858,8 @@ type ProjectsLocationsAgentEntityTypesGetCall struct {
 
 // Get: Retrieves the specified entity type.
 //
-// - name: The name of the entity type. Format:
-//   `projects//agent/entityTypes/`.
+//   - name: The name of the entity type. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsLocationsAgentEntityTypesService) Get(name string) *ProjectsLocationsAgentEntityTypesGetCall {
 	c := &ProjectsLocationsAgentEntityTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -42840,17 +43952,17 @@ func (c *ProjectsLocationsAgentEntityTypesGetCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -42910,8 +44022,8 @@ type ProjectsLocationsAgentEntityTypesListCall struct {
 
 // List: Returns the list of all entity types in the specified agent.
 //
-// - parent: The agent to list all entity types from. Format:
-//   `projects//agent`.
+//   - parent: The agent to list all entity types from. Format:
+//     `projects//agent`.
 func (r *ProjectsLocationsAgentEntityTypesService) List(parent string) *ProjectsLocationsAgentEntityTypesListCall {
 	c := &ProjectsLocationsAgentEntityTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -43019,17 +44131,17 @@ func (c *ProjectsLocationsAgentEntityTypesListCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListEntityTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -43123,9 +44235,9 @@ type ProjectsLocationsAgentEntityTypesPatchCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: The unique identifier of the entity type. Required for
-//   EntityTypes.UpdateEntityType and EntityTypes.BatchUpdateEntityTypes
-//   methods. Format: `projects//agent/entityTypes/`.
+//   - name: The unique identifier of the entity type. Required for
+//     EntityTypes.UpdateEntityType and EntityTypes.BatchUpdateEntityTypes
+//     methods. Format: `projects//agent/entityTypes/`.
 func (r *ProjectsLocationsAgentEntityTypesService) Patch(nameid string, googleclouddialogflowv2entitytype *GoogleCloudDialogflowV2EntityType) *ProjectsLocationsAgentEntityTypesPatchCall {
 	c := &ProjectsLocationsAgentEntityTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -43218,17 +44330,17 @@ func (c *ProjectsLocationsAgentEntityTypesPatchCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -43307,8 +44419,8 @@ type ProjectsLocationsAgentEntityTypesEntitiesBatchCreateCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the entity type to create entities in. Format:
-//   `projects//agent/entityTypes/`.
+//   - parent: The name of the entity type to create entities in. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsLocationsAgentEntityTypesEntitiesService) BatchCreate(parent string, googleclouddialogflowv2batchcreateentitiesrequest *GoogleCloudDialogflowV2BatchCreateEntitiesRequest) *ProjectsLocationsAgentEntityTypesEntitiesBatchCreateCall {
 	c := &ProjectsLocationsAgentEntityTypesEntitiesBatchCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -43383,17 +44495,17 @@ func (c *ProjectsLocationsAgentEntityTypesEntitiesBatchCreateCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -43461,8 +44573,8 @@ type ProjectsLocationsAgentEntityTypesEntitiesBatchDeleteCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the entity type to delete entries for. Format:
-//   `projects//agent/entityTypes/`.
+//   - parent: The name of the entity type to delete entries for. Format:
+//     `projects//agent/entityTypes/`.
 func (r *ProjectsLocationsAgentEntityTypesEntitiesService) BatchDelete(parent string, googleclouddialogflowv2batchdeleteentitiesrequest *GoogleCloudDialogflowV2BatchDeleteEntitiesRequest) *ProjectsLocationsAgentEntityTypesEntitiesBatchDeleteCall {
 	c := &ProjectsLocationsAgentEntityTypesEntitiesBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -43537,17 +44649,17 @@ func (c *ProjectsLocationsAgentEntityTypesEntitiesBatchDeleteCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -43617,8 +44729,8 @@ type ProjectsLocationsAgentEntityTypesEntitiesBatchUpdateCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the entity type to update or create entities
-//   in. Format: `projects//agent/entityTypes/`.
+//   - parent: The name of the entity type to update or create entities
+//     in. Format: `projects//agent/entityTypes/`.
 func (r *ProjectsLocationsAgentEntityTypesEntitiesService) BatchUpdate(parent string, googleclouddialogflowv2batchupdateentitiesrequest *GoogleCloudDialogflowV2BatchUpdateEntitiesRequest) *ProjectsLocationsAgentEntityTypesEntitiesBatchUpdateCall {
 	c := &ProjectsLocationsAgentEntityTypesEntitiesBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -43693,17 +44805,17 @@ func (c *ProjectsLocationsAgentEntityTypesEntitiesBatchUpdateCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -43845,17 +44957,17 @@ func (c *ProjectsLocationsAgentEnvironmentsCreateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Environment{
 		ServerResponse: googleapi.ServerResponse{
@@ -43917,10 +45029,10 @@ type ProjectsLocationsAgentEnvironmentsDeleteCall struct {
 
 // Delete: Deletes the specified agent environment.
 //
-// - name: The name of the environment to delete. / Format: -
-//   `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - name: The name of the environment to delete. / Format: -
+//     `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsLocationsAgentEnvironmentsService) Delete(name string) *ProjectsLocationsAgentEnvironmentsDeleteCall {
 	c := &ProjectsLocationsAgentEnvironmentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -43989,17 +45101,17 @@ func (c *ProjectsLocationsAgentEnvironmentsDeleteCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -44054,10 +45166,10 @@ type ProjectsLocationsAgentEnvironmentsGetCall struct {
 
 // Get: Retrieves the specified agent environment.
 //
-// - name: The name of the environment. Supported formats: -
-//   `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - name: The name of the environment. Supported formats: -
+//     `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsLocationsAgentEnvironmentsService) Get(name string) *ProjectsLocationsAgentEnvironmentsGetCall {
 	c := &ProjectsLocationsAgentEnvironmentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -44140,17 +45252,17 @@ func (c *ProjectsLocationsAgentEnvironmentsGetCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Environment{
 		ServerResponse: googleapi.ServerResponse{
@@ -44205,10 +45317,10 @@ type ProjectsLocationsAgentEnvironmentsGetHistoryCall struct {
 
 // GetHistory: Gets the history of the specified environment.
 //
-// - parent: The name of the environment to retrieve history for.
-//   Supported formats: - `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - parent: The name of the environment to retrieve history for.
+//     Supported formats: - `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsLocationsAgentEnvironmentsService) GetHistory(parent string) *ProjectsLocationsAgentEnvironmentsGetHistoryCall {
 	c := &ProjectsLocationsAgentEnvironmentsGetHistoryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -44306,17 +45418,17 @@ func (c *ProjectsLocationsAgentEnvironmentsGetHistoryCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2EnvironmentHistory{
 		ServerResponse: googleapi.ServerResponse{
@@ -44404,8 +45516,8 @@ type ProjectsLocationsAgentEnvironmentsListCall struct {
 // List: Returns the list of all non-default environments of the
 // specified agent.
 //
-// - parent: The agent to list all environments from. Format: -
-//   `projects//agent` - `projects//locations//agent`.
+//   - parent: The agent to list all environments from. Format: -
+//     `projects//agent` - `projects//locations//agent`.
 func (r *ProjectsLocationsAgentEnvironmentsService) List(parent string) *ProjectsLocationsAgentEnvironmentsListCall {
 	c := &ProjectsLocationsAgentEnvironmentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -44492,7 +45604,9 @@ func (c *ProjectsLocationsAgentEnvironmentsListCall) doRequest(alt string) (*htt
 // error will be non-nil. Any non-2xx status code is an error. Response
 // headers are in either
 // *GoogleCloudDialogflowV2ListEnvironmentsResponse.ServerResponse.Header
-//  or (if a response was returned at all) in
+//
+//	or (if a response was returned at all) in
+//
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
@@ -44503,17 +45617,17 @@ func (c *ProjectsLocationsAgentEnvironmentsListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListEnvironmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -44611,10 +45725,10 @@ type ProjectsLocationsAgentEnvironmentsPatchCall struct {
 // undone. You may want to save the draft agent to a version before
 // calling this method.
 //
-// - name: Output only. The unique identifier of this agent environment.
-//   Supported formats: - `projects//agent/environments/` -
-//   `projects//locations//agent/environments/` The environment ID for
-//   the default environment is `-`.
+//   - name: Output only. The unique identifier of this agent environment.
+//     Supported formats: - `projects//agent/environments/` -
+//     `projects//locations//agent/environments/` The environment ID for
+//     the default environment is `-`.
 func (r *ProjectsLocationsAgentEnvironmentsService) Patch(nameid string, googleclouddialogflowv2environment *GoogleCloudDialogflowV2Environment) *ProjectsLocationsAgentEnvironmentsPatchCall {
 	c := &ProjectsLocationsAgentEnvironmentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -44708,17 +45822,17 @@ func (c *ProjectsLocationsAgentEnvironmentsPatchCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Environment{
 		ServerResponse: googleapi.ServerResponse{
@@ -44787,12 +45901,12 @@ type ProjectsLocationsAgentEnvironmentsIntentsListCall struct {
 
 // List: Returns the list of all intents in the specified agent.
 //
-// - parent: The agent to list all intents from. Format:
-//   `projects//agent` or `projects//locations//agent`. Alternatively,
-//   you can specify the environment to list intents for. Format:
-//   `projects//agent/environments/` or
-//   `projects//locations//agent/environments/`. Note: training phrases
-//   of the intents will not be returned for non-draft environment.
+//   - parent: The agent to list all intents from. Format:
+//     `projects//agent` or `projects//locations//agent`. Alternatively,
+//     you can specify the environment to list intents for. Format:
+//     `projects//agent/environments/` or
+//     `projects//locations//agent/environments/`. Note: training phrases
+//     of the intents will not be returned for non-draft environment.
 func (r *ProjectsLocationsAgentEnvironmentsIntentsService) List(parent string) *ProjectsLocationsAgentEnvironmentsIntentsListCall {
 	c := &ProjectsLocationsAgentEnvironmentsIntentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -44803,9 +45917,12 @@ func (r *ProjectsLocationsAgentEnvironmentsIntentsService) List(parent string) *
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsLocationsAgentEnvironmentsIntentsListCall) IntentView(intentView string) *ProjectsLocationsAgentEnvironmentsIntentsListCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -44912,17 +46029,17 @@ func (c *ProjectsLocationsAgentEnvironmentsIntentsListCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListIntentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -45026,11 +46143,11 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsDeleteContextsCall struct {
 
 // DeleteContexts: Deletes all active contexts in the specified session.
 //
-// - parent: The name of the session to delete all contexts from.
-//   Format: `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The name of the session to delete all contexts from.
+//     Format: `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsService) DeleteContexts(parent string) *ProjectsLocationsAgentEnvironmentsUsersSessionsDeleteContextsCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsDeleteContextsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -45099,17 +46216,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsDeleteContextsCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -45174,21 +46291,21 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsDetectIntentCall struct {
 // for production traffic. See Versions and environments
 // (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 //
-// - session: The name of the session this query is sent to. Format:
-//   `projects//agent/sessions/`, or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment
-//   (`Environment ID` might be referred to as environment name at some
-//   places). If `User ID` is not specified, we are using "-". It's up
-//   to the API caller to choose an appropriate `Session ID` and `User
-//   Id`. They can be a random number or some type of user and session
-//   identifiers (preferably hashed). The length of the `Session ID` and
-//   `User ID` must not exceed 36 characters. For more information, see
-//   the API interactions guide
-//   (https://cloud.google.com/dialogflow/docs/api-overview). Note:
-//   Always use agent versions for production traffic. See Versions and
-//   environments
-//   (https://cloud.google.com/dialogflow/es/docs/agents-versions).
+//   - session: The name of the session this query is sent to. Format:
+//     `projects//agent/sessions/`, or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment
+//     (`Environment ID` might be referred to as environment name at some
+//     places). If `User ID` is not specified, we are using "-". It's up
+//     to the API caller to choose an appropriate `Session ID` and `User
+//     Id`. They can be a random number or some type of user and session
+//     identifiers (preferably hashed). The length of the `Session ID` and
+//     `User ID` must not exceed 36 characters. For more information, see
+//     the API interactions guide
+//     (https://cloud.google.com/dialogflow/docs/api-overview). Note:
+//     Always use agent versions for production traffic. See Versions and
+//     environments
+//     (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsService) DetectIntent(sessionid string, googleclouddialogflowv2detectintentrequest *GoogleCloudDialogflowV2DetectIntentRequest) *ProjectsLocationsAgentEnvironmentsUsersSessionsDetectIntentCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsDetectIntentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.sessionid = sessionid
@@ -45265,17 +46382,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsDetectIntentCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2DetectIntentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -45334,11 +46451,11 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsContextsCreateCall struct {
 // Create: Creates a context. If the specified context already exists,
 // overrides the context.
 //
-// - parent: The session to create a context for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a context for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsService) Create(parent string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsCreateCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsContextsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -45413,17 +46530,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsCreateCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -45480,12 +46597,12 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsContextsDeleteCall struct {
 
 // Delete: Deletes the specified context.
 //
-// - name: The name of the context to delete. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context to delete. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsService) Delete(name string) *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsDeleteCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsContextsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -45554,17 +46671,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsDeleteCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -45619,12 +46736,12 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsContextsGetCall struct {
 
 // Get: Retrieves the specified context.
 //
-// - name: The name of the context. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsService) Get(name string) *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsGetCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsContextsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -45706,17 +46823,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsGetCall) Do(opts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -45771,11 +46888,11 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsContextsListCall struct {
 
 // List: Returns the list of all contexts in the specified session.
 //
-// - parent: The session to list all contexts from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all contexts from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsService) List(parent string) *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsListCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsContextsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -45873,17 +46990,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsListCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListContextsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -45970,17 +47087,17 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsContextsPatchCall struct {
 
 // Patch: Updates the specified context.
 //
-// - name: The unique identifier of the context. Format:
-//   `projects//agent/sessions//contexts/`, or
-//   `projects//agent/environments//users//sessions//contexts/`. The
-//   `Context ID` is always converted to lowercase, may only contain
-//   characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. The following context names are reserved for internal use by
-//   Dialogflow. You should not use these contexts or create contexts
-//   with these names: * `__system_counters__` * `*_id_dialog_context` *
-//   `*_dialog_params_size`.
+//   - name: The unique identifier of the context. Format:
+//     `projects//agent/sessions//contexts/`, or
+//     `projects//agent/environments//users//sessions//contexts/`. The
+//     `Context ID` is always converted to lowercase, may only contain
+//     characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. The following context names are reserved for internal use by
+//     Dialogflow. You should not use these contexts or create contexts
+//     with these names: * `__system_counters__` * `*_id_dialog_context` *
+//     `*_dialog_params_size`.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsService) Patch(nameid string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsPatchCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsContextsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -46062,17 +47179,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsContextsPatchCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -46140,11 +47257,11 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesCreateCall struct
 // Dialogflow support if you need to use session entities with Google
 // Assistant integration.
 //
-// - parent: The session to create a session entity type for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a session entity type for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesService) Create(parent string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesCreateCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -46221,17 +47338,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesCreateCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -46291,12 +47408,12 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall struct
 // support if you need to use session entities with Google Assistant
 // integration.
 //
-// - name: The name of the entity type to delete. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the entity type to delete. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesService) Delete(name string) *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -46365,17 +47482,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesDeleteCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -46432,12 +47549,12 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesGetCall struct {
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The name of the session entity type. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the session entity type. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesService) Get(name string) *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesGetCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -46521,17 +47638,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesGetCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -46589,11 +47706,11 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesListCall struct {
 // Contact Dialogflow support if you need to use session entities with
 // Google Assistant integration.
 //
-// - parent: The session to list all session entity types from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all session entity types from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesService) List(parent string) *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesListCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -46691,17 +47808,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesListCall) Do(
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListSessionEntityTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -46790,13 +47907,13 @@ type ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesPatchCall struct 
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The unique identifier of this session entity type. Format:
-//   `projects//agent/sessions//entityTypes/`, or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. `` must be the display name of an existing entity type in the
-//   same agent that will be overridden or supplemented.
+//   - name: The unique identifier of this session entity type. Format:
+//     `projects//agent/sessions//entityTypes/`, or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. “ must be the display name of an existing entity type in the
+//     same agent that will be overridden or supplemented.
 func (r *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesService) Patch(nameid string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesPatchCall {
 	c := &ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -46880,17 +47997,17 @@ func (c *ProjectsLocationsAgentEnvironmentsUsersSessionsEntityTypesPatchCall) Do
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -46964,8 +48081,8 @@ type ProjectsLocationsAgentIntentsBatchDeleteCall struct {
 // See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to delete all entities types for.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to delete all entities types for.
+//     Format: `projects//agent`.
 func (r *ProjectsLocationsAgentIntentsService) BatchDelete(parent string, googleclouddialogflowv2batchdeleteintentsrequest *GoogleCloudDialogflowV2BatchDeleteIntentsRequest) *ProjectsLocationsAgentIntentsBatchDeleteCall {
 	c := &ProjectsLocationsAgentIntentsBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -47040,17 +48157,17 @@ func (c *ProjectsLocationsAgentIntentsBatchDeleteCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -47116,8 +48233,8 @@ type ProjectsLocationsAgentIntentsBatchUpdateCall struct {
 // train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The name of the agent to update or create intents in.
-//   Format: `projects//agent`.
+//   - parent: The name of the agent to update or create intents in.
+//     Format: `projects//agent`.
 func (r *ProjectsLocationsAgentIntentsService) BatchUpdate(parent string, googleclouddialogflowv2batchupdateintentsrequest *GoogleCloudDialogflowV2BatchUpdateIntentsRequest) *ProjectsLocationsAgentIntentsBatchUpdateCall {
 	c := &ProjectsLocationsAgentIntentsBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -47192,17 +48309,17 @@ func (c *ProjectsLocationsAgentIntentsBatchUpdateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -47262,8 +48379,8 @@ type ProjectsLocationsAgentIntentsCreateCall struct {
 // always train an agent prior to sending it queries. See the training
 // documentation (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - parent: The agent to create a intent for. Format:
-//   `projects//agent`.
+//   - parent: The agent to create a intent for. Format:
+//     `projects//agent`.
 func (r *ProjectsLocationsAgentIntentsService) Create(parent string, googleclouddialogflowv2intent *GoogleCloudDialogflowV2Intent) *ProjectsLocationsAgentIntentsCreateCall {
 	c := &ProjectsLocationsAgentIntentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -47275,9 +48392,12 @@ func (r *ProjectsLocationsAgentIntentsService) Create(parent string, googlecloud
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsLocationsAgentIntentsCreateCall) IntentView(intentView string) *ProjectsLocationsAgentIntentsCreateCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -47360,17 +48480,17 @@ func (c *ProjectsLocationsAgentIntentsCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Intent{
 		ServerResponse: googleapi.ServerResponse{
@@ -47448,9 +48568,9 @@ type ProjectsLocationsAgentIntentsDeleteCall struct {
 // sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: The name of the intent to delete. If this intent has direct
-//   or indirect followup intents, we also delete them. Format:
-//   `projects//agent/intents/`.
+//   - name: The name of the intent to delete. If this intent has direct
+//     or indirect followup intents, we also delete them. Format:
+//     `projects//agent/intents/`.
 func (r *ProjectsLocationsAgentIntentsService) Delete(name string) *ProjectsLocationsAgentIntentsDeleteCall {
 	c := &ProjectsLocationsAgentIntentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -47519,17 +48639,17 @@ func (c *ProjectsLocationsAgentIntentsDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -47595,9 +48715,12 @@ func (r *ProjectsLocationsAgentIntentsService) Get(name string) *ProjectsLocatio
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsLocationsAgentIntentsGetCall) IntentView(intentView string) *ProjectsLocationsAgentIntentsGetCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -47688,17 +48811,17 @@ func (c *ProjectsLocationsAgentIntentsGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Intent{
 		ServerResponse: googleapi.ServerResponse{
@@ -47771,12 +48894,12 @@ type ProjectsLocationsAgentIntentsListCall struct {
 
 // List: Returns the list of all intents in the specified agent.
 //
-// - parent: The agent to list all intents from. Format:
-//   `projects//agent` or `projects//locations//agent`. Alternatively,
-//   you can specify the environment to list intents for. Format:
-//   `projects//agent/environments/` or
-//   `projects//locations//agent/environments/`. Note: training phrases
-//   of the intents will not be returned for non-draft environment.
+//   - parent: The agent to list all intents from. Format:
+//     `projects//agent` or `projects//locations//agent`. Alternatively,
+//     you can specify the environment to list intents for. Format:
+//     `projects//agent/environments/` or
+//     `projects//locations//agent/environments/`. Note: training phrases
+//     of the intents will not be returned for non-draft environment.
 func (r *ProjectsLocationsAgentIntentsService) List(parent string) *ProjectsLocationsAgentIntentsListCall {
 	c := &ProjectsLocationsAgentIntentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -47787,9 +48910,12 @@ func (r *ProjectsLocationsAgentIntentsService) List(parent string) *ProjectsLoca
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsLocationsAgentIntentsListCall) IntentView(intentView string) *ProjectsLocationsAgentIntentsListCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -47896,17 +49022,17 @@ func (c *ProjectsLocationsAgentIntentsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListIntentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -48013,9 +49139,9 @@ type ProjectsLocationsAgentIntentsPatchCall struct {
 // agent prior to sending it queries. See the training documentation
 // (https://cloud.google.com/dialogflow/es/docs/training).
 //
-// - name: Optional. The unique identifier of this intent. Required for
-//   Intents.UpdateIntent and Intents.BatchUpdateIntents methods.
-//   Format: `projects//agent/intents/`.
+//   - name: Optional. The unique identifier of this intent. Required for
+//     Intents.UpdateIntent and Intents.BatchUpdateIntents methods.
+//     Format: `projects//agent/intents/`.
 func (r *ProjectsLocationsAgentIntentsService) Patch(nameid string, googleclouddialogflowv2intent *GoogleCloudDialogflowV2Intent) *ProjectsLocationsAgentIntentsPatchCall {
 	c := &ProjectsLocationsAgentIntentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -48027,9 +49153,12 @@ func (r *ProjectsLocationsAgentIntentsService) Patch(nameid string, googlecloudd
 // view to apply to the returned intent.
 //
 // Possible values:
-//   "INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
+//	"INTENT_VIEW_UNSPECIFIED" - Training phrases field is not populated
+//
 // in the response.
-//   "INTENT_VIEW_FULL" - All fields are populated.
+//
+//	"INTENT_VIEW_FULL" - All fields are populated.
 func (c *ProjectsLocationsAgentIntentsPatchCall) IntentView(intentView string) *ProjectsLocationsAgentIntentsPatchCall {
 	c.urlParams_.Set("intentView", intentView)
 	return c
@@ -48119,17 +49248,17 @@ func (c *ProjectsLocationsAgentIntentsPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Intent{
 		ServerResponse: googleapi.ServerResponse{
@@ -48210,11 +49339,11 @@ type ProjectsLocationsAgentSessionsDeleteContextsCall struct {
 
 // DeleteContexts: Deletes all active contexts in the specified session.
 //
-// - parent: The name of the session to delete all contexts from.
-//   Format: `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The name of the session to delete all contexts from.
+//     Format: `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentSessionsService) DeleteContexts(parent string) *ProjectsLocationsAgentSessionsDeleteContextsCall {
 	c := &ProjectsLocationsAgentSessionsDeleteContextsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -48283,17 +49412,17 @@ func (c *ProjectsLocationsAgentSessionsDeleteContextsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -48358,21 +49487,21 @@ type ProjectsLocationsAgentSessionsDetectIntentCall struct {
 // for production traffic. See Versions and environments
 // (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 //
-// - session: The name of the session this query is sent to. Format:
-//   `projects//agent/sessions/`, or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment
-//   (`Environment ID` might be referred to as environment name at some
-//   places). If `User ID` is not specified, we are using "-". It's up
-//   to the API caller to choose an appropriate `Session ID` and `User
-//   Id`. They can be a random number or some type of user and session
-//   identifiers (preferably hashed). The length of the `Session ID` and
-//   `User ID` must not exceed 36 characters. For more information, see
-//   the API interactions guide
-//   (https://cloud.google.com/dialogflow/docs/api-overview). Note:
-//   Always use agent versions for production traffic. See Versions and
-//   environments
-//   (https://cloud.google.com/dialogflow/es/docs/agents-versions).
+//   - session: The name of the session this query is sent to. Format:
+//     `projects//agent/sessions/`, or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment
+//     (`Environment ID` might be referred to as environment name at some
+//     places). If `User ID` is not specified, we are using "-". It's up
+//     to the API caller to choose an appropriate `Session ID` and `User
+//     Id`. They can be a random number or some type of user and session
+//     identifiers (preferably hashed). The length of the `Session ID` and
+//     `User ID` must not exceed 36 characters. For more information, see
+//     the API interactions guide
+//     (https://cloud.google.com/dialogflow/docs/api-overview). Note:
+//     Always use agent versions for production traffic. See Versions and
+//     environments
+//     (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 func (r *ProjectsLocationsAgentSessionsService) DetectIntent(sessionid string, googleclouddialogflowv2detectintentrequest *GoogleCloudDialogflowV2DetectIntentRequest) *ProjectsLocationsAgentSessionsDetectIntentCall {
 	c := &ProjectsLocationsAgentSessionsDetectIntentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.sessionid = sessionid
@@ -48449,17 +49578,17 @@ func (c *ProjectsLocationsAgentSessionsDetectIntentCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2DetectIntentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -48518,11 +49647,11 @@ type ProjectsLocationsAgentSessionsContextsCreateCall struct {
 // Create: Creates a context. If the specified context already exists,
 // overrides the context.
 //
-// - parent: The session to create a context for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a context for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentSessionsContextsService) Create(parent string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsLocationsAgentSessionsContextsCreateCall {
 	c := &ProjectsLocationsAgentSessionsContextsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -48597,17 +49726,17 @@ func (c *ProjectsLocationsAgentSessionsContextsCreateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -48664,12 +49793,12 @@ type ProjectsLocationsAgentSessionsContextsDeleteCall struct {
 
 // Delete: Deletes the specified context.
 //
-// - name: The name of the context to delete. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context to delete. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentSessionsContextsService) Delete(name string) *ProjectsLocationsAgentSessionsContextsDeleteCall {
 	c := &ProjectsLocationsAgentSessionsContextsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -48738,17 +49867,17 @@ func (c *ProjectsLocationsAgentSessionsContextsDeleteCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -48803,12 +49932,12 @@ type ProjectsLocationsAgentSessionsContextsGetCall struct {
 
 // Get: Retrieves the specified context.
 //
-// - name: The name of the context. Format:
-//   `projects//agent/sessions//contexts/` or
-//   `projects//agent/environments//users//sessions//contexts/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the context. Format:
+//     `projects//agent/sessions//contexts/` or
+//     `projects//agent/environments//users//sessions//contexts/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentSessionsContextsService) Get(name string) *ProjectsLocationsAgentSessionsContextsGetCall {
 	c := &ProjectsLocationsAgentSessionsContextsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -48890,17 +50019,17 @@ func (c *ProjectsLocationsAgentSessionsContextsGetCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -48955,11 +50084,11 @@ type ProjectsLocationsAgentSessionsContextsListCall struct {
 
 // List: Returns the list of all contexts in the specified session.
 //
-// - parent: The session to list all contexts from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users//sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all contexts from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users//sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentSessionsContextsService) List(parent string) *ProjectsLocationsAgentSessionsContextsListCall {
 	c := &ProjectsLocationsAgentSessionsContextsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -49057,17 +50186,17 @@ func (c *ProjectsLocationsAgentSessionsContextsListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListContextsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -49154,17 +50283,17 @@ type ProjectsLocationsAgentSessionsContextsPatchCall struct {
 
 // Patch: Updates the specified context.
 //
-// - name: The unique identifier of the context. Format:
-//   `projects//agent/sessions//contexts/`, or
-//   `projects//agent/environments//users//sessions//contexts/`. The
-//   `Context ID` is always converted to lowercase, may only contain
-//   characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. The following context names are reserved for internal use by
-//   Dialogflow. You should not use these contexts or create contexts
-//   with these names: * `__system_counters__` * `*_id_dialog_context` *
-//   `*_dialog_params_size`.
+//   - name: The unique identifier of the context. Format:
+//     `projects//agent/sessions//contexts/`, or
+//     `projects//agent/environments//users//sessions//contexts/`. The
+//     `Context ID` is always converted to lowercase, may only contain
+//     characters in a-zA-Z0-9_-% and may be at most 250 bytes long. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. The following context names are reserved for internal use by
+//     Dialogflow. You should not use these contexts or create contexts
+//     with these names: * `__system_counters__` * `*_id_dialog_context` *
+//     `*_dialog_params_size`.
 func (r *ProjectsLocationsAgentSessionsContextsService) Patch(nameid string, googleclouddialogflowv2context *GoogleCloudDialogflowV2Context) *ProjectsLocationsAgentSessionsContextsPatchCall {
 	c := &ProjectsLocationsAgentSessionsContextsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -49246,17 +50375,17 @@ func (c *ProjectsLocationsAgentSessionsContextsPatchCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Context{
 		ServerResponse: googleapi.ServerResponse{
@@ -49324,11 +50453,11 @@ type ProjectsLocationsAgentSessionsEntityTypesCreateCall struct {
 // Dialogflow support if you need to use session entities with Google
 // Assistant integration.
 //
-// - parent: The session to create a session entity type for. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to create a session entity type for. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentSessionsEntityTypesService) Create(parent string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsLocationsAgentSessionsEntityTypesCreateCall {
 	c := &ProjectsLocationsAgentSessionsEntityTypesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -49405,17 +50534,17 @@ func (c *ProjectsLocationsAgentSessionsEntityTypesCreateCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -49475,12 +50604,12 @@ type ProjectsLocationsAgentSessionsEntityTypesDeleteCall struct {
 // support if you need to use session entities with Google Assistant
 // integration.
 //
-// - name: The name of the entity type to delete. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the entity type to delete. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentSessionsEntityTypesService) Delete(name string) *ProjectsLocationsAgentSessionsEntityTypesDeleteCall {
 	c := &ProjectsLocationsAgentSessionsEntityTypesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -49549,17 +50678,17 @@ func (c *ProjectsLocationsAgentSessionsEntityTypesDeleteCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -49616,12 +50745,12 @@ type ProjectsLocationsAgentSessionsEntityTypesGetCall struct {
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The name of the session entity type. Format:
-//   `projects//agent/sessions//entityTypes/` or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user.
+//   - name: The name of the session entity type. Format:
+//     `projects//agent/sessions//entityTypes/` or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user.
 func (r *ProjectsLocationsAgentSessionsEntityTypesService) Get(name string) *ProjectsLocationsAgentSessionsEntityTypesGetCall {
 	c := &ProjectsLocationsAgentSessionsEntityTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -49705,17 +50834,17 @@ func (c *ProjectsLocationsAgentSessionsEntityTypesGetCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -49773,11 +50902,11 @@ type ProjectsLocationsAgentSessionsEntityTypesListCall struct {
 // Contact Dialogflow support if you need to use session entities with
 // Google Assistant integration.
 //
-// - parent: The session to list all session entity types from. Format:
-//   `projects//agent/sessions/` or
-//   `projects//agent/environments//users// sessions/`. If `Environment
-//   ID` is not specified, we assume default 'draft' environment. If
-//   `User ID` is not specified, we assume default '-' user.
+//   - parent: The session to list all session entity types from. Format:
+//     `projects//agent/sessions/` or
+//     `projects//agent/environments//users// sessions/`. If `Environment
+//     ID` is not specified, we assume default 'draft' environment. If
+//     `User ID` is not specified, we assume default '-' user.
 func (r *ProjectsLocationsAgentSessionsEntityTypesService) List(parent string) *ProjectsLocationsAgentSessionsEntityTypesListCall {
 	c := &ProjectsLocationsAgentSessionsEntityTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -49875,17 +51004,17 @@ func (c *ProjectsLocationsAgentSessionsEntityTypesListCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListSessionEntityTypesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -49974,13 +51103,13 @@ type ProjectsLocationsAgentSessionsEntityTypesPatchCall struct {
 // work with Google Assistant integration. Contact Dialogflow support if
 // you need to use session entities with Google Assistant integration.
 //
-// - name: The unique identifier of this session entity type. Format:
-//   `projects//agent/sessions//entityTypes/`, or
-//   `projects//agent/environments//users//sessions//entityTypes/`. If
-//   `Environment ID` is not specified, we assume default 'draft'
-//   environment. If `User ID` is not specified, we assume default '-'
-//   user. `` must be the display name of an existing entity type in the
-//   same agent that will be overridden or supplemented.
+//   - name: The unique identifier of this session entity type. Format:
+//     `projects//agent/sessions//entityTypes/`, or
+//     `projects//agent/environments//users//sessions//entityTypes/`. If
+//     `Environment ID` is not specified, we assume default 'draft'
+//     environment. If `User ID` is not specified, we assume default '-'
+//     user. “ must be the display name of an existing entity type in the
+//     same agent that will be overridden or supplemented.
 func (r *ProjectsLocationsAgentSessionsEntityTypesService) Patch(nameid string, googleclouddialogflowv2sessionentitytype *GoogleCloudDialogflowV2SessionEntityType) *ProjectsLocationsAgentSessionsEntityTypesPatchCall {
 	c := &ProjectsLocationsAgentSessionsEntityTypesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -50064,17 +51193,17 @@ func (c *ProjectsLocationsAgentSessionsEntityTypesPatchCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SessionEntityType{
 		ServerResponse: googleapi.ServerResponse{
@@ -50139,8 +51268,8 @@ type ProjectsLocationsAgentVersionsCreateCall struct {
 // Create: Creates an agent version. The new version points to the agent
 // instance in the "default" environment.
 //
-// - parent: The agent to create a version for. Supported formats: -
-//   `projects//agent` - `projects//locations//agent`.
+//   - parent: The agent to create a version for. Supported formats: -
+//     `projects//agent` - `projects//locations//agent`.
 func (r *ProjectsLocationsAgentVersionsService) Create(parent string, googleclouddialogflowv2version *GoogleCloudDialogflowV2Version) *ProjectsLocationsAgentVersionsCreateCall {
 	c := &ProjectsLocationsAgentVersionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -50215,17 +51344,17 @@ func (c *ProjectsLocationsAgentVersionsCreateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -50282,9 +51411,9 @@ type ProjectsLocationsAgentVersionsDeleteCall struct {
 
 // Delete: Delete the specified agent version.
 //
-// - name: The name of the version to delete. Supported formats: -
-//   `projects//agent/versions/` -
-//   `projects//locations//agent/versions/`.
+//   - name: The name of the version to delete. Supported formats: -
+//     `projects//agent/versions/` -
+//     `projects//locations//agent/versions/`.
 func (r *ProjectsLocationsAgentVersionsService) Delete(name string) *ProjectsLocationsAgentVersionsDeleteCall {
 	c := &ProjectsLocationsAgentVersionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -50353,17 +51482,17 @@ func (c *ProjectsLocationsAgentVersionsDeleteCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -50418,9 +51547,9 @@ type ProjectsLocationsAgentVersionsGetCall struct {
 
 // Get: Retrieves the specified agent version.
 //
-// - name: The name of the version. Supported formats: -
-//   `projects//agent/versions/` -
-//   `projects//locations//agent/versions/`.
+//   - name: The name of the version. Supported formats: -
+//     `projects//agent/versions/` -
+//     `projects//locations//agent/versions/`.
 func (r *ProjectsLocationsAgentVersionsService) Get(name string) *ProjectsLocationsAgentVersionsGetCall {
 	c := &ProjectsLocationsAgentVersionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -50502,17 +51631,17 @@ func (c *ProjectsLocationsAgentVersionsGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -50567,8 +51696,8 @@ type ProjectsLocationsAgentVersionsListCall struct {
 
 // List: Returns the list of all versions of the specified agent.
 //
-// - parent: The agent to list all versions from. Supported formats: -
-//   `projects//agent` - `projects//locations//agent`.
+//   - parent: The agent to list all versions from. Supported formats: -
+//     `projects//agent` - `projects//locations//agent`.
 func (r *ProjectsLocationsAgentVersionsService) List(parent string) *ProjectsLocationsAgentVersionsListCall {
 	c := &ProjectsLocationsAgentVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -50666,17 +51795,17 @@ func (c *ProjectsLocationsAgentVersionsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -50766,9 +51895,9 @@ type ProjectsLocationsAgentVersionsPatchCall struct {
 // points to. It allows you to update only mutable properties of the
 // version resource.
 //
-// - name: Output only. The unique identifier of this agent version.
-//   Supported formats: - `projects//agent/versions/` -
-//   `projects//locations//agent/versions/`.
+//   - name: Output only. The unique identifier of this agent version.
+//     Supported formats: - `projects//agent/versions/` -
+//     `projects//locations//agent/versions/`.
 func (r *ProjectsLocationsAgentVersionsService) Patch(nameid string, googleclouddialogflowv2version *GoogleCloudDialogflowV2Version) *ProjectsLocationsAgentVersionsPatchCall {
 	c := &ProjectsLocationsAgentVersionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -50850,17 +51979,17 @@ func (c *ProjectsLocationsAgentVersionsPatchCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -50925,19 +52054,18 @@ type ProjectsLocationsAnswerRecordsListCall struct {
 // List: Returns the list of all answer records in the specified project
 // in reverse chronological order.
 //
-// - parent: The project to list all answer records for in reverse
-//   chronological order. Format: `projects//locations/`.
+//   - parent: The project to list all answer records for in reverse
+//     chronological order. Format: `projects//locations/`.
 func (r *ProjectsLocationsAnswerRecordsService) List(parent string) *ProjectsLocationsAnswerRecordsListCall {
 	c := &ProjectsLocationsAnswerRecordsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
 	return c
 }
 
-// Filter sets the optional parameter "filter": Required. Filters to
-// restrict results to specific answer records. Filter on answer record
-// type. Currently predicates on `type` is supported, valid values are
-// `ARTICLE_ANSWER`, `FAQ_ANSWER`. For more information about filtering,
-// see API Filtering (https://aip.dev/160).
+// Filter sets the optional parameter "filter": Filters to restrict
+// results to specific answer records. Marked deprecated as it hasn't
+// been, and isn't currently, supported. For more information about
+// filtering, see API Filtering (https://aip.dev/160).
 func (c *ProjectsLocationsAnswerRecordsListCall) Filter(filter string) *ProjectsLocationsAnswerRecordsListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -51036,17 +52164,17 @@ func (c *ProjectsLocationsAnswerRecordsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListAnswerRecordsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -51069,7 +52197,7 @@ func (c *ProjectsLocationsAnswerRecordsListCall) Do(opts ...googleapi.CallOption
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Required. Filters to restrict results to specific answer records. Filter on answer record type. Currently predicates on `type` is supported, valid values are `ARTICLE_ANSWER`, `FAQ_ANSWER`. For more information about filtering, see [API Filtering](https://aip.dev/160).",
+	//       "description": "Optional. Filters to restrict results to specific answer records. Marked deprecated as it hasn't been, and isn't currently, supported. For more information about filtering, see [API Filtering](https://aip.dev/160).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -51138,8 +52266,8 @@ type ProjectsLocationsAnswerRecordsPatchCall struct {
 
 // Patch: Updates the specified answer record.
 //
-// - name: The unique identifier of this answer record. Format:
-//   `projects//locations//answerRecords/`.
+//   - name: The unique identifier of this answer record. Format:
+//     `projects//locations//answerRecords/`.
 func (r *ProjectsLocationsAnswerRecordsService) Patch(nameid string, googleclouddialogflowv2answerrecord *GoogleCloudDialogflowV2AnswerRecord) *ProjectsLocationsAnswerRecordsPatchCall {
 	c := &ProjectsLocationsAnswerRecordsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -51222,17 +52350,17 @@ func (c *ProjectsLocationsAnswerRecordsPatchCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2AnswerRecord{
 		ServerResponse: googleapi.ServerResponse{
@@ -51301,8 +52429,8 @@ type ProjectsLocationsConversationDatasetsCreateCall struct {
 // fields: - `metadata`: CreateConversationDatasetOperationMetadata -
 // `response`: ConversationDataset
 //
-// - parent: The project to create conversation dataset for. Format:
-//   `projects//locations/`.
+//   - parent: The project to create conversation dataset for. Format:
+//     `projects//locations/`.
 func (r *ProjectsLocationsConversationDatasetsService) Create(parent string, googleclouddialogflowv2conversationdataset *GoogleCloudDialogflowV2ConversationDataset) *ProjectsLocationsConversationDatasetsCreateCall {
 	c := &ProjectsLocationsConversationDatasetsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -51377,17 +52505,17 @@ func (c *ProjectsLocationsConversationDatasetsCreateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -51450,8 +52578,8 @@ type ProjectsLocationsConversationDatasetsDeleteCall struct {
 // `response`: An Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The conversation dataset to delete. Format:
-//   `projects//locations//conversationDatasets/`.
+//   - name: The conversation dataset to delete. Format:
+//     `projects//locations//conversationDatasets/`.
 func (r *ProjectsLocationsConversationDatasetsService) Delete(name string) *ProjectsLocationsConversationDatasetsDeleteCall {
 	c := &ProjectsLocationsConversationDatasetsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -51520,17 +52648,17 @@ func (c *ProjectsLocationsConversationDatasetsDeleteCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -51585,8 +52713,8 @@ type ProjectsLocationsConversationDatasetsGetCall struct {
 
 // Get: Retrieves the specified conversation dataset.
 //
-// - name: The conversation dataset to retrieve. Format:
-//   `projects//locations//conversationDatasets/`.
+//   - name: The conversation dataset to retrieve. Format:
+//     `projects//locations//conversationDatasets/`.
 func (r *ProjectsLocationsConversationDatasetsService) Get(name string) *ProjectsLocationsConversationDatasetsGetCall {
 	c := &ProjectsLocationsConversationDatasetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -51670,17 +52798,17 @@ func (c *ProjectsLocationsConversationDatasetsGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationDataset{
 		ServerResponse: googleapi.ServerResponse{
@@ -51742,8 +52870,8 @@ type ProjectsLocationsConversationDatasetsImportConversationDataCall struct {
 // fields: - `metadata`: ImportConversationDataOperationMetadata -
 // `response`: ImportConversationDataOperationResponse
 //
-// - name: Dataset resource name. Format:
-//   `projects//locations//conversationDatasets/`.
+//   - name: Dataset resource name. Format:
+//     `projects//locations//conversationDatasets/`.
 func (r *ProjectsLocationsConversationDatasetsService) ImportConversationData(name string, googleclouddialogflowv2importconversationdatarequest *GoogleCloudDialogflowV2ImportConversationDataRequest) *ProjectsLocationsConversationDatasetsImportConversationDataCall {
 	c := &ProjectsLocationsConversationDatasetsImportConversationDataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -51818,17 +52946,17 @@ func (c *ProjectsLocationsConversationDatasetsImportConversationDataCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -51887,8 +53015,8 @@ type ProjectsLocationsConversationDatasetsListCall struct {
 // List: Returns the list of all conversation datasets in the specified
 // project and location.
 //
-// - parent: The project and location name to list all conversation
-//   datasets for. Format: `projects//locations/`.
+//   - parent: The project and location name to list all conversation
+//     datasets for. Format: `projects//locations/`.
 func (r *ProjectsLocationsConversationDatasetsService) List(parent string) *ProjectsLocationsConversationDatasetsListCall {
 	c := &ProjectsLocationsConversationDatasetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -51988,17 +53116,17 @@ func (c *ProjectsLocationsConversationDatasetsListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationDatasetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -52089,8 +53217,8 @@ type ProjectsLocationsConversationModelsCreateCall struct {
 // fields: - `metadata`: CreateConversationModelOperationMetadata -
 // `response`: ConversationModel
 //
-// - parent: The project to create conversation model for. Format:
-//   `projects/`.
+//   - parent: The project to create conversation model for. Format:
+//     `projects/`.
 func (r *ProjectsLocationsConversationModelsService) Create(parent string, googleclouddialogflowv2conversationmodel *GoogleCloudDialogflowV2ConversationModel) *ProjectsLocationsConversationModelsCreateCall {
 	c := &ProjectsLocationsConversationModelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -52165,17 +53293,17 @@ func (c *ProjectsLocationsConversationModelsCreateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -52237,8 +53365,8 @@ type ProjectsLocationsConversationModelsDeleteCall struct {
 // `response`: An Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The conversation model to delete. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to delete. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsLocationsConversationModelsService) Delete(name string) *ProjectsLocationsConversationModelsDeleteCall {
 	c := &ProjectsLocationsConversationModelsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -52307,17 +53435,17 @@ func (c *ProjectsLocationsConversationModelsDeleteCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -52380,8 +53508,8 @@ type ProjectsLocationsConversationModelsDeployCall struct {
 // `response`: An Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The conversation model to deploy. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to deploy. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsLocationsConversationModelsService) Deploy(name string, googleclouddialogflowv2deployconversationmodelrequest *GoogleCloudDialogflowV2DeployConversationModelRequest) *ProjectsLocationsConversationModelsDeployCall {
 	c := &ProjectsLocationsConversationModelsDeployCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -52456,17 +53584,17 @@ func (c *ProjectsLocationsConversationModelsDeployCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -52524,8 +53652,8 @@ type ProjectsLocationsConversationModelsGetCall struct {
 
 // Get: Gets conversation model.
 //
-// - name: The conversation model to retrieve. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to retrieve. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsLocationsConversationModelsService) Get(name string) *ProjectsLocationsConversationModelsGetCall {
 	c := &ProjectsLocationsConversationModelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -52609,17 +53737,17 @@ func (c *ProjectsLocationsConversationModelsGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationModel{
 		ServerResponse: googleapi.ServerResponse{
@@ -52674,8 +53802,8 @@ type ProjectsLocationsConversationModelsListCall struct {
 
 // List: Lists conversation models.
 //
-// - parent: The project to list all conversation models for. Format:
-//   `projects/`.
+//   - parent: The project to list all conversation models for. Format:
+//     `projects/`.
 func (r *ProjectsLocationsConversationModelsService) List(parent string) *ProjectsLocationsConversationModelsListCall {
 	c := &ProjectsLocationsConversationModelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -52774,17 +53902,17 @@ func (c *ProjectsLocationsConversationModelsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationModelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -52879,8 +54007,8 @@ type ProjectsLocationsConversationModelsUndeployCall struct {
 // `response`: An Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The conversation model to undeploy. Format:
-//   `projects//conversationModels/`.
+//   - name: The conversation model to undeploy. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsLocationsConversationModelsService) Undeploy(name string, googleclouddialogflowv2undeployconversationmodelrequest *GoogleCloudDialogflowV2UndeployConversationModelRequest) *ProjectsLocationsConversationModelsUndeployCall {
 	c := &ProjectsLocationsConversationModelsUndeployCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -52955,17 +54083,17 @@ func (c *ProjectsLocationsConversationModelsUndeployCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -53023,8 +54151,8 @@ type ProjectsLocationsConversationModelsEvaluationsCreateCall struct {
 
 // Create: Creates evaluation of a conversation model.
 //
-// - parent: The conversation model resource name. Format:
-//   `projects//locations//conversationModels/`.
+//   - parent: The conversation model resource name. Format:
+//     `projects//locations//conversationModels/`.
 func (r *ProjectsLocationsConversationModelsEvaluationsService) Create(parent string, googleclouddialogflowv2createconversationmodelevaluationrequest *GoogleCloudDialogflowV2CreateConversationModelEvaluationRequest) *ProjectsLocationsConversationModelsEvaluationsCreateCall {
 	c := &ProjectsLocationsConversationModelsEvaluationsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -53099,17 +54227,17 @@ func (c *ProjectsLocationsConversationModelsEvaluationsCreateCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -53167,8 +54295,8 @@ type ProjectsLocationsConversationModelsEvaluationsGetCall struct {
 
 // Get: Gets an evaluation of conversation model.
 //
-// - name: The conversation model evaluation resource name. Format:
-//   `projects//conversationModels//evaluations/`.
+//   - name: The conversation model evaluation resource name. Format:
+//     `projects//conversationModels//evaluations/`.
 func (r *ProjectsLocationsConversationModelsEvaluationsService) Get(name string) *ProjectsLocationsConversationModelsEvaluationsGetCall {
 	c := &ProjectsLocationsConversationModelsEvaluationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -53252,17 +54380,17 @@ func (c *ProjectsLocationsConversationModelsEvaluationsGetCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationModelEvaluation{
 		ServerResponse: googleapi.ServerResponse{
@@ -53317,8 +54445,8 @@ type ProjectsLocationsConversationModelsEvaluationsListCall struct {
 
 // List: Lists evaluations of a conversation model.
 //
-// - parent: The conversation model resource name. Format:
-//   `projects//conversationModels/`.
+//   - parent: The conversation model resource name. Format:
+//     `projects//conversationModels/`.
 func (r *ProjectsLocationsConversationModelsEvaluationsService) List(parent string) *ProjectsLocationsConversationModelsEvaluationsListCall {
 	c := &ProjectsLocationsConversationModelsEvaluationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -53418,17 +54546,17 @@ func (c *ProjectsLocationsConversationModelsEvaluationsListCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationModelEvaluationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -53521,9 +54649,9 @@ type ProjectsLocationsConversationProfilesClearSuggestionFeatureConfigCall struc
 // fields: - `metadata`: ClearSuggestionFeatureConfigOperationMetadata -
 // `response`: ConversationProfile
 //
-// - conversationProfile: The Conversation Profile to add or update the
-//   suggestion feature config. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - conversationProfile: The Conversation Profile to add or update the
+//     suggestion feature config. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsLocationsConversationProfilesService) ClearSuggestionFeatureConfig(conversationProfile string, googleclouddialogflowv2clearsuggestionfeatureconfigrequest *GoogleCloudDialogflowV2ClearSuggestionFeatureConfigRequest) *ProjectsLocationsConversationProfilesClearSuggestionFeatureConfigCall {
 	c := &ProjectsLocationsConversationProfilesClearSuggestionFeatureConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.conversationProfile = conversationProfile
@@ -53598,17 +54726,17 @@ func (c *ProjectsLocationsConversationProfilesClearSuggestionFeatureConfigCall) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -53669,8 +54797,8 @@ type ProjectsLocationsConversationProfilesCreateCall struct {
 // aren't populated in the response. You can retrieve them via
 // GetConversationProfile API.
 //
-// - parent: The project to create a conversation profile for. Format:
-//   `projects//locations/`.
+//   - parent: The project to create a conversation profile for. Format:
+//     `projects//locations/`.
 func (r *ProjectsLocationsConversationProfilesService) Create(parent string, googleclouddialogflowv2conversationprofile *GoogleCloudDialogflowV2ConversationProfile) *ProjectsLocationsConversationProfilesCreateCall {
 	c := &ProjectsLocationsConversationProfilesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -53747,17 +54875,17 @@ func (c *ProjectsLocationsConversationProfilesCreateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -53814,8 +54942,8 @@ type ProjectsLocationsConversationProfilesDeleteCall struct {
 
 // Delete: Deletes the specified conversation profile.
 //
-// - name: The name of the conversation profile to delete. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - name: The name of the conversation profile to delete. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsLocationsConversationProfilesService) Delete(name string) *ProjectsLocationsConversationProfilesDeleteCall {
 	c := &ProjectsLocationsConversationProfilesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -53884,17 +55012,17 @@ func (c *ProjectsLocationsConversationProfilesDeleteCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -53949,8 +55077,8 @@ type ProjectsLocationsConversationProfilesGetCall struct {
 
 // Get: Retrieves the specified conversation profile.
 //
-// - name: The resource name of the conversation profile. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - name: The resource name of the conversation profile. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsLocationsConversationProfilesService) Get(name string) *ProjectsLocationsConversationProfilesGetCall {
 	c := &ProjectsLocationsConversationProfilesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -54034,17 +55162,17 @@ func (c *ProjectsLocationsConversationProfilesGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -54100,8 +55228,8 @@ type ProjectsLocationsConversationProfilesListCall struct {
 // List: Returns the list of all conversation profiles in the specified
 // project.
 //
-// - parent: The project to list all conversation profiles from. Format:
-//   `projects//locations/`.
+//   - parent: The project to list all conversation profiles from. Format:
+//     `projects//locations/`.
 func (r *ProjectsLocationsConversationProfilesService) List(parent string) *ProjectsLocationsConversationProfilesListCall {
 	c := &ProjectsLocationsConversationProfilesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -54200,17 +55328,17 @@ func (c *ProjectsLocationsConversationProfilesListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationProfilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -54300,8 +55428,8 @@ type ProjectsLocationsConversationProfilesPatchCall struct {
 // aren't populated in the response. You can retrieve them via
 // GetConversationProfile API.
 //
-// - name: The unique identifier of this conversation profile. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - name: The unique identifier of this conversation profile. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsLocationsConversationProfilesService) Patch(nameid string, googleclouddialogflowv2conversationprofile *GoogleCloudDialogflowV2ConversationProfile) *ProjectsLocationsConversationProfilesPatchCall {
 	c := &ProjectsLocationsConversationProfilesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -54385,17 +55513,17 @@ func (c *ProjectsLocationsConversationProfilesPatchCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ConversationProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -54471,9 +55599,9 @@ type ProjectsLocationsConversationProfilesSetSuggestionFeatureConfigCall struct 
 // the existing long running operation before sending such request,
 // otherwise the request will be rejected.
 //
-// - conversationProfile: The Conversation Profile to add or update the
-//   suggestion feature config. Format:
-//   `projects//locations//conversationProfiles/`.
+//   - conversationProfile: The Conversation Profile to add or update the
+//     suggestion feature config. Format:
+//     `projects//locations//conversationProfiles/`.
 func (r *ProjectsLocationsConversationProfilesService) SetSuggestionFeatureConfig(conversationProfile string, googleclouddialogflowv2setsuggestionfeatureconfigrequest *GoogleCloudDialogflowV2SetSuggestionFeatureConfigRequest) *ProjectsLocationsConversationProfilesSetSuggestionFeatureConfigCall {
 	c := &ProjectsLocationsConversationProfilesSetSuggestionFeatureConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.conversationProfile = conversationProfile
@@ -54548,17 +55676,17 @@ func (c *ProjectsLocationsConversationProfilesSetSuggestionFeatureConfigCall) Do
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -54617,8 +55745,8 @@ type ProjectsLocationsConversationsCompleteCall struct {
 // Complete: Completes the specified conversation. Finished
 // conversations are purged from the database after 30 days.
 //
-// - name: Resource identifier of the conversation to close. Format:
-//   `projects//locations//conversations/`.
+//   - name: Resource identifier of the conversation to close. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsLocationsConversationsService) Complete(nameid string, googleclouddialogflowv2completeconversationrequest *GoogleCloudDialogflowV2CompleteConversationRequest) *ProjectsLocationsConversationsCompleteCall {
 	c := &ProjectsLocationsConversationsCompleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -54694,17 +55822,17 @@ func (c *ProjectsLocationsConversationsCompleteCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Conversation{
 		ServerResponse: googleapi.ServerResponse{
@@ -54773,8 +55901,8 @@ type ProjectsLocationsConversationsCreateCall struct {
 // Intent.live_agent_handoff is triggered, conversation will transfer to
 // Assist Stage.
 //
-// - parent: Resource identifier of the project creating the
-//   conversation. Format: `projects//locations/`.
+//   - parent: Resource identifier of the project creating the
+//     conversation. Format: `projects//locations/`.
 func (r *ProjectsLocationsConversationsService) Create(parentid string, googleclouddialogflowv2conversation *GoogleCloudDialogflowV2Conversation) *ProjectsLocationsConversationsCreateCall {
 	c := &ProjectsLocationsConversationsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -54864,17 +55992,17 @@ func (c *ProjectsLocationsConversationsCreateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Conversation{
 		ServerResponse: googleapi.ServerResponse{
@@ -54937,8 +56065,8 @@ type ProjectsLocationsConversationsGetCall struct {
 
 // Get: Retrieves the specific conversation.
 //
-// - name: The name of the conversation. Format:
-//   `projects//locations//conversations/`.
+//   - name: The name of the conversation. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsLocationsConversationsService) Get(name string) *ProjectsLocationsConversationsGetCall {
 	c := &ProjectsLocationsConversationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -55021,17 +56149,17 @@ func (c *ProjectsLocationsConversationsGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Conversation{
 		ServerResponse: googleapi.ServerResponse{
@@ -55086,8 +56214,8 @@ type ProjectsLocationsConversationsListCall struct {
 
 // List: Returns the list of all conversations in the specified project.
 //
-// - parent: The project from which to list all conversation. Format:
-//   `projects//locations/`.
+//   - parent: The project from which to list all conversation. Format:
+//     `projects//locations/`.
 func (r *ProjectsLocationsConversationsService) List(parent string) *ProjectsLocationsConversationsListCall {
 	c := &ProjectsLocationsConversationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -55202,17 +56330,17 @@ func (c *ProjectsLocationsConversationsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListConversationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -55308,8 +56436,8 @@ type ProjectsLocationsConversationsMessagesListCall struct {
 // `create_time_epoch_microseconds > [first item's create_time of
 // previous request]` and empty page_token.
 //
-// - parent: The name of the conversation to list messages for. Format:
-//   `projects//locations//conversations/`.
+//   - parent: The name of the conversation to list messages for. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsLocationsConversationsMessagesService) List(parent string) *ProjectsLocationsConversationsMessagesListCall {
 	c := &ProjectsLocationsConversationsMessagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -55419,17 +56547,17 @@ func (c *ProjectsLocationsConversationsMessagesListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListMessagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -55525,8 +56653,8 @@ type ProjectsLocationsConversationsParticipantsAnalyzeContentCall struct {
 // sent to virtual agents. See Versions and environments
 // (https://cloud.google.com/dialogflow/es/docs/agents-versions).
 //
-// - participant: The name of the participant this text comes from.
-//   Format: `projects//locations//conversations//participants/`.
+//   - participant: The name of the participant this text comes from.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsLocationsConversationsParticipantsService) AnalyzeContent(participant string, googleclouddialogflowv2analyzecontentrequest *GoogleCloudDialogflowV2AnalyzeContentRequest) *ProjectsLocationsConversationsParticipantsAnalyzeContentCall {
 	c := &ProjectsLocationsConversationsParticipantsAnalyzeContentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.participant = participant
@@ -55603,17 +56731,17 @@ func (c *ProjectsLocationsConversationsParticipantsAnalyzeContentCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2AnalyzeContentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -55671,8 +56799,8 @@ type ProjectsLocationsConversationsParticipantsCreateCall struct {
 
 // Create: Creates a new participant in a conversation.
 //
-// - parent: Resource identifier of the conversation adding the
-//   participant. Format: `projects//locations//conversations/`.
+//   - parent: Resource identifier of the conversation adding the
+//     participant. Format: `projects//locations//conversations/`.
 func (r *ProjectsLocationsConversationsParticipantsService) Create(parentid string, googleclouddialogflowv2participant *GoogleCloudDialogflowV2Participant) *ProjectsLocationsConversationsParticipantsCreateCall {
 	c := &ProjectsLocationsConversationsParticipantsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -55748,17 +56876,17 @@ func (c *ProjectsLocationsConversationsParticipantsCreateCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Participant{
 		ServerResponse: googleapi.ServerResponse{
@@ -55816,8 +56944,8 @@ type ProjectsLocationsConversationsParticipantsGetCall struct {
 
 // Get: Retrieves a conversation participant.
 //
-// - name: The name of the participant. Format:
-//   `projects//locations//conversations//participants/`.
+//   - name: The name of the participant. Format:
+//     `projects//locations//conversations//participants/`.
 func (r *ProjectsLocationsConversationsParticipantsService) Get(name string) *ProjectsLocationsConversationsParticipantsGetCall {
 	c := &ProjectsLocationsConversationsParticipantsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -55900,17 +57028,17 @@ func (c *ProjectsLocationsConversationsParticipantsGetCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Participant{
 		ServerResponse: googleapi.ServerResponse{
@@ -55966,8 +57094,8 @@ type ProjectsLocationsConversationsParticipantsListCall struct {
 // List: Returns the list of all participants in the specified
 // conversation.
 //
-// - parent: The conversation to list all participants from. Format:
-//   `projects//locations//conversations/`.
+//   - parent: The conversation to list all participants from. Format:
+//     `projects//locations//conversations/`.
 func (r *ProjectsLocationsConversationsParticipantsService) List(parent string) *ProjectsLocationsConversationsParticipantsListCall {
 	c := &ProjectsLocationsConversationsParticipantsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -56054,7 +57182,9 @@ func (c *ProjectsLocationsConversationsParticipantsListCall) doRequest(alt strin
 // error will be non-nil. Any non-2xx status code is an error. Response
 // headers are in either
 // *GoogleCloudDialogflowV2ListParticipantsResponse.ServerResponse.Header
-//  or (if a response was returned at all) in
+//
+//	or (if a response was returned at all) in
+//
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
@@ -56065,17 +57195,17 @@ func (c *ProjectsLocationsConversationsParticipantsListCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListParticipantsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -56162,8 +57292,8 @@ type ProjectsLocationsConversationsParticipantsPatchCall struct {
 
 // Patch: Updates the specified participant.
 //
-// - name: Optional. The unique identifier of this participant. Format:
-//   `projects//locations//conversations//participants/`.
+//   - name: Optional. The unique identifier of this participant. Format:
+//     `projects//locations//conversations//participants/`.
 func (r *ProjectsLocationsConversationsParticipantsService) Patch(nameid string, googleclouddialogflowv2participant *GoogleCloudDialogflowV2Participant) *ProjectsLocationsConversationsParticipantsPatchCall {
 	c := &ProjectsLocationsConversationsParticipantsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -56246,17 +57376,17 @@ func (c *ProjectsLocationsConversationsParticipantsPatchCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Participant{
 		ServerResponse: googleapi.ServerResponse{
@@ -56321,8 +57451,8 @@ type ProjectsLocationsConversationsParticipantsSuggestionsSuggestArticlesCall st
 // SuggestArticles: Gets suggested articles for a participant based on
 // specific historical messages.
 //
-// - parent: The name of the participant to fetch suggestion for.
-//   Format: `projects//locations//conversations//participants/`.
+//   - parent: The name of the participant to fetch suggestion for.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsLocationsConversationsParticipantsSuggestionsService) SuggestArticles(parent string, googleclouddialogflowv2suggestarticlesrequest *GoogleCloudDialogflowV2SuggestArticlesRequest) *ProjectsLocationsConversationsParticipantsSuggestionsSuggestArticlesCall {
 	c := &ProjectsLocationsConversationsParticipantsSuggestionsSuggestArticlesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -56399,17 +57529,17 @@ func (c *ProjectsLocationsConversationsParticipantsSuggestionsSuggestArticlesCal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SuggestArticlesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -56468,8 +57598,8 @@ type ProjectsLocationsConversationsParticipantsSuggestionsSuggestFaqAnswersCall 
 // SuggestFaqAnswers: Gets suggested faq answers for a participant based
 // on specific historical messages.
 //
-// - parent: The name of the participant to fetch suggestion for.
-//   Format: `projects//locations//conversations//participants/`.
+//   - parent: The name of the participant to fetch suggestion for.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsLocationsConversationsParticipantsSuggestionsService) SuggestFaqAnswers(parent string, googleclouddialogflowv2suggestfaqanswersrequest *GoogleCloudDialogflowV2SuggestFaqAnswersRequest) *ProjectsLocationsConversationsParticipantsSuggestionsSuggestFaqAnswersCall {
 	c := &ProjectsLocationsConversationsParticipantsSuggestionsSuggestFaqAnswersCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -56546,17 +57676,17 @@ func (c *ProjectsLocationsConversationsParticipantsSuggestionsSuggestFaqAnswersC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SuggestFaqAnswersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -56615,8 +57745,8 @@ type ProjectsLocationsConversationsParticipantsSuggestionsSuggestSmartRepliesCal
 // SuggestSmartReplies: Gets smart replies for a participant based on
 // specific historical messages.
 //
-// - parent: The name of the participant to fetch suggestion for.
-//   Format: `projects//locations//conversations//participants/`.
+//   - parent: The name of the participant to fetch suggestion for.
+//     Format: `projects//locations//conversations//participants/`.
 func (r *ProjectsLocationsConversationsParticipantsSuggestionsService) SuggestSmartReplies(parent string, googleclouddialogflowv2suggestsmartrepliesrequest *GoogleCloudDialogflowV2SuggestSmartRepliesRequest) *ProjectsLocationsConversationsParticipantsSuggestionsSuggestSmartRepliesCall {
 	c := &ProjectsLocationsConversationsParticipantsSuggestionsSuggestSmartRepliesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -56693,17 +57823,17 @@ func (c *ProjectsLocationsConversationsParticipantsSuggestionsSuggestSmartReplie
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2SuggestSmartRepliesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -56748,6 +57878,155 @@ func (c *ProjectsLocationsConversationsParticipantsSuggestionsSuggestSmartReplie
 
 }
 
+// method id "dialogflow.projects.locations.conversations.suggestions.suggestConversationSummary":
+
+type ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall struct {
+	s                                                        *Service
+	conversation                                             string
+	googleclouddialogflowv2suggestconversationsummaryrequest *GoogleCloudDialogflowV2SuggestConversationSummaryRequest
+	urlParams_                                               gensupport.URLParams
+	ctx_                                                     context.Context
+	header_                                                  http.Header
+}
+
+// SuggestConversationSummary: Suggests summary for a conversation based
+// on specific historical messages. The range of the messages to be used
+// for summary can be specified in the request.
+//
+//   - conversation: The conversation to fetch suggestion for. Format:
+//     `projects//locations//conversations/`.
+func (r *ProjectsLocationsConversationsSuggestionsService) SuggestConversationSummary(conversation string, googleclouddialogflowv2suggestconversationsummaryrequest *GoogleCloudDialogflowV2SuggestConversationSummaryRequest) *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall {
+	c := &ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.conversation = conversation
+	c.googleclouddialogflowv2suggestconversationsummaryrequest = googleclouddialogflowv2suggestconversationsummaryrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall) Fields(s ...googleapi.Field) *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall) Context(ctx context.Context) *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleclouddialogflowv2suggestconversationsummaryrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v2/{+conversation}/suggestions:suggestConversationSummary")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"conversation": c.conversation,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "dialogflow.projects.locations.conversations.suggestions.suggestConversationSummary" call.
+// Exactly one of
+// *GoogleCloudDialogflowV2SuggestConversationSummaryResponse or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudDialogflowV2SuggestConversationSummaryResponse.ServerRespo
+// nse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsLocationsConversationsSuggestionsSuggestConversationSummaryCall) Do(opts ...googleapi.CallOption) (*GoogleCloudDialogflowV2SuggestConversationSummaryResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudDialogflowV2SuggestConversationSummaryResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Suggests summary for a conversation based on specific historical messages. The range of the messages to be used for summary can be specified in the request.",
+	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}/suggestions:suggestConversationSummary",
+	//   "httpMethod": "POST",
+	//   "id": "dialogflow.projects.locations.conversations.suggestions.suggestConversationSummary",
+	//   "parameterOrder": [
+	//     "conversation"
+	//   ],
+	//   "parameters": {
+	//     "conversation": {
+	//       "description": "Required. The conversation to fetch suggestion for. Format: `projects//locations//conversations/`.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/conversations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v2/{+conversation}/suggestions:suggestConversationSummary",
+	//   "request": {
+	//     "$ref": "GoogleCloudDialogflowV2SuggestConversationSummaryRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudDialogflowV2SuggestConversationSummaryResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/dialogflow"
+	//   ]
+	// }
+
+}
+
 // method id "dialogflow.projects.locations.knowledgeBases.create":
 
 type ProjectsLocationsKnowledgeBasesCreateCall struct {
@@ -56761,8 +58040,8 @@ type ProjectsLocationsKnowledgeBasesCreateCall struct {
 
 // Create: Creates a knowledge base.
 //
-// - parent: The project to create a knowledge base for. Format:
-//   `projects//locations/`.
+//   - parent: The project to create a knowledge base for. Format:
+//     `projects//locations/`.
 func (r *ProjectsLocationsKnowledgeBasesService) Create(parent string, googleclouddialogflowv2knowledgebase *GoogleCloudDialogflowV2KnowledgeBase) *ProjectsLocationsKnowledgeBasesCreateCall {
 	c := &ProjectsLocationsKnowledgeBasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -56838,17 +58117,17 @@ func (c *ProjectsLocationsKnowledgeBasesCreateCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -56905,8 +58184,8 @@ type ProjectsLocationsKnowledgeBasesDeleteCall struct {
 
 // Delete: Deletes the specified knowledge base.
 //
-// - name: The name of the knowledge base to delete. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - name: The name of the knowledge base to delete. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsLocationsKnowledgeBasesService) Delete(name string) *ProjectsLocationsKnowledgeBasesDeleteCall {
 	c := &ProjectsLocationsKnowledgeBasesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -56983,17 +58262,17 @@ func (c *ProjectsLocationsKnowledgeBasesDeleteCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -57053,8 +58332,8 @@ type ProjectsLocationsKnowledgeBasesGetCall struct {
 
 // Get: Retrieves the specified knowledge base.
 //
-// - name: The name of the knowledge base to retrieve. Format
-//   `projects//locations//knowledgeBases/`.
+//   - name: The name of the knowledge base to retrieve. Format
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsLocationsKnowledgeBasesService) Get(name string) *ProjectsLocationsKnowledgeBasesGetCall {
 	c := &ProjectsLocationsKnowledgeBasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -57137,17 +58416,17 @@ func (c *ProjectsLocationsKnowledgeBasesGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -57202,8 +58481,8 @@ type ProjectsLocationsKnowledgeBasesListCall struct {
 
 // List: Returns the list of all knowledge bases of the specified agent.
 //
-// - parent: The project to list of knowledge bases for. Format:
-//   `projects//locations/`.
+//   - parent: The project to list of knowledge bases for. Format:
+//     `projects//locations/`.
 func (r *ProjectsLocationsKnowledgeBasesService) List(parent string) *ProjectsLocationsKnowledgeBasesListCall {
 	c := &ProjectsLocationsKnowledgeBasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -57320,17 +58599,17 @@ func (c *ProjectsLocationsKnowledgeBasesListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListKnowledgeBasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -57422,9 +58701,9 @@ type ProjectsLocationsKnowledgeBasesPatchCall struct {
 
 // Patch: Updates the specified knowledge base.
 //
-// - name: The knowledge base resource name. The name must be empty when
-//   creating a knowledge base. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - name: The knowledge base resource name. The name must be empty when
+//     creating a knowledge base. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsLocationsKnowledgeBasesService) Patch(name string, googleclouddialogflowv2knowledgebase *GoogleCloudDialogflowV2KnowledgeBase) *ProjectsLocationsKnowledgeBasesPatchCall {
 	c := &ProjectsLocationsKnowledgeBasesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -57509,17 +58788,17 @@ func (c *ProjectsLocationsKnowledgeBasesPatchCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2KnowledgeBase{
 		ServerResponse: googleapi.ServerResponse{
@@ -57588,8 +58867,8 @@ type ProjectsLocationsKnowledgeBasesDocumentsCreateCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - parent: The knowledge base to create a document for. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to create a document for. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) Create(parent string, googleclouddialogflowv2document *GoogleCloudDialogflowV2Document) *ProjectsLocationsKnowledgeBasesDocumentsCreateCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -57664,17 +58943,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsCreateCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -57737,8 +59016,8 @@ type ProjectsLocationsKnowledgeBasesDocumentsDeleteCall struct {
 // Empty message
 // (https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#empty)
 //
-// - name: The name of the document to delete. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to delete. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) Delete(name string) *ProjectsLocationsKnowledgeBasesDocumentsDeleteCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -57807,17 +59086,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsDeleteCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -57877,8 +59156,8 @@ type ProjectsLocationsKnowledgeBasesDocumentsExportCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - name: The name of the document to export. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to export. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) Export(name string, googleclouddialogflowv2exportdocumentrequest *GoogleCloudDialogflowV2ExportDocumentRequest) *ProjectsLocationsKnowledgeBasesDocumentsExportCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -57953,17 +59232,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsExportCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -58021,8 +59300,8 @@ type ProjectsLocationsKnowledgeBasesDocumentsGetCall struct {
 
 // Get: Retrieves the specified document.
 //
-// - name: The name of the document to retrieve. Format
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to retrieve. Format
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) Get(name string) *ProjectsLocationsKnowledgeBasesDocumentsGetCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -58104,17 +59383,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsGetCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2Document{
 		ServerResponse: googleapi.ServerResponse{
@@ -58176,8 +59455,8 @@ type ProjectsLocationsKnowledgeBasesDocumentsImportCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // ImportDocumentsResponse
 //
-// - parent: The knowledge base to import documents into. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to import documents into. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) Import(parent string, googleclouddialogflowv2importdocumentsrequest *GoogleCloudDialogflowV2ImportDocumentsRequest) *ProjectsLocationsKnowledgeBasesDocumentsImportCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -58252,17 +59531,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsImportCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -58320,8 +59599,8 @@ type ProjectsLocationsKnowledgeBasesDocumentsListCall struct {
 
 // List: Returns the list of all documents of the knowledge base.
 //
-// - parent: The knowledge base to list all documents for. Format:
-//   `projects//locations//knowledgeBases/`.
+//   - parent: The knowledge base to list all documents for. Format:
+//     `projects//locations//knowledgeBases/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) List(parent string) *ProjectsLocationsKnowledgeBasesDocumentsListCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -58435,17 +59714,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudDialogflowV2ListDocumentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -58542,9 +59821,9 @@ type ProjectsLocationsKnowledgeBasesDocumentsPatchCall struct {
 // fields: - `metadata`: KnowledgeOperationMetadata - `response`:
 // Document
 //
-// - name: Optional. The document resource name. The name must be empty
-//   when creating a document. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: Optional. The document resource name. The name must be empty
+//     when creating a document. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) Patch(name string, googleclouddialogflowv2document *GoogleCloudDialogflowV2Document) *ProjectsLocationsKnowledgeBasesDocumentsPatchCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -58628,17 +59907,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsPatchCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -58711,8 +59990,8 @@ type ProjectsLocationsKnowledgeBasesDocumentsReloadCall struct {
 // Document Note: The `projects.agent.knowledgeBases.documents` resource
 // is deprecated; only use `projects.knowledgeBases.documents`.
 //
-// - name: The name of the document to reload. Format:
-//   `projects//locations//knowledgeBases//documents/`.
+//   - name: The name of the document to reload. Format:
+//     `projects//locations//knowledgeBases//documents/`.
 func (r *ProjectsLocationsKnowledgeBasesDocumentsService) Reload(name string, googleclouddialogflowv2reloaddocumentrequest *GoogleCloudDialogflowV2ReloadDocumentRequest) *ProjectsLocationsKnowledgeBasesDocumentsReloadCall {
 	c := &ProjectsLocationsKnowledgeBasesDocumentsReloadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -58787,17 +60066,17 @@ func (c *ProjectsLocationsKnowledgeBasesDocumentsReloadCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -58932,17 +60211,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -59081,17 +60360,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -59146,14 +60425,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -59259,17 +60531,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -59283,7 +60555,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v2/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "dialogflow.projects.locations.operations.list",
@@ -59438,17 +60710,17 @@ func (c *ProjectsOperationsCancelCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -59587,17 +60859,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*GoogleLon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -59652,14 +60924,7 @@ type ProjectsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsOperationsService) List(name string) *ProjectsOperationsListCall {
@@ -59765,17 +61030,17 @@ func (c *ProjectsOperationsListCall) Do(opts ...googleapi.CallOption) (*GoogleLo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -59789,7 +61054,7 @@ func (c *ProjectsOperationsListCall) Do(opts ...googleapi.CallOption) (*GoogleLo
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v2/projects/{projectsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "dialogflow.projects.operations.list",

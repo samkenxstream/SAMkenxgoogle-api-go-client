@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/bigquery/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/bigqueryreservation/v1"
-//   ...
-//   ctx := context.Background()
-//   bigqueryreservationService, err := bigqueryreservation.NewService(ctx)
+//	import "google.golang.org/api/bigqueryreservation/v1"
+//	...
+//	ctx := context.Background()
+//	bigqueryreservationService, err := bigqueryreservation.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   bigqueryreservationService, err := bigqueryreservation.NewService(ctx, option.WithScopes(bigqueryreservation.CloudPlatformScope))
+//	bigqueryreservationService, err := bigqueryreservation.NewService(ctx, option.WithScopes(bigqueryreservation.CloudPlatformScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   bigqueryreservationService, err := bigqueryreservation.NewService(ctx, option.WithAPIKey("AIza..."))
+//	bigqueryreservationService, err := bigqueryreservation.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   bigqueryreservationService, err := bigqueryreservation.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	bigqueryreservationService, err := bigqueryreservation.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package bigqueryreservation // import "google.golang.org/api/bigqueryreservation/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "bigqueryreservation:v1"
 const apiName = "bigqueryreservation"
@@ -221,6 +222,8 @@ type Assignment struct {
 	//   "ML_EXTERNAL" - BigQuery ML jobs that use services external to
 	// BigQuery for model training. These jobs will not utilize idle slots
 	// from other reservations.
+	//   "BACKGROUND" - Background jobs that BigQuery runs for the customers
+	// in the background.
 	JobType string `json:"jobType,omitempty"`
 
 	// Name: Output only. Name of the resource. E.g.:
@@ -261,6 +264,38 @@ type Assignment struct {
 
 func (s *Assignment) MarshalJSON() ([]byte, error) {
 	type NoMethod Assignment
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Autoscale: Auto scaling settings.
+type Autoscale struct {
+	// CurrentSlots: Output only. The slot capacity added to this
+	// reservation when autoscale happens. Will be between [0, max_slots].
+	CurrentSlots int64 `json:"currentSlots,omitempty,string"`
+
+	// MaxSlots: Number of slots to be scaled when needed.
+	MaxSlots int64 `json:"maxSlots,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "CurrentSlots") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CurrentSlots") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Autoscale) MarshalJSON() ([]byte, error) {
+	type NoMethod Autoscale
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -324,6 +359,16 @@ type CapacityCommitment struct {
 	// period. It is applicable only for ACTIVE capacity commitments.
 	CommitmentStartTime string `json:"commitmentStartTime,omitempty"`
 
+	// Edition: Edition of the capacity commitment.
+	//
+	// Possible values:
+	//   "EDITION_UNSPECIFIED" - Default value, which will be treated as
+	// ENTERPRISE.
+	//   "STANDARD" - Standard edition.
+	//   "ENTERPRISE" - Enterprise edition.
+	//   "ENTERPRISE_PLUS" - Enterprise plus edition.
+	Edition string `json:"edition,omitempty"`
+
 	// FailureStatus: Output only. For FAILED commitment plan, provides the
 	// reason of failure.
 	FailureStatus *Status `json:"failureStatus,omitempty"`
@@ -332,7 +377,9 @@ type CapacityCommitment struct {
 	// one of the BigQuery multi-regions (US or EU). If set to true, this
 	// commitment is placed in the organization's secondary region which is
 	// designated for disaster recovery purposes. If false, this commitment
-	// is placed in the organization's default region.
+	// is placed in the organization's default region. NOTE: this is a
+	// preview feature. Project must be allow-listed in order to set this
+	// field.
 	MultiRegionAuxiliary bool `json:"multiRegionAuxiliary,omitempty"`
 
 	// Name: Output only. The resource name of the capacity commitment,
@@ -351,6 +398,8 @@ type CapacityCommitment struct {
 	//   "FLEX" - Flex commitments have committed period of 1 minute after
 	// becoming ACTIVE. After that, they are not in a committed period
 	// anymore and can be removed any time.
+	//   "FLEX_FLAT_RATE" - Same as FLEX, should only be used if flat-rate
+	// commitments are still available.
 	//   "TRIAL" - Trial commitments have a committed period of 182 days
 	// after becoming ACTIVE. After that, they are converted to a new
 	// commitment based on the `renewal_plan`. Default `renewal_plan` for
@@ -359,9 +408,23 @@ type CapacityCommitment struct {
 	//   "MONTHLY" - Monthly commitments have a committed period of 30 days
 	// after becoming ACTIVE. After that, they are not in a committed period
 	// anymore and can be removed any time.
+	//   "MONTHLY_FLAT_RATE" - Same as MONTHLY, should only be used if
+	// flat-rate commitments are still available.
 	//   "ANNUAL" - Annual commitments have a committed period of 365 days
 	// after becoming ACTIVE. After that they are converted to a new
 	// commitment based on the renewal_plan.
+	//   "ANNUAL_FLAT_RATE" - Same as ANNUAL, should only be used if
+	// flat-rate commitments are still available.
+	//   "THREE_YEAR" - 3-year commitments have a committed period of 1095(3
+	// * 365) days after becoming ACTIVE. After that they are converted to a
+	// new commitment based on the renewal_plan.
+	//   "NONE" - Should only be used for `renewal_plan` and is only
+	// meaningful if edition is specified to values other than
+	// EDITION_UNSPECIFIED. Otherwise CreateCapacityCommitmentRequest or
+	// UpdateCapacityCommitmentRequest will be rejected with error code
+	// `google.rpc.Code.INVALID_ARGUMENT`. If the renewal_plan is NONE,
+	// capacity commitment will be removed at the end of its commitment
+	// period.
 	Plan string `json:"plan,omitempty"`
 
 	// RenewalPlan: The plan this capacity commitment is converted to after
@@ -376,6 +439,8 @@ type CapacityCommitment struct {
 	//   "FLEX" - Flex commitments have committed period of 1 minute after
 	// becoming ACTIVE. After that, they are not in a committed period
 	// anymore and can be removed any time.
+	//   "FLEX_FLAT_RATE" - Same as FLEX, should only be used if flat-rate
+	// commitments are still available.
 	//   "TRIAL" - Trial commitments have a committed period of 182 days
 	// after becoming ACTIVE. After that, they are converted to a new
 	// commitment based on the `renewal_plan`. Default `renewal_plan` for
@@ -384,9 +449,23 @@ type CapacityCommitment struct {
 	//   "MONTHLY" - Monthly commitments have a committed period of 30 days
 	// after becoming ACTIVE. After that, they are not in a committed period
 	// anymore and can be removed any time.
+	//   "MONTHLY_FLAT_RATE" - Same as MONTHLY, should only be used if
+	// flat-rate commitments are still available.
 	//   "ANNUAL" - Annual commitments have a committed period of 365 days
 	// after becoming ACTIVE. After that they are converted to a new
 	// commitment based on the renewal_plan.
+	//   "ANNUAL_FLAT_RATE" - Same as ANNUAL, should only be used if
+	// flat-rate commitments are still available.
+	//   "THREE_YEAR" - 3-year commitments have a committed period of 1095(3
+	// * 365) days after becoming ACTIVE. After that they are converted to a
+	// new commitment based on the renewal_plan.
+	//   "NONE" - Should only be used for `renewal_plan` and is only
+	// meaningful if edition is specified to values other than
+	// EDITION_UNSPECIFIED. Otherwise CreateCapacityCommitmentRequest or
+	// UpdateCapacityCommitmentRequest will be rejected with error code
+	// `google.rpc.Code.INVALID_ARGUMENT`. If the renewal_plan is NONE,
+	// capacity commitment will be removed at the end of its commitment
+	// period.
 	RenewalPlan string `json:"renewalPlan,omitempty"`
 
 	// SlotCount: Number of slots in this commitment.
@@ -600,11 +679,17 @@ func (s *MergeCapacityCommitmentsRequest) MarshalJSON() ([]byte, error) {
 // "bigquery.reservationAssignments.delete" permission are required on
 // the related assignee.
 type MoveAssignmentRequest struct {
+	// AssignmentId: The optional assignment ID. A new assignment name is
+	// generated if this field is empty. This field can contain only
+	// lowercase alphanumeric characters or dashes. Max length is 64
+	// characters.
+	AssignmentId string `json:"assignmentId,omitempty"`
+
 	// DestinationId: The new reservation ID, e.g.:
 	// `projects/myotherproject/locations/US/reservations/team2-prod`
 	DestinationId string `json:"destinationId,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "DestinationId") to
+	// ForceSendFields is a list of field names (e.g. "AssignmentId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -612,7 +697,7 @@ type MoveAssignmentRequest struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "DestinationId") to include
+	// NullFields is a list of field names (e.g. "AssignmentId") to include
 	// in API requests with the JSON null value. By default, fields with
 	// empty values are omitted from API requests. However, any field with
 	// an empty value appearing in NullFields will be sent to the server as
@@ -630,15 +715,31 @@ func (s *MoveAssignmentRequest) MarshalJSON() ([]byte, error) {
 // Reservation: A reservation is a mechanism used to guarantee slots to
 // users.
 type Reservation struct {
-	// Concurrency: Maximum number of queries that are allowed to run
-	// concurrently in this reservation. This is a soft limit due to
-	// asynchronous nature of the system and various optimizations for small
-	// queries. Default value is 0 which means that concurrency will be
-	// automatically set based on the reservation size.
+	// Autoscale: The configuration parameters for the auto scaling feature.
+	// Note this is an alpha feature.
+	Autoscale *Autoscale `json:"autoscale,omitempty"`
+
+	// Concurrency: Job concurrency target which sets a soft upper bound on
+	// the number of jobs that can run concurrently in this reservation.
+	// This is a soft target due to asynchronous nature of the system and
+	// various optimizations for small queries. Default value is 0 which
+	// means that concurrency target will be automatically computed by the
+	// system. NOTE: this field is exposed as `target_job_concurrency` in
+	// the Information Schema, DDL and BQ CLI.
 	Concurrency int64 `json:"concurrency,omitempty,string"`
 
 	// CreationTime: Output only. Creation time of the reservation.
 	CreationTime string `json:"creationTime,omitempty"`
+
+	// Edition: Edition of the reservation.
+	//
+	// Possible values:
+	//   "EDITION_UNSPECIFIED" - Default value, which will be treated as
+	// ENTERPRISE.
+	//   "STANDARD" - Standard edition.
+	//   "ENTERPRISE" - Enterprise edition.
+	//   "ENTERPRISE_PLUS" - Enterprise plus edition.
+	Edition string `json:"edition,omitempty"`
 
 	// IgnoreIdleSlots: If false, any query or pipeline job using this
 	// reservation will use idle slots from other reservations within the
@@ -651,7 +752,9 @@ type Reservation struct {
 	// one of the BigQuery multi-regions (US or EU). If set to true, this
 	// reservation is placed in the organization's secondary region which is
 	// designated for disaster recovery purposes. If false, this reservation
-	// is placed in the organization's default region.
+	// is placed in the organization's default region. NOTE: this is a
+	// preview feature. Project must be allow-listed in order to set this
+	// field.
 	MultiRegionAuxiliary bool `json:"multiRegionAuxiliary,omitempty"`
 
 	// Name: The resource name of the reservation, e.g.,
@@ -664,10 +767,9 @@ type Reservation struct {
 	// SlotCapacity: Minimum slots available to this reservation. A slot is
 	// a unit of computational power in BigQuery, and serves as the unit of
 	// parallelism. Queries using this reservation might use more slots
-	// during runtime if ignore_idle_slots is set to false. If the new
-	// reservation's slot capacity exceeds the project's slot capacity or if
-	// total slot capacity of the new reservation and its siblings exceeds
-	// the project's slot capacity, the request will fail with
+	// during runtime if ignore_idle_slots is set to false. If total
+	// slot_capacity of the reservation and its siblings exceeds the total
+	// slot_count of all capacity commitments, the request will fail with
 	// `google.rpc.Code.RESOURCE_EXHAUSTED`. NOTE: for reservations in US or
 	// EU multi-regions, slot capacity constraints are checked separately
 	// for default and auxiliary regions. See multi_region_auxiliary flag
@@ -681,7 +783,7 @@ type Reservation struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Concurrency") to
+	// ForceSendFields is a list of field names (e.g. "Autoscale") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -689,10 +791,10 @@ type Reservation struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Concurrency") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "Autoscale") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -936,8 +1038,8 @@ type ProjectsLocationsGetBiReservationCall struct {
 
 // GetBiReservation: Retrieves a BI reservation.
 //
-// - name: Name of the requested reservation, for example:
-//   `projects/{project_id}/locations/{location_id}/biReservation`.
+//   - name: Name of the requested reservation, for example:
+//     `projects/{project_id}/locations/{location_id}/biReservation`.
 func (r *ProjectsLocationsService) GetBiReservation(name string) *ProjectsLocationsGetBiReservationCall {
 	c := &ProjectsLocationsGetBiReservationCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1019,17 +1121,17 @@ func (c *ProjectsLocationsGetBiReservationCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BiReservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1096,8 +1198,8 @@ type ProjectsLocationsSearchAllAssignmentsCall struct {
 // here is `projects/*/locations/*`, instead of
 // `projects/*/locations/*reservations/*`.
 //
-// - parent: The resource name with location (project name could be the
-//   wildcard '-'), e.g.: `projects/-/locations/US`.
+//   - parent: The resource name with location (project name could be the
+//     wildcard '-'), e.g.: `projects/-/locations/US`.
 func (r *ProjectsLocationsService) SearchAllAssignments(parent string) *ProjectsLocationsSearchAllAssignmentsCall {
 	c := &ProjectsLocationsSearchAllAssignmentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1202,17 +1304,17 @@ func (c *ProjectsLocationsSearchAllAssignmentsCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchAllAssignmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1317,8 +1419,8 @@ type ProjectsLocationsSearchAssignmentsCall struct {
 // `projects/*/locations/*reservations/*`. **Note** "-" cannot be used
 // for projects nor locations.
 //
-// - parent: The resource name of the admin project(containing project
-//   and location), e.g.: `projects/myproject/locations/US`.
+//   - parent: The resource name of the admin project(containing project
+//     and location), e.g.: `projects/myproject/locations/US`.
 func (r *ProjectsLocationsService) SearchAssignments(parent string) *ProjectsLocationsSearchAssignmentsCall {
 	c := &ProjectsLocationsSearchAssignmentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1423,17 +1525,17 @@ func (c *ProjectsLocationsSearchAssignmentsCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchAssignmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1529,9 +1631,9 @@ type ProjectsLocationsUpdateBiReservationCall struct {
 // to be updated to an amount greater than 0. In order to release BI
 // capacity reservation size must be set to 0.
 //
-// - name: The resource name of the singleton BI reservation.
-//   Reservation names have the form
-//   `projects/{project_id}/locations/{location_id}/biReservation`.
+//   - name: The resource name of the singleton BI reservation.
+//     Reservation names have the form
+//     `projects/{project_id}/locations/{location_id}/biReservation`.
 func (r *ProjectsLocationsService) UpdateBiReservation(name string, bireservation *BiReservation) *ProjectsLocationsUpdateBiReservationCall {
 	c := &ProjectsLocationsUpdateBiReservationCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1613,17 +1715,17 @@ func (c *ProjectsLocationsUpdateBiReservationCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BiReservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1687,8 +1789,8 @@ type ProjectsLocationsCapacityCommitmentsCreateCall struct {
 
 // Create: Creates a new capacity commitment resource.
 //
-// - parent: Resource name of the parent reservation. E.g.,
-//   `projects/myproject/locations/US`.
+//   - parent: Resource name of the parent reservation. E.g.,
+//     `projects/myproject/locations/US`.
 func (r *ProjectsLocationsCapacityCommitmentsService) Create(parent string, capacitycommitment *CapacityCommitment) *ProjectsLocationsCapacityCommitmentsCreateCall {
 	c := &ProjectsLocationsCapacityCommitmentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1783,17 +1885,17 @@ func (c *ProjectsLocationsCapacityCommitmentsCreateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CapacityCommitment{
 		ServerResponse: googleapi.ServerResponse{
@@ -1862,8 +1964,8 @@ type ProjectsLocationsCapacityCommitmentsDeleteCall struct {
 // commitment before its commitment_end_time will fail with the error
 // code `google.rpc.Code.FAILED_PRECONDITION`.
 //
-// - name: Resource name of the capacity commitment to delete. E.g.,
-//   `projects/myproject/locations/US/capacityCommitments/123`.
+//   - name: Resource name of the capacity commitment to delete. E.g.,
+//     `projects/myproject/locations/US/capacityCommitments/123`.
 func (r *ProjectsLocationsCapacityCommitmentsService) Delete(name string) *ProjectsLocationsCapacityCommitmentsDeleteCall {
 	c := &ProjectsLocationsCapacityCommitmentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1941,17 +2043,17 @@ func (c *ProjectsLocationsCapacityCommitmentsDeleteCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2011,8 +2113,8 @@ type ProjectsLocationsCapacityCommitmentsGetCall struct {
 
 // Get: Returns information about the capacity commitment.
 //
-// - name: Resource name of the capacity commitment to retrieve. E.g.,
-//   `projects/myproject/locations/US/capacityCommitments/123`.
+//   - name: Resource name of the capacity commitment to retrieve. E.g.,
+//     `projects/myproject/locations/US/capacityCommitments/123`.
 func (r *ProjectsLocationsCapacityCommitmentsService) Get(name string) *ProjectsLocationsCapacityCommitmentsGetCall {
 	c := &ProjectsLocationsCapacityCommitmentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2094,17 +2196,17 @@ func (c *ProjectsLocationsCapacityCommitmentsGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CapacityCommitment{
 		ServerResponse: googleapi.ServerResponse{
@@ -2159,8 +2261,8 @@ type ProjectsLocationsCapacityCommitmentsListCall struct {
 
 // List: Lists all the capacity commitments for the admin project.
 //
-// - parent: Resource name of the parent reservation. E.g.,
-//   `projects/myproject/locations/US`.
+//   - parent: Resource name of the parent reservation. E.g.,
+//     `projects/myproject/locations/US`.
 func (r *ProjectsLocationsCapacityCommitmentsService) List(parent string) *ProjectsLocationsCapacityCommitmentsListCall {
 	c := &ProjectsLocationsCapacityCommitmentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2256,17 +2358,17 @@ func (c *ProjectsLocationsCapacityCommitmentsListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCapacityCommitmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2357,8 +2459,8 @@ type ProjectsLocationsCapacityCommitmentsMergeCall struct {
 // Attempting to merge capacity commitments of different plan will fail
 // with the error code `google.rpc.Code.FAILED_PRECONDITION`.
 //
-// - parent: Parent resource that identifies admin project and location
-//   e.g., `projects/myproject/locations/us`.
+//   - parent: Parent resource that identifies admin project and location
+//     e.g., `projects/myproject/locations/us`.
 func (r *ProjectsLocationsCapacityCommitmentsService) Merge(parent string, mergecapacitycommitmentsrequest *MergeCapacityCommitmentsRequest) *ProjectsLocationsCapacityCommitmentsMergeCall {
 	c := &ProjectsLocationsCapacityCommitmentsMergeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2433,17 +2535,17 @@ func (c *ProjectsLocationsCapacityCommitmentsMergeCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CapacityCommitment{
 		ServerResponse: googleapi.ServerResponse{
@@ -2505,11 +2607,11 @@ type ProjectsLocationsCapacityCommitmentsPatchCall struct {
 // with shorter commitment period will fail with the error code
 // `google.rpc.Code.FAILED_PRECONDITION`.
 //
-// - name: Output only. The resource name of the capacity commitment,
-//   e.g., `projects/myproject/locations/US/capacityCommitments/123` The
-//   commitment_id must only contain lower case alphanumeric characters
-//   or dashes. It must start with a letter and must not end with a
-//   dash. Its maximum length is 64 characters.
+//   - name: Output only. The resource name of the capacity commitment,
+//     e.g., `projects/myproject/locations/US/capacityCommitments/123` The
+//     commitment_id must only contain lower case alphanumeric characters
+//     or dashes. It must start with a letter and must not end with a
+//     dash. Its maximum length is 64 characters.
 func (r *ProjectsLocationsCapacityCommitmentsService) Patch(name string, capacitycommitment *CapacityCommitment) *ProjectsLocationsCapacityCommitmentsPatchCall {
 	c := &ProjectsLocationsCapacityCommitmentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2591,17 +2693,17 @@ func (c *ProjectsLocationsCapacityCommitmentsPatchCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CapacityCommitment{
 		ServerResponse: googleapi.ServerResponse{
@@ -2670,8 +2772,8 @@ type ProjectsLocationsCapacityCommitmentsSplitCall struct {
 // 2000 and 8000. Then, you delete the first one after the commitment
 // end time passes.
 //
-// - name: The resource name e.g.,:
-//   `projects/myproject/locations/US/capacityCommitments/123`.
+//   - name: The resource name e.g.,:
+//     `projects/myproject/locations/US/capacityCommitments/123`.
 func (r *ProjectsLocationsCapacityCommitmentsService) Split(name string, splitcapacitycommitmentrequest *SplitCapacityCommitmentRequest) *ProjectsLocationsCapacityCommitmentsSplitCall {
 	c := &ProjectsLocationsCapacityCommitmentsSplitCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2746,17 +2848,17 @@ func (c *ProjectsLocationsCapacityCommitmentsSplitCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SplitCapacityCommitmentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2898,17 +3000,17 @@ func (c *ProjectsLocationsReservationsCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Reservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2972,8 +3074,8 @@ type ProjectsLocationsReservationsDeleteCall struct {
 // `google.rpc.Code.FAILED_PRECONDITION` when reservation has
 // assignments.
 //
-// - name: Resource name of the reservation to retrieve. E.g.,
-//   `projects/myproject/locations/US/reservations/team1-prod`.
+//   - name: Resource name of the reservation to retrieve. E.g.,
+//     `projects/myproject/locations/US/reservations/team1-prod`.
 func (r *ProjectsLocationsReservationsService) Delete(name string) *ProjectsLocationsReservationsDeleteCall {
 	c := &ProjectsLocationsReservationsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3042,17 +3144,17 @@ func (c *ProjectsLocationsReservationsDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3107,8 +3209,8 @@ type ProjectsLocationsReservationsGetCall struct {
 
 // Get: Returns information about the reservation.
 //
-// - name: Resource name of the reservation to retrieve. E.g.,
-//   `projects/myproject/locations/US/reservations/team1-prod`.
+//   - name: Resource name of the reservation to retrieve. E.g.,
+//     `projects/myproject/locations/US/reservations/team1-prod`.
 func (r *ProjectsLocationsReservationsService) Get(name string) *ProjectsLocationsReservationsGetCall {
 	c := &ProjectsLocationsReservationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3190,17 +3292,17 @@ func (c *ProjectsLocationsReservationsGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Reservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3256,8 +3358,8 @@ type ProjectsLocationsReservationsListCall struct {
 // List: Lists all the reservations for the project in the specified
 // location.
 //
-// - parent: The parent resource name containing project and location,
-//   e.g.: `projects/myproject/locations/US`.
+//   - parent: The parent resource name containing project and location,
+//     e.g.: `projects/myproject/locations/US`.
 func (r *ProjectsLocationsReservationsService) List(parent string) *ProjectsLocationsReservationsListCall {
 	c := &ProjectsLocationsReservationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3353,17 +3455,17 @@ func (c *ProjectsLocationsReservationsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReservationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3450,11 +3552,11 @@ type ProjectsLocationsReservationsPatchCall struct {
 
 // Patch: Updates an existing reservation resource.
 //
-// - name: The resource name of the reservation, e.g.,
-//   `projects/*/locations/*/reservations/team1-prod`. The
-//   reservation_id must only contain lower case alphanumeric characters
-//   or dashes. It must start with a letter and must not end with a
-//   dash. Its maximum length is 64 characters.
+//   - name: The resource name of the reservation, e.g.,
+//     `projects/*/locations/*/reservations/team1-prod`. The
+//     reservation_id must only contain lower case alphanumeric characters
+//     or dashes. It must start with a letter and must not end with a
+//     dash. Its maximum length is 64 characters.
 func (r *ProjectsLocationsReservationsService) Patch(name string, reservation *Reservation) *ProjectsLocationsReservationsPatchCall {
 	c := &ProjectsLocationsReservationsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3536,17 +3638,17 @@ func (c *ProjectsLocationsReservationsPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Reservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3633,8 +3735,8 @@ type ProjectsLocationsReservationsAssignmentsCreateCall struct {
 // `google.rpc.Code.INVALID_ARGUMENT` when location of the assignment
 // does not match location of the reservation.
 //
-// - parent: The parent resource name of the assignment E.g.
-//   `projects/myproject/locations/US/reservations/team1-prod`.
+//   - parent: The parent resource name of the assignment E.g.
+//     `projects/myproject/locations/US/reservations/team1-prod`.
 func (r *ProjectsLocationsReservationsAssignmentsService) Create(parent string, assignment *Assignment) *ProjectsLocationsReservationsAssignmentsCreateCall {
 	c := &ProjectsLocationsReservationsAssignmentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3718,17 +3820,17 @@ func (c *ProjectsLocationsReservationsAssignmentsCreateCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Assignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -3792,15 +3894,15 @@ type ProjectsLocationsReservationsAssignmentsDeleteCall struct {
 // Organization `organizationA` contains two projects, `project1` and
 // `project2`. * Reservation `res1` exists and was created previously. *
 // CreateAssignment was used previously to define the following
-// associations between entities and reservations: `` and `` In this
-// example, deletion of the `` assignment won't affect the other
-// assignment ``. After said deletion, queries from `project1` will
+// associations between entities and reservations: “ and “ In this
+// example, deletion of the “ assignment won't affect the other
+// assignment “. After said deletion, queries from `project1` will
 // still use `res1` while queries from `project2` will switch to use
 // on-demand mode.
 //
-// - name: Name of the resource, e.g.
-//   `projects/myproject/locations/US/reservations/team1-prod/assignments
-//   /123`.
+//   - name: Name of the resource, e.g.
+//     `projects/myproject/locations/US/reservations/team1-prod/assignments
+//     /123`.
 func (r *ProjectsLocationsReservationsAssignmentsService) Delete(name string) *ProjectsLocationsReservationsAssignmentsDeleteCall {
 	c := &ProjectsLocationsReservationsAssignmentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3869,17 +3971,17 @@ func (c *ProjectsLocationsReservationsAssignmentsDeleteCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3937,16 +4039,16 @@ type ProjectsLocationsReservationsAssignmentsListCall struct {
 // projects, `project1` and `project2`. * Reservation `res1` exists and
 // was created previously. * CreateAssignment was used previously to
 // define the following associations between entities and reservations:
-// `` and `` In this example, ListAssignments will just return the above
+// “ and “ In this example, ListAssignments will just return the above
 // two assignments for reservation `res1`, and no expansion/merge will
 // happen. The wildcard "-" can be used for reservations in the request.
 // In that case all assignments belongs to the specified project and
 // location will be listed. **Note** "-" cannot be used for projects nor
 // locations.
 //
-// - parent: The parent resource name e.g.:
-//   `projects/myproject/locations/US/reservations/team1-prod` Or:
-//   `projects/myproject/locations/US/reservations/-`.
+//   - parent: The parent resource name e.g.:
+//     `projects/myproject/locations/US/reservations/team1-prod` Or:
+//     `projects/myproject/locations/US/reservations/-`.
 func (r *ProjectsLocationsReservationsAssignmentsService) List(parent string) *ProjectsLocationsReservationsAssignmentsListCall {
 	c := &ProjectsLocationsReservationsAssignmentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4042,17 +4144,17 @@ func (c *ProjectsLocationsReservationsAssignmentsListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAssignmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4142,9 +4244,9 @@ type ProjectsLocationsReservationsAssignmentsMoveCall struct {
 // a transactional change that ensures an assignee always has an
 // associated reservation.
 //
-// - name: The resource name of the assignment, e.g.
-//   `projects/myproject/locations/US/reservations/team1-prod/assignments
-//   /123`.
+//   - name: The resource name of the assignment, e.g.
+//     `projects/myproject/locations/US/reservations/team1-prod/assignments
+//     /123`.
 func (r *ProjectsLocationsReservationsAssignmentsService) Move(name string, moveassignmentrequest *MoveAssignmentRequest) *ProjectsLocationsReservationsAssignmentsMoveCall {
 	c := &ProjectsLocationsReservationsAssignmentsMoveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4219,17 +4321,17 @@ func (c *ProjectsLocationsReservationsAssignmentsMoveCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Assignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -4288,10 +4390,10 @@ type ProjectsLocationsReservationsAssignmentsPatchCall struct {
 // Patch: Updates an existing assignment. Only the `priority` field can
 // be updated.
 //
-// - name: Output only. Name of the resource. E.g.:
-//   `projects/myproject/locations/US/reservations/team1-prod/assignments
-//   /123`. The assignment_id must only contain lower case alphanumeric
-//   characters or dashes and the max length is 64 characters.
+//   - name: Output only. Name of the resource. E.g.:
+//     `projects/myproject/locations/US/reservations/team1-prod/assignments
+//     /123`. The assignment_id must only contain lower case alphanumeric
+//     characters or dashes and the max length is 64 characters.
 func (r *ProjectsLocationsReservationsAssignmentsService) Patch(name string, assignment *Assignment) *ProjectsLocationsReservationsAssignmentsPatchCall {
 	c := &ProjectsLocationsReservationsAssignmentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4373,17 +4475,17 @@ func (c *ProjectsLocationsReservationsAssignmentsPatchCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Assignment{
 		ServerResponse: googleapi.ServerResponse{

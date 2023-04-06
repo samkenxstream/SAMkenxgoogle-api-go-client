@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/chrome/verified-access
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/verifiedaccess/v2"
-//   ...
-//   ctx := context.Background()
-//   verifiedaccessService, err := verifiedaccess.NewService(ctx)
+//	import "google.golang.org/api/verifiedaccess/v2"
+//	...
+//	ctx := context.Background()
+//	verifiedaccessService, err := verifiedaccess.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   verifiedaccessService, err := verifiedaccess.NewService(ctx, option.WithAPIKey("AIza..."))
+//	verifiedaccessService, err := verifiedaccess.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   verifiedaccessService, err := verifiedaccess.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	verifiedaccessService, err := verifiedaccess.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package verifiedaccess // import "google.golang.org/api/verifiedaccess/v2"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "verifiedaccess:v2"
 const apiName = "verifiedaccess"
@@ -145,7 +146,7 @@ type ChallengeService struct {
 	s *Service
 }
 
-// Challenge: Result message for VerifiedAccess.CreateChallenge.
+// Challenge: Result message for VerifiedAccess.GenerateChallenge.
 type Challenge struct {
 	// AlternativeChallenge: Challenge generated with the old signing key,
 	// the bytes representation of SignedData (this will only be present
@@ -189,8 +190,7 @@ func (s *Challenge) MarshalJSON() ([]byte, error) {
 // duplicated empty messages in your APIs. A typical example is to use
 // it as the request or the response type of an API method. For
 // instance: service Foo { rpc Bar(google.protobuf.Empty) returns
-// (google.protobuf.Empty); } The JSON representation for `Empty` is
-// empty JSON object `{}`.
+// (google.protobuf.Empty); }
 type Empty struct {
 }
 
@@ -235,6 +235,11 @@ func (s *VerifyChallengeResponseRequest) MarshalJSON() ([]byte, error) {
 // VerifyChallengeResponseResult: Result message for
 // VerifiedAccess.VerifyChallengeResponse.
 type VerifyChallengeResponseResult struct {
+	// CustomerId: Unique customer id that this device belongs to, as
+	// defined by the Google Admin SDK at
+	// https://developers.google.com/admin-sdk/directory/v1/guides/manage-customers
+	CustomerId string `json:"customerId,omitempty"`
+
 	// DevicePermanentId: Device permanent id is returned in this field (for
 	// the machine response only).
 	DevicePermanentId string `json:"devicePermanentId,omitempty"`
@@ -248,8 +253,8 @@ type VerifyChallengeResponseResult struct {
 	//   "KEY_TRUST_LEVEL_UNSPECIFIED" - UNSPECIFIED.
 	//   "CHROME_OS_VERIFIED_MODE" - ChromeOS device in verified mode.
 	//   "CHROME_OS_DEVELOPER_MODE" - ChromeOS device in developer mode.
-	//   "CHROME_BROWSER_TPM_KEY" - Chrome Browser with the key stored in
-	// TPM.
+	//   "CHROME_BROWSER_HW_KEY" - Chrome Browser with the key stored in the
+	// device hardware.
 	//   "CHROME_BROWSER_OS_KEY" - Chrome Browser with the key stored at OS
 	// level.
 	KeyTrustLevel string `json:"keyTrustLevel,omitempty"`
@@ -261,25 +266,28 @@ type VerifyChallengeResponseResult struct {
 	// and machine responses)
 	SignedPublicKeyAndChallenge string `json:"signedPublicKeyAndChallenge,omitempty"`
 
+	// VirtualDeviceId: Virtual device id of the device. The definition of
+	// virtual device id is platform-specific.
+	VirtualDeviceId string `json:"virtualDeviceId,omitempty"`
+
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "DevicePermanentId")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "CustomerId") to
+	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "DevicePermanentId") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "CustomerId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -370,17 +378,17 @@ func (c *ChallengeGenerateCall) Do(opts ...googleapi.CallOption) (*Challenge, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Challenge{
 		ServerResponse: googleapi.ServerResponse{
@@ -495,17 +503,17 @@ func (c *ChallengeVerifyCall) Do(opts ...googleapi.CallOption) (*VerifyChallenge
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VerifyChallengeResponseResult{
 		ServerResponse: googleapi.ServerResponse{

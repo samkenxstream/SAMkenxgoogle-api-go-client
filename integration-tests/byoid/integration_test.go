@@ -40,6 +40,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/dns/v1"
@@ -141,13 +142,9 @@ func generateGoogleToken(keyFileName string) (string, error) {
 	return token.AccessToken, nil
 }
 
-// testBYOID makes sure that the default credentials works for
-// whatever preconditions have been set beforehand
-// by using those credentials to run our client libraries.
-//
-// In each test we will set up whatever preconditions we need,
-// and then use this function.
-func testBYOID(t *testing.T, c config) {
+// writeConfig writes a temporary config file to memory, and cleans it up after
+// testing code is run.
+func writeConfig(t *testing.T, c config, f func(name string)) {
 	t.Helper()
 
 	// Set up config file.
@@ -163,35 +160,61 @@ func testBYOID(t *testing.T, c config) {
 	}
 	configFile.Close()
 
-	// Once the default credentials are obtained,
-	// we should be able to access Google Cloud resources.
-	dnsService, err := dns.NewService(context.Background(), option.WithCredentialsFile(configFile.Name()))
-	if err != nil {
-		t.Fatalf("Could not establish DNS Service: %v", err)
-	}
+	f(configFile.Name())
+}
 
-	_, err = dnsService.Projects.Get(projectID).Do()
-	if err != nil {
-		t.Fatalf("DNS Service failed: %v", err)
-	}
+// testBYOID makes sure that the default credentials works for
+// whatever preconditions have been set beforehand
+// by using those credentials to run our client libraries.
+//
+// In each test we will set up whatever preconditions we need,
+// and then use this function.
+func testBYOID(t *testing.T, c config) {
+	t.Helper()
+
+	writeConfig(t, c, func(name string) {
+		// Once the default credentials are obtained,
+		// we should be able to access Google Cloud resources.
+		dnsService, err := dns.NewService(context.Background(), option.WithCredentialsFile(name))
+		if err != nil {
+			t.Fatalf("Could not establish DNS Service: %v", err)
+		}
+
+		_, err = dnsService.Projects.Get(projectID).Do()
+		if err != nil {
+			t.Fatalf("DNS Service failed: %v", err)
+		}
+	})
 }
 
 // These structs makes writing our config as json to a file much easier.
 type config struct {
-	Type                           string           `json:"type"`
-	Audience                       string           `json:"audience"`
-	SubjectTokenType               string           `json:"subject_token_type"`
-	TokenURL                       string           `json:"token_url"`
-	ServiceAccountImpersonationURL string           `json:"service_account_impersonation_url"`
-	CredentialSource               credentialSource `json:"credential_source"`
+	Type                           string                          `json:"type"`
+	Audience                       string                          `json:"audience"`
+	SubjectTokenType               string                          `json:"subject_token_type"`
+	TokenURL                       string                          `json:"token_url"`
+	ServiceAccountImpersonationURL string                          `json:"service_account_impersonation_url"`
+	ServiceAccountImpersonation    serviceAccountImpersonationInfo `json:"service_account_impersonation,omitempty"`
+	CredentialSource               credentialSource                `json:"credential_source"`
+}
+
+type serviceAccountImpersonationInfo struct {
+	TokenLifetimeSeconds int `json:"token_lifetime_seconds,omitempty"`
 }
 
 type credentialSource struct {
-	File                        string `json:"file,omitempty"`
-	URL                         string `json:"url,omitempty"`
-	EnvironmentID               string `json:"environment_id,omitempty"`
-	RegionURL                   string `json:"region_url"`
-	RegionalCredVerificationURL string `json:"regional_cred_verification_url,omitempty"`
+	File                        string           `json:"file,omitempty"`
+	URL                         string           `json:"url,omitempty"`
+	Executable                  executableConfig `json:"executable,omitempty"`
+	EnvironmentID               string           `json:"environment_id,omitempty"`
+	RegionURL                   string           `json:"region_url,omitempty"`
+	RegionalCredVerificationURL string           `json:"regional_cred_verification_url,omitempty"`
+}
+
+type executableConfig struct {
+	Command       string `json:"command,omitempty"`
+	TimeoutMillis int    `json:"timeout_millis,omitempty"`
+	OutputFile    string `json:"output_file,omitempty"`
 }
 
 // Tests to make sure File based external credentials continues to work.
@@ -239,7 +262,7 @@ func TestURLBasedCredentials(t *testing.T) {
 		Type:                           "external_account",
 		Audience:                       oidcAudience,
 		SubjectTokenType:               "urn:ietf:params:oauth:token-type:jwt",
-		TokenURL:                       "https://sts.googleapis.com/v1beta/token",
+		TokenURL:                       "https://sts.googleapis.com/v1/token",
 		ServiceAccountImpersonationURL: fmt.Sprintf("https://iamcredentials.googleapis.com/v1/%s:generateAccessToken", clientID),
 		CredentialSource: credentialSource{
 			URL: ts.URL,
@@ -335,5 +358,95 @@ func TestAWSBasedCredentials(t *testing.T) {
 			EnvironmentID:               "aws1",
 			RegionalCredVerificationURL: "https://sts.us-east-1.amazonaws.com?Action=GetCallerIdentity&Version=2011-06-15",
 		},
+	})
+}
+
+// Tests to make sure executable based external credentials continues to work.
+// We're using the same setup as file based external account credentials, and using `cat` as the command
+func TestExecutableBasedCredentials(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	// Set up Script as a executable file
+	scriptFile, err := ioutil.TempFile("", "script.sh")
+	if err != nil {
+		t.Fatalf("Error creating token file:")
+	}
+	defer os.Remove(scriptFile.Name())
+
+	fmt.Fprintf(scriptFile, `#!/bin/bash
+echo "{\"success\":true,\"version\":1,\"expiration_time\":%v,\"token_type\":\"urn:ietf:params:oauth:token-type:jwt\",\"id_token\":\"%v\"}"`,
+		time.Now().Add(time.Hour).Unix(), oidcToken)
+	scriptFile.Close()
+	os.Chmod(scriptFile.Name(), 0700)
+
+	// Run our test!
+	testBYOID(t, config{
+		Type:                           "external_account",
+		Audience:                       oidcAudience,
+		SubjectTokenType:               "urn:ietf:params:oauth:token-type:jwt",
+		TokenURL:                       "https://sts.googleapis.com/v1/token",
+		ServiceAccountImpersonationURL: fmt.Sprintf("https://iamcredentials.googleapis.com/v1/%s:generateAccessToken", clientID),
+		CredentialSource: credentialSource{
+			Executable: executableConfig{
+				Command: scriptFile.Name(),
+			},
+		},
+	})
+}
+
+func TestConfigurableTokenLifetime(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	// Set up Token as a file
+	tokenFile, err := ioutil.TempFile("", "token.txt")
+	if err != nil {
+		t.Fatalf("Error creating token file:")
+	}
+	defer os.Remove(tokenFile.Name())
+
+	tokenFile.WriteString(oidcToken)
+	tokenFile.Close()
+
+	const tokenLifetimeSeconds = 2800
+	const safetyBuffer = 5
+
+	writeConfig(t, config{
+		Type:                           "external_account",
+		Audience:                       oidcAudience,
+		SubjectTokenType:               "urn:ietf:params:oauth:token-type:jwt",
+		TokenURL:                       "https://sts.googleapis.com/v1/token",
+		ServiceAccountImpersonationURL: fmt.Sprintf("https://iamcredentials.googleapis.com/v1/%s:generateAccessToken", clientID),
+		ServiceAccountImpersonation: serviceAccountImpersonationInfo{
+			TokenLifetimeSeconds: tokenLifetimeSeconds,
+		},
+		CredentialSource: credentialSource{
+			File: tokenFile.Name(),
+		},
+	}, func(filename string) {
+		b, err := ioutil.ReadFile(filename)
+		if err != nil {
+			t.Fatalf("Coudn't read temp config file")
+		}
+
+		creds, err := google.CredentialsFromJSON(context.Background(), b, "https://www.googleapis.com/auth/cloud-platform")
+		if err != nil {
+			t.Fatalf("Error retrieving credentials")
+		}
+
+		token, err := creds.TokenSource.Token()
+		if err != nil {
+			t.Fatalf("Error getting token")
+		}
+
+		now := time.Now()
+		expiryMax := now.Add((safetyBuffer + tokenLifetimeSeconds) * time.Second)
+		expiryMin := now.Add((tokenLifetimeSeconds - safetyBuffer) * time.Second)
+		if token.Expiry.Before(expiryMin) || token.Expiry.After(expiryMax) {
+			t.Fatalf("Expiry time not set correctly.  Got %v, want %v", token.Expiry, expiryMax)
+		}
 	})
 }

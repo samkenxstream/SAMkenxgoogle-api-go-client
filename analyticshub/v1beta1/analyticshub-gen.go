@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/bigquery/docs/analytics-hub-introduction
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/analyticshub/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   analyticshubService, err := analyticshub.NewService(ctx)
+//	import "google.golang.org/api/analyticshub/v1beta1"
+//	...
+//	ctx := context.Background()
+//	analyticshubService, err := analyticshub.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   analyticshubService, err := analyticshub.NewService(ctx, option.WithScopes(analyticshub.CloudPlatformScope))
+//	analyticshubService, err := analyticshub.NewService(ctx, option.WithScopes(analyticshub.CloudPlatformScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   analyticshubService, err := analyticshub.NewService(ctx, option.WithAPIKey("AIza..."))
+//	analyticshubService, err := analyticshub.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   analyticshubService, err := analyticshub.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	analyticshubService, err := analyticshub.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package analyticshub // import "google.golang.org/api/analyticshub/v1beta1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "analyticshub:v1beta1"
 const apiName = "analyticshub"
@@ -376,19 +377,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -400,9 +408,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -445,9 +451,9 @@ type DataExchange struct {
 
 	// DisplayName: Required. Human-readable display name of the data
 	// exchange. The display name must contain only Unicode letters, numbers
-	// (0-9), underscores (_), dashes (-), spaces ( ), and must not start or
-	// end with spaces. Default value is an empty string. Max length: 63
-	// bytes.
+	// (0-9), underscores (_), dashes (-), spaces ( ), ampersands (&) and
+	// must not start or end with spaces. Default value is an empty string.
+	// Max length: 63 bytes.
 	DisplayName string `json:"displayName,omitempty"`
 
 	// Documentation: Optional. Documentation describing the data exchange.
@@ -826,43 +832,6 @@ func (s *ListListingsResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// ListLocationsResponse: The response message for
-// Locations.ListLocations.
-type ListLocationsResponse struct {
-	// Locations: A list of locations that matches the specified filter in
-	// the request.
-	Locations []*Location `json:"locations,omitempty"`
-
-	// NextPageToken: The standard List next-page token.
-	NextPageToken string `json:"nextPageToken,omitempty"`
-
-	// ServerResponse contains the HTTP response code and headers from the
-	// server.
-	googleapi.ServerResponse `json:"-"`
-
-	// ForceSendFields is a list of field names (e.g. "Locations") to
-	// unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Locations") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *ListLocationsResponse) MarshalJSON() ([]byte, error) {
-	type NoMethod ListLocationsResponse
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
 // ListOrgDataExchangesResponse: Message for response to listing data
 // exchanges in an organization and location.
 type ListOrgDataExchangesResponse struct {
@@ -947,8 +916,9 @@ type Listing struct {
 
 	// DisplayName: Required. Human-readable display name of the listing.
 	// The display name must contain only Unicode letters, numbers (0-9),
-	// underscores (_), dashes (-), spaces ( ), and can't start or end with
-	// spaces. Default value is an empty string. Max length: 63 bytes.
+	// underscores (_), dashes (-), spaces ( ), ampersands (&) and can't
+	// start or end with spaces. Default value is an empty string. Max
+	// length: 63 bytes.
 	DisplayName string `json:"displayName,omitempty"`
 
 	// Documentation: Optional. Documentation describing the listing.
@@ -978,6 +948,10 @@ type Listing struct {
 	// listing. Subscribers can use this reference to request access. Max
 	// Length: 1000 bytes.
 	RequestAccess string `json:"requestAccess,omitempty"`
+
+	// RestrictedExportConfig: Optional. If set, restricted export
+	// configuration will be propagated and enforced on the linked dataset.
+	RestrictedExportConfig *RestrictedExportConfig `json:"restrictedExportConfig,omitempty"`
 
 	// State: Output only. Current state of the listing.
 	//
@@ -1012,56 +986,6 @@ type Listing struct {
 
 func (s *Listing) MarshalJSON() ([]byte, error) {
 	type NoMethod Listing
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// Location: A resource that represents Google Cloud Platform location.
-type Location struct {
-	// DisplayName: The friendly name for this location, typically a nearby
-	// city name. For example, "Tokyo".
-	DisplayName string `json:"displayName,omitempty"`
-
-	// Labels: Cross-service attributes for the location. For example
-	// {"cloud.googleapis.com/region": "us-east1"}
-	Labels map[string]string `json:"labels,omitempty"`
-
-	// LocationId: The canonical id for this location. For example:
-	// "us-east1".
-	LocationId string `json:"locationId,omitempty"`
-
-	// Metadata: Service-specific metadata. For example the available
-	// capacity at the given location.
-	Metadata googleapi.RawMessage `json:"metadata,omitempty"`
-
-	// Name: Resource name for the location, which may vary between
-	// implementations. For example:
-	// "projects/example-project/locations/us-east1"
-	Name string `json:"name,omitempty"`
-
-	// ServerResponse contains the HTTP response code and headers from the
-	// server.
-	googleapi.ServerResponse `json:"-"`
-
-	// ForceSendFields is a list of field names (e.g. "DisplayName") to
-	// unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "DisplayName") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *Location) MarshalJSON() ([]byte, error) {
-	type NoMethod Location
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1260,6 +1184,39 @@ func (s *Publisher) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// RestrictedExportConfig: Restricted export config, used to configure
+// restricted export on linked dataset.
+type RestrictedExportConfig struct {
+	// Enabled: If true, enable restricted export.
+	Enabled bool `json:"enabled,omitempty"`
+
+	// RestrictQueryResult: If true, restrict export of query result derived
+	// from restricted linked dataset table.
+	RestrictQueryResult bool `json:"restrictQueryResult,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Enabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Enabled") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RestrictedExportConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod RestrictedExportConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SetIamPolicyRequest: Request message for `SetIamPolicy` method.
 type SetIamPolicyRequest struct {
 	// Policy: REQUIRED: The complete policy to be applied to the
@@ -1328,7 +1285,7 @@ func (s *SubscribeListingRequest) MarshalJSON() ([]byte, error) {
 }
 
 // SubscribeListingResponse: Message for response when you subscribe to
-// a listing. Empty for now.
+// a listing.
 type SubscribeListingResponse struct {
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -1415,8 +1372,8 @@ type OrganizationsLocationsDataExchangesListCall struct {
 // List: Lists all data exchanges from projects in a given organization
 // and location.
 //
-// - organization: The organization resource path of the projects
-//   containing DataExchanges. e.g. `organizations/myorg/locations/US`.
+//   - organization: The organization resource path of the projects
+//     containing DataExchanges. e.g. `organizations/myorg/locations/US`.
 func (r *OrganizationsLocationsDataExchangesService) List(organization string) *OrganizationsLocationsDataExchangesListCall {
 	c := &OrganizationsLocationsDataExchangesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.organization = organization
@@ -1513,17 +1470,17 @@ func (c *OrganizationsLocationsDataExchangesListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOrgDataExchangesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1597,363 +1554,6 @@ func (c *OrganizationsLocationsDataExchangesListCall) Pages(ctx context.Context,
 	}
 }
 
-// method id "analyticshub.projects.locations.get":
-
-type ProjectsLocationsGetCall struct {
-	s            *Service
-	name         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// Get: Gets information about a location.
-//
-// - name: Resource name for the location.
-func (r *ProjectsLocationsService) Get(name string) *ProjectsLocationsGetCall {
-	c := &ProjectsLocationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsGetCall) Fields(s ...googleapi.Field) *ProjectsLocationsGetCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsGetCall) IfNoneMatch(entityTag string) *ProjectsLocationsGetCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsGetCall) Context(ctx context.Context) *ProjectsLocationsGetCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsGetCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsGetCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "analyticshub.projects.locations.get" call.
-// Exactly one of *Location or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *Location.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &Location{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Gets information about a location.",
-	//   "flatPath": "v1beta1/projects/{projectsId}/locations/{locationsId}",
-	//   "httpMethod": "GET",
-	//   "id": "analyticshub.projects.locations.get",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "name": {
-	//       "description": "Resource name for the location.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1beta1/{+name}",
-	//   "response": {
-	//     "$ref": "Location"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/bigquery",
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// method id "analyticshub.projects.locations.list":
-
-type ProjectsLocationsListCall struct {
-	s            *Service
-	name         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// List: Lists information about the supported locations for this
-// service.
-//
-// - name: The resource that owns the locations collection, if
-//   applicable.
-func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
-	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.name = name
-	return c
-}
-
-// Filter sets the optional parameter "filter": A filter to narrow down
-// results to a preferred subset. The filtering language accepts strings
-// like "displayName=tokyo", and is documented in more detail in
-// AIP-160 (https://google.aip.dev/160).
-func (c *ProjectsLocationsListCall) Filter(filter string) *ProjectsLocationsListCall {
-	c.urlParams_.Set("filter", filter)
-	return c
-}
-
-// PageSize sets the optional parameter "pageSize": The maximum number
-// of results to return. If not set, the service selects a default.
-func (c *ProjectsLocationsListCall) PageSize(pageSize int64) *ProjectsLocationsListCall {
-	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
-	return c
-}
-
-// PageToken sets the optional parameter "pageToken": A page token
-// received from the `next_page_token` field in the response. Send that
-// page token to receive the subsequent page.
-func (c *ProjectsLocationsListCall) PageToken(pageToken string) *ProjectsLocationsListCall {
-	c.urlParams_.Set("pageToken", pageToken)
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *ProjectsLocationsListCall) Fields(s ...googleapi.Field) *ProjectsLocationsListCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *ProjectsLocationsListCall) IfNoneMatch(entityTag string) *ProjectsLocationsListCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *ProjectsLocationsListCall) Context(ctx context.Context) *ProjectsLocationsListCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *ProjectsLocationsListCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *ProjectsLocationsListCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}/locations")
-	urls += "?" + c.urlParams_.Encode()
-	req, err := http.NewRequest("GET", urls, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"name": c.name,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "analyticshub.projects.locations.list" call.
-// Exactly one of *ListLocationsResponse or error will be non-nil. Any
-// non-2xx status code is an error. Response headers are in either
-// *ListLocationsResponse.ServerResponse.Header or (if a response was
-// returned at all) in error.(*googleapi.Error).Header. Use
-// googleapi.IsNotModified to check whether the returned error was
-// because http.StatusNotModified was returned.
-func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocationsResponse, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &ListLocationsResponse{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Lists information about the supported locations for this service.",
-	//   "flatPath": "v1beta1/projects/{projectsId}/locations",
-	//   "httpMethod": "GET",
-	//   "id": "analyticshub.projects.locations.list",
-	//   "parameterOrder": [
-	//     "name"
-	//   ],
-	//   "parameters": {
-	//     "filter": {
-	//       "description": "A filter to narrow down results to a preferred subset. The filtering language accepts strings like `\"displayName=tokyo\"`, and is documented in more detail in [AIP-160](https://google.aip.dev/160).",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "name": {
-	//       "description": "The resource that owns the locations collection, if applicable.",
-	//       "location": "path",
-	//       "pattern": "^projects/[^/]+$",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "pageSize": {
-	//       "description": "The maximum number of results to return. If not set, the service selects a default.",
-	//       "format": "int32",
-	//       "location": "query",
-	//       "type": "integer"
-	//     },
-	//     "pageToken": {
-	//       "description": "A page token received from the `next_page_token` field in the response. Send that page token to receive the subsequent page.",
-	//       "location": "query",
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "v1beta1/{+name}/locations",
-	//   "response": {
-	//     "$ref": "ListLocationsResponse"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/bigquery",
-	//     "https://www.googleapis.com/auth/cloud-platform"
-	//   ]
-	// }
-
-}
-
-// Pages invokes f for each page of results.
-// A non-nil error returned from f will halt the iteration.
-// The provided context supersedes any context provided to the Context method.
-func (c *ProjectsLocationsListCall) Pages(ctx context.Context, f func(*ListLocationsResponse) error) error {
-	c.ctx_ = ctx
-	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
-	for {
-		x, err := c.Do()
-		if err != nil {
-			return err
-		}
-		if err := f(x); err != nil {
-			return err
-		}
-		if x.NextPageToken == "" {
-			return nil
-		}
-		c.PageToken(x.NextPageToken)
-	}
-}
-
 // method id "analyticshub.projects.locations.dataExchanges.create":
 
 type ProjectsLocationsDataExchangesCreateCall struct {
@@ -1967,8 +1567,8 @@ type ProjectsLocationsDataExchangesCreateCall struct {
 
 // Create: Creates a new data exchange.
 //
-// - parent: The parent resource path of the data exchange. e.g.
-//   `projects/myproject/locations/US`.
+//   - parent: The parent resource path of the data exchange. e.g.
+//     `projects/myproject/locations/US`.
 func (r *ProjectsLocationsDataExchangesService) Create(parent string, dataexchange *DataExchange) *ProjectsLocationsDataExchangesCreateCall {
 	c := &ProjectsLocationsDataExchangesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2053,17 +1653,17 @@ func (c *ProjectsLocationsDataExchangesCreateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DataExchange{
 		ServerResponse: googleapi.ServerResponse{
@@ -2125,9 +1725,9 @@ type ProjectsLocationsDataExchangesDeleteCall struct {
 
 // Delete: Deletes an existing data exchange.
 //
-// - name: The full name of the data exchange resource that you want to
-//   delete. For example,
-//   `projects/myproject/locations/US/dataExchanges/123`.
+//   - name: The full name of the data exchange resource that you want to
+//     delete. For example,
+//     `projects/myproject/locations/US/dataExchanges/123`.
 func (r *ProjectsLocationsDataExchangesService) Delete(name string) *ProjectsLocationsDataExchangesDeleteCall {
 	c := &ProjectsLocationsDataExchangesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2196,17 +1796,17 @@ func (c *ProjectsLocationsDataExchangesDeleteCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2261,8 +1861,8 @@ type ProjectsLocationsDataExchangesGetCall struct {
 
 // Get: Gets the details of a data exchange.
 //
-// - name: The resource name of the data exchange. e.g.
-//   `projects/myproject/locations/US/dataExchanges/123`.
+//   - name: The resource name of the data exchange. e.g.
+//     `projects/myproject/locations/US/dataExchanges/123`.
 func (r *ProjectsLocationsDataExchangesService) Get(name string) *ProjectsLocationsDataExchangesGetCall {
 	c := &ProjectsLocationsDataExchangesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2344,17 +1944,17 @@ func (c *ProjectsLocationsDataExchangesGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DataExchange{
 		ServerResponse: googleapi.ServerResponse{
@@ -2409,10 +2009,10 @@ type ProjectsLocationsDataExchangesGetIamPolicyCall struct {
 
 // GetIamPolicy: Gets the IAM policy.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDataExchangesService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *ProjectsLocationsDataExchangesGetIamPolicyCall {
 	c := &ProjectsLocationsDataExchangesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2487,17 +2087,17 @@ func (c *ProjectsLocationsDataExchangesGetIamPolicyCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2555,8 +2155,8 @@ type ProjectsLocationsDataExchangesListCall struct {
 
 // List: Lists all data exchanges in a given project and location.
 //
-// - parent: The parent resource path of the data exchanges. e.g.
-//   `projects/myproject/locations/US`.
+//   - parent: The parent resource path of the data exchanges. e.g.
+//     `projects/myproject/locations/US`.
 func (r *ProjectsLocationsDataExchangesService) List(parent string) *ProjectsLocationsDataExchangesListCall {
 	c := &ProjectsLocationsDataExchangesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2653,17 +2253,17 @@ func (c *ProjectsLocationsDataExchangesListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDataExchangesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2750,8 +2350,8 @@ type ProjectsLocationsDataExchangesPatchCall struct {
 
 // Patch: Updates an existing data exchange.
 //
-// - name: Output only. The resource name of the data exchange. e.g.
-//   `projects/myproject/locations/US/dataExchanges/123`.
+//   - name: Output only. The resource name of the data exchange. e.g.
+//     `projects/myproject/locations/US/dataExchanges/123`.
 func (r *ProjectsLocationsDataExchangesService) Patch(name string, dataexchange *DataExchange) *ProjectsLocationsDataExchangesPatchCall {
 	c := &ProjectsLocationsDataExchangesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2835,17 +2435,17 @@ func (c *ProjectsLocationsDataExchangesPatchCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DataExchange{
 		ServerResponse: googleapi.ServerResponse{
@@ -2909,10 +2509,10 @@ type ProjectsLocationsDataExchangesSetIamPolicyCall struct {
 
 // SetIamPolicy: Sets the IAM policy.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDataExchangesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsDataExchangesSetIamPolicyCall {
 	c := &ProjectsLocationsDataExchangesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2987,17 +2587,17 @@ func (c *ProjectsLocationsDataExchangesSetIamPolicyCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3055,10 +2655,10 @@ type ProjectsLocationsDataExchangesTestIamPermissionsCall struct {
 
 // TestIamPermissions: Returns the permissions that a caller has.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDataExchangesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsDataExchangesTestIamPermissionsCall {
 	c := &ProjectsLocationsDataExchangesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3133,17 +2733,17 @@ func (c *ProjectsLocationsDataExchangesTestIamPermissionsCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3201,8 +2801,8 @@ type ProjectsLocationsDataExchangesListingsCreateCall struct {
 
 // Create: Creates a new listing.
 //
-// - parent: The parent resource path of the listing. e.g.
-//   `projects/myproject/locations/US/dataExchanges/123`.
+//   - parent: The parent resource path of the listing. e.g.
+//     `projects/myproject/locations/US/dataExchanges/123`.
 func (r *ProjectsLocationsDataExchangesListingsService) Create(parent string, listing *Listing) *ProjectsLocationsDataExchangesListingsCreateCall {
 	c := &ProjectsLocationsDataExchangesListingsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3287,17 +2887,17 @@ func (c *ProjectsLocationsDataExchangesListingsCreateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Listing{
 		ServerResponse: googleapi.ServerResponse{
@@ -3359,8 +2959,8 @@ type ProjectsLocationsDataExchangesListingsDeleteCall struct {
 
 // Delete: Deletes a listing.
 //
-// - name: Resource name of the listing to delete. e.g.
-//   `projects/myproject/locations/US/dataExchanges/123/listings/456`.
+//   - name: Resource name of the listing to delete. e.g.
+//     `projects/myproject/locations/US/dataExchanges/123/listings/456`.
 func (r *ProjectsLocationsDataExchangesListingsService) Delete(name string) *ProjectsLocationsDataExchangesListingsDeleteCall {
 	c := &ProjectsLocationsDataExchangesListingsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3429,17 +3029,17 @@ func (c *ProjectsLocationsDataExchangesListingsDeleteCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3494,8 +3094,8 @@ type ProjectsLocationsDataExchangesListingsGetCall struct {
 
 // Get: Gets the details of a listing.
 //
-// - name: The resource name of the listing. e.g.
-//   `projects/myproject/locations/US/dataExchanges/123/listings/456`.
+//   - name: The resource name of the listing. e.g.
+//     `projects/myproject/locations/US/dataExchanges/123/listings/456`.
 func (r *ProjectsLocationsDataExchangesListingsService) Get(name string) *ProjectsLocationsDataExchangesListingsGetCall {
 	c := &ProjectsLocationsDataExchangesListingsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3577,17 +3177,17 @@ func (c *ProjectsLocationsDataExchangesListingsGetCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Listing{
 		ServerResponse: googleapi.ServerResponse{
@@ -3642,10 +3242,10 @@ type ProjectsLocationsDataExchangesListingsGetIamPolicyCall struct {
 
 // GetIamPolicy: Gets the IAM policy.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDataExchangesListingsService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *ProjectsLocationsDataExchangesListingsGetIamPolicyCall {
 	c := &ProjectsLocationsDataExchangesListingsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3720,17 +3320,17 @@ func (c *ProjectsLocationsDataExchangesListingsGetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3788,8 +3388,8 @@ type ProjectsLocationsDataExchangesListingsListCall struct {
 
 // List: Lists all listings in a given project and location.
 //
-// - parent: The parent resource path of the listing. e.g.
-//   `projects/myproject/locations/US/dataExchanges/123`.
+//   - parent: The parent resource path of the listing. e.g.
+//     `projects/myproject/locations/US/dataExchanges/123`.
 func (r *ProjectsLocationsDataExchangesListingsService) List(parent string) *ProjectsLocationsDataExchangesListingsListCall {
 	c := &ProjectsLocationsDataExchangesListingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3886,17 +3486,17 @@ func (c *ProjectsLocationsDataExchangesListingsListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListListingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3983,8 +3583,8 @@ type ProjectsLocationsDataExchangesListingsPatchCall struct {
 
 // Patch: Updates an existing listing.
 //
-// - name: Output only. The resource name of the listing. e.g.
-//   `projects/myproject/locations/US/dataExchanges/123/listings/456`.
+//   - name: Output only. The resource name of the listing. e.g.
+//     `projects/myproject/locations/US/dataExchanges/123/listings/456`.
 func (r *ProjectsLocationsDataExchangesListingsService) Patch(name string, listing *Listing) *ProjectsLocationsDataExchangesListingsPatchCall {
 	c := &ProjectsLocationsDataExchangesListingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4068,17 +3668,17 @@ func (c *ProjectsLocationsDataExchangesListingsPatchCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Listing{
 		ServerResponse: googleapi.ServerResponse{
@@ -4142,10 +3742,10 @@ type ProjectsLocationsDataExchangesListingsSetIamPolicyCall struct {
 
 // SetIamPolicy: Sets the IAM policy.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDataExchangesListingsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsDataExchangesListingsSetIamPolicyCall {
 	c := &ProjectsLocationsDataExchangesListingsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4220,17 +3820,17 @@ func (c *ProjectsLocationsDataExchangesListingsSetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4291,9 +3891,9 @@ type ProjectsLocationsDataExchangesListingsSubscribeCall struct {
 // subscription to a listing for a BigQuery dataset, Analytics Hub
 // creates a linked dataset in the subscriber's project.
 //
-// - name: Resource name of the listing that you want to subscribe to.
-//   e.g.
-//   `projects/myproject/locations/US/dataExchanges/123/listings/456`.
+//   - name: Resource name of the listing that you want to subscribe to.
+//     e.g.
+//     `projects/myproject/locations/US/dataExchanges/123/listings/456`.
 func (r *ProjectsLocationsDataExchangesListingsService) Subscribe(name string, subscribelistingrequest *SubscribeListingRequest) *ProjectsLocationsDataExchangesListingsSubscribeCall {
 	c := &ProjectsLocationsDataExchangesListingsSubscribeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4368,17 +3968,17 @@ func (c *ProjectsLocationsDataExchangesListingsSubscribeCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscribeListingResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4436,10 +4036,10 @@ type ProjectsLocationsDataExchangesListingsTestIamPermissionsCall struct {
 
 // TestIamPermissions: Returns the permissions that a caller has.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDataExchangesListingsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsDataExchangesListingsTestIamPermissionsCall {
 	c := &ProjectsLocationsDataExchangesListingsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4514,17 +4114,17 @@ func (c *ProjectsLocationsDataExchangesListingsTestIamPermissionsCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{

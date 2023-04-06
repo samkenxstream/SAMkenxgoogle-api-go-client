@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/talent-solution/job-search/docs/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/jobs/v4"
-//   ...
-//   ctx := context.Background()
-//   jobsService, err := jobs.NewService(ctx)
+//	import "google.golang.org/api/jobs/v4"
+//	...
+//	ctx := context.Background()
+//	jobsService, err := jobs.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   jobsService, err := jobs.NewService(ctx, option.WithScopes(jobs.JobsScope))
+//	jobsService, err := jobs.NewService(ctx, option.WithScopes(jobs.JobsScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   jobsService, err := jobs.NewService(ctx, option.WithAPIKey("AIza..."))
+//	jobsService, err := jobs.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   jobsService, err := jobs.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	jobsService, err := jobs.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package jobs // import "google.golang.org/api/jobs/v4"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "jobs:v4"
 const apiName = "jobs"
@@ -723,7 +724,9 @@ type Company struct {
 	// ImageUri: A URI that hosts the employer's company logo.
 	ImageUri string `json:"imageUri,omitempty"`
 
-	// KeywordSearchableJobCustomAttributes: A list of keys of filterable
+	// KeywordSearchableJobCustomAttributes: This field is deprecated.
+	// Please set the searchability of the custom attribute in the
+	// Job.custom_attributes going forward. A list of keys of filterable
 	// Job.custom_attributes, whose corresponding `string_values` are used
 	// in keyword searches. Jobs with `string_values` under these specified
 	// field keys are returned if any of the values match the search
@@ -1996,15 +1999,19 @@ type JobQuery struct {
 
 	// CompanyDisplayNames: This filter specifies the company
 	// Company.display_name of the jobs to search against. The company name
-	// must match the value exactly. Alternatively, if the value being
-	// searched for is wrapped in `SUBSTRING_MATCH([value])`, the company
-	// name must contain a case insensitive substring match of the value.
-	// Using this function may increase latency. Sample Value:
-	// `SUBSTRING_MATCH(google)` If a value isn't specified, jobs within the
-	// search results are associated with any company. If multiple values
-	// are specified, jobs within the search results may be associated with
-	// any of the specified companies. At most 20 company display name
-	// filters are allowed.
+	// must match the value exactly. Alternatively, the value being searched
+	// for can be wrapped in different match operators.
+	// `SUBSTRING_MATCH([value])` The company name must contain a case
+	// insensitive substring match of the value. Using this function may
+	// increase latency. Sample Value: `SUBSTRING_MATCH(google)`
+	// `MULTI_WORD_TOKEN_MATCH([value])` The value will be treated as a
+	// multi word token and the company name must contain a case insensitive
+	// match of the value. Using this function may increase latency. Sample
+	// Value: `MULTI_WORD_TOKEN_MATCH(google)` If a value isn't specified,
+	// jobs within the search results are associated with any company. If
+	// multiple values are specified, jobs within the search results may be
+	// associated with any of the specified companies. At most 20 company
+	// display name filters are allowed.
 	CompanyDisplayNames []string `json:"companyDisplayNames,omitempty"`
 
 	// CompensationFilter: This search filter is applied only to
@@ -2533,8 +2540,11 @@ type LocationFilter struct {
 	// Possible values:
 	//   "TELECOMMUTE_PREFERENCE_UNSPECIFIED" - Default value if the
 	// telecommute preference isn't specified.
-	//   "TELECOMMUTE_EXCLUDED" - Ignore telecommute status of jobs.
+	//   "TELECOMMUTE_EXCLUDED" - Deprecated: Ignore telecommute status of
+	// jobs. Use TELECOMMUTE_JOBS_EXCLUDED if want to exclude telecommute
+	// jobs.
 	//   "TELECOMMUTE_ALLOWED" - Allow telecommute jobs.
+	//   "TELECOMMUTE_JOBS_EXCLUDED" - Exclude telecommute jobs.
 	TelecommutePreference string `json:"telecommutePreference,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Address") to
@@ -2702,7 +2712,7 @@ func (s *Money) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// NamespacedDebugInput: Next ID: 15
+// NamespacedDebugInput: Next ID: 16
 type NamespacedDebugInput struct {
 	// AbsolutelyForcedExpNames: Set of experiment names to be absolutely
 	// forced. These experiments will be forced without evaluating the
@@ -2738,7 +2748,8 @@ type NamespacedDebugInput struct {
 	// enrollment selection (at all diversion points). Automatic enrollment
 	// selection means experiment selection process based on the
 	// experiment's automatic enrollment condition. This does not disable
-	// selection of forced experiments.
+	// selection of forced experiments. Setting this field to false does not
+	// change anything in the experiment selection process.
 	DisableAutomaticEnrollmentSelection bool `json:"disableAutomaticEnrollmentSelection,omitempty"`
 
 	// DisableExpNames: Set of experiment names to be disabled. If an
@@ -2770,7 +2781,8 @@ type NamespacedDebugInput struct {
 	// selection (at all diversion points). Manual enrollment selection
 	// means experiment selection process based on the request's manual
 	// enrollment states (a.k.a. opt-in experiments). This does not disable
-	// selection of forced experiments.
+	// selection of forced experiments. Setting this field to false does not
+	// change anything in the experiment selection process.
 	DisableManualEnrollmentSelection bool `json:"disableManualEnrollmentSelection,omitempty"`
 
 	// DisableOrganicSelection: If true, disable organic experiment
@@ -2780,7 +2792,8 @@ type NamespacedDebugInput struct {
 	// forced experiments. This is useful in cases when it is not known
 	// whether experiment selection behavior is responsible for a error or
 	// breakage. Disabling organic selection may help to isolate the cause
-	// of a given problem.
+	// of a given problem. Setting this field to false does not change
+	// anything in the experiment selection process.
 	DisableOrganicSelection bool `json:"disableOrganicSelection,omitempty"`
 
 	// ForcedFlags: Flags to force in a particular experiment state. Map
@@ -2790,6 +2803,15 @@ type NamespacedDebugInput struct {
 	// ForcedRollouts: Rollouts to force in a particular experiment state.
 	// Map from rollout name to rollout value.
 	ForcedRollouts map[string]bool `json:"forcedRollouts,omitempty"`
+
+	// TestingMode: Sets different testing modes. See the documentation in
+	// the TestingMode message for more information.
+	//
+	// Possible values:
+	//   "TESTING_MODE_UNSPECIFIED"
+	//   "TESTING_MODE_ALL_OFF"
+	//   "TESTING_MODE_ALL_ON"
+	TestingMode string `json:"testingMode,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
 	// "AbsolutelyForcedExpNames") to unconditionally include in API
@@ -2884,9 +2906,9 @@ func (s *Operation) MarshalJSON() ([]byte, error) {
 // to model geographical locations (roads, towns, mountains). In typical
 // usage an address would be created via user input or from importing
 // existing data, depending on the type of process. Advice on address
-// input / editing: - Use an i18n-ready address widget such as
-// https://github.com/google/libaddressinput) - Users should not be
-// presented with UI elements for input or editing of fields outside
+// input / editing: - Use an internationalization-ready address widget
+// such as https://github.com/google/libaddressinput) - Users should not
+// be presented with UI elements for input or editing of fields outside
 // countries where that field is used. For more guidance on how to use
 // this schema, please see:
 // https://support.google.com/business/answer/6397478
@@ -3229,8 +3251,8 @@ type SearchJobsRequest struct {
 	// facets: * company_display_name: histogram by
 	// [Job.company_display_name. * employment_type: histogram by
 	// Job.employment_types, for example, "FULL_TIME", "PART_TIME". *
-	// company_size: histogram by CompanySize, for example, "SMALL",
-	// "MEDIUM", "BIG". * publish_time_in_day: histogram by the
+	// company_size (DEPRECATED): histogram by CompanySize, for example,
+	// "SMALL", "MEDIUM", "BIG". * publish_time_in_day: histogram by the
 	// Job.posting_publish_time in days. Must specify list of numeric
 	// buckets in spec. * publish_time_in_month: histogram by the
 	// Job.posting_publish_time in months. Must specify list of numeric
@@ -3794,17 +3816,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3861,9 +3883,9 @@ type ProjectsTenantsCompleteQueryCall struct {
 // suggestions. Intended for use by a job search auto-complete search
 // box.
 //
-// - tenant: Resource name of tenant the completion is performed within.
-//   The format is "projects/{project_id}/tenants/{tenant_id}", for
-//   example, "projects/foo/tenants/bar".
+//   - tenant: Resource name of tenant the completion is performed within.
+//     The format is "projects/{project_id}/tenants/{tenant_id}", for
+//     example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsService) CompleteQuery(tenant string) *ProjectsTenantsCompleteQueryCall {
 	c := &ProjectsTenantsCompleteQueryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.tenant = tenant
@@ -3908,10 +3930,14 @@ func (c *ProjectsTenantsCompleteQueryCall) Query(query string) *ProjectsTenantsC
 // completion. The defaults is CompletionScope.PUBLIC.
 //
 // Possible values:
-//   "COMPLETION_SCOPE_UNSPECIFIED" - Default value.
-//   "TENANT" - Suggestions are based only on the data provided by the
+//
+//	"COMPLETION_SCOPE_UNSPECIFIED" - Default value.
+//	"TENANT" - Suggestions are based only on the data provided by the
+//
 // client.
-//   "PUBLIC" - Suggestions are based on all jobs data in the system
+//
+//	"PUBLIC" - Suggestions are based on all jobs data in the system
+//
 // that's visible to the client
 func (c *ProjectsTenantsCompleteQueryCall) Scope(scope string) *ProjectsTenantsCompleteQueryCall {
 	c.urlParams_.Set("scope", scope)
@@ -3922,14 +3948,20 @@ func (c *ProjectsTenantsCompleteQueryCall) Scope(scope string) *ProjectsTenantsC
 // default is CompletionType.COMBINED.
 //
 // Possible values:
-//   "COMPLETION_TYPE_UNSPECIFIED" - Default value.
-//   "JOB_TITLE" - Suggest job titles for jobs autocomplete. For
+//
+//	"COMPLETION_TYPE_UNSPECIFIED" - Default value.
+//	"JOB_TITLE" - Suggest job titles for jobs autocomplete. For
+//
 // CompletionType.JOB_TITLE type, only open jobs with the same
 // language_codes are returned.
-//   "COMPANY_NAME" - Suggest company names for jobs autocomplete. For
+//
+//	"COMPANY_NAME" - Suggest company names for jobs autocomplete. For
+//
 // CompletionType.COMPANY_NAME type, only companies having open jobs
 // with the same language_codes are returned.
-//   "COMBINED" - Suggest both job titles and company names for jobs
+//
+//	"COMBINED" - Suggest both job titles and company names for jobs
+//
 // autocomplete. For CompletionType.COMBINED type, only open jobs with
 // the same language_codes or companies having open jobs with the same
 // language_codes are returned.
@@ -4013,17 +4045,17 @@ func (c *ProjectsTenantsCompleteQueryCall) Do(opts ...googleapi.CallOption) (*Co
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CompleteQueryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4132,9 +4164,9 @@ type ProjectsTenantsCreateCall struct {
 
 // Create: Creates a new tenant entity.
 //
-// - parent: Resource name of the project under which the tenant is
-//   created. The format is "projects/{project_id}", for example,
-//   "projects/foo".
+//   - parent: Resource name of the project under which the tenant is
+//     created. The format is "projects/{project_id}", for example,
+//     "projects/foo".
 func (r *ProjectsTenantsService) Create(parent string, tenant *Tenant) *ProjectsTenantsCreateCall {
 	c := &ProjectsTenantsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4209,17 +4241,17 @@ func (c *ProjectsTenantsCreateCall) Do(opts ...googleapi.CallOption) (*Tenant, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Tenant{
 		ServerResponse: googleapi.ServerResponse{
@@ -4276,9 +4308,9 @@ type ProjectsTenantsDeleteCall struct {
 
 // Delete: Deletes specified tenant.
 //
-// - name: The resource name of the tenant to be deleted. The format is
-//   "projects/{project_id}/tenants/{tenant_id}", for example,
-//   "projects/foo/tenants/bar".
+//   - name: The resource name of the tenant to be deleted. The format is
+//     "projects/{project_id}/tenants/{tenant_id}", for example,
+//     "projects/foo/tenants/bar".
 func (r *ProjectsTenantsService) Delete(name string) *ProjectsTenantsDeleteCall {
 	c := &ProjectsTenantsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4347,17 +4379,17 @@ func (c *ProjectsTenantsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4412,9 +4444,9 @@ type ProjectsTenantsGetCall struct {
 
 // Get: Retrieves specified tenant.
 //
-// - name: The resource name of the tenant to be retrieved. The format
-//   is "projects/{project_id}/tenants/{tenant_id}", for example,
-//   "projects/foo/tenants/bar".
+//   - name: The resource name of the tenant to be retrieved. The format
+//     is "projects/{project_id}/tenants/{tenant_id}", for example,
+//     "projects/foo/tenants/bar".
 func (r *ProjectsTenantsService) Get(name string) *ProjectsTenantsGetCall {
 	c := &ProjectsTenantsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4496,17 +4528,17 @@ func (c *ProjectsTenantsGetCall) Do(opts ...googleapi.CallOption) (*Tenant, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Tenant{
 		ServerResponse: googleapi.ServerResponse{
@@ -4561,9 +4593,9 @@ type ProjectsTenantsListCall struct {
 
 // List: Lists all tenants associated with the project.
 //
-// - parent: Resource name of the project under which the tenant is
-//   created. The format is "projects/{project_id}", for example,
-//   "projects/foo".
+//   - parent: Resource name of the project under which the tenant is
+//     created. The format is "projects/{project_id}", for example,
+//     "projects/foo".
 func (r *ProjectsTenantsService) List(parent string) *ProjectsTenantsListCall {
 	c := &ProjectsTenantsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4660,17 +4692,17 @@ func (c *ProjectsTenantsListCall) Do(opts ...googleapi.CallOption) (*ListTenants
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTenantsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4757,10 +4789,10 @@ type ProjectsTenantsPatchCall struct {
 
 // Patch: Updates specified tenant.
 //
-// - name: Required during tenant update. The resource name for a
-//   tenant. This is generated by the service when a tenant is created.
-//   The format is "projects/{project_id}/tenants/{tenant_id}", for
-//   example, "projects/foo/tenants/bar".
+//   - name: Required during tenant update. The resource name for a
+//     tenant. This is generated by the service when a tenant is created.
+//     The format is "projects/{project_id}/tenants/{tenant_id}", for
+//     example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsService) Patch(name string, tenant *Tenant) *ProjectsTenantsPatchCall {
 	c := &ProjectsTenantsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4845,17 +4877,17 @@ func (c *ProjectsTenantsPatchCall) Do(opts ...googleapi.CallOption) (*Tenant, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Tenant{
 		ServerResponse: googleapi.ServerResponse{
@@ -4924,9 +4956,9 @@ type ProjectsTenantsClientEventsCreateCall struct {
 // more (https://cloud.google.com/talent-solution/docs/management-tools)
 // about self service tools.
 //
-// - parent: Resource name of the tenant under which the event is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}",
-//   for example, "projects/foo/tenants/bar".
+//   - parent: Resource name of the tenant under which the event is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}",
+//     for example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsClientEventsService) Create(parent string, clientevent *ClientEvent) *ProjectsTenantsClientEventsCreateCall {
 	c := &ProjectsTenantsClientEventsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5001,17 +5033,17 @@ func (c *ProjectsTenantsClientEventsCreateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientEvent{
 		ServerResponse: googleapi.ServerResponse{
@@ -5069,9 +5101,9 @@ type ProjectsTenantsCompaniesCreateCall struct {
 
 // Create: Creates a new company entity.
 //
-// - parent: Resource name of the tenant under which the company is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}",
-//   for example, "projects/foo/tenants/bar".
+//   - parent: Resource name of the tenant under which the company is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}",
+//     for example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsCompaniesService) Create(parent string, company *Company) *ProjectsTenantsCompaniesCreateCall {
 	c := &ProjectsTenantsCompaniesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5146,17 +5178,17 @@ func (c *ProjectsTenantsCompaniesCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Company{
 		ServerResponse: googleapi.ServerResponse{
@@ -5214,9 +5246,9 @@ type ProjectsTenantsCompaniesDeleteCall struct {
 // Delete: Deletes specified company. Prerequisite: The company has no
 // jobs associated with it.
 //
-// - name: The resource name of the company to be deleted. The format is
-//   "projects/{project_id}/tenants/{tenant_id}/companies/{company_id}",
-//   for example, "projects/foo/tenants/bar/companies/baz".
+//   - name: The resource name of the company to be deleted. The format is
+//     "projects/{project_id}/tenants/{tenant_id}/companies/{company_id}",
+//     for example, "projects/foo/tenants/bar/companies/baz".
 func (r *ProjectsTenantsCompaniesService) Delete(name string) *ProjectsTenantsCompaniesDeleteCall {
 	c := &ProjectsTenantsCompaniesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5285,17 +5317,17 @@ func (c *ProjectsTenantsCompaniesDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5350,10 +5382,10 @@ type ProjectsTenantsCompaniesGetCall struct {
 
 // Get: Retrieves specified company.
 //
-// - name: The resource name of the company to be retrieved. The format
-//   is
-//   "projects/{project_id}/tenants/{tenant_id}/companies/{company_id}",
-//   for example, "projects/api-test-project/tenants/foo/companies/bar".
+//   - name: The resource name of the company to be retrieved. The format
+//     is
+//     "projects/{project_id}/tenants/{tenant_id}/companies/{company_id}",
+//     for example, "projects/api-test-project/tenants/foo/companies/bar".
 func (r *ProjectsTenantsCompaniesService) Get(name string) *ProjectsTenantsCompaniesGetCall {
 	c := &ProjectsTenantsCompaniesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5435,17 +5467,17 @@ func (c *ProjectsTenantsCompaniesGetCall) Do(opts ...googleapi.CallOption) (*Com
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Company{
 		ServerResponse: googleapi.ServerResponse{
@@ -5500,9 +5532,9 @@ type ProjectsTenantsCompaniesListCall struct {
 
 // List: Lists all companies associated with the project.
 //
-// - parent: Resource name of the tenant under which the company is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}",
-//   for example, "projects/foo/tenants/bar".
+//   - parent: Resource name of the tenant under which the company is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}",
+//     for example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsCompaniesService) List(parent string) *ProjectsTenantsCompaniesListCall {
 	c := &ProjectsTenantsCompaniesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5608,17 +5640,17 @@ func (c *ProjectsTenantsCompaniesListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCompaniesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5710,11 +5742,11 @@ type ProjectsTenantsCompaniesPatchCall struct {
 
 // Patch: Updates specified company.
 //
-// - name: Required during company update. The resource name for a
-//   company. This is generated by the service when a company is
-//   created. The format is
-//   "projects/{project_id}/tenants/{tenant_id}/companies/{company_id}",
-//   for example, "projects/foo/tenants/bar/companies/baz".
+//   - name: Required during company update. The resource name for a
+//     company. This is generated by the service when a company is
+//     created. The format is
+//     "projects/{project_id}/tenants/{tenant_id}/companies/{company_id}",
+//     for example, "projects/foo/tenants/bar/companies/baz".
 func (r *ProjectsTenantsCompaniesService) Patch(name string, company *Company) *ProjectsTenantsCompaniesPatchCall {
 	c := &ProjectsTenantsCompaniesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5799,17 +5831,17 @@ func (c *ProjectsTenantsCompaniesPatchCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Company{
 		ServerResponse: googleapi.ServerResponse{
@@ -5873,9 +5905,9 @@ type ProjectsTenantsJobsBatchCreateCall struct {
 
 // BatchCreate: Begins executing a batch create jobs operation.
 //
-// - parent: The resource name of the tenant under which the job is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}".
-//   For example, "projects/foo/tenants/bar".
+//   - parent: The resource name of the tenant under which the job is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}".
+//     For example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsJobsService) BatchCreate(parent string, batchcreatejobsrequest *BatchCreateJobsRequest) *ProjectsTenantsJobsBatchCreateCall {
 	c := &ProjectsTenantsJobsBatchCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5950,17 +5982,17 @@ func (c *ProjectsTenantsJobsBatchCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6018,10 +6050,10 @@ type ProjectsTenantsJobsBatchDeleteCall struct {
 
 // BatchDelete: Begins executing a batch delete jobs operation.
 //
-// - parent: The resource name of the tenant under which the job is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}".
-//   For example, "projects/foo/tenants/bar". The parent of all of the
-//   jobs specified in `names` must match this field.
+//   - parent: The resource name of the tenant under which the job is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}".
+//     For example, "projects/foo/tenants/bar". The parent of all of the
+//     jobs specified in `names` must match this field.
 func (r *ProjectsTenantsJobsService) BatchDelete(parent string, batchdeletejobsrequest *BatchDeleteJobsRequest) *ProjectsTenantsJobsBatchDeleteCall {
 	c := &ProjectsTenantsJobsBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6096,17 +6128,17 @@ func (c *ProjectsTenantsJobsBatchDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6164,9 +6196,9 @@ type ProjectsTenantsJobsBatchUpdateCall struct {
 
 // BatchUpdate: Begins executing a batch update jobs operation.
 //
-// - parent: The resource name of the tenant under which the job is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}".
-//   For example, "projects/foo/tenants/bar".
+//   - parent: The resource name of the tenant under which the job is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}".
+//     For example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsJobsService) BatchUpdate(parent string, batchupdatejobsrequest *BatchUpdateJobsRequest) *ProjectsTenantsJobsBatchUpdateCall {
 	c := &ProjectsTenantsJobsBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6241,17 +6273,17 @@ func (c *ProjectsTenantsJobsBatchUpdateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6310,9 +6342,9 @@ type ProjectsTenantsJobsCreateCall struct {
 // Create: Creates a new job. Typically, the job becomes searchable
 // within 10 seconds, but it may take up to 5 minutes.
 //
-// - parent: The resource name of the tenant under which the job is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}".
-//   For example, "projects/foo/tenants/bar".
+//   - parent: The resource name of the tenant under which the job is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}".
+//     For example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsJobsService) Create(parent string, job *Job) *ProjectsTenantsJobsCreateCall {
 	c := &ProjectsTenantsJobsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6387,17 +6419,17 @@ func (c *ProjectsTenantsJobsCreateCall) Do(opts ...googleapi.CallOption) (*Job, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Job{
 		ServerResponse: googleapi.ServerResponse{
@@ -6455,9 +6487,9 @@ type ProjectsTenantsJobsDeleteCall struct {
 // Delete: Deletes the specified job. Typically, the job becomes
 // unsearchable within 10 seconds, but it may take up to 5 minutes.
 //
-// - name: The resource name of the job to be deleted. The format is
-//   "projects/{project_id}/tenants/{tenant_id}/jobs/{job_id}". For
-//   example, "projects/foo/tenants/bar/jobs/baz".
+//   - name: The resource name of the job to be deleted. The format is
+//     "projects/{project_id}/tenants/{tenant_id}/jobs/{job_id}". For
+//     example, "projects/foo/tenants/bar/jobs/baz".
 func (r *ProjectsTenantsJobsService) Delete(name string) *ProjectsTenantsJobsDeleteCall {
 	c := &ProjectsTenantsJobsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6526,17 +6558,17 @@ func (c *ProjectsTenantsJobsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6592,9 +6624,9 @@ type ProjectsTenantsJobsGetCall struct {
 // Get: Retrieves the specified job, whose status is OPEN or recently
 // EXPIRED within the last 90 days.
 //
-// - name: The resource name of the job to retrieve. The format is
-//   "projects/{project_id}/tenants/{tenant_id}/jobs/{job_id}". For
-//   example, "projects/foo/tenants/bar/jobs/baz".
+//   - name: The resource name of the job to retrieve. The format is
+//     "projects/{project_id}/tenants/{tenant_id}/jobs/{job_id}". For
+//     example, "projects/foo/tenants/bar/jobs/baz".
 func (r *ProjectsTenantsJobsService) Get(name string) *ProjectsTenantsJobsGetCall {
 	c := &ProjectsTenantsJobsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6676,17 +6708,17 @@ func (c *ProjectsTenantsJobsGetCall) Do(opts ...googleapi.CallOption) (*Job, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Job{
 		ServerResponse: googleapi.ServerResponse{
@@ -6741,9 +6773,9 @@ type ProjectsTenantsJobsListCall struct {
 
 // List: Lists jobs by filter.
 //
-// - parent: The resource name of the tenant under which the job is
-//   created. The format is "projects/{project_id}/tenants/{tenant_id}".
-//   For example, "projects/foo/tenants/bar".
+//   - parent: The resource name of the tenant under which the job is
+//     created. The format is "projects/{project_id}/tenants/{tenant_id}".
+//     For example, "projects/foo/tenants/bar".
 func (r *ProjectsTenantsJobsService) List(parent string) *ProjectsTenantsJobsListCall {
 	c := &ProjectsTenantsJobsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6772,17 +6804,25 @@ func (c *ProjectsTenantsJobsListCall) Filter(filter string) *ProjectsTenantsJobs
 // JobView.JOB_VIEW_FULL if no value is specified.
 //
 // Possible values:
-//   "JOB_VIEW_UNSPECIFIED" - Default value.
-//   "JOB_VIEW_ID_ONLY" - A ID only view of job, with following
+//
+//	"JOB_VIEW_UNSPECIFIED" - Default value.
+//	"JOB_VIEW_ID_ONLY" - A ID only view of job, with following
+//
 // attributes: Job.name, Job.requisition_id, Job.language_code.
-//   "JOB_VIEW_MINIMAL" - A minimal view of the job, with the following
+//
+//	"JOB_VIEW_MINIMAL" - A minimal view of the job, with the following
+//
 // attributes: Job.name, Job.requisition_id, Job.title, Job.company,
 // Job.DerivedInfo.locations, Job.language_code.
-//   "JOB_VIEW_SMALL" - A small view of the job, with the following
+//
+//	"JOB_VIEW_SMALL" - A small view of the job, with the following
+//
 // attributes in the search results: Job.name, Job.requisition_id,
 // Job.title, Job.company, Job.DerivedInfo.locations, Job.visibility,
 // Job.language_code, Job.description.
-//   "JOB_VIEW_FULL" - All available attributes are included in the
+//
+//	"JOB_VIEW_FULL" - All available attributes are included in the
+//
 // search results.
 func (c *ProjectsTenantsJobsListCall) JobView(jobView string) *ProjectsTenantsJobsListCall {
 	c.urlParams_.Set("jobView", jobView)
@@ -6881,17 +6921,17 @@ func (c *ProjectsTenantsJobsListCall) Do(opts ...googleapi.CallOption) (*ListJob
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListJobsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7004,12 +7044,12 @@ type ProjectsTenantsJobsPatchCall struct {
 // visible in search results within 10 seconds, but it may take up to 5
 // minutes.
 //
-// - name: Required during job update. The resource name for the job.
-//   This is generated by the service when a job is created. The format
-//   is "projects/{project_id}/tenants/{tenant_id}/jobs/{job_id}". For
-//   example, "projects/foo/tenants/bar/jobs/baz". Use of this field in
-//   job queries and API calls is preferred over the use of
-//   requisition_id since this value is unique.
+//   - name: Required during job update. The resource name for the job.
+//     This is generated by the service when a job is created. The format
+//     is "projects/{project_id}/tenants/{tenant_id}/jobs/{job_id}". For
+//     example, "projects/foo/tenants/bar/jobs/baz". Use of this field in
+//     job queries and API calls is preferred over the use of
+//     requisition_id since this value is unique.
 func (r *ProjectsTenantsJobsService) Patch(name string, job *Job) *ProjectsTenantsJobsPatchCall {
 	c := &ProjectsTenantsJobsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7094,17 +7134,17 @@ func (c *ProjectsTenantsJobsPatchCall) Do(opts ...googleapi.CallOption) (*Job, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Job{
 		ServerResponse: googleapi.ServerResponse{
@@ -7170,9 +7210,9 @@ type ProjectsTenantsJobsSearchCall struct {
 // call constrains the visibility of jobs present in the database, and
 // only returns jobs that the caller has permission to search against.
 //
-// - parent: The resource name of the tenant to search within. The
-//   format is "projects/{project_id}/tenants/{tenant_id}". For example,
-//   "projects/foo/tenants/bar".
+//   - parent: The resource name of the tenant to search within. The
+//     format is "projects/{project_id}/tenants/{tenant_id}". For example,
+//     "projects/foo/tenants/bar".
 func (r *ProjectsTenantsJobsService) Search(parent string, searchjobsrequest *SearchJobsRequest) *ProjectsTenantsJobsSearchCall {
 	c := &ProjectsTenantsJobsSearchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7247,17 +7287,17 @@ func (c *ProjectsTenantsJobsSearchCall) Do(opts ...googleapi.CallOption) (*Searc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchJobsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7343,9 +7383,9 @@ type ProjectsTenantsJobsSearchForAlertCall struct {
 // visibility of jobs present in the database, and only returns jobs the
 // caller has permission to search against.
 //
-// - parent: The resource name of the tenant to search within. The
-//   format is "projects/{project_id}/tenants/{tenant_id}". For example,
-//   "projects/foo/tenants/bar".
+//   - parent: The resource name of the tenant to search within. The
+//     format is "projects/{project_id}/tenants/{tenant_id}". For example,
+//     "projects/foo/tenants/bar".
 func (r *ProjectsTenantsJobsService) SearchForAlert(parent string, searchjobsrequest *SearchJobsRequest) *ProjectsTenantsJobsSearchForAlertCall {
 	c := &ProjectsTenantsJobsSearchForAlertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7420,17 +7460,17 @@ func (c *ProjectsTenantsJobsSearchForAlertCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchJobsResponse{
 		ServerResponse: googleapi.ServerResponse{

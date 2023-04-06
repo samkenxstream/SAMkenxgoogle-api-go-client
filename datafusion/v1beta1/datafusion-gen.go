@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/data-fusion/docs
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/datafusion/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   datafusionService, err := datafusion.NewService(ctx)
+//	import "google.golang.org/api/datafusion/v1beta1"
+//	...
+//	ctx := context.Background()
+//	datafusionService, err := datafusion.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   datafusionService, err := datafusion.NewService(ctx, option.WithAPIKey("AIza..."))
+//	datafusionService, err := datafusion.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   datafusionService, err := datafusion.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	datafusionService, err := datafusion.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package datafusion // import "google.golang.org/api/datafusion/v1beta1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "datafusion:v1beta1"
 const apiName = "datafusion"
@@ -228,7 +229,25 @@ type Accelerator struct {
 	//   "HEALTHCARE" - Cloud Healthcare accelerator for CDF. This
 	// accelerator is to enable Cloud Healthcare specific CDF plugins
 	// developed by Healthcare team.
+	//   "CCAI_INSIGHTS" - Contact Center AI Insights This accelerator is
+	// used to enable import and export pipelines custom built to streamline
+	// CCAI Insights processing.
+	//   "CLOUDSEARCH" - Cloud search accelerator for CDF. This accelerator
+	// is to enable Cloud search specific CDF plugins developed by
+	// Cloudsearch team.
 	AcceleratorType string `json:"acceleratorType,omitempty"`
+
+	// State: The state of the accelerator.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Default value, do not use.
+	//   "ENABLED" - Indicates that the accelerator is enabled and available
+	// to use.
+	//   "DISABLED" - Indicates that the accelerator is disabled and not
+	// available to use.
+	//   "UNKNOWN" - Indicates that accelerator state is currently unknown.
+	// Requests for enable, disable could be retried while in this state.
+	State string `json:"state,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AcceleratorType") to
 	// unconditionally include in API requests. By default, fields with
@@ -368,19 +387,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -392,9 +418,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -520,6 +544,38 @@ type Empty struct {
 	googleapi.ServerResponse `json:"-"`
 }
 
+// EventPublishConfig: Confirguration of PubSubEventWriter.
+type EventPublishConfig struct {
+	// Enabled: Required. Option to enable Event Publishing.
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Topic: Required. The resource name of the Pub/Sub topic. Format:
+	// projects/{project_id}/topics/{topic_id}
+	Topic string `json:"topic,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Enabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Enabled") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EventPublishConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod EventPublishConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Expr: Represents a textual expression in the Common Expression
 // Language (CEL) syntax. CEL is a C-like expression language. The
 // syntax and semantics of CEL are documented at
@@ -615,15 +671,16 @@ func (s *IAMPolicy) MarshalJSON() ([]byte, error) {
 
 // Instance: Represents a Data Fusion instance.
 type Instance struct {
-	// Accelerators: List of accelerators enabled for this CDF instance.
+	// Accelerators: Output only. List of accelerators enabled for this CDF
+	// instance.
 	Accelerators []*Accelerator `json:"accelerators,omitempty"`
 
 	// ApiEndpoint: Output only. Endpoint on which the REST APIs is
 	// accessible.
 	ApiEndpoint string `json:"apiEndpoint,omitempty"`
 
-	// AvailableVersion: Available versions that the instance can be
-	// upgraded to using UpdateInstanceRequest.
+	// AvailableVersion: Output only. Available versions that the instance
+	// can be upgraded to using UpdateInstanceRequest.
 	AvailableVersion []*Version `json:"availableVersion,omitempty"`
 
 	// CreateTime: Output only. The time the instance was created.
@@ -663,6 +720,13 @@ type Instance struct {
 
 	// EnableStackdriverMonitoring: Option to enable Stackdriver Monitoring.
 	EnableStackdriverMonitoring bool `json:"enableStackdriverMonitoring,omitempty"`
+
+	// EnableZoneSeparation: Option to enable zone separation.
+	EnableZoneSeparation bool `json:"enableZoneSeparation,omitempty"`
+
+	// EventPublishConfig: Option to enable and pass metadata for event
+	// publishing.
+	EventPublishConfig *EventPublishConfig `json:"eventPublishConfig,omitempty"`
 
 	// GcsBucket: Output only. Cloud Storage bucket generated by Data Fusion
 	// in the customer project.
@@ -1194,6 +1258,12 @@ func (s *Operation) MarshalJSON() ([]byte, error) {
 // OperationMetadata: Represents the metadata of a long-running
 // operation.
 type OperationMetadata struct {
+	// AdditionalStatus: Map to hold any additional status info for the
+	// operation If there is an accelerator being enabled/disabled/deleted,
+	// this will be populated with accelerator name as key and status as
+	// ENABLING, DISABLING or DELETING
+	AdditionalStatus map[string]string `json:"additionalStatus,omitempty"`
+
 	// ApiVersion: API version used to start the operation.
 	ApiVersion string `json:"apiVersion,omitempty"`
 
@@ -1218,7 +1288,7 @@ type OperationMetadata struct {
 	// Verb: Name of the verb executed by the operation.
 	Verb string `json:"verb,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "ApiVersion") to
+	// ForceSendFields is a list of field names (e.g. "AdditionalStatus") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -1226,12 +1296,13 @@ type OperationMetadata struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "ApiVersion") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AdditionalStatus") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -1537,6 +1608,7 @@ type Version struct {
 	//   "TYPE_PREVIEW" - Version is under development and not considered
 	// stable
 	//   "TYPE_GENERAL_AVAILABILITY" - Version is available for public use
+	// Version is under development and not considered stable
 	Type string `json:"type,omitempty"`
 
 	// VersionNumber: The version number of the Data Fusion instance, such
@@ -1662,17 +1734,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -1727,8 +1799,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1842,17 +1914,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1949,8 +2021,8 @@ type ProjectsLocationsRemoveIamPolicyCall struct {
 // RemoveIamPolicy: Remove IAM policy that is currently set on the given
 // resource.
 //
-// - resource: The resource on which IAM policy to be removed is
-//   attached to.
+//   - resource: The resource on which IAM policy to be removed is
+//     attached to.
 func (r *ProjectsLocationsService) RemoveIamPolicy(resource string, removeiampolicyrequest *RemoveIamPolicyRequest) *ProjectsLocationsRemoveIamPolicyCall {
 	c := &ProjectsLocationsRemoveIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2025,17 +2097,17 @@ func (c *ProjectsLocationsRemoveIamPolicyCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RemoveIamPolicyResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2093,8 +2165,8 @@ type ProjectsLocationsInstancesCreateCall struct {
 // Create: Creates a new Data Fusion instance in the specified project
 // and location.
 //
-// - parent: The instance's project and location in the format
-//   projects/{project}/locations/{location}.
+//   - parent: The instance's project and location in the format
+//     projects/{project}/locations/{location}.
 func (r *ProjectsLocationsInstancesService) Create(parent string, instance *Instance) *ProjectsLocationsInstancesCreateCall {
 	c := &ProjectsLocationsInstancesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2176,17 +2248,17 @@ func (c *ProjectsLocationsInstancesCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2247,8 +2319,8 @@ type ProjectsLocationsInstancesDeleteCall struct {
 
 // Delete: Deletes a single Data Fusion instance.
 //
-// - name: The instance resource name in the format
-//   projects/{project}/locations/{location}/instances/{instance}.
+//   - name: The instance resource name in the format
+//     projects/{project}/locations/{location}/instances/{instance}.
 func (r *ProjectsLocationsInstancesService) Delete(name string) *ProjectsLocationsInstancesDeleteCall {
 	c := &ProjectsLocationsInstancesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2317,17 +2389,17 @@ func (c *ProjectsLocationsInstancesDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2381,8 +2453,8 @@ type ProjectsLocationsInstancesGetCall struct {
 
 // Get: Gets details of a single Data Fusion instance.
 //
-// - name: The instance resource name in the format
-//   projects/{project}/locations/{location}/instances/{instance}.
+//   - name: The instance resource name in the format
+//     projects/{project}/locations/{location}/instances/{instance}.
 func (r *ProjectsLocationsInstancesService) Get(name string) *ProjectsLocationsInstancesGetCall {
 	c := &ProjectsLocationsInstancesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2464,17 +2536,17 @@ func (c *ProjectsLocationsInstancesGetCall) Do(opts ...googleapi.CallOption) (*I
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Instance{
 		ServerResponse: googleapi.ServerResponse{
@@ -2530,10 +2602,10 @@ type ProjectsLocationsInstancesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesService) GetIamPolicy(resource string) *ProjectsLocationsInstancesGetIamPolicyCall {
 	c := &ProjectsLocationsInstancesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2633,17 +2705,17 @@ func (c *ProjectsLocationsInstancesGetIamPolicyCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2704,11 +2776,11 @@ type ProjectsLocationsInstancesListCall struct {
 // List: Lists Data Fusion instances in the specified project and
 // location.
 //
-// - parent: The project and location for which to retrieve instance
-//   information in the format projects/{project}/locations/{location}.
-//   If the location is specified as '-' (wildcard), then all regions
-//   available to the project are queried, and the results are
-//   aggregated.
+//   - parent: The project and location for which to retrieve instance
+//     information in the format projects/{project}/locations/{location}.
+//     If the location is specified as '-' (wildcard), then all regions
+//     available to the project are queried, and the results are
+//     aggregated.
 func (r *ProjectsLocationsInstancesService) List(parent string) *ProjectsLocationsInstancesListCall {
 	c := &ProjectsLocationsInstancesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2818,17 +2890,17 @@ func (c *ProjectsLocationsInstancesListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInstancesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2924,8 +2996,8 @@ type ProjectsLocationsInstancesPatchCall struct {
 
 // Patch: Updates a single Data Fusion instance.
 //
-// - name: Output only. The name of this instance is in the form of
-//   projects/{project}/locations/{location}/instances/{instance}.
+//   - name: Output only. The name of this instance is in the form of
+//     projects/{project}/locations/{location}/instances/{instance}.
 func (r *ProjectsLocationsInstancesService) Patch(name string, instance *Instance) *ProjectsLocationsInstancesPatchCall {
 	c := &ProjectsLocationsInstancesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3012,17 +3084,17 @@ func (c *ProjectsLocationsInstancesPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3086,9 +3158,9 @@ type ProjectsLocationsInstancesRestartCall struct {
 // Restart: Restart a single Data Fusion instance. At the end of an
 // operation instance is fully restarted.
 //
-// - name: Name of the Data Fusion instance which need to be restarted
-//   in the form of
-//   projects/{project}/locations/{location}/instances/{instance}.
+//   - name: Name of the Data Fusion instance which need to be restarted
+//     in the form of
+//     projects/{project}/locations/{location}/instances/{instance}.
 func (r *ProjectsLocationsInstancesService) Restart(name string, restartinstancerequest *RestartInstanceRequest) *ProjectsLocationsInstancesRestartCall {
 	c := &ProjectsLocationsInstancesRestartCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3163,17 +3235,17 @@ func (c *ProjectsLocationsInstancesRestartCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3232,10 +3304,10 @@ type ProjectsLocationsInstancesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsInstancesSetIamPolicyCall {
 	c := &ProjectsLocationsInstancesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3310,17 +3382,17 @@ func (c *ProjectsLocationsInstancesSetIamPolicyCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3382,10 +3454,10 @@ type ProjectsLocationsInstancesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsInstancesTestIamPermissionsCall {
 	c := &ProjectsLocationsInstancesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3460,17 +3532,17 @@ func (c *ProjectsLocationsInstancesTestIamPermissionsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3528,11 +3600,11 @@ type ProjectsLocationsInstancesUpgradeCall struct {
 // Upgrade: Upgrade a single Data Fusion instance. At the end of an
 // operation instance is fully upgraded.
 //
-// - name: Name of the Data Fusion instance which need to be upgraded in
-//   the form of
-//   projects/{project}/locations/{location}/instances/{instance}
-//   Instance will be upgraded with the latest stable version of the
-//   Data Fusion.
+//   - name: Name of the Data Fusion instance which need to be upgraded in
+//     the form of
+//     projects/{project}/locations/{location}/instances/{instance}
+//     Instance will be upgraded with the latest stable version of the
+//     Data Fusion.
 func (r *ProjectsLocationsInstancesService) Upgrade(name string, upgradeinstancerequest *UpgradeInstanceRequest) *ProjectsLocationsInstancesUpgradeCall {
 	c := &ProjectsLocationsInstancesUpgradeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3607,17 +3679,17 @@ func (c *ProjectsLocationsInstancesUpgradeCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3756,17 +3828,17 @@ func (c *ProjectsLocationsInstancesDnsPeeringsCreateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DnsPeering{
 		ServerResponse: googleapi.ServerResponse{
@@ -3827,9 +3899,9 @@ type ProjectsLocationsInstancesDnsPeeringsDeleteCall struct {
 
 // Delete: Deletes DNS peering on the given resource.
 //
-// - name: The name of the DNS peering zone to delete. Format:
-//   projects/{project}/locations/{location}/instances/{instance}/dnsPeer
-//   ings/{dns_peering}.
+//   - name: The name of the DNS peering zone to delete. Format:
+//     projects/{project}/locations/{location}/instances/{instance}/dnsPeer
+//     ings/{dns_peering}.
 func (r *ProjectsLocationsInstancesDnsPeeringsService) Delete(name string) *ProjectsLocationsInstancesDnsPeeringsDeleteCall {
 	c := &ProjectsLocationsInstancesDnsPeeringsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3898,17 +3970,17 @@ func (c *ProjectsLocationsInstancesDnsPeeringsDeleteCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3962,9 +4034,9 @@ type ProjectsLocationsInstancesDnsPeeringsListCall struct {
 
 // List: Lists DNS peerings for a given resource.
 //
-// - parent: The parent, which owns this collection of dns peerings.
-//   Format:
-//   projects/{project}/locations/{location}/instances/{instance}.
+//   - parent: The parent, which owns this collection of dns peerings.
+//     Format:
+//     projects/{project}/locations/{location}/instances/{instance}.
 func (r *ProjectsLocationsInstancesDnsPeeringsService) List(parent string) *ProjectsLocationsInstancesDnsPeeringsListCall {
 	c := &ProjectsLocationsInstancesDnsPeeringsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4065,17 +4137,17 @@ func (c *ProjectsLocationsInstancesDnsPeeringsListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDnsPeeringsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4163,10 +4235,10 @@ type ProjectsLocationsInstancesNamespacesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesNamespacesService) GetIamPolicy(resource string) *ProjectsLocationsInstancesNamespacesGetIamPolicyCall {
 	c := &ProjectsLocationsInstancesNamespacesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4266,17 +4338,17 @@ func (c *ProjectsLocationsInstancesNamespacesGetIamPolicyCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4364,11 +4436,16 @@ func (c *ProjectsLocationsInstancesNamespacesListCall) PageToken(pageToken strin
 // with a namespace gets returned (e.g. IAM policy set on the namespace)
 //
 // Possible values:
-//   "NAMESPACE_VIEW_UNSPECIFIED" - Default/unset value, which will use
+//
+//	"NAMESPACE_VIEW_UNSPECIFIED" - Default/unset value, which will use
+//
 // BASIC view.
-//   "NAMESPACE_VIEW_BASIC" - Show the most basic metadata of a
+//
+//	"NAMESPACE_VIEW_BASIC" - Show the most basic metadata of a
+//
 // namespace
-//   "NAMESPACE_VIEW_FULL" - Returns all metadata of a namespace
+//
+//	"NAMESPACE_VIEW_FULL" - Returns all metadata of a namespace
 func (c *ProjectsLocationsInstancesNamespacesListCall) View(view string) *ProjectsLocationsInstancesNamespacesListCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -4449,17 +4526,17 @@ func (c *ProjectsLocationsInstancesNamespacesListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListNamespacesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4562,10 +4639,10 @@ type ProjectsLocationsInstancesNamespacesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesNamespacesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsInstancesNamespacesSetIamPolicyCall {
 	c := &ProjectsLocationsInstancesNamespacesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4640,17 +4717,17 @@ func (c *ProjectsLocationsInstancesNamespacesSetIamPolicyCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4712,10 +4789,10 @@ type ProjectsLocationsInstancesNamespacesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesNamespacesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsInstancesNamespacesTestIamPermissionsCall {
 	c := &ProjectsLocationsInstancesNamespacesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4790,17 +4867,17 @@ func (c *ProjectsLocationsInstancesNamespacesTestIamPermissionsCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4941,17 +5018,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5079,17 +5156,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5227,17 +5304,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5291,14 +5368,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -5403,17 +5473,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5427,7 +5497,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1beta1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "datafusion.projects.locations.operations.list",
@@ -5505,8 +5575,8 @@ type ProjectsLocationsVersionsListCall struct {
 // List: Lists possible versions for Data Fusion instances in the
 // specified project and location.
 //
-// - parent: The project and location for which to retrieve instance
-//   information in the format projects/{project}/locations/{location}.
+//   - parent: The project and location for which to retrieve instance
+//     information in the format projects/{project}/locations/{location}.
 func (r *ProjectsLocationsVersionsService) List(parent string) *ProjectsLocationsVersionsListCall {
 	c := &ProjectsLocationsVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5613,17 +5683,17 @@ func (c *ProjectsLocationsVersionsListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAvailableVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{

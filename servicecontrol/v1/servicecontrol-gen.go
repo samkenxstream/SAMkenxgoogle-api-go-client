@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/service-control/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/servicecontrol/v1"
-//   ...
-//   ctx := context.Background()
-//   servicecontrolService, err := servicecontrol.NewService(ctx)
+//	import "google.golang.org/api/servicecontrol/v1"
+//	...
+//	ctx := context.Background()
+//	servicecontrolService, err := servicecontrol.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   servicecontrolService, err := servicecontrol.NewService(ctx, option.WithScopes(servicecontrol.ServicecontrolScope))
+//	servicecontrolService, err := servicecontrol.NewService(ctx, option.WithScopes(servicecontrol.ServicecontrolScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   servicecontrolService, err := servicecontrol.NewService(ctx, option.WithAPIKey("AIza..."))
+//	servicecontrolService, err := servicecontrol.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   servicecontrolService, err := servicecontrol.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	servicecontrolService, err := servicecontrol.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package servicecontrol // import "google.golang.org/api/servicecontrol/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "servicecontrol:v1"
 const apiName = "servicecontrol"
@@ -712,6 +713,13 @@ type CheckError struct {
 	// should be ignored and should not be used to reject client requests.
 	//   "LOCATION_POLICY_BACKEND_UNAVAILABLE" - Backend server for
 	// evaluating location policy is unavailable.
+	//   "INJECTED_ERROR" - Part of the project of fault injection:
+	// go/chemist-slo-validation. To distinguish between artificially
+	// injected errors and organic ones, this value will be exported for the
+	// per_service_check_error_count streamz.
+	// http://google3/apiserving/servicecontrol/server/controller_service.cc;l=196
+	// Rpcinjectz2 works by injecting errors early in the rpc life cycle,
+	// before any of the chemist business logic runs.
 	Code string `json:"code,omitempty"`
 
 	// Detail: Free-form text providing details on the error cause of the
@@ -1723,6 +1731,7 @@ type Operation struct {
 	// the onboarding process. It is only available to Google internal
 	// services, and the service must be approved by chemist-dev@google.com
 	// in order to use this level.
+	//   "PROMOTED" - Used internally by Chemist.
 	Importance string `json:"importance,omitempty"`
 
 	// Labels: Labels describing the operation. Only the following labels
@@ -1875,8 +1884,8 @@ type Peer struct {
 
 	// Principal: The identity of this peer. Similar to
 	// `Request.auth.principal`, but relative to the peer instead of the
-	// request. For example, the idenity associated with a load balancer
-	// that forwared the request.
+	// request. For example, the identity associated with a load balancer
+	// that forwarded the request.
 	Principal string `json:"principal,omitempty"`
 
 	// RegionCode: The CLDR country/region code associated with the above IP
@@ -2170,8 +2179,6 @@ type QuotaProperties struct {
 	// returns error.
 	//   "CHECK" - Does not change any available quota. Only checks if there
 	// is enough quota. No lock is placed on the checked tokens neither.
-	//   "RELEASE" - DEPRECATED: Increases available quota by the operation
-	// cost specified for the operation.
 	QuotaMode string `json:"quotaMode,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "QuotaMode") to
@@ -2397,15 +2404,17 @@ func (s *Request) MarshalJSON() ([]byte, error) {
 
 // RequestMetadata: Metadata about the request.
 type RequestMetadata struct {
-	// CallerIp: The IP address of the caller. For caller from internet,
-	// this will be public IPv4 or IPv6 address. For caller from a Compute
-	// Engine VM with external IP address, this will be the VM's external IP
-	// address. For caller from a Compute Engine VM without external IP
-	// address, if the VM is in the same organization (or project) as the
-	// accessed resource, `caller_ip` will be the VM's internal IPv4
-	// address, otherwise the `caller_ip` will be redacted to
-	// "gce-internal-ip". See https://cloud.google.com/compute/docs/vpc/ for
-	// more information.
+	// CallerIp: The IP address of the caller. For a caller from the
+	// internet, this will be the public IPv4 or IPv6 address. For calls
+	// made from inside Google's internal production network from one GCP
+	// service to another, `caller_ip` will be redacted to "private". For a
+	// caller from a Compute Engine VM with a external IP address,
+	// `caller_ip` will be the VM's external IP address. For a caller from a
+	// Compute Engine VM without a external IP address, if the VM is in the
+	// same organization (or project) as the accessed resource, `caller_ip`
+	// will be the VM's internal IPv4 address, otherwise `caller_ip` will be
+	// redacted to "gce-internal-ip". See
+	// https://cloud.google.com/compute/docs/vpc/ for more information.
 	CallerIp string `json:"callerIp,omitempty"`
 
 	// CallerNetwork: The network of the caller. Set only if the network
@@ -2424,7 +2433,7 @@ type RequestMetadata struct {
 	// apitools-client/1.0 gcloud/0.9.62`: The request was made by the
 	// Google Cloud SDK CLI (gcloud). + `AppEngine-Google;
 	// (+http://code.google.com/appengine; appid: s~my-project`: The request
-	// was made from the `my-project` App Engine app. NOLINT
+	// was made from the `my-project` App Engine app.
 	CallerSuppliedUserAgent string `json:"callerSuppliedUserAgent,omitempty"`
 
 	// DestinationAttributes: The destination of a network activity, such as
@@ -2473,7 +2482,7 @@ type Resource struct {
 	// a resource that may be set by external tools to store and retrieve
 	// arbitrary metadata. They are not queryable and should be preserved
 	// when modifying objects. More info:
-	// https://kubernetes.io/docs/user-guide/annotations
+	// https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// CreateTime: Output only. The timestamp when the resource was created.
@@ -2568,6 +2577,9 @@ func (s *Resource) MarshalJSON() ([]byte, error) {
 
 // ResourceInfo: Describes a resource associated with this operation.
 type ResourceInfo struct {
+	// Permission: The resource permission required for this request.
+	Permission string `json:"permission,omitempty"`
+
 	// ResourceContainer: The identifier of the parent of this resource
 	// instance. Must be in one of the following formats: - `projects/` -
 	// `folders/` - `organizations/`
@@ -2583,21 +2595,20 @@ type ResourceInfo struct {
 	// purposes.
 	ResourceName string `json:"resourceName,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "ResourceContainer")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "Permission") to
+	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "ResourceContainer") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Permission") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -3288,9 +3299,9 @@ type ServicesAllocateQuotaCall struct {
 // the server may inject these errors to prohibit any hard dependency on
 // the quota functionality.
 //
-// - serviceName: Name of the service as specified in the service
-//   configuration. For example, "pubsub.googleapis.com". See
-//   google.api.Service for the definition of a service name.
+//   - serviceName: Name of the service as specified in the service
+//     configuration. For example, "pubsub.googleapis.com". See
+//     google.api.Service for the definition of a service name.
 func (r *ServicesService) AllocateQuota(serviceName string, allocatequotarequest *AllocateQuotaRequest) *ServicesAllocateQuotaCall {
 	c := &ServicesAllocateQuotaCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.serviceName = serviceName
@@ -3365,17 +3376,17 @@ func (c *ServicesAllocateQuotaCall) Do(opts ...googleapi.CallOption) (*AllocateQ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AllocateQuotaResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3444,11 +3455,11 @@ type ServicesCheckCall struct {
 // service. For more information, see Cloud IAM
 // (https://cloud.google.com/iam).
 //
-// - serviceName: The service name as specified in its service
-//   configuration. For example, "pubsub.googleapis.com". See
-//   google.api.Service
-//   (https://cloud.google.com/service-management/reference/rpc/google.api#google.api.Service)
-//   for the definition of a service name.
+//   - serviceName: The service name as specified in its service
+//     configuration. For example, "pubsub.googleapis.com". See
+//     google.api.Service
+//     (https://cloud.google.com/service-management/reference/rpc/google.api#google.api.Service)
+//     for the definition of a service name.
 func (r *ServicesService) Check(serviceName string, checkrequest *CheckRequest) *ServicesCheckCall {
 	c := &ServicesCheckCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.serviceName = serviceName
@@ -3523,17 +3534,17 @@ func (c *ServicesCheckCall) Do(opts ...googleapi.CallOption) (*CheckResponse, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CheckResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3600,11 +3611,11 @@ type ServicesReportCall struct {
 // the specified service. For more information, see Google Cloud IAM
 // (https://cloud.google.com/iam).
 //
-// - serviceName: The service name as specified in its service
-//   configuration. For example, "pubsub.googleapis.com". See
-//   google.api.Service
-//   (https://cloud.google.com/service-management/reference/rpc/google.api#google.api.Service)
-//   for the definition of a service name.
+//   - serviceName: The service name as specified in its service
+//     configuration. For example, "pubsub.googleapis.com". See
+//     google.api.Service
+//     (https://cloud.google.com/service-management/reference/rpc/google.api#google.api.Service)
+//     for the definition of a service name.
 func (r *ServicesService) Report(serviceName string, reportrequest *ReportRequest) *ServicesReportCall {
 	c := &ServicesReportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.serviceName = serviceName
@@ -3679,17 +3690,17 @@ func (c *ServicesReportCall) Do(opts ...googleapi.CallOption) (*ReportResponse, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReportResponse{
 		ServerResponse: googleapi.ServerResponse{

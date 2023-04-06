@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/privateca/v1"
-//   ...
-//   ctx := context.Background()
-//   privatecaService, err := privateca.NewService(ctx)
+//	import "google.golang.org/api/privateca/v1"
+//	...
+//	ctx := context.Background()
+//	privatecaService, err := privateca.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   privatecaService, err := privateca.NewService(ctx, option.WithAPIKey("AIza..."))
+//	privatecaService, err := privateca.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   privatecaService, err := privateca.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	privatecaService, err := privateca.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package privateca // import "google.golang.org/api/privateca/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "privateca:v1"
 const apiName = "privateca"
@@ -278,12 +279,12 @@ type ActivateCertificateAuthorityRequest struct {
 	// know to ignore the request if it has already been completed. The
 	// server will guarantee that for at least 60 minutes since the first
 	// request. For example, consider a situation where you make an initial
-	// request and t he request times out. If you make the request again
-	// with the same request ID, the server can check if original operation
-	// with the same request ID was received, and if so, will ignore the
-	// second request. This prevents clients from accidentally creating
-	// duplicate commitments. The request ID must be a valid UUID with the
-	// exception that zero UUID is not supported
+	// request and the request times out. If you make the request again with
+	// the same request ID, the server can check if original operation with
+	// the same request ID was received, and if so, will ignore the second
+	// request. This prevents clients from accidentally creating duplicate
+	// commitments. The request ID must be a valid UUID with the exception
+	// that zero UUID is not supported
 	// (00000000-0000-0000-0000-000000000000).
 	RequestId string `json:"requestId,omitempty"`
 
@@ -366,8 +367,8 @@ func (s *AllowedKeyType) MarshalJSON() ([]byte, error) {
 // "DATA_READ" }, { "log_type": "DATA_WRITE", "exempted_members": [
 // "user:aliya@example.com" ] } ] } ] } For sampleservice, this policy
 // enables DATA_READ, DATA_WRITE and ADMIN_READ logging. It also exempts
-// jose@example.com from DATA_READ logging, and aliya@example.com from
-// DATA_WRITE logging.
+// `jose@example.com` from DATA_READ logging, and `aliya@example.com`
+// from DATA_WRITE logging.
 type AuditConfig struct {
 	// AuditLogConfigs: The configuration for logging of each type of
 	// permission.
@@ -464,19 +465,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -488,9 +496,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -717,9 +723,9 @@ type Certificate struct {
 	// certificate request. This mode requires the caller to have the
 	// `privateca.certificates.create` permission.
 	//   "REFLECTED_SPIFFE" - A mode reserved for special cases. Indicates
-	// that the certificate should have one or more SPIFFE SubjectAltNames
-	// set by the service based on the caller's identity. This mode will
-	// ignore any explicitly specified Subject and/or SubjectAltNames in the
+	// that the certificate should have one SPIFFE SubjectAltNames set by
+	// the service based on the caller's identity. This mode will ignore any
+	// explicitly specified Subject and/or SubjectAltNames in the
 	// certificate request. This mode requires the caller to have the
 	// `privateca.certificates.createForSelf` permission.
 	SubjectMode string `json:"subjectMode,omitempty"`
@@ -1036,6 +1042,9 @@ type CertificateExtensionConstraints struct {
 	// section
 	// 4.2.2.1](https://tools.ietf.org/html/rfc5280#section-4.2.2.1), This
 	// corresponds to the X509Parameters.aia_ocsp_servers field.
+	//   "NAME_CONSTRAINTS" - Refers to Name Constraints extension as
+	// described in [RFC 5280 section
+	// 4.2.1.10](https://tools.ietf.org/html/rfc5280#section-4.2.1.10)
 	KnownExtensions []string `json:"knownExtensions,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -1298,12 +1307,12 @@ type DisableCertificateAuthorityRequest struct {
 	// know to ignore the request if it has already been completed. The
 	// server will guarantee that for at least 60 minutes since the first
 	// request. For example, consider a situation where you make an initial
-	// request and t he request times out. If you make the request again
-	// with the same request ID, the server can check if original operation
-	// with the same request ID was received, and if so, will ignore the
-	// second request. This prevents clients from accidentally creating
-	// duplicate commitments. The request ID must be a valid UUID with the
-	// exception that zero UUID is not supported
+	// request and the request times out. If you make the request again with
+	// the same request ID, the server can check if original operation with
+	// the same request ID was received, and if so, will ignore the second
+	// request. This prevents clients from accidentally creating duplicate
+	// commitments. The request ID must be a valid UUID with the exception
+	// that zero UUID is not supported
 	// (00000000-0000-0000-0000-000000000000).
 	RequestId string `json:"requestId,omitempty"`
 
@@ -1391,12 +1400,12 @@ type EnableCertificateAuthorityRequest struct {
 	// know to ignore the request if it has already been completed. The
 	// server will guarantee that for at least 60 minutes since the first
 	// request. For example, consider a situation where you make an initial
-	// request and t he request times out. If you make the request again
-	// with the same request ID, the server can check if original operation
-	// with the same request ID was received, and if so, will ignore the
-	// second request. This prevents clients from accidentally creating
-	// duplicate commitments. The request ID must be a valid UUID with the
-	// exception that zero UUID is not supported
+	// request and the request times out. If you make the request again with
+	// the same request ID, the server can check if original operation with
+	// the same request ID was received, and if so, will ignore the second
+	// request. This prevents clients from accidentally creating duplicate
+	// commitments. The request ID must be a valid UUID with the exception
+	// that zero UUID is not supported
 	// (00000000-0000-0000-0000-000000000000).
 	RequestId string `json:"requestId,omitempty"`
 
@@ -1545,12 +1554,12 @@ type FetchCaCertsRequest struct {
 	// know to ignore the request if it has already been completed. The
 	// server will guarantee that for at least 60 minutes since the first
 	// request. For example, consider a situation where you make an initial
-	// request and t he request times out. If you make the request again
-	// with the same request ID, the server can check if original operation
-	// with the same request ID was received, and if so, will ignore the
-	// second request. This prevents clients from accidentally creating
-	// duplicate commitments. The request ID must be a valid UUID with the
-	// exception that zero UUID is not supported
+	// request and the request times out. If you make the request again with
+	// the same request ID, the server can check if original operation with
+	// the same request ID was received, and if so, will ignore the second
+	// request. This prevents clients from accidentally creating duplicate
+	// commitments. The request ID must be a valid UUID with the exception
+	// that zero UUID is not supported
 	// (00000000-0000-0000-0000-000000000000).
 	RequestId string `json:"requestId,omitempty"`
 
@@ -2269,6 +2278,84 @@ func (s *Location) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// NameConstraints: Describes the X.509 name constraints extension, per
+// https://tools.ietf.org/html/rfc5280#section-4.2.1.10
+type NameConstraints struct {
+	// Critical: Indicates whether or not the name constraints are marked
+	// critical.
+	Critical bool `json:"critical,omitempty"`
+
+	// ExcludedDnsNames: Contains excluded DNS names. Any DNS name that can
+	// be constructed by simply adding zero or more labels to the left-hand
+	// side of the name satisfies the name constraint. For example,
+	// `example.com`, `www.example.com`, `www.sub.example.com` would satisfy
+	// `example.com` while `example1.com` does not.
+	ExcludedDnsNames []string `json:"excludedDnsNames,omitempty"`
+
+	// ExcludedEmailAddresses: Contains the excluded email addresses. The
+	// value can be a particular email address, a hostname to indicate all
+	// email addresses on that host or a domain with a leading period (e.g.
+	// `.example.com`) to indicate all email addresses in that domain.
+	ExcludedEmailAddresses []string `json:"excludedEmailAddresses,omitempty"`
+
+	// ExcludedIpRanges: Contains the excluded IP ranges. For IPv4
+	// addresses, the ranges are expressed using CIDR notation as specified
+	// in RFC 4632. For IPv6 addresses, the ranges are expressed in similar
+	// encoding as IPv4 addresses.
+	ExcludedIpRanges []string `json:"excludedIpRanges,omitempty"`
+
+	// ExcludedUris: Contains the excluded URIs that apply to the host part
+	// of the name. The value can be a hostname or a domain with a leading
+	// period (like `.example.com`)
+	ExcludedUris []string `json:"excludedUris,omitempty"`
+
+	// PermittedDnsNames: Contains permitted DNS names. Any DNS name that
+	// can be constructed by simply adding zero or more labels to the
+	// left-hand side of the name satisfies the name constraint. For
+	// example, `example.com`, `www.example.com`, `www.sub.example.com`
+	// would satisfy `example.com` while `example1.com` does not.
+	PermittedDnsNames []string `json:"permittedDnsNames,omitempty"`
+
+	// PermittedEmailAddresses: Contains the permitted email addresses. The
+	// value can be a particular email address, a hostname to indicate all
+	// email addresses on that host or a domain with a leading period (e.g.
+	// `.example.com`) to indicate all email addresses in that domain.
+	PermittedEmailAddresses []string `json:"permittedEmailAddresses,omitempty"`
+
+	// PermittedIpRanges: Contains the permitted IP ranges. For IPv4
+	// addresses, the ranges are expressed using CIDR notation as specified
+	// in RFC 4632. For IPv6 addresses, the ranges are expressed in similar
+	// encoding as IPv4 addresses.
+	PermittedIpRanges []string `json:"permittedIpRanges,omitempty"`
+
+	// PermittedUris: Contains the permitted URIs that apply to the host
+	// part of the name. The value can be a hostname or a domain with a
+	// leading period (like `.example.com`)
+	PermittedUris []string `json:"permittedUris,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Critical") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Critical") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *NameConstraints) MarshalJSON() ([]byte, error) {
+	type NoMethod NameConstraints
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ObjectId: An ObjectId specifies an object identifier (OID). These
 // provide context and describe types in ASN.1 messages.
 type ObjectId struct {
@@ -2623,10 +2710,15 @@ type ReconciliationOperationMetadata struct {
 	// DeleteResource: DEPRECATED. Use exclusive_action instead.
 	DeleteResource bool `json:"deleteResource,omitempty"`
 
+	// ExclusiveAction: Excluisive action returned by the CLH.
+	//
 	// Possible values:
-	//   "UNKNOWN_REPAIR_ACTION"
+	//   "UNKNOWN_REPAIR_ACTION" - Unknown repair action.
 	//   "DELETE" - The resource has to be deleted. When using this bit, the
-	// CLH should fail the operation.
+	// CLH should fail the operation. DEPRECATED. Instead use
+	// DELETE_RESOURCE OperationSignal in SideChannel. For more information
+	// - go/ccfe-delete-on-upsert,
+	// go/ccfe-reconciliation-protocol-ug#apply_delete
 	//   "RETRY" - This resource could not be repaired but the repair should
 	// be tried again at a later time. This can happen if there is a
 	// dependency that needs to be resolved first- e.g. if a parent resource
@@ -2741,12 +2833,12 @@ type RevokeCertificateRequest struct {
 	// know to ignore the request if it has already been completed. The
 	// server will guarantee that for at least 60 minutes since the first
 	// request. For example, consider a situation where you make an initial
-	// request and t he request times out. If you make the request again
-	// with the same request ID, the server can check if original operation
-	// with the same request ID was received, and if so, will ignore the
-	// second request. This prevents clients from accidentally creating
-	// duplicate commitments. The request ID must be a valid UUID with the
-	// exception that zero UUID is not supported
+	// request and the request times out. If you make the request again with
+	// the same request ID, the server can check if original operation with
+	// the same request ID was received, and if so, will ignore the second
+	// request. This prevents clients from accidentally creating duplicate
+	// commitments. The request ID must be a valid UUID with the exception
+	// that zero UUID is not supported
 	// (00000000-0000-0000-0000-000000000000).
 	RequestId string `json:"requestId,omitempty"`
 
@@ -3273,12 +3365,12 @@ type UndeleteCertificateAuthorityRequest struct {
 	// know to ignore the request if it has already been completed. The
 	// server will guarantee that for at least 60 minutes since the first
 	// request. For example, consider a situation where you make an initial
-	// request and t he request times out. If you make the request again
-	// with the same request ID, the server can check if original operation
-	// with the same request ID was received, and if so, will ignore the
-	// second request. This prevents clients from accidentally creating
-	// duplicate commitments. The request ID must be a valid UUID with the
-	// exception that zero UUID is not supported
+	// request and the request times out. If you make the request again with
+	// the same request ID, the server can check if original operation with
+	// the same request ID was received, and if so, will ignore the second
+	// request. This prevents clients from accidentally creating duplicate
+	// commitments. The request ID must be a valid UUID with the exception
+	// that zero UUID is not supported
 	// (00000000-0000-0000-0000-000000000000).
 	RequestId string `json:"requestId,omitempty"`
 
@@ -3363,6 +3455,10 @@ type X509Parameters struct {
 	// KeyUsage: Optional. Indicates the intended use for keys that
 	// correspond to a certificate.
 	KeyUsage *KeyUsage `json:"keyUsage,omitempty"`
+
+	// NameConstraints: Optional. Describes the X.509 name constraints
+	// extension.
+	NameConstraints *NameConstraints `json:"nameConstraints,omitempty"`
 
 	// PolicyIds: Optional. Describes the X.509 certificate policy object
 	// identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.
@@ -3488,17 +3584,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -3553,8 +3649,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3660,17 +3756,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3761,8 +3857,8 @@ type ProjectsLocationsCaPoolsCreateCall struct {
 
 // Create: Create a CaPool.
 //
-// - parent: The resource name of the location associated with the
-//   CaPool, in the format `projects/*/locations/*`.
+//   - parent: The resource name of the location associated with the
+//     CaPool, in the format `projects/*/locations/*`.
 func (r *ProjectsLocationsCaPoolsService) Create(parent string, capool *CaPool) *ProjectsLocationsCaPoolsCreateCall {
 	c := &ProjectsLocationsCaPoolsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3783,7 +3879,7 @@ func (c *ProjectsLocationsCaPoolsCreateCall) CaPoolId(caPoolId string) *Projects
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -3862,17 +3958,17 @@ func (c *ProjectsLocationsCaPoolsCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3907,7 +4003,7 @@ func (c *ProjectsLocationsCaPoolsCreateCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -3938,8 +4034,8 @@ type ProjectsLocationsCaPoolsDeleteCall struct {
 
 // Delete: Delete a CaPool.
 //
-// - name: The resource name for this CaPool in the format
-//   `projects/*/locations/*/caPools/*`.
+//   - name: The resource name for this CaPool in the format
+//     `projects/*/locations/*/caPools/*`.
 func (r *ProjectsLocationsCaPoolsService) Delete(name string) *ProjectsLocationsCaPoolsDeleteCall {
 	c := &ProjectsLocationsCaPoolsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3951,7 +4047,7 @@ func (r *ProjectsLocationsCaPoolsService) Delete(name string) *ProjectsLocations
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -4025,17 +4121,17 @@ func (c *ProjectsLocationsCaPoolsDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4065,7 +4161,7 @@ func (c *ProjectsLocationsCaPoolsDeleteCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -4096,8 +4192,8 @@ type ProjectsLocationsCaPoolsFetchCaCertsCall struct {
 // CaPool. This will include CA certificate chains for all ACTIVE
 // CertificateAuthority resources in the CaPool.
 //
-// - caPool: The resource name for the CaPool in the format
-//   `projects/*/locations/*/caPools/*`.
+//   - caPool: The resource name for the CaPool in the format
+//     `projects/*/locations/*/caPools/*`.
 func (r *ProjectsLocationsCaPoolsService) FetchCaCerts(caPool string, fetchcacertsrequest *FetchCaCertsRequest) *ProjectsLocationsCaPoolsFetchCaCertsCall {
 	c := &ProjectsLocationsCaPoolsFetchCaCertsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.caPool = caPool
@@ -4172,17 +4268,17 @@ func (c *ProjectsLocationsCaPoolsFetchCaCertsCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FetchCaCertsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4321,17 +4417,17 @@ func (c *ProjectsLocationsCaPoolsGetCall) Do(opts ...googleapi.CallOption) (*CaP
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CaPool{
 		ServerResponse: googleapi.ServerResponse{
@@ -4387,9 +4483,10 @@ type ProjectsLocationsCaPoolsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCaPoolsService) GetIamPolicy(resource string) *ProjectsLocationsCaPoolsGetIamPolicyCall {
 	c := &ProjectsLocationsCaPoolsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4489,17 +4586,17 @@ func (c *ProjectsLocationsCaPoolsGetIamPolicyCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4528,7 +4625,7 @@ func (c *ProjectsLocationsCaPoolsGetIamPolicyCall) Do(opts ...googleapi.CallOpti
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/caPools/[^/]+$",
 	//       "required": true,
@@ -4559,8 +4656,8 @@ type ProjectsLocationsCaPoolsListCall struct {
 
 // List: Lists CaPools.
 //
-// - parent: The resource name of the location associated with the
-//   CaPools, in the format `projects/*/locations/*`.
+//   - parent: The resource name of the location associated with the
+//     CaPools, in the format `projects/*/locations/*`.
 func (r *ProjectsLocationsCaPoolsService) List(parent string) *ProjectsLocationsCaPoolsListCall {
 	c := &ProjectsLocationsCaPoolsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4673,17 +4770,17 @@ func (c *ProjectsLocationsCaPoolsListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCaPoolsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4779,8 +4876,8 @@ type ProjectsLocationsCaPoolsPatchCall struct {
 
 // Patch: Update a CaPool.
 //
-// - name: Output only. The resource name for this CaPool in the format
-//   `projects/*/locations/*/caPools/*`.
+//   - name: Output only. The resource name for this CaPool in the format
+//     `projects/*/locations/*/caPools/*`.
 func (r *ProjectsLocationsCaPoolsService) Patch(name string, capool *CaPool) *ProjectsLocationsCaPoolsPatchCall {
 	c := &ProjectsLocationsCaPoolsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4793,7 +4890,7 @@ func (r *ProjectsLocationsCaPoolsService) Patch(name string, capool *CaPool) *Pr
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -4879,17 +4976,17 @@ func (c *ProjectsLocationsCaPoolsPatchCall) Do(opts ...googleapi.CallOption) (*O
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4919,7 +5016,7 @@ func (c *ProjectsLocationsCaPoolsPatchCall) Do(opts ...googleapi.CallOption) (*O
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -4959,9 +5056,10 @@ type ProjectsLocationsCaPoolsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCaPoolsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsCaPoolsSetIamPolicyCall {
 	c := &ProjectsLocationsCaPoolsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5036,17 +5134,17 @@ func (c *ProjectsLocationsCaPoolsSetIamPolicyCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5069,7 +5167,7 @@ func (c *ProjectsLocationsCaPoolsSetIamPolicyCall) Do(opts ...googleapi.CallOpti
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/caPools/[^/]+$",
 	//       "required": true,
@@ -5108,9 +5206,10 @@ type ProjectsLocationsCaPoolsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCaPoolsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsCaPoolsTestIamPermissionsCall {
 	c := &ProjectsLocationsCaPoolsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5185,17 +5284,17 @@ func (c *ProjectsLocationsCaPoolsTestIamPermissionsCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5218,7 +5317,7 @@ func (c *ProjectsLocationsCaPoolsTestIamPermissionsCall) Do(opts ...googleapi.Ca
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/caPools/[^/]+$",
 	//       "required": true,
@@ -5256,8 +5355,8 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesActivateCall struct {
 // FetchCertificateAuthorityCsr, this method can complete the activation
 // process.
 //
-// - name: The resource name for this CertificateAuthority in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - name: The resource name for this CertificateAuthority in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Activate(name string, activatecertificateauthorityrequest *ActivateCertificateAuthorityRequest) *ProjectsLocationsCaPoolsCertificateAuthoritiesActivateCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5332,17 +5431,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesActivateCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5400,9 +5499,9 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesCreateCall struct {
 // Create: Create a new CertificateAuthority in a given Project and
 // Location.
 //
-// - parent: The resource name of the CaPool associated with the
-//   CertificateAuthorities, in the format
-//   `projects/*/locations/*/caPools/*`.
+//   - parent: The resource name of the CaPool associated with the
+//     CertificateAuthorities, in the format
+//     `projects/*/locations/*/caPools/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Create(parent string, certificateauthority *CertificateAuthority) *ProjectsLocationsCaPoolsCertificateAuthoritiesCreateCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5423,7 +5522,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCreateCall) CertificateAu
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -5502,17 +5601,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCreateCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5547,7 +5646,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCreateCall) Do(opts ...go
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -5578,8 +5677,8 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesDeleteCall struct {
 
 // Delete: Delete a CertificateAuthority.
 //
-// - name: The resource name for this CertificateAuthority in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - name: The resource name for this CertificateAuthority in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Delete(name string) *ProjectsLocationsCaPoolsCertificateAuthoritiesDeleteCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5600,7 +5699,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesDeleteCall) IgnoreActiveC
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -5684,17 +5783,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesDeleteCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5729,7 +5828,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesDeleteCall) Do(opts ...go
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -5763,8 +5862,8 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesDisableCall struct {
 
 // Disable: Disable a CertificateAuthority.
 //
-// - name: The resource name for this CertificateAuthority in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - name: The resource name for this CertificateAuthority in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Disable(name string, disablecertificateauthorityrequest *DisableCertificateAuthorityRequest) *ProjectsLocationsCaPoolsCertificateAuthoritiesDisableCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesDisableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5839,17 +5938,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesDisableCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5906,8 +6005,8 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesEnableCall struct {
 
 // Enable: Enable a CertificateAuthority.
 //
-// - name: The resource name for this CertificateAuthority in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - name: The resource name for this CertificateAuthority in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Enable(name string, enablecertificateauthorityrequest *EnableCertificateAuthorityRequest) *ProjectsLocationsCaPoolsCertificateAuthoritiesEnableCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesEnableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5982,17 +6081,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesEnableCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6054,8 +6153,8 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesFetchCall struct {
 // CertificateAuthority resource, or could be an on-prem certificate
 // authority. See also ActivateCertificateAuthority.
 //
-// - name: The resource name for this CertificateAuthority in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - name: The resource name for this CertificateAuthority in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Fetch(name string) *ProjectsLocationsCaPoolsCertificateAuthoritiesFetchCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesFetchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6138,17 +6237,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesFetchCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FetchCertificateAuthorityCsrResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6284,17 +6383,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesGetCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CertificateAuthority{
 		ServerResponse: googleapi.ServerResponse{
@@ -6348,9 +6447,9 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesListCall struct {
 
 // List: Lists CertificateAuthorities.
 //
-// - parent: The resource name of the CaPool associated with the
-//   CertificateAuthorities, in the format
-//   `projects/*/locations/*/caPools/*`.
+//   - parent: The resource name of the CaPool associated with the
+//     CertificateAuthorities, in the format
+//     `projects/*/locations/*/caPools/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) List(parent string) *ProjectsLocationsCaPoolsCertificateAuthoritiesListCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6465,17 +6564,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesListCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCertificateAuthoritiesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6571,9 +6670,9 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesPatchCall struct {
 
 // Patch: Update a CertificateAuthority.
 //
-// - name: Output only. The resource name for this CertificateAuthority
-//   in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - name: Output only. The resource name for this CertificateAuthority
+//     in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Patch(name string, certificateauthority *CertificateAuthority) *ProjectsLocationsCaPoolsCertificateAuthoritiesPatchCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6586,7 +6685,7 @@ func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Patch(name strin
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -6672,17 +6771,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesPatchCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6712,7 +6811,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesPatchCall) Do(opts ...goo
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -6750,8 +6849,8 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesUndeleteCall struct {
 
 // Undelete: Undelete a CertificateAuthority that has been deleted.
 //
-// - name: The resource name for this CertificateAuthority in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - name: The resource name for this CertificateAuthority in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesService) Undelete(name string, undeletecertificateauthorityrequest *UndeleteCertificateAuthorityRequest) *ProjectsLocationsCaPoolsCertificateAuthoritiesUndeleteCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesUndeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6826,17 +6925,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesUndeleteCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6975,17 +7074,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CertificateRevocationList{
 		ServerResponse: googleapi.ServerResponse{
@@ -7041,9 +7140,10 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsGet
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsService) GetIamPolicy(resource string) *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsGetIamPolicyCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7143,17 +7243,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7182,7 +7282,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/caPools/[^/]+/certificateAuthorities/[^/]+/certificateRevocationLists/[^/]+$",
 	//       "required": true,
@@ -7213,9 +7313,9 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsLis
 
 // List: Lists CertificateRevocationLists.
 //
-// - parent: The resource name of the location associated with the
-//   CertificateRevocationLists, in the format
-//   `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
+//   - parent: The resource name of the location associated with the
+//     CertificateRevocationLists, in the format
+//     `projects/*/locations/*/caPools/*/certificateAuthorities/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsService) List(parent string) *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsListCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7331,17 +7431,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCertificateRevocationListsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7437,10 +7537,10 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsPat
 
 // Patch: Update a CertificateRevocationList.
 //
-// - name: Output only. The resource name for this
-//   CertificateRevocationList in the format
-//   `projects/*/locations/*/caPools/*certificateAuthorities/*/
-//   certificateRevocationLists/*`.
+//   - name: Output only. The resource name for this
+//     CertificateRevocationList in the format
+//     `projects/*/locations/*/caPools/*certificateAuthorities/*/
+//     certificateRevocationLists/*`.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsService) Patch(name string, certificaterevocationlist *CertificateRevocationList) *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsPatchCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7453,7 +7553,7 @@ func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -7539,17 +7639,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7579,7 +7679,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7619,9 +7719,10 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsSet
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsSetIamPolicyCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7696,17 +7797,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7729,7 +7830,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/caPools/[^/]+/certificateAuthorities/[^/]+/certificateRevocationLists/[^/]+$",
 	//       "required": true,
@@ -7768,9 +7869,10 @@ type ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsTes
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsTestIamPermissionsCall {
 	c := &ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationListsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7845,17 +7947,17 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7878,7 +7980,7 @@ func (c *ProjectsLocationsCaPoolsCertificateAuthoritiesCertificateRevocationList
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/caPools/[^/]+/certificateAuthorities/[^/]+/certificateRevocationLists/[^/]+$",
 	//       "required": true,
@@ -7913,8 +8015,8 @@ type ProjectsLocationsCaPoolsCertificatesCreateCall struct {
 // Create: Create a new Certificate in a given Project, Location from a
 // particular CaPool.
 //
-// - parent: The resource name of the CaPool associated with the
-//   Certificate, in the format `projects/*/locations/*/caPools/*`.
+//   - parent: The resource name of the CaPool associated with the
+//     Certificate, in the format `projects/*/locations/*/caPools/*`.
 func (r *ProjectsLocationsCaPoolsCertificatesService) Create(parent string, certificate *Certificate) *ProjectsLocationsCaPoolsCertificatesCreateCall {
 	c := &ProjectsLocationsCaPoolsCertificatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8043,17 +8145,17 @@ func (c *ProjectsLocationsCaPoolsCertificatesCreateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Certificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -8212,17 +8314,17 @@ func (c *ProjectsLocationsCaPoolsCertificatesGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Certificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -8276,8 +8378,8 @@ type ProjectsLocationsCaPoolsCertificatesListCall struct {
 
 // List: Lists Certificates.
 //
-// - parent: The resource name of the location associated with the
-//   Certificates, in the format `projects/*/locations/*/caPools/*`.
+//   - parent: The resource name of the location associated with the
+//     Certificates, in the format `projects/*/locations/*/caPools/*`.
 func (r *ProjectsLocationsCaPoolsCertificatesService) List(parent string) *ProjectsLocationsCaPoolsCertificatesListCall {
 	c := &ProjectsLocationsCaPoolsCertificatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8394,17 +8496,17 @@ func (c *ProjectsLocationsCaPoolsCertificatesListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCertificatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8501,8 +8603,8 @@ type ProjectsLocationsCaPoolsCertificatesPatchCall struct {
 // Patch: Update a Certificate. Currently, the only field you can update
 // is the labels field.
 //
-// - name: Output only. The resource name for this Certificate in the
-//   format `projects/*/locations/*/caPools/*/certificates/*`.
+//   - name: Output only. The resource name for this Certificate in the
+//     format `projects/*/locations/*/caPools/*/certificates/*`.
 func (r *ProjectsLocationsCaPoolsCertificatesService) Patch(name string, certificate *Certificate) *ProjectsLocationsCaPoolsCertificatesPatchCall {
 	c := &ProjectsLocationsCaPoolsCertificatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8515,7 +8617,7 @@ func (r *ProjectsLocationsCaPoolsCertificatesService) Patch(name string, certifi
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -8601,17 +8703,17 @@ func (c *ProjectsLocationsCaPoolsCertificatesPatchCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Certificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -8641,7 +8743,7 @@ func (c *ProjectsLocationsCaPoolsCertificatesPatchCall) Do(opts ...googleapi.Cal
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8679,8 +8781,8 @@ type ProjectsLocationsCaPoolsCertificatesRevokeCall struct {
 
 // Revoke: Revoke a Certificate.
 //
-// - name: The resource name for this Certificate in the format
-//   `projects/*/locations/*/caPools/*/certificates/*`.
+//   - name: The resource name for this Certificate in the format
+//     `projects/*/locations/*/caPools/*/certificates/*`.
 func (r *ProjectsLocationsCaPoolsCertificatesService) Revoke(name string, revokecertificaterequest *RevokeCertificateRequest) *ProjectsLocationsCaPoolsCertificatesRevokeCall {
 	c := &ProjectsLocationsCaPoolsCertificatesRevokeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8755,17 +8857,17 @@ func (c *ProjectsLocationsCaPoolsCertificatesRevokeCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Certificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -8823,8 +8925,8 @@ type ProjectsLocationsCertificateTemplatesCreateCall struct {
 // Create: Create a new CertificateTemplate in a given Project and
 // Location.
 //
-// - parent: The resource name of the location associated with the
-//   CertificateTemplate, in the format `projects/*/locations/*`.
+//   - parent: The resource name of the location associated with the
+//     CertificateTemplate, in the format `projects/*/locations/*`.
 func (r *ProjectsLocationsCertificateTemplatesService) Create(parent string, certificatetemplate *CertificateTemplate) *ProjectsLocationsCertificateTemplatesCreateCall {
 	c := &ProjectsLocationsCertificateTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8845,7 +8947,7 @@ func (c *ProjectsLocationsCertificateTemplatesCreateCall) CertificateTemplateId(
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -8924,17 +9026,17 @@ func (c *ProjectsLocationsCertificateTemplatesCreateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8969,7 +9071,7 @@ func (c *ProjectsLocationsCertificateTemplatesCreateCall) Do(opts ...googleapi.C
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -9000,8 +9102,8 @@ type ProjectsLocationsCertificateTemplatesDeleteCall struct {
 
 // Delete: DeleteCertificateTemplate deletes a CertificateTemplate.
 //
-// - name: The resource name for this CertificateTemplate in the format
-//   `projects/*/locations/*/certificateTemplates/*`.
+//   - name: The resource name for this CertificateTemplate in the format
+//     `projects/*/locations/*/certificateTemplates/*`.
 func (r *ProjectsLocationsCertificateTemplatesService) Delete(name string) *ProjectsLocationsCertificateTemplatesDeleteCall {
 	c := &ProjectsLocationsCertificateTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9013,7 +9115,7 @@ func (r *ProjectsLocationsCertificateTemplatesService) Delete(name string) *Proj
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -9087,17 +9189,17 @@ func (c *ProjectsLocationsCertificateTemplatesDeleteCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9127,7 +9229,7 @@ func (c *ProjectsLocationsCertificateTemplatesDeleteCall) Do(opts ...googleapi.C
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -9238,17 +9340,17 @@ func (c *ProjectsLocationsCertificateTemplatesGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CertificateTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -9304,9 +9406,10 @@ type ProjectsLocationsCertificateTemplatesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCertificateTemplatesService) GetIamPolicy(resource string) *ProjectsLocationsCertificateTemplatesGetIamPolicyCall {
 	c := &ProjectsLocationsCertificateTemplatesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9406,17 +9509,17 @@ func (c *ProjectsLocationsCertificateTemplatesGetIamPolicyCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9445,7 +9548,7 @@ func (c *ProjectsLocationsCertificateTemplatesGetIamPolicyCall) Do(opts ...googl
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/certificateTemplates/[^/]+$",
 	//       "required": true,
@@ -9476,8 +9579,8 @@ type ProjectsLocationsCertificateTemplatesListCall struct {
 
 // List: Lists CertificateTemplates.
 //
-// - parent: The resource name of the location associated with the
-//   CertificateTemplates, in the format `projects/*/locations/*`.
+//   - parent: The resource name of the location associated with the
+//     CertificateTemplates, in the format `projects/*/locations/*`.
 func (r *ProjectsLocationsCertificateTemplatesService) List(parent string) *ProjectsLocationsCertificateTemplatesListCall {
 	c := &ProjectsLocationsCertificateTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9591,17 +9694,17 @@ func (c *ProjectsLocationsCertificateTemplatesListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCertificateTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9697,8 +9800,8 @@ type ProjectsLocationsCertificateTemplatesPatchCall struct {
 
 // Patch: Update a CertificateTemplate.
 //
-// - name: Output only. The resource name for this CertificateTemplate
-//   in the format `projects/*/locations/*/certificateTemplates/*`.
+//   - name: Output only. The resource name for this CertificateTemplate
+//     in the format `projects/*/locations/*/certificateTemplates/*`.
 func (r *ProjectsLocationsCertificateTemplatesService) Patch(name string, certificatetemplate *CertificateTemplate) *ProjectsLocationsCertificateTemplatesPatchCall {
 	c := &ProjectsLocationsCertificateTemplatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9711,7 +9814,7 @@ func (r *ProjectsLocationsCertificateTemplatesService) Patch(name string, certif
 // request, the server will know to ignore the request if it has already
 // been completed. The server will guarantee that for at least 60
 // minutes since the first request. For example, consider a situation
-// where you make an initial request and t he request times out. If you
+// where you make an initial request and the request times out. If you
 // make the request again with the same request ID, the server can check
 // if original operation with the same request ID was received, and if
 // so, will ignore the second request. This prevents clients from
@@ -9797,17 +9900,17 @@ func (c *ProjectsLocationsCertificateTemplatesPatchCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9837,7 +9940,7 @@ func (c *ProjectsLocationsCertificateTemplatesPatchCall) Do(opts ...googleapi.Ca
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -9877,9 +9980,10 @@ type ProjectsLocationsCertificateTemplatesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCertificateTemplatesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsCertificateTemplatesSetIamPolicyCall {
 	c := &ProjectsLocationsCertificateTemplatesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9954,17 +10058,17 @@ func (c *ProjectsLocationsCertificateTemplatesSetIamPolicyCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9987,7 +10091,7 @@ func (c *ProjectsLocationsCertificateTemplatesSetIamPolicyCall) Do(opts ...googl
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/certificateTemplates/[^/]+$",
 	//       "required": true,
@@ -10026,9 +10130,10 @@ type ProjectsLocationsCertificateTemplatesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsCertificateTemplatesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsCertificateTemplatesTestIamPermissionsCall {
 	c := &ProjectsLocationsCertificateTemplatesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10103,17 +10208,17 @@ func (c *ProjectsLocationsCertificateTemplatesTestIamPermissionsCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10136,7 +10241,7 @@ func (c *ProjectsLocationsCertificateTemplatesTestIamPermissionsCall) Do(opts ..
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/certificateTemplates/[^/]+$",
 	//       "required": true,
@@ -10254,17 +10359,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -10392,17 +10497,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -10540,17 +10645,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -10604,14 +10709,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -10716,17 +10814,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10740,7 +10838,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "privateca.projects.locations.operations.list",

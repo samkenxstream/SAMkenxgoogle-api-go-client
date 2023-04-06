@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/civic-information/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/civicinfo/v2"
-//   ...
-//   ctx := context.Background()
-//   civicinfoService, err := civicinfo.NewService(ctx)
+//	import "google.golang.org/api/civicinfo/v2"
+//	...
+//	ctx := context.Background()
+//	civicinfoService, err := civicinfo.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   civicinfoService, err := civicinfo.NewService(ctx, option.WithAPIKey("AIza..."))
+//	civicinfoService, err := civicinfo.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   civicinfoService, err := civicinfo.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	civicinfoService, err := civicinfo.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package civicinfo // import "google.golang.org/api/civicinfo/v2"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "civicinfo:v2"
 const apiName = "civicinfo"
@@ -431,11 +432,6 @@ type Contest struct {
 	// party/parties it is for.
 	PrimaryParties []string `json:"primaryParties,omitempty"`
 
-	// PrimaryParty: [DEPRECATED] If this is a partisan election, the name
-	// of the party it is for. This field as deprecated in favor of the
-	// array "primaryParties", as contests may contain more than one party.
-	PrimaryParty string `json:"primaryParty,omitempty"`
-
 	// ReferendumBallotResponses: The set of ballot responses for the
 	// referendum. A ballot response represents a line on the ballot. Common
 	// examples might include "yes" or "no" for referenda. This field is
@@ -631,6 +627,12 @@ type Election struct {
 	// ocd-division/country:us/state:ca or for the midterms or general
 	// election the entire US (i.e. ocd-division/country:us).
 	OcdDivisionId string `json:"ocdDivisionId,omitempty"`
+
+	// Possible values:
+	//   "shapeLookupDefault"
+	//   "shapeLookupDisabled"
+	//   "shapeLookupEnabled"
+	ShapeLookupBehavior string `json:"shapeLookupBehavior,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ElectionDay") to
 	// unconditionally include in API requests. By default, fields with
@@ -1070,7 +1072,7 @@ type GeocodingSummary struct {
 	// third nibble so we can add an abstract parent above it later if need
 	// be at 0x2E1 (and rename TYPE_STATISTICAL_AREA as
 	// TYPE_STATISTICAL_AREA1).
-	//   "typeConstituencyFuture" - RESERVED
+	//   "typeConstituencyFuture" - DEPRECATED
 	//   "typePark" - DEPRECATED
 	//   "typeGolfCourse" - DEPRECATED
 	//   "typeLocalPark" - DEPRECATED
@@ -1430,15 +1432,21 @@ type GeocodingSummary struct {
 	// by TYPE_COMPOUND_BUILDING. For further details, see
 	// go/oyster-compounds
 	//   "typeEstablishmentBuilding" - DEPRECATED
-	//   "typeEstablishmentPoi" - Establishment POIs can be referenced by
-	// TYPE_COMPOUND features using the RELATION_PRIMARILY_OCCUPIED_BY. This
-	// is the reciprocal relation of the RELATION_OCCUPIES.
-	//   "typeEstablishmentService" - Represents service-only establishments
-	// (those without a storefront location). NOTE(tcain): Using value
-	// 0xD441, since we could find ourselves with a need to differentiate
-	// service areas from online-only at this level in the future, but still
-	// benefit from being able to group those under a common parent,
-	// disjoint from TYPE_ESTABLISHMENT_POI.
+	//   "typeEstablishmentPoi" - An establishment which has a address
+	// (a.k.a. location or storefront). Note that it *may* also have a
+	// service area (e.g. a restaurant that offers both dine-in and
+	// delivery). This type of business is also known as a "hybrid" Service
+	// Area Business. Establishment POIs can be referenced by TYPE_COMPOUND
+	// features using the RELATION_PRIMARILY_OCCUPIED_BY. This is the
+	// reciprocal relation of the RELATION_OCCUPIES.
+	//   "typeEstablishmentService" - A business without a storefront, e.g.
+	// a plumber. It would normally not have a place that a customer could
+	// visit to receive service, but it would have an area served by the
+	// business. Also known as a "pure" Service Area Business. NOTE(tcain):
+	// Using value 0xD441, since we could find ourselves with a need to
+	// differentiate service areas from online-only at this level in the
+	// future, but still benefit from being able to group those under a
+	// common parent, disjoint from TYPE_ESTABLISHMENT_POI.
 	//   "typeCelestial" - The root of types of features that are in the
 	// sky, rather than on the earth. There will eventually be a hierarchy
 	// of types here.
@@ -1464,8 +1472,13 @@ type GeocodingSummary struct {
 	// for a user to meet a taxi, ridesharing vehicle, or general driver.
 	//   "typeRegulatedArea" - An area controlled in some way by an
 	// authoritative source, such as a government-designated COVID
-	// containment zone. Features of this type should have one or more gcids
-	// corresponding to their specific regulation.
+	// containment zone or an area under government sanctions. Features of
+	// this type should have one or more gcids corresponding to their
+	// specific regulation, and client handling of these features may vary
+	// based on the type of regulation.
+	//   "typeLogicalBorder" - A grouping of TYPE_BORDER features ("border
+	// segments"), which together represent a border between two features of
+	// the same type.
 	//   "typeDoNotUseReservedToCatchGeneratedFiles" - DEPRECATED
 	//   "typeUnknown" - A feature of completely unknown type. This should
 	// only be used when absolutely necessary. One example in which this
@@ -2215,17 +2228,17 @@ func (c *DivisionsSearchCall) Do(opts ...googleapi.CallOption) (*DivisionSearchR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DivisionSearchResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2347,17 +2360,17 @@ func (c *ElectionsElectionQueryCall) Do(opts ...googleapi.CallOption) (*Election
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ElectionsQueryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2505,17 +2518,17 @@ func (c *ElectionsVoterInfoQueryCall) Do(opts ...googleapi.CallOption) (*VoterIn
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VoterInfoResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2609,15 +2622,16 @@ func (c *RepresentativesRepresentativeInfoByAddressCall) IncludeOffices(includeO
 // not be returned.
 //
 // Possible values:
-//   "international"
-//   "country"
-//   "administrativeArea1"
-//   "regional"
-//   "administrativeArea2"
-//   "locality"
-//   "subLocality1"
-//   "subLocality2"
-//   "special"
+//
+//	"international"
+//	"country"
+//	"administrativeArea1"
+//	"regional"
+//	"administrativeArea2"
+//	"locality"
+//	"subLocality1"
+//	"subLocality2"
+//	"special"
 func (c *RepresentativesRepresentativeInfoByAddressCall) Levels(levels ...string) *RepresentativesRepresentativeInfoByAddressCall {
 	c.urlParams_.SetMulti("levels", append([]string{}, levels...))
 	return c
@@ -2629,18 +2643,19 @@ func (c *RepresentativesRepresentativeInfoByAddressCall) Levels(levels ...string
 // returned.
 //
 // Possible values:
-//   "headOfState"
-//   "headOfGovernment"
-//   "deputyHeadOfGovernment"
-//   "governmentOfficer"
-//   "executiveCouncil"
-//   "legislatorUpperBody"
-//   "legislatorLowerBody"
-//   "highestCourtJudge"
-//   "judge"
-//   "schoolBoard"
-//   "specialPurposeOfficer"
-//   "otherRole"
+//
+//	"headOfState"
+//	"headOfGovernment"
+//	"deputyHeadOfGovernment"
+//	"governmentOfficer"
+//	"executiveCouncil"
+//	"legislatorUpperBody"
+//	"legislatorLowerBody"
+//	"highestCourtJudge"
+//	"judge"
+//	"schoolBoard"
+//	"specialPurposeOfficer"
+//	"otherRole"
 func (c *RepresentativesRepresentativeInfoByAddressCall) Roles(roles ...string) *RepresentativesRepresentativeInfoByAddressCall {
 	c.urlParams_.SetMulti("roles", append([]string{}, roles...))
 	return c
@@ -2718,17 +2733,17 @@ func (c *RepresentativesRepresentativeInfoByAddressCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RepresentativeInfoResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2844,8 +2859,8 @@ type RepresentativesRepresentativeInfoByDivisionCall struct {
 // RepresentativeInfoByDivision: Looks up representative information for
 // a single geographic division.
 //
-// - ocdId: The Open Civic Data division identifier of the division to
-//   look up.
+//   - ocdId: The Open Civic Data division identifier of the division to
+//     look up.
 func (r *RepresentativesService) RepresentativeInfoByDivision(ocdId string) *RepresentativesRepresentativeInfoByDivisionCall {
 	c := &RepresentativesRepresentativeInfoByDivisionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.ocdId = ocdId
@@ -2858,15 +2873,16 @@ func (r *RepresentativesService) RepresentativeInfoByDivision(ocdId string) *Rep
 // not be returned.
 //
 // Possible values:
-//   "international"
-//   "country"
-//   "administrativeArea1"
-//   "regional"
-//   "administrativeArea2"
-//   "locality"
-//   "subLocality1"
-//   "subLocality2"
-//   "special"
+//
+//	"international"
+//	"country"
+//	"administrativeArea1"
+//	"regional"
+//	"administrativeArea2"
+//	"locality"
+//	"subLocality1"
+//	"subLocality2"
+//	"special"
 func (c *RepresentativesRepresentativeInfoByDivisionCall) Levels(levels ...string) *RepresentativesRepresentativeInfoByDivisionCall {
 	c.urlParams_.SetMulti("levels", append([]string{}, levels...))
 	return c
@@ -2888,18 +2904,19 @@ func (c *RepresentativesRepresentativeInfoByDivisionCall) Recursive(recursive bo
 // returned.
 //
 // Possible values:
-//   "headOfState"
-//   "headOfGovernment"
-//   "deputyHeadOfGovernment"
-//   "governmentOfficer"
-//   "executiveCouncil"
-//   "legislatorUpperBody"
-//   "legislatorLowerBody"
-//   "highestCourtJudge"
-//   "judge"
-//   "schoolBoard"
-//   "specialPurposeOfficer"
-//   "otherRole"
+//
+//	"headOfState"
+//	"headOfGovernment"
+//	"deputyHeadOfGovernment"
+//	"governmentOfficer"
+//	"executiveCouncil"
+//	"legislatorUpperBody"
+//	"legislatorLowerBody"
+//	"highestCourtJudge"
+//	"judge"
+//	"schoolBoard"
+//	"specialPurposeOfficer"
+//	"otherRole"
 func (c *RepresentativesRepresentativeInfoByDivisionCall) Roles(roles ...string) *RepresentativesRepresentativeInfoByDivisionCall {
 	c.urlParams_.SetMulti("roles", append([]string{}, roles...))
 	return c
@@ -2980,17 +2997,17 @@ func (c *RepresentativesRepresentativeInfoByDivisionCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RepresentativeInfoData{
 		ServerResponse: googleapi.ServerResponse{

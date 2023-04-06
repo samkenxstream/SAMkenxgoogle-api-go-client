@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/analytics/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/analytics/v3"
-//   ...
-//   ctx := context.Background()
-//   analyticsService, err := analytics.NewService(ctx)
+//	import "google.golang.org/api/analytics/v3"
+//	...
+//	ctx := context.Background()
+//	analyticsService, err := analytics.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   analyticsService, err := analytics.NewService(ctx, option.WithScopes(analytics.AnalyticsUserDeletionScope))
+//	analyticsService, err := analytics.NewService(ctx, option.WithScopes(analytics.AnalyticsUserDeletionScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   analyticsService, err := analytics.NewService(ctx, option.WithAPIKey("AIza..."))
+//	analyticsService, err := analytics.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   analyticsService, err := analytics.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	analyticsService, err := analytics.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package analytics // import "google.golang.org/api/analytics/v3"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "analytics:v3"
 const apiName = "analytics"
@@ -5907,18 +5908,18 @@ type DataGaGetCall struct {
 
 // Get: Returns Analytics data for a view (profile).
 //
-// - endDate: End date for fetching Analytics data. Request can should
-//   specify an end date formatted as YYYY-MM-DD, or as a relative date
-//   (e.g., today, yesterday, or 7daysAgo). The default value is
-//   yesterday.
-// - ids: Unique table ID for retrieving Analytics data. Table ID is of
-//   the form ga:XXXX, where XXXX is the Analytics view (profile) ID.
-// - metrics: A comma-separated list of Analytics metrics. E.g.,
-//   'ga:sessions,ga:pageviews'. At least one metric must be specified.
-// - startDate: Start date for fetching Analytics data. Requests can
-//   specify a start date formatted as YYYY-MM-DD, or as a relative date
-//   (e.g., today, yesterday, or 7daysAgo). The default value is
-//   7daysAgo.
+//   - endDate: End date for fetching Analytics data. Request can should
+//     specify an end date formatted as YYYY-MM-DD, or as a relative date
+//     (e.g., today, yesterday, or 7daysAgo). The default value is
+//     yesterday.
+//   - ids: Unique table ID for retrieving Analytics data. Table ID is of
+//     the form ga:XXXX, where XXXX is the Analytics view (profile) ID.
+//   - metrics: A comma-separated list of Analytics metrics. E.g.,
+//     'ga:sessions,ga:pageviews'. At least one metric must be specified.
+//   - startDate: Start date for fetching Analytics data. Requests can
+//     specify a start date formatted as YYYY-MM-DD, or as a relative date
+//     (e.g., today, yesterday, or 7daysAgo). The default value is
+//     7daysAgo.
 func (r *DataGaService) Get(ids string, startDate string, endDate string, metrics string) *DataGaGetCall {
 	c := &DataGaGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("ids", ids)
@@ -5962,9 +5963,12 @@ func (c *DataGaGetCall) MaxResults(maxResults int64) *DataGaGetCall {
 // the response. Default format is JSON.
 //
 // Possible values:
-//   "dataTable" - Returns the response in Google Charts Data Table
+//
+//	"dataTable" - Returns the response in Google Charts Data Table
+//
 // format. This is useful in creating visualization using Google Charts.
-//   "json" - Returns the response in standard JSON format.
+//
+//	"json" - Returns the response in standard JSON format.
 func (c *DataGaGetCall) Output(output string) *DataGaGetCall {
 	c.urlParams_.Set("output", output)
 	return c
@@ -5974,10 +5978,14 @@ func (c *DataGaGetCall) Output(output string) *DataGaGetCall {
 // desired sampling level.
 //
 // Possible values:
-//   "DEFAULT" - Returns response with a sample size that balances speed
+//
+//	"DEFAULT" - Returns response with a sample size that balances speed
+//
 // and accuracy.
-//   "FASTER" - Returns a fast response with a smaller sample size.
-//   "HIGHER_PRECISION" - Returns a more accurate response using a large
+//
+//	"FASTER" - Returns a fast response with a smaller sample size.
+//	"HIGHER_PRECISION" - Returns a more accurate response using a large
+//
 // sample size, but this may result in the response being slower.
 func (c *DataGaGetCall) SamplingLevel(samplingLevel string) *DataGaGetCall {
 	c.urlParams_.Set("samplingLevel", samplingLevel)
@@ -6079,17 +6087,17 @@ func (c *DataGaGetCall) Do(opts ...googleapi.CallOption) (*GaData, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GaData{
 		ServerResponse: googleapi.ServerResponse{
@@ -6236,18 +6244,18 @@ type DataMcfGetCall struct {
 // Get: Returns Analytics Multi-Channel Funnels data for a view
 // (profile).
 //
-// - endDate: End date for fetching Analytics data. Requests can specify
-//   a start date formatted as YYYY-MM-DD, or as a relative date (e.g.,
-//   today, yesterday, or 7daysAgo). The default value is 7daysAgo.
-// - ids: Unique table ID for retrieving Analytics data. Table ID is of
-//   the form ga:XXXX, where XXXX is the Analytics view (profile) ID.
-// - metrics: A comma-separated list of Multi-Channel Funnels metrics.
-//   E.g., 'mcf:totalConversions,mcf:totalConversionValue'. At least one
-//   metric must be specified.
-// - startDate: Start date for fetching Analytics data. Requests can
-//   specify a start date formatted as YYYY-MM-DD, or as a relative date
-//   (e.g., today, yesterday, or 7daysAgo). The default value is
-//   7daysAgo.
+//   - endDate: End date for fetching Analytics data. Requests can specify
+//     a start date formatted as YYYY-MM-DD, or as a relative date (e.g.,
+//     today, yesterday, or 7daysAgo). The default value is 7daysAgo.
+//   - ids: Unique table ID for retrieving Analytics data. Table ID is of
+//     the form ga:XXXX, where XXXX is the Analytics view (profile) ID.
+//   - metrics: A comma-separated list of Multi-Channel Funnels metrics.
+//     E.g., 'mcf:totalConversions,mcf:totalConversionValue'. At least one
+//     metric must be specified.
+//   - startDate: Start date for fetching Analytics data. Requests can
+//     specify a start date formatted as YYYY-MM-DD, or as a relative date
+//     (e.g., today, yesterday, or 7daysAgo). The default value is
+//     7daysAgo.
 func (r *DataMcfService) Get(ids string, startDate string, endDate string, metrics string) *DataMcfGetCall {
 	c := &DataMcfGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("ids", ids)
@@ -6283,10 +6291,14 @@ func (c *DataMcfGetCall) MaxResults(maxResults int64) *DataMcfGetCall {
 // desired sampling level.
 //
 // Possible values:
-//   "DEFAULT" - Returns response with a sample size that balances speed
+//
+//	"DEFAULT" - Returns response with a sample size that balances speed
+//
 // and accuracy.
-//   "FASTER" - Returns a fast response with a smaller sample size.
-//   "HIGHER_PRECISION" - Returns a more accurate response using a large
+//
+//	"FASTER" - Returns a fast response with a smaller sample size.
+//	"HIGHER_PRECISION" - Returns a more accurate response using a large
+//
 // sample size, but this may result in the response being slower.
 func (c *DataMcfGetCall) SamplingLevel(samplingLevel string) *DataMcfGetCall {
 	c.urlParams_.Set("samplingLevel", samplingLevel)
@@ -6381,17 +6393,17 @@ func (c *DataMcfGetCall) Do(opts ...googleapi.CallOption) (*McfData, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &McfData{
 		ServerResponse: googleapi.ServerResponse{
@@ -6514,10 +6526,10 @@ type DataRealtimeGetCall struct {
 
 // Get: Returns real time data for a view (profile).
 //
-// - ids: Unique table ID for retrieving real time data. Table ID is of
-//   the form ga:XXXX, where XXXX is the Analytics view (profile) ID.
-// - metrics: A comma-separated list of real time metrics. E.g.,
-//   'rt:activeUsers'. At least one metric must be specified.
+//   - ids: Unique table ID for retrieving real time data. Table ID is of
+//     the form ga:XXXX, where XXXX is the Analytics view (profile) ID.
+//   - metrics: A comma-separated list of real time metrics. E.g.,
+//     'rt:activeUsers'. At least one metric must be specified.
 func (r *DataRealtimeService) Get(ids string, metrics string) *DataRealtimeGetCall {
 	c := &DataRealtimeGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("ids", ids)
@@ -6627,17 +6639,17 @@ func (c *DataRealtimeGetCall) Do(opts ...googleapi.CallOption) (*RealtimeData, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RealtimeData{
 		ServerResponse: googleapi.ServerResponse{
@@ -6815,17 +6827,17 @@ func (c *ManagementAccountSummariesListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccountSummaries{
 		ServerResponse: googleapi.ServerResponse{
@@ -6949,7 +6961,7 @@ func (c *ManagementAccountUserLinksDeleteCall) Do(opts ...googleapi.CallOption) 
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -7070,17 +7082,17 @@ func (c *ManagementAccountUserLinksInsertCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -7232,17 +7244,17 @@ func (c *ManagementAccountUserLinksListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLinks{
 		ServerResponse: googleapi.ServerResponse{
@@ -7388,17 +7400,17 @@ func (c *ManagementAccountUserLinksUpdateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -7550,17 +7562,17 @@ func (c *ManagementAccountsListCall) Do(opts ...googleapi.CallOption) (*Accounts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Accounts{
 		ServerResponse: googleapi.ServerResponse{
@@ -7686,17 +7698,17 @@ func (c *ManagementClientIdHashClientIdCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &HashClientIdResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7742,9 +7754,9 @@ type ManagementCustomDataSourcesListCall struct {
 
 // List: List custom data sources to which the user has access.
 //
-// - accountId: Account Id for the custom data sources to retrieve.
-// - webPropertyId: Web property Id for the custom data sources to
-//   retrieve.
+//   - accountId: Account Id for the custom data sources to retrieve.
+//   - webPropertyId: Web property Id for the custom data sources to
+//     retrieve.
 func (r *ManagementCustomDataSourcesService) List(accountId string, webPropertyId string) *ManagementCustomDataSourcesListCall {
 	c := &ManagementCustomDataSourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -7843,17 +7855,17 @@ func (c *ManagementCustomDataSourcesListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomDataSources{
 		ServerResponse: googleapi.ServerResponse{
@@ -7932,10 +7944,10 @@ type ManagementCustomDimensionsGetCall struct {
 
 // Get: Get a custom dimension to which the user has access.
 //
-// - accountId: Account ID for the custom dimension to retrieve.
-// - customDimensionId: The ID of the custom dimension to retrieve.
-// - webPropertyId: Web property ID for the custom dimension to
-//   retrieve.
+//   - accountId: Account ID for the custom dimension to retrieve.
+//   - customDimensionId: The ID of the custom dimension to retrieve.
+//   - webPropertyId: Web property ID for the custom dimension to
+//     retrieve.
 func (r *ManagementCustomDimensionsService) Get(accountId string, webPropertyId string, customDimensionId string) *ManagementCustomDimensionsGetCall {
 	c := &ManagementCustomDimensionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8021,17 +8033,17 @@ func (c *ManagementCustomDimensionsGetCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomDimension{
 		ServerResponse: googleapi.ServerResponse{
@@ -8177,17 +8189,17 @@ func (c *ManagementCustomDimensionsInsertCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomDimension{
 		ServerResponse: googleapi.ServerResponse{
@@ -8250,9 +8262,9 @@ type ManagementCustomDimensionsListCall struct {
 
 // List: Lists custom dimensions to which the user has access.
 //
-// - accountId: Account ID for the custom dimensions to retrieve.
-// - webPropertyId: Web property ID for the custom dimensions to
-//   retrieve.
+//   - accountId: Account ID for the custom dimensions to retrieve.
+//   - webPropertyId: Web property ID for the custom dimensions to
+//     retrieve.
 func (r *ManagementCustomDimensionsService) List(accountId string, webPropertyId string) *ManagementCustomDimensionsListCall {
 	c := &ManagementCustomDimensionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8351,17 +8363,17 @@ func (c *ManagementCustomDimensionsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomDimensions{
 		ServerResponse: googleapi.ServerResponse{
@@ -8437,10 +8449,10 @@ type ManagementCustomDimensionsPatchCall struct {
 // Patch: Updates an existing custom dimension. This method supports
 // patch semantics.
 //
-// - accountId: Account ID for the custom dimension to update.
-// - customDimensionId: Custom dimension ID for the custom dimension to
-//   update.
-// - webPropertyId: Web property ID for the custom dimension to update.
+//   - accountId: Account ID for the custom dimension to update.
+//   - customDimensionId: Custom dimension ID for the custom dimension to
+//     update.
+//   - webPropertyId: Web property ID for the custom dimension to update.
 func (r *ManagementCustomDimensionsService) Patch(accountId string, webPropertyId string, customDimensionId string, customdimension *CustomDimension) *ManagementCustomDimensionsPatchCall {
 	c := &ManagementCustomDimensionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8528,17 +8540,17 @@ func (c *ManagementCustomDimensionsPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomDimension{
 		ServerResponse: googleapi.ServerResponse{
@@ -8615,10 +8627,10 @@ type ManagementCustomDimensionsUpdateCall struct {
 
 // Update: Updates an existing custom dimension.
 //
-// - accountId: Account ID for the custom dimension to update.
-// - customDimensionId: Custom dimension ID for the custom dimension to
-//   update.
-// - webPropertyId: Web property ID for the custom dimension to update.
+//   - accountId: Account ID for the custom dimension to update.
+//   - customDimensionId: Custom dimension ID for the custom dimension to
+//     update.
+//   - webPropertyId: Web property ID for the custom dimension to update.
 func (r *ManagementCustomDimensionsService) Update(accountId string, webPropertyId string, customDimensionId string, customdimension *CustomDimension) *ManagementCustomDimensionsUpdateCall {
 	c := &ManagementCustomDimensionsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8706,17 +8718,17 @@ func (c *ManagementCustomDimensionsUpdateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomDimension{
 		ServerResponse: googleapi.ServerResponse{
@@ -8881,17 +8893,17 @@ func (c *ManagementCustomMetricsGetCall) Do(opts ...googleapi.CallOption) (*Cust
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomMetric{
 		ServerResponse: googleapi.ServerResponse{
@@ -9037,17 +9049,17 @@ func (c *ManagementCustomMetricsInsertCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomMetric{
 		ServerResponse: googleapi.ServerResponse{
@@ -9210,17 +9222,17 @@ func (c *ManagementCustomMetricsListCall) Do(opts ...googleapi.CallOption) (*Cus
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomMetrics{
 		ServerResponse: googleapi.ServerResponse{
@@ -9386,17 +9398,17 @@ func (c *ManagementCustomMetricsPatchCall) Do(opts ...googleapi.CallOption) (*Cu
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomMetric{
 		ServerResponse: googleapi.ServerResponse{
@@ -9563,17 +9575,17 @@ func (c *ManagementCustomMetricsUpdateCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomMetric{
 		ServerResponse: googleapi.ServerResponse{
@@ -9723,7 +9735,7 @@ func (c *ManagementExperimentsDeleteCall) Do(opts ...googleapi.CallOption) error
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -9878,17 +9890,17 @@ func (c *ManagementExperimentsGetCall) Do(opts ...googleapi.CallOption) (*Experi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Experiment{
 		ServerResponse: googleapi.ServerResponse{
@@ -10046,17 +10058,17 @@ func (c *ManagementExperimentsInsertCall) Do(opts ...googleapi.CallOption) (*Exp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Experiment{
 		ServerResponse: googleapi.ServerResponse{
@@ -10231,17 +10243,17 @@ func (c *ManagementExperimentsListCall) Do(opts ...googleapi.CallOption) (*Exper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Experiments{
 		ServerResponse: googleapi.ServerResponse{
@@ -10413,17 +10425,17 @@ func (c *ManagementExperimentsPatchCall) Do(opts ...googleapi.CallOption) (*Expe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Experiment{
 		ServerResponse: googleapi.ServerResponse{
@@ -10587,17 +10599,17 @@ func (c *ManagementExperimentsUpdateCall) Do(opts ...googleapi.CallOption) (*Exp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Experiment{
 		ServerResponse: googleapi.ServerResponse{
@@ -10746,17 +10758,17 @@ func (c *ManagementFiltersDeleteCall) Do(opts ...googleapi.CallOption) (*Filter,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Filter{
 		ServerResponse: googleapi.ServerResponse{
@@ -10901,17 +10913,17 @@ func (c *ManagementFiltersGetCall) Do(opts ...googleapi.CallOption) (*Filter, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Filter{
 		ServerResponse: googleapi.ServerResponse{
@@ -11046,17 +11058,17 @@ func (c *ManagementFiltersInsertCall) Do(opts ...googleapi.CallOption) (*Filter,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Filter{
 		ServerResponse: googleapi.ServerResponse{
@@ -11208,17 +11220,17 @@ func (c *ManagementFiltersListCall) Do(opts ...googleapi.CallOption) (*Filters, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Filters{
 		ServerResponse: googleapi.ServerResponse{
@@ -11365,17 +11377,17 @@ func (c *ManagementFiltersPatchCall) Do(opts ...googleapi.CallOption) (*Filter, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Filter{
 		ServerResponse: googleapi.ServerResponse{
@@ -11516,17 +11528,17 @@ func (c *ManagementFiltersUpdateCall) Do(opts ...googleapi.CallOption) (*Filter,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Filter{
 		ServerResponse: googleapi.ServerResponse{
@@ -11682,17 +11694,17 @@ func (c *ManagementGoalsGetCall) Do(opts ...googleapi.CallOption) (*Goal, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Goal{
 		ServerResponse: googleapi.ServerResponse{
@@ -11849,17 +11861,17 @@ func (c *ManagementGoalsInsertCall) Do(opts ...googleapi.CallOption) (*Goal, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Goal{
 		ServerResponse: googleapi.ServerResponse{
@@ -11930,15 +11942,15 @@ type ManagementGoalsListCall struct {
 
 // List: Lists goals to which the user has access.
 //
-// - accountId: Account ID to retrieve goals for. Can either be a
-//   specific account ID or '~all', which refers to all the accounts
-//   that user has access to.
-// - profileId: View (Profile) ID to retrieve goals for. Can either be a
-//   specific view (profile) ID or '~all', which refers to all the views
-//   (profiles) that user has access to.
-// - webPropertyId: Web property ID to retrieve goals for. Can either be
-//   a specific web property ID or '~all', which refers to all the web
-//   properties that user has access to.
+//   - accountId: Account ID to retrieve goals for. Can either be a
+//     specific account ID or '~all', which refers to all the accounts
+//     that user has access to.
+//   - profileId: View (Profile) ID to retrieve goals for. Can either be a
+//     specific view (profile) ID or '~all', which refers to all the views
+//     (profiles) that user has access to.
+//   - webPropertyId: Web property ID to retrieve goals for. Can either be
+//     a specific web property ID or '~all', which refers to all the web
+//     properties that user has access to.
 func (r *ManagementGoalsService) List(accountId string, webPropertyId string, profileId string) *ManagementGoalsListCall {
 	c := &ManagementGoalsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -12039,17 +12051,17 @@ func (c *ManagementGoalsListCall) Do(opts ...googleapi.CallOption) (*Goals, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Goals{
 		ServerResponse: googleapi.ServerResponse{
@@ -12218,17 +12230,17 @@ func (c *ManagementGoalsPatchCall) Do(opts ...googleapi.CallOption) (*Goal, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Goal{
 		ServerResponse: googleapi.ServerResponse{
@@ -12391,17 +12403,17 @@ func (c *ManagementGoalsUpdateCall) Do(opts ...googleapi.CallOption) (*Goal, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Goal{
 		ServerResponse: googleapi.ServerResponse{
@@ -12479,11 +12491,11 @@ type ManagementProfileFilterLinksDeleteCall struct {
 
 // Delete: Delete a profile filter link.
 //
-// - accountId: Account ID to which the profile filter link belongs.
-// - linkId: ID of the profile filter link to delete.
-// - profileId: Profile ID to which the filter link belongs.
-// - webPropertyId: Web property Id to which the profile filter link
-//   belongs.
+//   - accountId: Account ID to which the profile filter link belongs.
+//   - linkId: ID of the profile filter link to delete.
+//   - profileId: Profile ID to which the filter link belongs.
+//   - webPropertyId: Web property Id to which the profile filter link
+//     belongs.
 func (r *ManagementProfileFilterLinksService) Delete(accountId string, webPropertyId string, profileId string, linkId string) *ManagementProfileFilterLinksDeleteCall {
 	c := &ManagementProfileFilterLinksDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -12553,7 +12565,7 @@ func (c *ManagementProfileFilterLinksDeleteCall) Do(opts ...googleapi.CallOption
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -12711,17 +12723,17 @@ func (c *ManagementProfileFilterLinksGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProfileFilterLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -12882,17 +12894,17 @@ func (c *ManagementProfileFilterLinksInsertCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProfileFilterLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -12966,13 +12978,13 @@ type ManagementProfileFilterLinksListCall struct {
 
 // List: Lists all profile filter links for a profile.
 //
-// - accountId: Account ID to retrieve profile filter links for.
-// - profileId: Profile ID to retrieve filter links for. Can either be a
-//   specific profile ID or '~all', which refers to all the profiles
-//   that user has access to.
-// - webPropertyId: Web property Id for profile filter links for. Can
-//   either be a specific web property ID or '~all', which refers to all
-//   the web properties that user has access to.
+//   - accountId: Account ID to retrieve profile filter links for.
+//   - profileId: Profile ID to retrieve filter links for. Can either be a
+//     specific profile ID or '~all', which refers to all the profiles
+//     that user has access to.
+//   - webPropertyId: Web property Id for profile filter links for. Can
+//     either be a specific web property ID or '~all', which refers to all
+//     the web properties that user has access to.
 func (r *ManagementProfileFilterLinksService) List(accountId string, webPropertyId string, profileId string) *ManagementProfileFilterLinksListCall {
 	c := &ManagementProfileFilterLinksListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -13073,17 +13085,17 @@ func (c *ManagementProfileFilterLinksListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProfileFilterLinks{
 		ServerResponse: googleapi.ServerResponse{
@@ -13252,17 +13264,17 @@ func (c *ManagementProfileFilterLinksPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProfileFilterLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -13429,17 +13441,17 @@ func (c *ManagementProfileFilterLinksUpdateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProfileFilterLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -13594,7 +13606,7 @@ func (c *ManagementProfileUserLinksDeleteCall) Do(opts ...googleapi.CallOption) 
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13737,17 +13749,17 @@ func (c *ManagementProfileUserLinksInsertCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -13818,13 +13830,13 @@ type ManagementProfileUserLinksListCall struct {
 
 // List: Lists profile-user links for a given view (profile).
 //
-// - accountId: Account ID which the given view (profile) belongs to.
-// - profileId: View (Profile) ID to retrieve the profile-user links
-//   for. Can either be a specific profile ID or '~all', which refers to
-//   all the profiles that user has access to.
-// - webPropertyId: Web Property ID which the given view (profile)
-//   belongs to. Can either be a specific web property ID or '~all',
-//   which refers to all the web properties that user has access to.
+//   - accountId: Account ID which the given view (profile) belongs to.
+//   - profileId: View (Profile) ID to retrieve the profile-user links
+//     for. Can either be a specific profile ID or '~all', which refers to
+//     all the profiles that user has access to.
+//   - webPropertyId: Web Property ID which the given view (profile)
+//     belongs to. Can either be a specific web property ID or '~all',
+//     which refers to all the web properties that user has access to.
 func (r *ManagementProfileUserLinksService) List(accountId string, webPropertyId string, profileId string) *ManagementProfileUserLinksListCall {
 	c := &ManagementProfileUserLinksListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -13925,17 +13937,17 @@ func (c *ManagementProfileUserLinksListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLinks{
 		ServerResponse: googleapi.ServerResponse{
@@ -14103,17 +14115,17 @@ func (c *ManagementProfileUserLinksUpdateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -14260,7 +14272,7 @@ func (c *ManagementProfilesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -14403,17 +14415,17 @@ func (c *ManagementProfilesGetCall) Do(opts ...googleapi.CallOption) (*Profile, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Profile{
 		ServerResponse: googleapi.ServerResponse{
@@ -14562,17 +14574,17 @@ func (c *ManagementProfilesInsertCall) Do(opts ...googleapi.CallOption) (*Profil
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Profile{
 		ServerResponse: googleapi.ServerResponse{
@@ -14635,12 +14647,12 @@ type ManagementProfilesListCall struct {
 
 // List: Lists views (profiles) to which the user has access.
 //
-// - accountId: Account ID for the view (profiles) to retrieve. Can
-//   either be a specific account ID or '~all', which refers to all the
-//   accounts to which the user has access.
-// - webPropertyId: Web property ID for the views (profiles) to
-//   retrieve. Can either be a specific web property ID or '~all', which
-//   refers to all the web properties to which the user has access.
+//   - accountId: Account ID for the view (profiles) to retrieve. Can
+//     either be a specific account ID or '~all', which refers to all the
+//     accounts to which the user has access.
+//   - webPropertyId: Web property ID for the views (profiles) to
+//     retrieve. Can either be a specific web property ID or '~all', which
+//     refers to all the web properties to which the user has access.
 func (r *ManagementProfilesService) List(accountId string, webPropertyId string) *ManagementProfilesListCall {
 	c := &ManagementProfilesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -14739,17 +14751,17 @@ func (c *ManagementProfilesListCall) Do(opts ...googleapi.CallOption) (*Profiles
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Profiles{
 		ServerResponse: googleapi.ServerResponse{
@@ -14907,17 +14919,17 @@ func (c *ManagementProfilesPatchCall) Do(opts ...googleapi.CallOption) (*Profile
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Profile{
 		ServerResponse: googleapi.ServerResponse{
@@ -15069,17 +15081,17 @@ func (c *ManagementProfilesUpdateCall) Do(opts ...googleapi.CallOption) (*Profil
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Profile{
 		ServerResponse: googleapi.ServerResponse{
@@ -15149,11 +15161,11 @@ type ManagementRemarketingAudienceDeleteCall struct {
 
 // Delete: Delete a remarketing audience.
 //
-// - accountId: Account ID to which the remarketing audience belongs.
-// - remarketingAudienceId: The ID of the remarketing audience to
-//   delete.
-// - webPropertyId: Web property ID to which the remarketing audience
-//   belongs.
+//   - accountId: Account ID to which the remarketing audience belongs.
+//   - remarketingAudienceId: The ID of the remarketing audience to
+//     delete.
+//   - webPropertyId: Web property ID to which the remarketing audience
+//     belongs.
 func (r *ManagementRemarketingAudienceService) Delete(accountId string, webPropertyId string, remarketingAudienceId string) *ManagementRemarketingAudienceDeleteCall {
 	c := &ManagementRemarketingAudienceDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -15221,7 +15233,7 @@ func (c *ManagementRemarketingAudienceDeleteCall) Do(opts ...googleapi.CallOptio
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -15276,11 +15288,11 @@ type ManagementRemarketingAudienceGetCall struct {
 
 // Get: Gets a remarketing audience to which the user has access.
 //
-// - accountId: The account ID of the remarketing audience to retrieve.
-// - remarketingAudienceId: The ID of the remarketing audience to
-//   retrieve.
-// - webPropertyId: The web property ID of the remarketing audience to
-//   retrieve.
+//   - accountId: The account ID of the remarketing audience to retrieve.
+//   - remarketingAudienceId: The ID of the remarketing audience to
+//     retrieve.
+//   - webPropertyId: The web property ID of the remarketing audience to
+//     retrieve.
 func (r *ManagementRemarketingAudienceService) Get(accountId string, webPropertyId string, remarketingAudienceId string) *ManagementRemarketingAudienceGetCall {
 	c := &ManagementRemarketingAudienceGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -15366,17 +15378,17 @@ func (c *ManagementRemarketingAudienceGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RemarketingAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -15444,10 +15456,10 @@ type ManagementRemarketingAudienceInsertCall struct {
 
 // Insert: Creates a new remarketing audience.
 //
-// - accountId: The account ID for which to create the remarketing
-//   audience.
-// - webPropertyId: Web property ID for which to create the remarketing
-//   audience.
+//   - accountId: The account ID for which to create the remarketing
+//     audience.
+//   - webPropertyId: Web property ID for which to create the remarketing
+//     audience.
 func (r *ManagementRemarketingAudienceService) Insert(accountId string, webPropertyId string, remarketingaudience *RemarketingAudience) *ManagementRemarketingAudienceInsertCall {
 	c := &ManagementRemarketingAudienceInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -15524,17 +15536,17 @@ func (c *ManagementRemarketingAudienceInsertCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RemarketingAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -15597,9 +15609,9 @@ type ManagementRemarketingAudienceListCall struct {
 
 // List: Lists remarketing audiences to which the user has access.
 //
-// - accountId: The account ID of the remarketing audiences to retrieve.
-// - webPropertyId: The web property ID of the remarketing audiences to
-//   retrieve.
+//   - accountId: The account ID of the remarketing audiences to retrieve.
+//   - webPropertyId: The web property ID of the remarketing audiences to
+//     retrieve.
 func (r *ManagementRemarketingAudienceService) List(accountId string, webPropertyId string) *ManagementRemarketingAudienceListCall {
 	c := &ManagementRemarketingAudienceListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -15704,17 +15716,17 @@ func (c *ManagementRemarketingAudienceListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RemarketingAudiences{
 		ServerResponse: googleapi.ServerResponse{
@@ -15795,11 +15807,11 @@ type ManagementRemarketingAudiencePatchCall struct {
 // Patch: Updates an existing remarketing audience. This method supports
 // patch semantics.
 //
-// - accountId: The account ID of the remarketing audience to update.
-// - remarketingAudienceId: The ID of the remarketing audience to
-//   update.
-// - webPropertyId: The web property ID of the remarketing audience to
-//   update.
+//   - accountId: The account ID of the remarketing audience to update.
+//   - remarketingAudienceId: The ID of the remarketing audience to
+//     update.
+//   - webPropertyId: The web property ID of the remarketing audience to
+//     update.
 func (r *ManagementRemarketingAudienceService) Patch(accountId string, webPropertyId string, remarketingAudienceId string, remarketingaudience *RemarketingAudience) *ManagementRemarketingAudiencePatchCall {
 	c := &ManagementRemarketingAudiencePatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -15878,17 +15890,17 @@ func (c *ManagementRemarketingAudiencePatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RemarketingAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -15959,11 +15971,11 @@ type ManagementRemarketingAudienceUpdateCall struct {
 
 // Update: Updates an existing remarketing audience.
 //
-// - accountId: The account ID of the remarketing audience to update.
-// - remarketingAudienceId: The ID of the remarketing audience to
-//   update.
-// - webPropertyId: The web property ID of the remarketing audience to
-//   update.
+//   - accountId: The account ID of the remarketing audience to update.
+//   - remarketingAudienceId: The ID of the remarketing audience to
+//     update.
+//   - webPropertyId: The web property ID of the remarketing audience to
+//     update.
 func (r *ManagementRemarketingAudienceService) Update(accountId string, webPropertyId string, remarketingAudienceId string, remarketingaudience *RemarketingAudience) *ManagementRemarketingAudienceUpdateCall {
 	c := &ManagementRemarketingAudienceUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -16042,17 +16054,17 @@ func (c *ManagementRemarketingAudienceUpdateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RemarketingAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -16211,17 +16223,17 @@ func (c *ManagementSegmentsListCall) Do(opts ...googleapi.CallOption) (*Segments
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Segments{
 		ServerResponse: googleapi.ServerResponse{
@@ -16354,7 +16366,7 @@ func (c *ManagementUnsampledReportsDeleteCall) Do(opts ...googleapi.CallOption) 
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -16508,17 +16520,17 @@ func (c *ManagementUnsampledReportsGetCall) Do(opts ...googleapi.CallOption) (*U
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UnsampledReport{
 		ServerResponse: googleapi.ServerResponse{
@@ -16676,17 +16688,17 @@ func (c *ManagementUnsampledReportsInsertCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UnsampledReport{
 		ServerResponse: googleapi.ServerResponse{
@@ -16758,12 +16770,12 @@ type ManagementUnsampledReportsListCall struct {
 
 // List: Lists unsampled reports to which the user has access.
 //
-// - accountId: Account ID to retrieve unsampled reports for. Must be a
-//   specific account ID, ~all is not supported.
-// - profileId: View (Profile) ID to retrieve unsampled reports for.
-//   Must be a specific view (profile) ID, ~all is not supported.
-// - webPropertyId: Web property ID to retrieve unsampled reports for.
-//   Must be a specific web property ID, ~all is not supported.
+//   - accountId: Account ID to retrieve unsampled reports for. Must be a
+//     specific account ID, ~all is not supported.
+//   - profileId: View (Profile) ID to retrieve unsampled reports for.
+//     Must be a specific view (profile) ID, ~all is not supported.
+//   - webPropertyId: Web property ID to retrieve unsampled reports for.
+//     Must be a specific web property ID, ~all is not supported.
 func (r *ManagementUnsampledReportsService) List(accountId string, webPropertyId string, profileId string) *ManagementUnsampledReportsListCall {
 	c := &ManagementUnsampledReportsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -16864,17 +16876,17 @@ func (c *ManagementUnsampledReportsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UnsampledReports{
 		ServerResponse: googleapi.ServerResponse{
@@ -16957,10 +16969,10 @@ type ManagementUploadsDeleteUploadDataCall struct {
 
 // DeleteUploadData: Delete data associated with a previous upload.
 //
-// - accountId: Account Id for the uploads to be deleted.
-// - customDataSourceId: Custom data source Id for the uploads to be
-//   deleted.
-// - webPropertyId: Web property Id for the uploads to be deleted.
+//   - accountId: Account Id for the uploads to be deleted.
+//   - customDataSourceId: Custom data source Id for the uploads to be
+//     deleted.
+//   - webPropertyId: Web property Id for the uploads to be deleted.
 func (r *ManagementUploadsService) DeleteUploadData(accountId string, webPropertyId string, customDataSourceId string, analyticsdataimportdeleteuploaddatarequest *AnalyticsDataimportDeleteUploadDataRequest) *ManagementUploadsDeleteUploadDataCall {
 	c := &ManagementUploadsDeleteUploadDataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -17034,7 +17046,7 @@ func (c *ManagementUploadsDeleteUploadDataCall) Do(opts ...googleapi.CallOption)
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17188,17 +17200,17 @@ func (c *ManagementUploadsGetCall) Do(opts ...googleapi.CallOption) (*Upload, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Upload{
 		ServerResponse: googleapi.ServerResponse{
@@ -17382,17 +17394,17 @@ func (c *ManagementUploadsListCall) Do(opts ...googleapi.CallOption) (*Uploads, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Uploads{
 		ServerResponse: googleapi.ServerResponse{
@@ -17479,10 +17491,10 @@ type ManagementUploadsUploadDataCall struct {
 
 // UploadData: Upload data for a custom data source.
 //
-// - accountId: Account Id associated with the upload.
-// - customDataSourceId: Custom data source Id to which the data being
-//   uploaded belongs.
-// - webPropertyId: Web property UA-string associated with the upload.
+//   - accountId: Account Id associated with the upload.
+//   - customDataSourceId: Custom data source Id to which the data being
+//     uploaded belongs.
+//   - webPropertyId: Web property UA-string associated with the upload.
 func (r *ManagementUploadsService) UploadData(accountId string, webPropertyId string, customDataSourceId string) *ManagementUploadsUploadDataCall {
 	c := &ManagementUploadsUploadDataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -17605,17 +17617,17 @@ func (c *ManagementUploadsUploadDataCall) Do(opts ...googleapi.CallOption) (*Upl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -17631,7 +17643,7 @@ func (c *ManagementUploadsUploadDataCall) Do(opts ...googleapi.CallOption) (*Upl
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &Upload{
@@ -17719,10 +17731,10 @@ type ManagementWebPropertyAdWordsLinksDeleteCall struct {
 
 // Delete: Deletes a web property-Google Ads link.
 //
-// - accountId: ID of the account which the given web property belongs
-//   to.
-// - webPropertyAdWordsLinkId: Web property Google Ads link ID.
-// - webPropertyId: Web property ID to delete the Google Ads link for.
+//   - accountId: ID of the account which the given web property belongs
+//     to.
+//   - webPropertyAdWordsLinkId: Web property Google Ads link ID.
+//   - webPropertyId: Web property ID to delete the Google Ads link for.
 func (r *ManagementWebPropertyAdWordsLinksService) Delete(accountId string, webPropertyId string, webPropertyAdWordsLinkId string) *ManagementWebPropertyAdWordsLinksDeleteCall {
 	c := &ManagementWebPropertyAdWordsLinksDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -17790,7 +17802,7 @@ func (c *ManagementWebPropertyAdWordsLinksDeleteCall) Do(opts ...googleapi.CallO
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17846,10 +17858,10 @@ type ManagementWebPropertyAdWordsLinksGetCall struct {
 // Get: Returns a web property-Google Ads link to which the user has
 // access.
 //
-// - accountId: ID of the account which the given web property belongs
-//   to.
-// - webPropertyAdWordsLinkId: Web property-Google Ads link ID.
-// - webPropertyId: Web property ID to retrieve the Google Ads link for.
+//   - accountId: ID of the account which the given web property belongs
+//     to.
+//   - webPropertyAdWordsLinkId: Web property-Google Ads link ID.
+//   - webPropertyId: Web property ID to retrieve the Google Ads link for.
 func (r *ManagementWebPropertyAdWordsLinksService) Get(accountId string, webPropertyId string, webPropertyAdWordsLinkId string) *ManagementWebPropertyAdWordsLinksGetCall {
 	c := &ManagementWebPropertyAdWordsLinksGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -17935,17 +17947,17 @@ func (c *ManagementWebPropertyAdWordsLinksGetCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityAdWordsLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -18013,9 +18025,9 @@ type ManagementWebPropertyAdWordsLinksInsertCall struct {
 
 // Insert: Creates a webProperty-Google Ads link.
 //
-// - accountId: ID of the Google Analytics account to create the link
-//   for.
-// - webPropertyId: Web property ID to create the link for.
+//   - accountId: ID of the Google Analytics account to create the link
+//     for.
+//   - webPropertyId: Web property ID to create the link for.
 func (r *ManagementWebPropertyAdWordsLinksService) Insert(accountId string, webPropertyId string, entityadwordslink *EntityAdWordsLink) *ManagementWebPropertyAdWordsLinksInsertCall {
 	c := &ManagementWebPropertyAdWordsLinksInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -18092,17 +18104,17 @@ func (c *ManagementWebPropertyAdWordsLinksInsertCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityAdWordsLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -18165,10 +18177,10 @@ type ManagementWebPropertyAdWordsLinksListCall struct {
 
 // List: Lists webProperty-Google Ads links for a given web property.
 //
-// - accountId: ID of the account which the given web property belongs
-//   to.
-// - webPropertyId: Web property ID to retrieve the Google Ads links
-//   for.
+//   - accountId: ID of the account which the given web property belongs
+//     to.
+//   - webPropertyId: Web property ID to retrieve the Google Ads links
+//     for.
 func (r *ManagementWebPropertyAdWordsLinksService) List(accountId string, webPropertyId string) *ManagementWebPropertyAdWordsLinksListCall {
 	c := &ManagementWebPropertyAdWordsLinksListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -18267,17 +18279,17 @@ func (c *ManagementWebPropertyAdWordsLinksListCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityAdWordsLinks{
 		ServerResponse: googleapi.ServerResponse{
@@ -18354,10 +18366,10 @@ type ManagementWebPropertyAdWordsLinksPatchCall struct {
 // Patch: Updates an existing webProperty-Google Ads link. This method
 // supports patch semantics.
 //
-// - accountId: ID of the account which the given web property belongs
-//   to.
-// - webPropertyAdWordsLinkId: Web property-Google Ads link ID.
-// - webPropertyId: Web property ID to retrieve the Google Ads link for.
+//   - accountId: ID of the account which the given web property belongs
+//     to.
+//   - webPropertyAdWordsLinkId: Web property-Google Ads link ID.
+//   - webPropertyId: Web property ID to retrieve the Google Ads link for.
 func (r *ManagementWebPropertyAdWordsLinksService) Patch(accountId string, webPropertyId string, webPropertyAdWordsLinkId string, entityadwordslink *EntityAdWordsLink) *ManagementWebPropertyAdWordsLinksPatchCall {
 	c := &ManagementWebPropertyAdWordsLinksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -18436,17 +18448,17 @@ func (c *ManagementWebPropertyAdWordsLinksPatchCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityAdWordsLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -18517,10 +18529,10 @@ type ManagementWebPropertyAdWordsLinksUpdateCall struct {
 
 // Update: Updates an existing webProperty-Google Ads link.
 //
-// - accountId: ID of the account which the given web property belongs
-//   to.
-// - webPropertyAdWordsLinkId: Web property-Google Ads link ID.
-// - webPropertyId: Web property ID to retrieve the Google Ads link for.
+//   - accountId: ID of the account which the given web property belongs
+//     to.
+//   - webPropertyAdWordsLinkId: Web property-Google Ads link ID.
+//   - webPropertyId: Web property ID to retrieve the Google Ads link for.
 func (r *ManagementWebPropertyAdWordsLinksService) Update(accountId string, webPropertyId string, webPropertyAdWordsLinkId string, entityadwordslink *EntityAdWordsLink) *ManagementWebPropertyAdWordsLinksUpdateCall {
 	c := &ManagementWebPropertyAdWordsLinksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -18599,17 +18611,17 @@ func (c *ManagementWebPropertyAdWordsLinksUpdateCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityAdWordsLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -18764,17 +18776,17 @@ func (c *ManagementWebpropertiesGetCall) Do(opts ...googleapi.CallOption) (*Webp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Webproperty{
 		ServerResponse: googleapi.ServerResponse{
@@ -18913,17 +18925,17 @@ func (c *ManagementWebpropertiesInsertCall) Do(opts ...googleapi.CallOption) (*W
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Webproperty{
 		ServerResponse: googleapi.ServerResponse{
@@ -18978,9 +18990,9 @@ type ManagementWebpropertiesListCall struct {
 
 // List: Lists web properties to which the user has access.
 //
-// - accountId: Account ID to retrieve web properties for. Can either be
-//   a specific account ID or '~all', which refers to all the accounts
-//   that user has access to.
+//   - accountId: Account ID to retrieve web properties for. Can either be
+//     a specific account ID or '~all', which refers to all the accounts
+//     that user has access to.
 func (r *ManagementWebpropertiesService) List(accountId string) *ManagementWebpropertiesListCall {
 	c := &ManagementWebpropertiesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -19077,17 +19089,17 @@ func (c *ManagementWebpropertiesListCall) Do(opts ...googleapi.CallOption) (*Web
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Webproperties{
 		ServerResponse: googleapi.ServerResponse{
@@ -19234,17 +19246,17 @@ func (c *ManagementWebpropertiesPatchCall) Do(opts ...googleapi.CallOption) (*We
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Webproperty{
 		ServerResponse: googleapi.ServerResponse{
@@ -19385,17 +19397,17 @@ func (c *ManagementWebpropertiesUpdateCall) Do(opts ...googleapi.CallOption) (*W
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Webproperty{
 		ServerResponse: googleapi.ServerResponse{
@@ -19528,7 +19540,7 @@ func (c *ManagementWebpropertyUserLinksDeleteCall) Do(opts ...googleapi.CallOpti
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -19660,17 +19672,17 @@ func (c *ManagementWebpropertyUserLinksInsertCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -19733,10 +19745,10 @@ type ManagementWebpropertyUserLinksListCall struct {
 
 // List: Lists webProperty-user links for a given web property.
 //
-// - accountId: Account ID which the given web property belongs to.
-// - webPropertyId: Web Property ID for the webProperty-user links to
-//   retrieve. Can either be a specific web property ID or '~all', which
-//   refers to all the web properties that user has access to.
+//   - accountId: Account ID which the given web property belongs to.
+//   - webPropertyId: Web Property ID for the webProperty-user links to
+//     retrieve. Can either be a specific web property ID or '~all', which
+//     refers to all the web properties that user has access to.
 func (r *ManagementWebpropertyUserLinksService) List(accountId string, webPropertyId string) *ManagementWebpropertyUserLinksListCall {
 	c := &ManagementWebpropertyUserLinksListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -19835,17 +19847,17 @@ func (c *ManagementWebpropertyUserLinksListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLinks{
 		ServerResponse: googleapi.ServerResponse{
@@ -20002,17 +20014,17 @@ func (c *ManagementWebpropertyUserLinksUpdateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntityUserLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -20081,8 +20093,8 @@ type MetadataColumnsListCall struct {
 
 // List: Lists all columns for a report type
 //
-// - reportType: Report type. Allowed Values: 'ga'. Where 'ga'
-//   corresponds to the Core Reporting API.
+//   - reportType: Report type. Allowed Values: 'ga'. Where 'ga'
+//     corresponds to the Core Reporting API.
 func (r *MetadataColumnsService) List(reportType string) *MetadataColumnsListCall {
 	c := &MetadataColumnsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.reportType = reportType
@@ -20164,17 +20176,17 @@ func (c *MetadataColumnsListCall) Do(opts ...googleapi.CallOption) (*Columns, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Columns{
 		ServerResponse: googleapi.ServerResponse{
@@ -20297,17 +20309,17 @@ func (c *ProvisioningCreateAccountTicketCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccountTicket{
 		ServerResponse: googleapi.ServerResponse{
@@ -20419,17 +20431,17 @@ func (c *ProvisioningCreateAccountTreeCall) Do(opts ...googleapi.CallOption) (*A
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccountTreeResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20541,17 +20553,17 @@ func (c *UserDeletionUserDeletionRequestUpsertCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserDeletionRequest{
 		ServerResponse: googleapi.ServerResponse{

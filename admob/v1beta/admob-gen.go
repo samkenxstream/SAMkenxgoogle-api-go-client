@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/admob/api/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/admob/v1beta"
-//   ...
-//   ctx := context.Background()
-//   admobService, err := admob.NewService(ctx)
+//	import "google.golang.org/api/admob/v1beta"
+//	...
+//	ctx := context.Background()
+//	admobService, err := admob.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   admobService, err := admob.NewService(ctx, option.WithScopes(admob.AdmobReportScope))
+//	admobService, err := admob.NewService(ctx, option.WithScopes(admob.AdmobReportScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   admobService, err := admob.NewService(ctx, option.WithAPIKey("AIza..."))
+//	admobService, err := admob.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   admobService, err := admob.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	admobService, err := admob.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package admob // import "google.golang.org/api/admob/v1beta"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "admob:v1beta"
 const apiName = "admob"
@@ -251,14 +252,17 @@ func (s *AdSource) MarshalJSON() ([]byte, error) {
 // AdUnit: Describes an AdMob ad unit.
 type AdUnit struct {
 	// AdFormat: AdFormat of the ad unit. Possible values are as follows:
-	// "BANNER" - Banner ad format. "BANNER_INTERSTITIAL" - Legacy format
-	// that can be used as either banner or interstitial. This format can no
-	// longer be created but can be targeted by mediation groups.
-	// "INTERSTITIAL" - A full screen ad. Supported ad types are
-	// "RICH_MEDIA" and "VIDEO". "NATIVE" - Native ad format. "REWARDED" -
-	// An ad that, once viewed, gets a callback verifying the view so that a
-	// reward can be given to the user. Supported ad types are "RICH_MEDIA"
-	// (interactive) and video where video can not be excluded.
+	// "APP_OPEN" - App Open ad format. "BANNER" - Banner ad format.
+	// "BANNER_INTERSTITIAL" - Legacy format that can be used as either
+	// banner or interstitial. This format can no longer be created but can
+	// be targeted by mediation groups. "INTERSTITIAL" - A full screen ad.
+	// Supported ad types are "RICH_MEDIA" and "VIDEO". "NATIVE" - Native ad
+	// format. "REWARDED" - An ad that, once viewed, gets a callback
+	// verifying the view so that a reward can be given to the user.
+	// Supported ad types are "RICH_MEDIA" (interactive) and video where
+	// video can not be excluded. "REWARDED_INTERSTITIAL" - Rewarded
+	// Interstitial ad format. Only supports video ad type. See
+	// https://support.google.com/admob/answer/9884467.
 	AdFormat string `json:"adFormat,omitempty"`
 
 	// AdTypes: Ad media type supported by this ad unit. Possible values as
@@ -311,6 +315,19 @@ func (s *AdUnit) MarshalJSON() ([]byte, error) {
 // App: Describes an AdMob app for a specific platform (For example:
 // Android or iOS).
 type App struct {
+	// AppApprovalState: Output only. The approval state for the app.
+	//
+	// Possible values:
+	//   "APP_APPROVAL_STATE_UNSPECIFIED" - Default value for an unset
+	// field. Do not use.
+	//   "ACTION_REQUIRED" - The app requires additional user action to be
+	// approved. Please refer to
+	// https://support.google.com/admob/answer/10564477 for details and next
+	// steps.
+	//   "IN_REVIEW" - The app is pending review.
+	//   "APPROVED" - The app is approved and can serve ads.
+	AppApprovalState string `json:"appApprovalState,omitempty"`
+
 	// AppId: The externally visible ID of the app which can be used to
 	// integrate with the AdMob SDK. This is a read only property. Example:
 	// ca-app-pub-9876543210987654~0123456789
@@ -336,7 +353,7 @@ type App struct {
 	// "ANDROID".
 	Platform string `json:"platform,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "AppId") to
+	// ForceSendFields is a list of field names (e.g. "AppApprovalState") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -344,12 +361,13 @@ type App struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "AppId") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AppApprovalState") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -513,7 +531,7 @@ func (s *DateRange) MarshalJSON() ([]byte, error) {
 }
 
 // GenerateMediationReportRequest: Request to generate an AdMob
-// Mediation report.
+// mediation report.
 type GenerateMediationReportRequest struct {
 	// ReportSpec: Network report specification.
 	ReportSpec *MediationReportSpec `json:"reportSpec,omitempty"`
@@ -542,7 +560,7 @@ func (s *GenerateMediationReportRequest) MarshalJSON() ([]byte, error) {
 }
 
 // GenerateMediationReportResponse: The streaming response for the AdMob
-// Mediation report where the first response contains the report header,
+// mediation report where the first response contains the report header,
 // then a stream of row responses, and finally a footer as the last
 // response message. For example: [{ "header": { "date_range": {
 // "start_date": {"year": 2018, "month": 9, "day": 1}, "end_date":
@@ -917,23 +935,13 @@ type MediationReportSpec struct {
 	//   "PLATFORM" - Mobile OS platform of the app (for example, "Android"
 	// or "iOS").
 	//   "MOBILE_OS_VERSION" - Mobile operating system version, e.g. "iOS
-	// 13.5.1". **Warning:** The dimension is incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
+	// 13.5.1".
 	//   "GMA_SDK_VERSION" - GMA SDK version, e.g. "iOS 7.62.0".
-	// **Warning:** The dimension is incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
 	//   "APP_VERSION_NAME" - For Android, the app version name can be found
 	// in versionName in PackageInfo. For iOS, the app version name can be
-	// found in CFBundleShortVersionString. **Warning:** The dimension is
-	// incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
+	// found in CFBundleShortVersionString.
 	//   "SERVING_RESTRICTION" - Restriction mode for ads serving (e.g.
-	// "Non-personalized ads"). **Warning:** The dimension is incompatible
-	// with [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS)
-	// metric.
+	// "Non-personalized ads").
 	Dimensions []string `json:"dimensions,omitempty"`
 
 	// LocalizationSettings: Localization settings of the report.
@@ -1054,23 +1062,13 @@ type MediationReportSpecDimensionFilter struct {
 	//   "PLATFORM" - Mobile OS platform of the app (for example, "Android"
 	// or "iOS").
 	//   "MOBILE_OS_VERSION" - Mobile operating system version, e.g. "iOS
-	// 13.5.1". **Warning:** The dimension is incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
+	// 13.5.1".
 	//   "GMA_SDK_VERSION" - GMA SDK version, e.g. "iOS 7.62.0".
-	// **Warning:** The dimension is incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
 	//   "APP_VERSION_NAME" - For Android, the app version name can be found
 	// in versionName in PackageInfo. For iOS, the app version name can be
-	// found in CFBundleShortVersionString. **Warning:** The dimension is
-	// incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
+	// found in CFBundleShortVersionString.
 	//   "SERVING_RESTRICTION" - Restriction mode for ads serving (e.g.
-	// "Non-personalized ads"). **Warning:** The dimension is incompatible
-	// with [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS)
-	// metric.
+	// "Non-personalized ads").
 	Dimension string `json:"dimension,omitempty"`
 
 	// MatchesAny: Matches a row if its value for the specified dimension is
@@ -1137,23 +1135,13 @@ type MediationReportSpecSortCondition struct {
 	//   "PLATFORM" - Mobile OS platform of the app (for example, "Android"
 	// or "iOS").
 	//   "MOBILE_OS_VERSION" - Mobile operating system version, e.g. "iOS
-	// 13.5.1". **Warning:** The dimension is incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
+	// 13.5.1".
 	//   "GMA_SDK_VERSION" - GMA SDK version, e.g. "iOS 7.62.0".
-	// **Warning:** The dimension is incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
 	//   "APP_VERSION_NAME" - For Android, the app version name can be found
 	// in versionName in PackageInfo. For iOS, the app version name can be
-	// found in CFBundleShortVersionString. **Warning:** The dimension is
-	// incompatible with
-	// [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS),
-	// [OBSERVED_ECPM](#Metric.ENUM_VALUES.OBSERVED_ECPM) metrics.
+	// found in CFBundleShortVersionString.
 	//   "SERVING_RESTRICTION" - Restriction mode for ads serving (e.g.
-	// "Non-personalized ads"). **Warning:** The dimension is incompatible
-	// with [ESTIMATED_EARNINGS](#Metric.ENUM_VALUES.ESTIMATED_EARNINGS)
-	// metric.
+	// "Non-personalized ads").
 	Dimension string `json:"dimension,omitempty"`
 
 	// Metric: Sort by the specified metric.
@@ -1884,8 +1872,8 @@ type AccountsGetCall struct {
 
 // Get: Gets information about the specified AdMob publisher account.
 //
-// - name: Resource name of the publisher account to retrieve. Example:
-//   accounts/pub-9876543210987654.
+//   - name: Resource name of the publisher account to retrieve. Example:
+//     accounts/pub-9876543210987654.
 func (r *AccountsService) Get(name string) *AccountsGetCall {
 	c := &AccountsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1967,17 +1955,17 @@ func (c *AccountsGetCall) Do(opts ...googleapi.CallOption) (*PublisherAccount, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PublisherAccount{
 		ServerResponse: googleapi.ServerResponse{
@@ -2126,17 +2114,17 @@ func (c *AccountsListCall) Do(opts ...googleapi.CallOption) (*ListPublisherAccou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPublisherAccountsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2215,8 +2203,8 @@ type AccountsAdSourcesListCall struct {
 
 // List: List the ad sources.
 //
-// - parent: The parent which owns this collection of ad sources.
-//   Format: accounts/{publisher_id}.
+//   - parent: The parent which owns this collection of ad sources.
+//     Format: accounts/{publisher_id}.
 func (r *AccountsAdSourcesService) List(parent string) *AccountsAdSourcesListCall {
 	c := &AccountsAdSourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2224,9 +2212,9 @@ func (r *AccountsAdSourcesService) List(parent string) *AccountsAdSourcesListCal
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of ad sources to return. If unspecified or 0, at most 1000 ad sources
-// will be returned. The maximum value is 10,000; values above 10,000
-// will be coerced to 10,000.
+// of ad sources to return. If unspecified or 0, at most 10,000 ad
+// sources will be returned. The maximum value is 20,000; values above
+// 10,000 will be coerced to 20,000.
 func (c *AccountsAdSourcesListCall) PageSize(pageSize int64) *AccountsAdSourcesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -2315,17 +2303,17 @@ func (c *AccountsAdSourcesListCall) Do(opts ...googleapi.CallOption) (*ListAdSou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAdSourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2348,7 +2336,7 @@ func (c *AccountsAdSourcesListCall) Do(opts ...googleapi.CallOption) (*ListAdSou
 	//   ],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "The maximum number of ad sources to return. If unspecified or 0, at most 1000 ad sources will be returned. The maximum value is 10,000; values above 10,000 will be coerced to 10,000.",
+	//       "description": "The maximum number of ad sources to return. If unspecified or 0, at most 10,000 ad sources will be returned. The maximum value is 20,000; values above 10,000 will be coerced to 20,000.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -2409,8 +2397,8 @@ type AccountsAdUnitsListCall struct {
 
 // List: List the ad units under the specified AdMob account.
 //
-// - parent: Resource name of the account to list ad units for. Example:
-//   accounts/pub-9876543210987654.
+//   - parent: Resource name of the account to list ad units for. Example:
+//     accounts/pub-9876543210987654.
 func (r *AccountsAdUnitsService) List(parent string) *AccountsAdUnitsListCall {
 	c := &AccountsAdUnitsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2418,9 +2406,9 @@ func (r *AccountsAdUnitsService) List(parent string) *AccountsAdUnitsListCall {
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of ad units to return. If unspecified or 0, at most 1000 ad units
-// will be returned. The maximum value is 10,000; values above 10,000
-// will be coerced to 10,000.
+// of ad units to return. If unspecified or 0, at most 10,000 ad units
+// will be returned. The maximum value is 20,000; values above 20,000
+// will be coerced to 20,000.
 func (c *AccountsAdUnitsListCall) PageSize(pageSize int64) *AccountsAdUnitsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -2510,17 +2498,17 @@ func (c *AccountsAdUnitsListCall) Do(opts ...googleapi.CallOption) (*ListAdUnits
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAdUnitsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2543,7 +2531,7 @@ func (c *AccountsAdUnitsListCall) Do(opts ...googleapi.CallOption) (*ListAdUnits
 	//   ],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "The maximum number of ad units to return. If unspecified or 0, at most 1000 ad units will be returned. The maximum value is 10,000; values above 10,000 will be coerced to 10,000.",
+	//       "description": "The maximum number of ad units to return. If unspecified or 0, at most 10,000 ad units will be returned. The maximum value is 20,000; values above 20,000 will be coerced to 20,000.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -2607,8 +2595,8 @@ type AccountsAppsListCall struct {
 
 // List: List the apps under the specified AdMob account.
 //
-// - parent: Resource name of the account to list apps for. Example:
-//   accounts/pub-9876543210987654.
+//   - parent: Resource name of the account to list apps for. Example:
+//     accounts/pub-9876543210987654.
 func (r *AccountsAppsService) List(parent string) *AccountsAppsListCall {
 	c := &AccountsAppsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2616,9 +2604,9 @@ func (r *AccountsAppsService) List(parent string) *AccountsAppsListCall {
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of apps to return. If unspecified or 0, at most 1000 apps will be
-// returned. The maximum value is 10,000; values above 10,000 will be
-// coerced to 10,000.
+// of apps to return. If unspecified or 0, at most 10,000 apps will be
+// returned. The maximum value is 20,000; values above 20,000 will be
+// coerced to 20,000.
 func (c *AccountsAppsListCall) PageSize(pageSize int64) *AccountsAppsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -2708,17 +2696,17 @@ func (c *AccountsAppsListCall) Do(opts ...googleapi.CallOption) (*ListAppsRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAppsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2741,7 +2729,7 @@ func (c *AccountsAppsListCall) Do(opts ...googleapi.CallOption) (*ListAppsRespon
 	//   ],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "The maximum number of apps to return. If unspecified or 0, at most 1000 apps will be returned. The maximum value is 10,000; values above 10,000 will be coerced to 10,000.",
+	//       "description": "The maximum number of apps to return. If unspecified or 0, at most 10,000 apps will be returned. The maximum value is 20,000; values above 20,000 will be coerced to 20,000.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -2803,12 +2791,12 @@ type AccountsMediationReportGenerateCall struct {
 	header_                        http.Header
 }
 
-// Generate: Generates an AdMob Mediation report based on the provided
+// Generate: Generates an AdMob mediation report based on the provided
 // report specification. Returns result of a server-side streaming RPC.
 // The result is returned in a sequence of responses.
 //
-// - parent: Resource name of the account to generate the report for.
-//   Example: accounts/pub-9876543210987654.
+//   - parent: Resource name of the account to generate the report for.
+//     Example: accounts/pub-9876543210987654.
 func (r *AccountsMediationReportService) Generate(parent string, generatemediationreportrequest *GenerateMediationReportRequest) *AccountsMediationReportGenerateCall {
 	c := &AccountsMediationReportGenerateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2883,17 +2871,17 @@ func (c *AccountsMediationReportGenerateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GenerateMediationReportResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2907,7 +2895,7 @@ func (c *AccountsMediationReportGenerateCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Generates an AdMob Mediation report based on the provided report specification. Returns result of a server-side streaming RPC. The result is returned in a sequence of responses.",
+	//   "description": "Generates an AdMob mediation report based on the provided report specification. Returns result of a server-side streaming RPC. The result is returned in a sequence of responses.",
 	//   "flatPath": "v1beta/accounts/{accountsId}/mediationReport:generate",
 	//   "httpMethod": "POST",
 	//   "id": "admob.accounts.mediationReport.generate",
@@ -2954,8 +2942,8 @@ type AccountsNetworkReportGenerateCall struct {
 // report specification. Returns result of a server-side streaming RPC.
 // The result is returned in a sequence of responses.
 //
-// - parent: Resource name of the account to generate the report for.
-//   Example: accounts/pub-9876543210987654.
+//   - parent: Resource name of the account to generate the report for.
+//     Example: accounts/pub-9876543210987654.
 func (r *AccountsNetworkReportService) Generate(parent string, generatenetworkreportrequest *GenerateNetworkReportRequest) *AccountsNetworkReportGenerateCall {
 	c := &AccountsNetworkReportGenerateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3030,17 +3018,17 @@ func (c *AccountsNetworkReportGenerateCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GenerateNetworkReportResponse{
 		ServerResponse: googleapi.ServerResponse{

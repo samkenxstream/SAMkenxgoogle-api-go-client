@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/spectrum-access-system/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/prod_tt_sasportal/v1alpha1"
-//   ...
-//   ctx := context.Background()
-//   prod_tt_sasportalService, err := prod_tt_sasportal.NewService(ctx)
+//	import "google.golang.org/api/prod_tt_sasportal/v1alpha1"
+//	...
+//	ctx := context.Background()
+//	prod_tt_sasportalService, err := prod_tt_sasportal.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
+//
+// By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
+//
+//	prod_tt_sasportalService, err := prod_tt_sasportal.NewService(ctx, option.WithScopes(prod_tt_sasportal.SasportalScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   prod_tt_sasportalService, err := prod_tt_sasportal.NewService(ctx, option.WithAPIKey("AIza..."))
+//	prod_tt_sasportalService, err := prod_tt_sasportal.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   prod_tt_sasportalService, err := prod_tt_sasportal.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	prod_tt_sasportalService, err := prod_tt_sasportal.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package prod_tt_sasportal // import "google.golang.org/api/prod_tt_sasportal/v1alpha1"
@@ -71,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "prod_tt_sasportal:v1alpha1"
 const apiName = "prod_tt_sasportal"
@@ -80,14 +85,19 @@ const mtlsBasePath = "https://prod-tt-sasportal.mtls.googleapis.com/"
 
 // OAuth2 scopes used by this API.
 const (
-	// See your primary Google Account email address
-	UserinfoEmailScope = "https://www.googleapis.com/auth/userinfo.email"
+	// See, edit, configure, and delete your Google Cloud data and see the
+	// email address for your Google Account.
+	CloudPlatformScope = "https://www.googleapis.com/auth/cloud-platform"
+
+	// Read, create, update, and delete your SAS Portal data.
+	SasportalScope = "https://www.googleapis.com/auth/sasportal"
 )
 
 // NewService creates a new Service.
 func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, error) {
 	scopesOption := internaloption.WithDefaultScopes(
-		"https://www.googleapis.com/auth/userinfo.email",
+		"https://www.googleapis.com/auth/cloud-platform",
+		"https://www.googleapis.com/auth/sasportal",
 	)
 	// NOTE: prepend, so we don't override user-specified scopes.
 	opts = append([]option.ClientOption{scopesOption}, opts...)
@@ -413,7 +423,7 @@ type SasPortalChannelWithScore struct {
 	// FrequencyRange: The frequency range of the channel.
 	FrequencyRange *SasPortalFrequencyRange `json:"frequencyRange,omitempty"`
 
-	// Score: The channel score, normalized to be in [0,100].
+	// Score: The channel score, normalized to be in the range [0,100].
 	Score float64 `json:"score,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "FrequencyRange") to
@@ -532,7 +542,8 @@ type SasPortalDeployment struct {
 	// DisplayName: The deployment's display name.
 	DisplayName string `json:"displayName,omitempty"`
 
-	// Frns: Output only. The FRNs copied from its direct parent.
+	// Frns: Output only. The FCC Registration Numbers (FRNs) copied from
+	// its direct parent.
 	Frns []string `json:"frns,omitempty"`
 
 	// Name: Output only. Resource name.
@@ -587,8 +598,8 @@ type SasPortalDevice struct {
 	// FccId: The FCC identifier of the device.
 	FccId string `json:"fccId,omitempty"`
 
-	// GrantRangeAllowlists: Only ranges within the allowlists are available
-	// for new grants.
+	// GrantRangeAllowlists: Only ranges that are within the allowlists are
+	// available for new grants.
 	GrantRangeAllowlists []*SasPortalFrequencyRange `json:"grantRangeAllowlists,omitempty"`
 
 	// Grants: Output only. Grants held by the device.
@@ -854,21 +865,23 @@ func (s *SasPortalDeviceGrant) UnmarshalJSON(data []byte) error {
 // and registration requests.
 type SasPortalDeviceMetadata struct {
 	// AntennaModel: If populated, the Antenna Model Pattern to use. Format
-	// is: RecordCreatorId:PatternId
+	// is: `RecordCreatorId:PatternId`
 	AntennaModel string `json:"antennaModel,omitempty"`
 
-	// CommonChannelGroup: CCG. A group of CBSDs in the same ICG requesting
-	// a common primary channel assignment. See CBRSA-TS-2001 V3.0.0 for
-	// more details.
+	// CommonChannelGroup: Common Channel Group (CCG). A group of CBSDs in
+	// the same ICG requesting a common primary channel assignment. For more
+	// details, see CBRSA-TS-2001 V3.0.0
+	// (https://ongoalliance.org/wp-content/uploads/2020/02/CBRSA-TS-2001-V3.0.0_Approved-for-publication.pdf).
 	CommonChannelGroup string `json:"commonChannelGroup,omitempty"`
 
-	// InterferenceCoordinationGroup: ICG. A group of CBSDs that manage
-	// their own interference with the group. See CBRSA-TS-2001 V3.0.0 for
-	// more details.
+	// InterferenceCoordinationGroup: Interference Coordination Group (ICG).
+	// A group of CBSDs that manage their own interference with the group.
+	// For more details, see CBRSA-TS-2001 V3.0.0
+	// (https://ongoalliance.org/wp-content/uploads/2020/02/CBRSA-TS-2001-V3.0.0_Approved-for-publication.pdf).
 	InterferenceCoordinationGroup string `json:"interferenceCoordinationGroup,omitempty"`
 
-	// NrqzValidated: Output only. Whether a CPI has validated to have
-	// coordinated with the National Quiet Zone office.
+	// NrqzValidated: Output only. Set to `true` if a CPI has validated that
+	// they have coordinated with the National Quiet Zone office.
 	NrqzValidated bool `json:"nrqzValidated,omitempty"`
 
 	// NrqzValidation: Output only. National Radio Quiet Zone validation
@@ -1124,6 +1137,9 @@ type SasPortalInstallationParams struct {
 	// with a value between -127 and +128 (dBi) inclusive.
 	AntennaGain int64 `json:"antennaGain,omitempty"`
 
+	// AntennaGainNewField: As above, but as a DoubleValue.
+	AntennaGainNewField float64 `json:"antennaGainNewField,omitempty"`
+
 	// AntennaModel: If an external antenna is used, the antenna model is
 	// optionally provided in this field. The string has a maximum length of
 	// 128 octets.
@@ -1138,6 +1154,9 @@ type SasPortalInstallationParams struct {
 	// MHz) inclusive. If not included, SAS interprets it as maximum
 	// allowable EIRP in units of dBm/10MHz for device category.
 	EirpCapability int64 `json:"eirpCapability,omitempty"`
+
+	// EirpCapabilityNewField: As above, but as a DoubleValue.
+	EirpCapabilityNewField float64 `json:"eirpCapabilityNewField,omitempty"`
 
 	// Height: Device antenna height in meters. When the `heightType`
 	// parameter value is "AGL", the antenna height should be given relative
@@ -1210,17 +1229,21 @@ func (s *SasPortalInstallationParams) MarshalJSON() ([]byte, error) {
 func (s *SasPortalInstallationParams) UnmarshalJSON(data []byte) error {
 	type NoMethod SasPortalInstallationParams
 	var s1 struct {
-		Height             gensupport.JSONFloat64 `json:"height"`
-		HorizontalAccuracy gensupport.JSONFloat64 `json:"horizontalAccuracy"`
-		Latitude           gensupport.JSONFloat64 `json:"latitude"`
-		Longitude          gensupport.JSONFloat64 `json:"longitude"`
-		VerticalAccuracy   gensupport.JSONFloat64 `json:"verticalAccuracy"`
+		AntennaGainNewField    gensupport.JSONFloat64 `json:"antennaGainNewField"`
+		EirpCapabilityNewField gensupport.JSONFloat64 `json:"eirpCapabilityNewField"`
+		Height                 gensupport.JSONFloat64 `json:"height"`
+		HorizontalAccuracy     gensupport.JSONFloat64 `json:"horizontalAccuracy"`
+		Latitude               gensupport.JSONFloat64 `json:"latitude"`
+		Longitude              gensupport.JSONFloat64 `json:"longitude"`
+		VerticalAccuracy       gensupport.JSONFloat64 `json:"verticalAccuracy"`
 		*NoMethod
 	}
 	s1.NoMethod = (*NoMethod)(s)
 	if err := json.Unmarshal(data, &s1); err != nil {
 		return err
 	}
+	s.AntennaGainNewField = float64(s1.AntennaGainNewField)
+	s.EirpCapabilityNewField = float64(s1.EirpCapabilityNewField)
 	s.Height = float64(s1.Height)
 	s.HorizontalAccuracy = float64(s1.HorizontalAccuracy)
 	s.Latitude = float64(s1.Latitude)
@@ -1506,16 +1529,16 @@ func (s *SasPortalNode) MarshalJSON() ([]byte, error) {
 // SasPortalNrqzValidation: Information about National Radio Quiet Zone
 // validation.
 type SasPortalNrqzValidation struct {
-	// CaseId: Validation case id.
+	// CaseId: Validation case ID.
 	CaseId string `json:"caseId,omitempty"`
 
 	// CpiId: CPI who signed the validation.
 	CpiId string `json:"cpiId,omitempty"`
 
-	// Latitude: Device latitude associated with the validation.
+	// Latitude: Device latitude that's associated with the validation.
 	Latitude float64 `json:"latitude,omitempty"`
 
-	// Longitude: Device longitude associated with the validation.
+	// Longitude: Device longitude that's associated with the validation.
 	Longitude float64 `json:"longitude,omitempty"`
 
 	// State: State of the NRQZ validation info.
@@ -1670,10 +1693,87 @@ func (s *SasPortalPolicy) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// SasPortalProvisionDeploymentRequest: Request for
+// [ProvisionDeployment].
+// [spectrum.sas.portal.v1alpha1.Provisioning.ProvisionDeployment]. GCP
+// Project, Organization Info, and caller’s GAIA ID should be
+// retrieved from the RPC handler, and used as inputs to create a new
+// SAS organization (if not exists) and a new SAS deployment.
+type SasPortalProvisionDeploymentRequest struct {
+	// NewDeploymentDisplayName: Optional. If this field is set, and a new
+	// SAS Portal Deployment needs to be created, its display name will be
+	// set to the value of this field.
+	NewDeploymentDisplayName string `json:"newDeploymentDisplayName,omitempty"`
+
+	// NewOrganizationDisplayName: Optional. If this field is set, and a new
+	// SAS Portal Organization needs to be created, its display name will be
+	// set to the value of this field.
+	NewOrganizationDisplayName string `json:"newOrganizationDisplayName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "NewDeploymentDisplayName") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NewDeploymentDisplayName")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SasPortalProvisionDeploymentRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod SasPortalProvisionDeploymentRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// SasPortalProvisionDeploymentResponse: Response for
+// [ProvisionDeployment].
+// [spectrum.sas.portal.v1alpha1.Provisioning.ProvisionDeployment].
+type SasPortalProvisionDeploymentResponse struct {
+	// ErrorMessage: Optional. Optional error message if the provisioning
+	// request is not successful.
+	ErrorMessage string `json:"errorMessage,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "ErrorMessage") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ErrorMessage") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SasPortalProvisionDeploymentResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod SasPortalProvisionDeploymentResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SasPortalSetPolicyRequest: Request message for `SetPolicy` method.
 type SasPortalSetPolicyRequest struct {
-	// DisableNotification: Optional. Set the field as true when we would
-	// like to disable the onboarding notification.
+	// DisableNotification: Optional. Set the field as `true` to disable the
+	// onboarding notification.
 	DisableNotification bool `json:"disableNotification,omitempty"`
 
 	// Policy: Required. The policy to be applied to the `resource`.
@@ -2018,17 +2118,17 @@ func (c *CustomersGetCall) Do(opts ...googleapi.CallOption) (*SasPortalCustomer,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalCustomer{
 		ServerResponse: googleapi.ServerResponse{
@@ -2063,7 +2163,8 @@ func (c *CustomersGetCall) Do(opts ...googleapi.CallOption) (*SasPortalCustomer,
 	//     "$ref": "SasPortalCustomer"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -2172,17 +2273,17 @@ func (c *CustomersListCall) Do(opts ...googleapi.CallOption) (*SasPortalListCust
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListCustomersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2219,7 +2320,8 @@ func (c *CustomersListCall) Do(opts ...googleapi.CallOption) (*SasPortalListCust
 	//     "$ref": "SasPortalListCustomersResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -2341,17 +2443,17 @@ func (c *CustomersPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalCustome
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalCustomer{
 		ServerResponse: googleapi.ServerResponse{
@@ -2395,7 +2497,137 @@ func (c *CustomersPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalCustome
 	//     "$ref": "SasPortalCustomer"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
+	//   ]
+	// }
+
+}
+
+// method id "prod_tt_sasportal.customers.provisionDeployment":
+
+type CustomersProvisionDeploymentCall struct {
+	s                                   *Service
+	sasportalprovisiondeploymentrequest *SasPortalProvisionDeploymentRequest
+	urlParams_                          gensupport.URLParams
+	ctx_                                context.Context
+	header_                             http.Header
+}
+
+// ProvisionDeployment: Creates a new SAS deployment through the GCP
+// workflow. Creates a SAS organization if an organization match is not
+// found.
+func (r *CustomersService) ProvisionDeployment(sasportalprovisiondeploymentrequest *SasPortalProvisionDeploymentRequest) *CustomersProvisionDeploymentCall {
+	c := &CustomersProvisionDeploymentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.sasportalprovisiondeploymentrequest = sasportalprovisiondeploymentrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersProvisionDeploymentCall) Fields(s ...googleapi.Field) *CustomersProvisionDeploymentCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersProvisionDeploymentCall) Context(ctx context.Context) *CustomersProvisionDeploymentCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersProvisionDeploymentCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersProvisionDeploymentCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.sasportalprovisiondeploymentrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha1/customers:provisionDeployment")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "prod_tt_sasportal.customers.provisionDeployment" call.
+// Exactly one of *SasPortalProvisionDeploymentResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *SasPortalProvisionDeploymentResponse.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersProvisionDeploymentCall) Do(opts ...googleapi.CallOption) (*SasPortalProvisionDeploymentResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &SasPortalProvisionDeploymentResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a new SAS deployment through the GCP workflow. Creates a SAS organization if an organization match is not found.",
+	//   "flatPath": "v1alpha1/customers:provisionDeployment",
+	//   "httpMethod": "POST",
+	//   "id": "prod_tt_sasportal.customers.provisionDeployment",
+	//   "parameterOrder": [],
+	//   "parameters": {},
+	//   "path": "v1alpha1/customers:provisionDeployment",
+	//   "request": {
+	//     "$ref": "SasPortalProvisionDeploymentRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "SasPortalProvisionDeploymentResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -2414,8 +2646,8 @@ type CustomersDeploymentsCreateCall struct {
 
 // Create: Creates a new deployment.
 //
-// - parent: The parent resource name where the deployment is to be
-//   created.
+//   - parent: The parent resource name where the deployment is to be
+//     created.
 func (r *CustomersDeploymentsService) Create(parent string, sasportaldeployment *SasPortalDeployment) *CustomersDeploymentsCreateCall {
 	c := &CustomersDeploymentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2490,17 +2722,17 @@ func (c *CustomersDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (*SasP
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -2538,7 +2770,8 @@ func (c *CustomersDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (*SasP
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -2625,17 +2858,17 @@ func (c *CustomersDeploymentsDeleteCall) Do(opts ...googleapi.CallOption) (*SasP
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2670,7 +2903,8 @@ func (c *CustomersDeploymentsDeleteCall) Do(opts ...googleapi.CallOption) (*SasP
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -2771,17 +3005,17 @@ func (c *CustomersDeploymentsGetCall) Do(opts ...googleapi.CallOption) (*SasPort
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -2816,7 +3050,8 @@ func (c *CustomersDeploymentsGetCall) Do(opts ...googleapi.CallOption) (*SasPort
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -2835,8 +3070,8 @@ type CustomersDeploymentsListCall struct {
 
 // List: Lists deployments.
 //
-// - parent: The parent resource name, for example, "nodes/1",
-//   customer/1/nodes/2.
+//   - parent: The parent resource name, for example, "nodes/1",
+//     customer/1/nodes/2.
 func (r *CustomersDeploymentsService) List(parent string) *CustomersDeploymentsListCall {
 	c := &CustomersDeploymentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2942,17 +3177,17 @@ func (c *CustomersDeploymentsListCall) Do(opts ...googleapi.CallOption) (*SasPor
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDeploymentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3003,7 +3238,8 @@ func (c *CustomersDeploymentsListCall) Do(opts ...googleapi.CallOption) (*SasPor
 	//     "$ref": "SasPortalListDeploymentsResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -3118,17 +3354,17 @@ func (c *CustomersDeploymentsMoveCall) Do(opts ...googleapi.CallOption) (*SasPor
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3166,7 +3402,8 @@ func (c *CustomersDeploymentsMoveCall) Do(opts ...googleapi.CallOption) (*SasPor
 	//     "$ref": "SasPortalOperation"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -3267,17 +3504,17 @@ func (c *CustomersDeploymentsPatchCall) Do(opts ...googleapi.CallOption) (*SasPo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -3321,7 +3558,8 @@ func (c *CustomersDeploymentsPatchCall) Do(opts ...googleapi.CallOption) (*SasPo
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -3415,17 +3653,17 @@ func (c *CustomersDeploymentsDevicesCreateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -3463,7 +3701,8 @@ func (c *CustomersDeploymentsDevicesCreateCall) Do(opts ...googleapi.CallOption)
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -3557,17 +3796,17 @@ func (c *CustomersDeploymentsDevicesCreateSignedCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -3605,7 +3844,8 @@ func (c *CustomersDeploymentsDevicesCreateSignedCall) Do(opts ...googleapi.CallO
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -3731,17 +3971,17 @@ func (c *CustomersDeploymentsDevicesListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3792,7 +4032,8 @@ func (c *CustomersDeploymentsDevicesListCall) Do(opts ...googleapi.CallOption) (
 	//     "$ref": "SasPortalListDevicesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -3907,17 +4148,17 @@ func (c *CustomersDevicesCreateCall) Do(opts ...googleapi.CallOption) (*SasPorta
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -3955,7 +4196,8 @@ func (c *CustomersDevicesCreateCall) Do(opts ...googleapi.CallOption) (*SasPorta
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -4049,17 +4291,17 @@ func (c *CustomersDevicesCreateSignedCall) Do(opts ...googleapi.CallOption) (*Sa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -4097,7 +4339,8 @@ func (c *CustomersDevicesCreateSignedCall) Do(opts ...googleapi.CallOption) (*Sa
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -4184,17 +4427,17 @@ func (c *CustomersDevicesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPorta
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4229,7 +4472,8 @@ func (c *CustomersDevicesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPorta
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -4330,17 +4574,17 @@ func (c *CustomersDevicesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -4375,7 +4619,8 @@ func (c *CustomersDevicesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDe
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -4501,17 +4746,17 @@ func (c *CustomersDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPortalL
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4562,7 +4807,8 @@ func (c *CustomersDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPortalL
 	//     "$ref": "SasPortalListDevicesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -4677,17 +4923,17 @@ func (c *CustomersDevicesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4725,7 +4971,8 @@ func (c *CustomersDevicesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalO
 	//     "$ref": "SasPortalOperation"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -4826,17 +5073,17 @@ func (c *CustomersDevicesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -4880,7 +5127,8 @@ func (c *CustomersDevicesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortal
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -4974,17 +5222,17 @@ func (c *CustomersDevicesSignDeviceCall) Do(opts ...googleapi.CallOption) (*SasP
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5022,7 +5270,8 @@ func (c *CustomersDevicesSignDeviceCall) Do(opts ...googleapi.CallOption) (*SasP
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -5116,17 +5365,17 @@ func (c *CustomersDevicesUpdateSignedCall) Do(opts ...googleapi.CallOption) (*Sa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -5164,7 +5413,8 @@ func (c *CustomersDevicesUpdateSignedCall) Do(opts ...googleapi.CallOption) (*Sa
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -5258,17 +5508,17 @@ func (c *CustomersNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortalN
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -5306,7 +5556,8 @@ func (c *CustomersNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortalN
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -5393,17 +5644,17 @@ func (c *CustomersNodesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPortalE
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5438,7 +5689,8 @@ func (c *CustomersNodesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPortalE
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -5539,17 +5791,17 @@ func (c *CustomersNodesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalNode
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -5584,7 +5836,8 @@ func (c *CustomersNodesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalNode
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -5709,17 +5962,17 @@ func (c *CustomersNodesListCall) Do(opts ...googleapi.CallOption) (*SasPortalLis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListNodesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5770,7 +6023,8 @@ func (c *CustomersNodesListCall) Do(opts ...googleapi.CallOption) (*SasPortalLis
 	//     "$ref": "SasPortalListNodesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -5885,17 +6139,17 @@ func (c *CustomersNodesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalOpe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5933,7 +6187,8 @@ func (c *CustomersNodesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalOpe
 	//     "$ref": "SasPortalOperation"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -6034,17 +6289,17 @@ func (c *CustomersNodesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalNo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -6088,7 +6343,8 @@ func (c *CustomersNodesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalNo
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -6107,8 +6363,8 @@ type CustomersNodesDeploymentsCreateCall struct {
 
 // Create: Creates a new deployment.
 //
-// - parent: The parent resource name where the deployment is to be
-//   created.
+//   - parent: The parent resource name where the deployment is to be
+//     created.
 func (r *CustomersNodesDeploymentsService) Create(parent string, sasportaldeployment *SasPortalDeployment) *CustomersNodesDeploymentsCreateCall {
 	c := &CustomersNodesDeploymentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6183,17 +6439,17 @@ func (c *CustomersNodesDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -6231,7 +6487,8 @@ func (c *CustomersNodesDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -6250,8 +6507,8 @@ type CustomersNodesDeploymentsListCall struct {
 
 // List: Lists deployments.
 //
-// - parent: The parent resource name, for example, "nodes/1",
-//   customer/1/nodes/2.
+//   - parent: The parent resource name, for example, "nodes/1",
+//     customer/1/nodes/2.
 func (r *CustomersNodesDeploymentsService) List(parent string) *CustomersNodesDeploymentsListCall {
 	c := &CustomersNodesDeploymentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6357,17 +6614,17 @@ func (c *CustomersNodesDeploymentsListCall) Do(opts ...googleapi.CallOption) (*S
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDeploymentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6418,7 +6675,8 @@ func (c *CustomersNodesDeploymentsListCall) Do(opts ...googleapi.CallOption) (*S
 	//     "$ref": "SasPortalListDeploymentsResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -6533,17 +6791,17 @@ func (c *CustomersNodesDevicesCreateCall) Do(opts ...googleapi.CallOption) (*Sas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -6581,7 +6839,8 @@ func (c *CustomersNodesDevicesCreateCall) Do(opts ...googleapi.CallOption) (*Sas
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -6675,17 +6934,17 @@ func (c *CustomersNodesDevicesCreateSignedCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -6723,7 +6982,8 @@ func (c *CustomersNodesDevicesCreateSignedCall) Do(opts ...googleapi.CallOption)
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -6849,17 +7109,17 @@ func (c *CustomersNodesDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6910,7 +7170,8 @@ func (c *CustomersNodesDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPo
 	//     "$ref": "SasPortalListDevicesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -7025,17 +7286,17 @@ func (c *CustomersNodesNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -7073,7 +7334,8 @@ func (c *CustomersNodesNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPo
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -7198,17 +7460,17 @@ func (c *CustomersNodesNodesListCall) Do(opts ...googleapi.CallOption) (*SasPort
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListNodesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7259,7 +7521,8 @@ func (c *CustomersNodesNodesListCall) Do(opts ...googleapi.CallOption) (*SasPort
 	//     "$ref": "SasPortalListNodesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -7381,17 +7644,17 @@ func (c *DeploymentsGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDeploym
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -7426,7 +7689,8 @@ func (c *DeploymentsGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDeploym
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -7513,17 +7777,17 @@ func (c *DeploymentsDevicesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPor
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -7558,7 +7822,8 @@ func (c *DeploymentsDevicesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPor
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -7659,17 +7924,17 @@ func (c *DeploymentsDevicesGetCall) Do(opts ...googleapi.CallOption) (*SasPortal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -7704,7 +7969,8 @@ func (c *DeploymentsDevicesGetCall) Do(opts ...googleapi.CallOption) (*SasPortal
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -7798,17 +8064,17 @@ func (c *DeploymentsDevicesMoveCall) Do(opts ...googleapi.CallOption) (*SasPorta
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7846,7 +8112,8 @@ func (c *DeploymentsDevicesMoveCall) Do(opts ...googleapi.CallOption) (*SasPorta
 	//     "$ref": "SasPortalOperation"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -7947,17 +8214,17 @@ func (c *DeploymentsDevicesPatchCall) Do(opts ...googleapi.CallOption) (*SasPort
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -8001,7 +8268,8 @@ func (c *DeploymentsDevicesPatchCall) Do(opts ...googleapi.CallOption) (*SasPort
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8095,17 +8363,17 @@ func (c *DeploymentsDevicesSignDeviceCall) Do(opts ...googleapi.CallOption) (*Sa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8143,7 +8411,8 @@ func (c *DeploymentsDevicesSignDeviceCall) Do(opts ...googleapi.CallOption) (*Sa
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8237,17 +8506,17 @@ func (c *DeploymentsDevicesUpdateSignedCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -8285,7 +8554,8 @@ func (c *DeploymentsDevicesUpdateSignedCall) Do(opts ...googleapi.CallOption) (*
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8373,17 +8643,17 @@ func (c *InstallerGenerateSecretCall) Do(opts ...googleapi.CallOption) (*SasPort
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalGenerateSecretResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8411,7 +8681,8 @@ func (c *InstallerGenerateSecretCall) Do(opts ...googleapi.CallOption) (*SasPort
 	//     "$ref": "SasPortalGenerateSecretResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8500,17 +8771,17 @@ func (c *InstallerValidateCall) Do(opts ...googleapi.CallOption) (*SasPortalVali
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalValidateInstallerResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8538,7 +8809,8 @@ func (c *InstallerValidateCall) Do(opts ...googleapi.CallOption) (*SasPortalVali
 	//     "$ref": "SasPortalValidateInstallerResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8639,17 +8911,17 @@ func (c *NodesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalNode, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -8684,7 +8956,8 @@ func (c *NodesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalNode, error) 
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8771,17 +9044,17 @@ func (c *NodesDeploymentsDeleteCall) Do(opts ...googleapi.CallOption) (*SasPorta
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8816,7 +9089,8 @@ func (c *NodesDeploymentsDeleteCall) Do(opts ...googleapi.CallOption) (*SasPorta
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8917,17 +9191,17 @@ func (c *NodesDeploymentsGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -8962,7 +9236,8 @@ func (c *NodesDeploymentsGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDe
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -8981,8 +9256,8 @@ type NodesDeploymentsListCall struct {
 
 // List: Lists deployments.
 //
-// - parent: The parent resource name, for example, "nodes/1",
-//   customer/1/nodes/2.
+//   - parent: The parent resource name, for example, "nodes/1",
+//     customer/1/nodes/2.
 func (r *NodesDeploymentsService) List(parent string) *NodesDeploymentsListCall {
 	c := &NodesDeploymentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9088,17 +9363,17 @@ func (c *NodesDeploymentsListCall) Do(opts ...googleapi.CallOption) (*SasPortalL
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDeploymentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9149,7 +9424,8 @@ func (c *NodesDeploymentsListCall) Do(opts ...googleapi.CallOption) (*SasPortalL
 	//     "$ref": "SasPortalListDeploymentsResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -9264,17 +9540,17 @@ func (c *NodesDeploymentsMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9312,7 +9588,8 @@ func (c *NodesDeploymentsMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalO
 	//     "$ref": "SasPortalOperation"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -9413,17 +9690,17 @@ func (c *NodesDeploymentsPatchCall) Do(opts ...googleapi.CallOption) (*SasPortal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -9467,7 +9744,8 @@ func (c *NodesDeploymentsPatchCall) Do(opts ...googleapi.CallOption) (*SasPortal
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -9561,17 +9839,17 @@ func (c *NodesDeploymentsDevicesCreateCall) Do(opts ...googleapi.CallOption) (*S
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -9609,7 +9887,8 @@ func (c *NodesDeploymentsDevicesCreateCall) Do(opts ...googleapi.CallOption) (*S
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -9703,17 +9982,17 @@ func (c *NodesDeploymentsDevicesCreateSignedCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -9751,7 +10030,8 @@ func (c *NodesDeploymentsDevicesCreateSignedCall) Do(opts ...googleapi.CallOptio
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -9877,17 +10157,17 @@ func (c *NodesDeploymentsDevicesListCall) Do(opts ...googleapi.CallOption) (*Sas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9938,7 +10218,8 @@ func (c *NodesDeploymentsDevicesListCall) Do(opts ...googleapi.CallOption) (*Sas
 	//     "$ref": "SasPortalListDevicesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -10053,17 +10334,17 @@ func (c *NodesDevicesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortalDev
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -10101,7 +10382,8 @@ func (c *NodesDevicesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortalDev
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -10195,17 +10477,17 @@ func (c *NodesDevicesCreateSignedCall) Do(opts ...googleapi.CallOption) (*SasPor
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -10243,7 +10525,8 @@ func (c *NodesDevicesCreateSignedCall) Do(opts ...googleapi.CallOption) (*SasPor
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -10330,17 +10613,17 @@ func (c *NodesDevicesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPortalEmp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -10375,7 +10658,8 @@ func (c *NodesDevicesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPortalEmp
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -10476,17 +10760,17 @@ func (c *NodesDevicesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDevice
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -10521,7 +10805,8 @@ func (c *NodesDevicesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalDevice
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -10647,17 +10932,17 @@ func (c *NodesDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPortalListD
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10708,7 +10993,8 @@ func (c *NodesDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPortalListD
 	//     "$ref": "SasPortalListDevicesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -10823,17 +11109,17 @@ func (c *NodesDevicesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalOpera
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -10871,7 +11157,8 @@ func (c *NodesDevicesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalOpera
 	//     "$ref": "SasPortalOperation"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -10972,17 +11259,17 @@ func (c *NodesDevicesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalDevi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -11026,7 +11313,8 @@ func (c *NodesDevicesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalDevi
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -11120,17 +11408,17 @@ func (c *NodesDevicesSignDeviceCall) Do(opts ...googleapi.CallOption) (*SasPorta
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -11168,7 +11456,8 @@ func (c *NodesDevicesSignDeviceCall) Do(opts ...googleapi.CallOption) (*SasPorta
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -11262,17 +11551,17 @@ func (c *NodesDevicesUpdateSignedCall) Do(opts ...googleapi.CallOption) (*SasPor
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -11310,7 +11599,8 @@ func (c *NodesDevicesUpdateSignedCall) Do(opts ...googleapi.CallOption) (*SasPor
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -11404,17 +11694,17 @@ func (c *NodesNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortalNode,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -11452,7 +11742,8 @@ func (c *NodesNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortalNode,
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -11539,17 +11830,17 @@ func (c *NodesNodesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPortalEmpty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -11584,7 +11875,8 @@ func (c *NodesNodesDeleteCall) Do(opts ...googleapi.CallOption) (*SasPortalEmpty
 	//     "$ref": "SasPortalEmpty"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -11685,17 +11977,17 @@ func (c *NodesNodesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalNode, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -11730,7 +12022,8 @@ func (c *NodesNodesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalNode, er
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -11855,17 +12148,17 @@ func (c *NodesNodesListCall) Do(opts ...googleapi.CallOption) (*SasPortalListNod
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListNodesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11916,7 +12209,8 @@ func (c *NodesNodesListCall) Do(opts ...googleapi.CallOption) (*SasPortalListNod
 	//     "$ref": "SasPortalListNodesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -12031,17 +12325,17 @@ func (c *NodesNodesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalOperati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -12079,7 +12373,8 @@ func (c *NodesNodesMoveCall) Do(opts ...googleapi.CallOption) (*SasPortalOperati
 	//     "$ref": "SasPortalOperation"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -12180,17 +12475,17 @@ func (c *NodesNodesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalNode, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -12234,7 +12529,8 @@ func (c *NodesNodesPatchCall) Do(opts ...googleapi.CallOption) (*SasPortalNode, 
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -12253,8 +12549,8 @@ type NodesNodesDeploymentsCreateCall struct {
 
 // Create: Creates a new deployment.
 //
-// - parent: The parent resource name where the deployment is to be
-//   created.
+//   - parent: The parent resource name where the deployment is to be
+//     created.
 func (r *NodesNodesDeploymentsService) Create(parent string, sasportaldeployment *SasPortalDeployment) *NodesNodesDeploymentsCreateCall {
 	c := &NodesNodesDeploymentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12329,17 +12625,17 @@ func (c *NodesNodesDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (*Sas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -12377,7 +12673,8 @@ func (c *NodesNodesDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (*Sas
 	//     "$ref": "SasPortalDeployment"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -12396,8 +12693,8 @@ type NodesNodesDeploymentsListCall struct {
 
 // List: Lists deployments.
 //
-// - parent: The parent resource name, for example, "nodes/1",
-//   customer/1/nodes/2.
+//   - parent: The parent resource name, for example, "nodes/1",
+//     customer/1/nodes/2.
 func (r *NodesNodesDeploymentsService) List(parent string) *NodesNodesDeploymentsListCall {
 	c := &NodesNodesDeploymentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12503,17 +12800,17 @@ func (c *NodesNodesDeploymentsListCall) Do(opts ...googleapi.CallOption) (*SasPo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDeploymentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12564,7 +12861,8 @@ func (c *NodesNodesDeploymentsListCall) Do(opts ...googleapi.CallOption) (*SasPo
 	//     "$ref": "SasPortalListDeploymentsResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -12679,17 +12977,17 @@ func (c *NodesNodesDevicesCreateCall) Do(opts ...googleapi.CallOption) (*SasPort
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -12727,7 +13025,8 @@ func (c *NodesNodesDevicesCreateCall) Do(opts ...googleapi.CallOption) (*SasPort
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -12821,17 +13120,17 @@ func (c *NodesNodesDevicesCreateSignedCall) Do(opts ...googleapi.CallOption) (*S
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -12869,7 +13168,8 @@ func (c *NodesNodesDevicesCreateSignedCall) Do(opts ...googleapi.CallOption) (*S
 	//     "$ref": "SasPortalDevice"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -12995,17 +13295,17 @@ func (c *NodesNodesDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPortal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13056,7 +13356,8 @@ func (c *NodesNodesDevicesListCall) Do(opts ...googleapi.CallOption) (*SasPortal
 	//     "$ref": "SasPortalListDevicesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -13171,17 +13472,17 @@ func (c *NodesNodesNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalNode{
 		ServerResponse: googleapi.ServerResponse{
@@ -13219,7 +13520,8 @@ func (c *NodesNodesNodesCreateCall) Do(opts ...googleapi.CallOption) (*SasPortal
 	//     "$ref": "SasPortalNode"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -13344,17 +13646,17 @@ func (c *NodesNodesNodesListCall) Do(opts ...googleapi.CallOption) (*SasPortalLi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalListNodesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13405,7 +13707,8 @@ func (c *NodesNodesNodesListCall) Do(opts ...googleapi.CallOption) (*SasPortalLi
 	//     "$ref": "SasPortalListNodesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -13514,17 +13817,17 @@ func (c *PoliciesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalPolicy, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -13552,7 +13855,8 @@ func (c *PoliciesGetCall) Do(opts ...googleapi.CallOption) (*SasPortalPolicy, er
 	//     "$ref": "SasPortalPolicy"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -13640,17 +13944,17 @@ func (c *PoliciesSetCall) Do(opts ...googleapi.CallOption) (*SasPortalPolicy, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -13678,7 +13982,8 @@ func (c *PoliciesSetCall) Do(opts ...googleapi.CallOption) (*SasPortalPolicy, er
 	//     "$ref": "SasPortalPolicy"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 
@@ -13766,17 +14071,17 @@ func (c *PoliciesTestCall) Do(opts ...googleapi.CallOption) (*SasPortalTestPermi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SasPortalTestPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13804,7 +14109,8 @@ func (c *PoliciesTestCall) Do(opts ...googleapi.CallOption) (*SasPortalTestPermi
 	//     "$ref": "SasPortalTestPermissionsResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/userinfo.email"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/sasportal"
 	//   ]
 	// }
 

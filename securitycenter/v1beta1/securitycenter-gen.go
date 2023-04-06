@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/security-command-center
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/securitycenter/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   securitycenterService, err := securitycenter.NewService(ctx)
+//	import "google.golang.org/api/securitycenter/v1beta1"
+//	...
+//	ctx := context.Background()
+//	securitycenterService, err := securitycenter.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   securitycenterService, err := securitycenter.NewService(ctx, option.WithAPIKey("AIza..."))
+//	securitycenterService, err := securitycenter.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   securitycenterService, err := securitycenter.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	securitycenterService, err := securitycenter.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package securitycenter // import "google.golang.org/api/securitycenter/v1beta1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "securitycenter:v1beta1"
 const apiName = "securitycenter"
@@ -207,16 +208,57 @@ type Access struct {
 	// "SetIamPolicy".
 	MethodName string `json:"methodName,omitempty"`
 
-	// PrincipalEmail: Associated email, such as "foo@google.com".
+	// PrincipalEmail: Associated email, such as "foo@google.com". The email
+	// address of the authenticated user (or service account on behalf of
+	// third party principal) making the request. For third party identity
+	// callers, the `principal_subject` field is populated instead of this
+	// field. For privacy reasons, the principal email address is sometimes
+	// redacted. For more information, see Caller identities in audit logs
+	// (https://cloud.google.com/logging/docs/audit#user-id).
 	PrincipalEmail string `json:"principalEmail,omitempty"`
+
+	// PrincipalSubject: A string representing the principal_subject
+	// associated with the identity. As compared to `principal_email`,
+	// supports principals that aren't associated with email addresses, such
+	// as third party principals. For most identities, the format will be
+	// `principal://iam.googleapis.com/{identity pool
+	// name}/subjects/{subject}` except for some GKE identities
+	// (GKE_WORKLOAD, FREEFORM, GKE_HUB_WORKLOAD) that are still in the
+	// legacy format `serviceAccount:{identity pool name}[{subject}]`
+	PrincipalSubject string `json:"principalSubject,omitempty"`
+
+	// ServiceAccountDelegationInfo: Identity delegation history of an
+	// authenticated service account that makes the request. It contains
+	// information on the real authorities that try to access GCP resources
+	// by delegating on a service account. When multiple authorities are
+	// present, they are guaranteed to be sorted based on the original
+	// ordering of the identity delegation events.
+	ServiceAccountDelegationInfo []*ServiceAccountDelegationInfo `json:"serviceAccountDelegationInfo,omitempty"`
+
+	// ServiceAccountKeyName: The name of the service account key used to
+	// create or exchange credentials for authenticating the service account
+	// making the request. This is a scheme-less URI full resource name. For
+	// example:
+	// "//iam.googleapis.com/projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/
+	// keys/{key}"
+	ServiceAccountKeyName string `json:"serviceAccountKeyName,omitempty"`
 
 	// ServiceName: This is the API service that the service account made a
 	// call to, e.g. "iam.googleapis.com"
 	ServiceName string `json:"serviceName,omitempty"`
 
-	// UserAgentFamily: What kind of user agent is associated, e.g.
+	// UserAgentFamily: What kind of user agent is associated, for example
 	// operating system shells, embedded or stand-alone applications, etc.
 	UserAgentFamily string `json:"userAgentFamily,omitempty"`
+
+	// UserName: A string that represents the username of a user, user
+	// account, or other entity involved in the access event. What the
+	// entity is and what its role in the access event is depends on the
+	// finding that this field appears in. The entity is likely not an IAM
+	// principal, but could be a user that is logged into an operating
+	// system, if the finding is VM-related, or a user that is logged into
+	// some type of application that is involved in the access event.
+	UserName string `json:"userName,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CallerIp") to
 	// unconditionally include in API requests. By default, fields with
@@ -237,6 +279,58 @@ type Access struct {
 
 func (s *Access) MarshalJSON() ([]byte, error) {
 	type NoMethod Access
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AccessReview: Conveys information about a Kubernetes access review
+// (e.g. kubectl auth can-i ...) that was involved in a finding.
+type AccessReview struct {
+	// Group: Group is the API Group of the Resource. "*" means all.
+	Group string `json:"group,omitempty"`
+
+	// Name: Name is the name of the resource being requested. Empty means
+	// all.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace of the action being requested. Currently, there is no
+	// distinction between no namespace and all namespaces. Both are
+	// represented by "" (empty).
+	Ns string `json:"ns,omitempty"`
+
+	// Resource: Resource is the optional resource type requested. "*" means
+	// all.
+	Resource string `json:"resource,omitempty"`
+
+	// Subresource: Subresource is the optional subresource type.
+	Subresource string `json:"subresource,omitempty"`
+
+	// Verb: Verb is a Kubernetes resource API verb, like: get, list, watch,
+	// create, update, delete, proxy. "*" means all.
+	Verb string `json:"verb,omitempty"`
+
+	// Version: Version is the API Version of the Resource. "*" means all.
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Group") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Group") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AccessReview) MarshalJSON() ([]byte, error) {
+	type NoMethod AccessReview
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -453,19 +547,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -477,9 +578,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -512,6 +611,118 @@ func (s *Binding) MarshalJSON() ([]byte, error) {
 // CancelOperationRequest: The request message for
 // Operations.CancelOperation.
 type CancelOperationRequest struct {
+}
+
+// CloudDlpDataProfile: The data profile
+// (https://cloud.google.com/dlp/docs/data-profiles) associated with the
+// finding.
+type CloudDlpDataProfile struct {
+	// DataProfile: Name of the data profile, for example,
+	// `projects/123/locations/europe/tableProfiles/8383929`.
+	DataProfile string `json:"dataProfile,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DataProfile") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DataProfile") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudDlpDataProfile) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudDlpDataProfile
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CloudDlpInspection: Details about the Cloud Data Loss Prevention
+// (Cloud DLP) inspection job
+// (https://cloud.google.com/dlp/docs/concepts-job-triggers) that
+// produced the finding.
+type CloudDlpInspection struct {
+	// FullScan: Whether Cloud DLP scanned the complete resource or a
+	// sampled subset.
+	FullScan bool `json:"fullScan,omitempty"`
+
+	// InfoType: The type of information
+	// (https://cloud.google.com/dlp/docs/infotypes-reference) found, for
+	// example, `EMAIL_ADDRESS` or `STREET_ADDRESS`.
+	InfoType string `json:"infoType,omitempty"`
+
+	// InfoTypeCount: The number of times Cloud DLP found this infoType
+	// within this job and resource.
+	InfoTypeCount int64 `json:"infoTypeCount,omitempty,string"`
+
+	// InspectJob: Name of the inspection job, for example,
+	// `projects/123/locations/europe/dlpJobs/i-8383929`.
+	InspectJob string `json:"inspectJob,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FullScan") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FullScan") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudDlpInspection) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudDlpInspection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Compliance: Contains compliance information about a security standard
+// indicating unmet recommendations.
+type Compliance struct {
+	// Ids: Policies within the standard/benchmark e.g. A.12.4.1
+	Ids []string `json:"ids,omitempty"`
+
+	// Standard: Refers to industry wide standards or benchmarks e.g. "cis",
+	// "pci", "owasp", etc.
+	Standard string `json:"standard,omitempty"`
+
+	// Version: Version of the standard/benchmark e.g. 1.1
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Ids") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Ids") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Compliance) MarshalJSON() ([]byte, error) {
+	type NoMethod Compliance
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // Connection: Contains information about the IP connection associated
@@ -561,6 +772,102 @@ type Connection struct {
 
 func (s *Connection) MarshalJSON() ([]byte, error) {
 	type NoMethod Connection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Contact: The email address of a contact.
+type Contact struct {
+	// Email: An email address. For example, "person123@company.com".
+	Email string `json:"email,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Email") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Email") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Contact) MarshalJSON() ([]byte, error) {
+	type NoMethod Contact
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ContactDetails: The details pertaining to specific contacts
+type ContactDetails struct {
+	// Contacts: A list of contacts
+	Contacts []*Contact `json:"contacts,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Contacts") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Contacts") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ContactDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod ContactDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Container: Container associated with the finding.
+type Container struct {
+	// ImageId: Optional container image id, when provided by the container
+	// runtime. Uniquely identifies the container image launched using a
+	// container image digest.
+	ImageId string `json:"imageId,omitempty"`
+
+	// Labels: Container labels, as provided by the container runtime.
+	Labels []*Label `json:"labels,omitempty"`
+
+	// Name: Container name.
+	Name string `json:"name,omitempty"`
+
+	// Uri: Container image URI provided when configuring a pod/container.
+	// May identify a container image version using mutable tags.
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ImageId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ImageId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Container) MarshalJSON() ([]byte, error) {
+	type NoMethod Container
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -763,6 +1070,105 @@ func (s *Cvssv3) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Database: Represents database access information, such as queries. A
+// database may be a sub-resource of an instance (as in the case of
+// CloudSQL instances or Cloud Spanner instances), or the database
+// instance itself. Some database resources may not have the full
+// resource name populated because these resource types are not yet
+// supported by Cloud Asset Inventory (e.g. CloudSQL databases). In
+// these cases only the display name will be provided.
+type Database struct {
+	// DisplayName: The human readable name of the database the user
+	// connected to.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// Grantees: The target usernames/roles/groups of a SQL privilege grant
+	// (not an IAM policy change).
+	Grantees []string `json:"grantees,omitempty"`
+
+	// Name: The full resource name of the database the user connected to,
+	// if it is supported by CAI.
+	// (https://google.aip.dev/122#full-resource-names)
+	Name string `json:"name,omitempty"`
+
+	// Query: The SQL statement associated with the relevant access.
+	Query string `json:"query,omitempty"`
+
+	// UserName: The username used to connect to the DB. This may not
+	// necessarily be an IAM principal, and has no required format.
+	UserName string `json:"userName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DisplayName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Database) MarshalJSON() ([]byte, error) {
+	type NoMethod Database
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Detection: Memory hash detection contributing to the binary family
+// match.
+type Detection struct {
+	// Binary: The name of the binary associated with the memory hash
+	// signature detection.
+	Binary string `json:"binary,omitempty"`
+
+	// PercentPagesMatched: The percentage of memory page hashes in the
+	// signature that were matched.
+	PercentPagesMatched float64 `json:"percentPagesMatched,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Binary") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Binary") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Detection) MarshalJSON() ([]byte, error) {
+	type NoMethod Detection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+func (s *Detection) UnmarshalJSON(data []byte) error {
+	type NoMethod Detection
+	var s1 struct {
+		PercentPagesMatched gensupport.JSONFloat64 `json:"percentPagesMatched"`
+		*NoMethod
+	}
+	s1.NoMethod = (*NoMethod)(s)
+	if err := json.Unmarshal(data, &s1); err != nil {
+		return err
+	}
+	s.PercentPagesMatched = float64(s1.PercentPagesMatched)
+	return nil
+}
+
 // Empty: A generic empty message that you can re-use to avoid defining
 // duplicated empty messages in your APIs. A typical example is to use
 // it as the request or the response type of an API method. For
@@ -772,6 +1178,110 @@ type Empty struct {
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
+}
+
+// EnvironmentVariable: EnvironmentVariable is a name-value pair to
+// store environment variables for Process.
+type EnvironmentVariable struct {
+	// Name: Environment variable name as a JSON encoded string.
+	Name string `json:"name,omitempty"`
+
+	// Val: Environment variable value as a JSON encoded string.
+	Val string `json:"val,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EnvironmentVariable) MarshalJSON() ([]byte, error) {
+	type NoMethod EnvironmentVariable
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ExfilResource: Resource that has been exfiltrated or exfiltrated_to.
+type ExfilResource struct {
+	// Components: Subcomponents of the asset that is exfiltrated - these
+	// could be URIs used during exfiltration, table names, databases,
+	// filenames, etc. For example, multiple tables may be exfiltrated from
+	// the same CloudSQL instance, or multiple files from the same Cloud
+	// Storage bucket.
+	Components []string `json:"components,omitempty"`
+
+	// Name: Resource's URI (https://google.aip.dev/122#full-resource-names)
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Components") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Components") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ExfilResource) MarshalJSON() ([]byte, error) {
+	type NoMethod ExfilResource
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Exfiltration: Exfiltration represents a data exfiltration attempt of
+// one or more sources to one or more targets. Sources represent the
+// source of data that is exfiltrated, and Targets represents the
+// destination the data was copied to.
+type Exfiltration struct {
+	// Sources: If there are multiple sources, then the data is considered
+	// "joined" between them. For instance, BigQuery can join multiple
+	// tables, and each table would be considered a source.
+	Sources []*ExfilResource `json:"sources,omitempty"`
+
+	// Targets: If there are multiple targets, each target would get a
+	// complete copy of the "joined" source data.
+	Targets []*ExfilResource `json:"targets,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Sources") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Sources") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Exfiltration) MarshalJSON() ([]byte, error) {
+	type NoMethod Exfiltration
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // Expr: Represents a textual expression in the Common Expression
@@ -834,6 +1344,55 @@ func (s *Expr) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// File: File information about the related binary/library used by an
+// executable, or the script used by a script interpreter
+type File struct {
+	// Contents: Prefix of the file contents as a JSON encoded string.
+	// (Currently only populated for Malicious Script Executed findings.)
+	Contents string `json:"contents,omitempty"`
+
+	// HashedSize: The length in bytes of the file prefix that was hashed.
+	// If hashed_size == size, any hashes reported represent the entire
+	// file.
+	HashedSize int64 `json:"hashedSize,omitempty,string"`
+
+	// PartiallyHashed: True when the hash covers only a prefix of the file.
+	PartiallyHashed bool `json:"partiallyHashed,omitempty"`
+
+	// Path: Absolute path of the file as a JSON encoded string.
+	Path string `json:"path,omitempty"`
+
+	// Sha256: SHA256 hash of the first hashed_size bytes of the file
+	// encoded as a hex string. If hashed_size == size, sha256 represents
+	// the SHA256 hash of the entire file.
+	Sha256 string `json:"sha256,omitempty"`
+
+	// Size: Size of the file in bytes.
+	Size int64 `json:"size,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Contents") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Contents") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *File) MarshalJSON() ([]byte, error) {
+	type NoMethod File
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Finding: Security Command Center finding. A finding is a record of
 // assessment data like security, risk, health, or privacy, that is
 // ingested into Security Command Center for presentation, notification,
@@ -860,13 +1419,41 @@ type Finding struct {
 	// "XSS_FLASH_INJECTION"
 	Category string `json:"category,omitempty"`
 
+	// CloudDlpDataProfile: Cloud DLP data profile associated with the
+	// finding.
+	CloudDlpDataProfile *CloudDlpDataProfile `json:"cloudDlpDataProfile,omitempty"`
+
+	// CloudDlpInspection: Cloud DLP inspection associated with the finding.
+	CloudDlpInspection *CloudDlpInspection `json:"cloudDlpInspection,omitempty"`
+
+	// Compliances: Contains compliance information for security standards
+	// associated to the finding.
+	Compliances []*Compliance `json:"compliances,omitempty"`
+
 	// Connections: Contains information about the IP connection associated
 	// with the finding.
 	Connections []*Connection `json:"connections,omitempty"`
 
+	// Contacts: Output only. Map containing the points of contact for the
+	// given finding. The key represents the type of contact, while the
+	// value contains a list of all the contacts that pertain. Please refer
+	// to:
+	// https://cloud.google.com/resource-manager/docs/managing-notification-contacts#notification-categories
+	// { "security": { "contacts": [ { "email": "person1@company.com" }, {
+	// "email": "person2@company.com" } ] } }
+	Contacts map[string]ContactDetails `json:"contacts,omitempty"`
+
+	// Containers: Containers associated with the finding. containers
+	// provides information for both Kubernetes and non-Kubernetes
+	// containers.
+	Containers []*Container `json:"containers,omitempty"`
+
 	// CreateTime: The time at which the finding was created in Security
 	// Command Center.
 	CreateTime string `json:"createTime,omitempty"`
+
+	// Database: Database associated with the finding.
+	Database *Database `json:"database,omitempty"`
 
 	// Description: Contains more detail about the finding.
 	Description string `json:"description,omitempty"`
@@ -880,6 +1467,9 @@ type Finding struct {
 	// must not be set to a value greater than the current timestamp.
 	EventTime string `json:"eventTime,omitempty"`
 
+	// Exfiltration: Represents exfiltration associated with the Finding.
+	Exfiltration *Exfiltration `json:"exfiltration,omitempty"`
+
 	// ExternalSystems: Output only. Third party SIEM/SOAR fields within
 	// SCC, contains external system information and external system finding
 	// fields.
@@ -890,6 +1480,9 @@ type Finding struct {
 	// finding can be found. This field is guaranteed to be either empty or
 	// a well formed URL.
 	ExternalUri string `json:"externalUri,omitempty"`
+
+	// Files: File associated with the finding.
+	Files []*File `json:"files,omitempty"`
 
 	// FindingClass: The class of the finding.
 	//
@@ -916,9 +1509,21 @@ type Finding struct {
 	// https://en.wikipedia.org/wiki/Indicator_of_compromise
 	Indicator *Indicator `json:"indicator,omitempty"`
 
+	// KernelRootkit: Kernel Rootkit signature.
+	KernelRootkit *KernelRootkit `json:"kernelRootkit,omitempty"`
+
+	// Kubernetes: Kubernetes resources associated with the finding.
+	Kubernetes *Kubernetes `json:"kubernetes,omitempty"`
+
 	// MitreAttack: MITRE ATT&CK tactics and techniques related to this
 	// finding. See: https://attack.mitre.org
 	MitreAttack *MitreAttack `json:"mitreAttack,omitempty"`
+
+	// ModuleName: Unique identifier of the module which generated the
+	// finding. Example:
+	// folders/598186756061/securityHealthAnalyticsSettings/customModules/567
+	// 99441161885
+	ModuleName string `json:"moduleName,omitempty"`
 
 	// Mute: Indicates the mute state of a finding (either muted, unmuted or
 	// undefined). Unlike other attributes of a finding, a finding provider
@@ -957,6 +1562,15 @@ type Finding struct {
 	// This field is immutable after creation time. For example:
 	// "organizations/{organization_id}/sources/{source_id}"
 	Parent string `json:"parent,omitempty"`
+
+	// ParentDisplayName: Output only. The human readable display name of
+	// the finding source such as "Event Threat Detection" or "Security
+	// Health Analytics".
+	ParentDisplayName string `json:"parentDisplayName,omitempty"`
+
+	// Processes: Represents operating system processes associated with the
+	// Finding.
+	Processes []*Process `json:"processes,omitempty"`
 
 	// ResourceName: For findings on Google Cloud resources, the full
 	// resource name of the Google Cloud resource this finding is for. See:
@@ -1031,8 +1645,8 @@ type Finding struct {
 	// otherwise addressed and is no longer active.
 	State string `json:"state,omitempty"`
 
-	// Vulnerability: Represents vulnerability specific fields like cve,
-	// cvss scores etc. CVE stands for Common Vulnerabilities and Exposures
+	// Vulnerability: Represents vulnerability-specific fields like CVE and
+	// CVSS scores. CVE stands for Common Vulnerabilities and Exposures
 	// (https://cve.mitre.org/about/)
 	Vulnerability *Vulnerability `json:"vulnerability,omitempty"`
 
@@ -1195,7 +1809,7 @@ func (s *GetPolicyOptions) MarshalJSON() ([]byte, error) {
 // GoogleCloudSecuritycenterV1BigQueryExport: Configures how to deliver
 // Findings to BigQuery Instance.
 type GoogleCloudSecuritycenterV1BigQueryExport struct {
-	// CreateTime: Output only. The time at which the big query export was
+	// CreateTime: Output only. The time at which the BigQuery export was
 	// created. This field is set by the server and will be ignored if
 	// provided on export on creation.
 	CreateTime string `json:"createTime,omitempty"`
@@ -1223,7 +1837,7 @@ type GoogleCloudSecuritycenterV1BigQueryExport struct {
 	Filter string `json:"filter,omitempty"`
 
 	// MostRecentEditor: Output only. Email address of the user who last
-	// edited the big query export. This field is set by the server and will
+	// edited the BigQuery export. This field is set by the server and will
 	// be ignored if provided on export creation or update.
 	MostRecentEditor string `json:"mostRecentEditor,omitempty"`
 
@@ -1238,12 +1852,12 @@ type GoogleCloudSecuritycenterV1BigQueryExport struct {
 	Name string `json:"name,omitempty"`
 
 	// Principal: Output only. The service account that needs permission to
-	// create table, upload data to the big query dataset.
+	// create table and upload data to the BigQuery dataset.
 	Principal string `json:"principal,omitempty"`
 
-	// UpdateTime: Output only. The most recent time at which the big export
-	// was updated. This field is set by the server and will be ignored if
-	// provided on export creation or update.
+	// UpdateTime: Output only. The most recent time at which the BigQuery
+	// export was updated. This field is set by the server and will be
+	// ignored if provided on export creation or update.
 	UpdateTime string `json:"updateTime,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CreateTime") to
@@ -1269,6 +1883,45 @@ func (s *GoogleCloudSecuritycenterV1BigQueryExport) MarshalJSON() ([]byte, error
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudSecuritycenterV1Binding: Represents a Kubernetes
+// RoleBinding or ClusterRoleBinding.
+type GoogleCloudSecuritycenterV1Binding struct {
+	// Name: Name for binding.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace for binding.
+	Ns string `json:"ns,omitempty"`
+
+	// Role: The Role or ClusterRole referenced by the binding.
+	Role *Role `json:"role,omitempty"`
+
+	// Subjects: Represents one or more subjects that are bound to the role.
+	// Not always available for PATCH requests.
+	Subjects []*Subject `json:"subjects,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudSecuritycenterV1Binding) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudSecuritycenterV1Binding
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudSecuritycenterV1BulkMuteFindingsResponse: The response to
 // a BulkMute request. Contains the LRO information.
 type GoogleCloudSecuritycenterV1BulkMuteFindingsResponse struct {
@@ -1289,10 +1942,10 @@ type GoogleCloudSecuritycenterV1ExternalSystem struct {
 	// external system.
 	ExternalUid string `json:"externalUid,omitempty"`
 
-	// Name: External System Name e.g. jira, demisto, etc. e.g.:
-	// `organizations/1234/sources/5678/findings/123456/externalSystems/jira`
-	//  `folders/1234/sources/5678/findings/123456/externalSystems/jira`
-	// `projects/1234/sources/5678/findings/123456/externalSystems/jira`
+	// Name: Full resource name of the external system, for example:
+	// "organizations/1234/sources/5678/findings/123456/externalSystems/jira"
+	// , "folders/1234/sources/5678/findings/123456/externalSystems/jira",
+	// "projects/1234/sources/5678/findings/123456/externalSystems/jira"
 	Name string `json:"name,omitempty"`
 
 	// Status: Most recent status of the corresponding finding's
@@ -2355,17 +3008,26 @@ func (s *IamBinding) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Indicator: Represents what's commonly known as an Indicator of
-// compromise (IoC) in computer forensics. This is an artifact observed
+// Indicator: Represents what's commonly known as an _indicator of
+// compromise_ (IoC) in computer forensics. This is an artifact observed
 // on a network or in an operating system that, with high confidence,
-// indicates a computer intrusion. Reference:
-// https://en.wikipedia.org/wiki/Indicator_of_compromise
+// indicates a computer intrusion. For more information, see Indicator
+// of compromise
+// (https://en.wikipedia.org/wiki/Indicator_of_compromise).
 type Indicator struct {
 	// Domains: List of domains associated to the Finding.
 	Domains []string `json:"domains,omitempty"`
 
-	// IpAddresses: List of ip addresses associated to the Finding.
+	// IpAddresses: The list of IP addresses that are associated with the
+	// finding.
 	IpAddresses []string `json:"ipAddresses,omitempty"`
+
+	// Signatures: The list of matched signatures indicating that the given
+	// process is present in the environment.
+	Signatures []*ProcessSignature `json:"signatures,omitempty"`
+
+	// Uris: The list of URIs associated to the Findings.
+	Uris []string `json:"uris,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Domains") to
 	// unconditionally include in API requests. By default, fields with
@@ -2386,6 +3048,150 @@ type Indicator struct {
 
 func (s *Indicator) MarshalJSON() ([]byte, error) {
 	type NoMethod Indicator
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// KernelRootkit: Kernel mode rootkit signatures.
+type KernelRootkit struct {
+	// Name: Rootkit name when available.
+	Name string `json:"name,omitempty"`
+
+	// UnexpectedCodeModification: True when unexpected modifications of
+	// kernel code memory are present.
+	UnexpectedCodeModification bool `json:"unexpectedCodeModification,omitempty"`
+
+	// UnexpectedFtraceHandler: True when `ftrace` points are present with
+	// callbacks pointing to regions that are not in the expected kernel or
+	// module code range.
+	UnexpectedFtraceHandler bool `json:"unexpectedFtraceHandler,omitempty"`
+
+	// UnexpectedInterruptHandler: True when interrupt handlers that are are
+	// not in the expected kernel or module code regions are present.
+	UnexpectedInterruptHandler bool `json:"unexpectedInterruptHandler,omitempty"`
+
+	// UnexpectedKernelCodePages: True when kernel code pages that are not
+	// in the expected kernel or module code regions are present.
+	UnexpectedKernelCodePages bool `json:"unexpectedKernelCodePages,omitempty"`
+
+	// UnexpectedKprobeHandler: True when `kprobe` points are present with
+	// callbacks pointing to regions that are not in the expected kernel or
+	// module code range.
+	UnexpectedKprobeHandler bool `json:"unexpectedKprobeHandler,omitempty"`
+
+	// UnexpectedProcessesInRunqueue: True when unexpected processes in the
+	// scheduler run queue are present. Such processes are in the run queue,
+	// but not in the process task list.
+	UnexpectedProcessesInRunqueue bool `json:"unexpectedProcessesInRunqueue,omitempty"`
+
+	// UnexpectedReadOnlyDataModification: True when unexpected
+	// modifications of kernel read-only data memory are present.
+	UnexpectedReadOnlyDataModification bool `json:"unexpectedReadOnlyDataModification,omitempty"`
+
+	// UnexpectedSystemCallHandler: True when system call handlers that are
+	// are not in the expected kernel or module code regions are present.
+	UnexpectedSystemCallHandler bool `json:"unexpectedSystemCallHandler,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *KernelRootkit) MarshalJSON() ([]byte, error) {
+	type NoMethod KernelRootkit
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Kubernetes: Kubernetes-related attributes.
+type Kubernetes struct {
+	// AccessReviews: Provides information on any Kubernetes access reviews
+	// (i.e. privilege checks) relevant to the finding.
+	AccessReviews []*AccessReview `json:"accessReviews,omitempty"`
+
+	// Bindings: Provides Kubernetes role binding information for findings
+	// that involve RoleBindings or ClusterRoleBindings.
+	Bindings []*GoogleCloudSecuritycenterV1Binding `json:"bindings,omitempty"`
+
+	// NodePools: GKE Node Pools associated with the finding. This field
+	// will contain NodePool information for each Node, when it is
+	// available.
+	NodePools []*NodePool `json:"nodePools,omitempty"`
+
+	// Nodes: Provides Kubernetes Node information.
+	Nodes []*Node `json:"nodes,omitempty"`
+
+	// Pods: Kubernetes Pods associated with the finding. This field will
+	// contain Pod records for each container that is owned by a Pod.
+	Pods []*Pod `json:"pods,omitempty"`
+
+	// Roles: Provides Kubernetes role information for findings that involve
+	// Roles or ClusterRoles.
+	Roles []*Role `json:"roles,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AccessReviews") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AccessReviews") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Kubernetes) MarshalJSON() ([]byte, error) {
+	type NoMethod Kubernetes
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Label: Label represents a generic name=value label. Label has
+// separate name and value fields to support filtering with contains().
+type Label struct {
+	// Name: Label name.
+	Name string `json:"name,omitempty"`
+
+	// Value: Label value.
+	Value string `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Label) MarshalJSON() ([]byte, error) {
+	type NoMethod Label
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2586,6 +3392,38 @@ func (s *ListSourcesResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// MemoryHashSignature: A signature corresponding to memory page hashes.
+type MemoryHashSignature struct {
+	// BinaryFamily: The binary family.
+	BinaryFamily string `json:"binaryFamily,omitempty"`
+
+	// Detections: The list of memory hash detections contributing to the
+	// binary family match.
+	Detections []*Detection `json:"detections,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "BinaryFamily") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "BinaryFamily") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MemoryHashSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod MemoryHashSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // MitreAttack: MITRE ATT&CK tactics and techniques related to this
 // finding. See: https://attack.mitre.org
 type MitreAttack struct {
@@ -2647,6 +3485,10 @@ type MitreAttack struct {
 	//   "DATA_DESTRUCTION" - T1485
 	//   "DOMAIN_POLICY_MODIFICATION" - T1484
 	//   "IMPAIR_DEFENSES" - T1562
+	//   "NETWORK_SERVICE_DISCOVERY" - T1046
+	//   "ACCESS_TOKEN_MANIPULATION" - T1134
+	//   "ABUSE_ELEVATION_CONTROL_MECHANISM" - T1548
+	//   "DEFAULT_ACCOUNTS" - T1078.001
 	AdditionalTechniques []string `json:"additionalTechniques,omitempty"`
 
 	// PrimaryTactic: The MITRE ATT&CK tactic most closely represented by
@@ -2711,6 +3553,10 @@ type MitreAttack struct {
 	//   "DATA_DESTRUCTION" - T1485
 	//   "DOMAIN_POLICY_MODIFICATION" - T1484
 	//   "IMPAIR_DEFENSES" - T1562
+	//   "NETWORK_SERVICE_DISCOVERY" - T1046
+	//   "ACCESS_TOKEN_MANIPULATION" - T1134
+	//   "ABUSE_ELEVATION_CONTROL_MECHANISM" - T1548
+	//   "DEFAULT_ACCOUNTS" - T1078.001
 	PrimaryTechniques []string `json:"primaryTechniques,omitempty"`
 
 	// Version: The MITRE ATT&CK version referenced by the above fields.
@@ -2737,6 +3583,66 @@ type MitreAttack struct {
 
 func (s *MitreAttack) MarshalJSON() ([]byte, error) {
 	type NoMethod MitreAttack
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Node: Kubernetes Nodes associated with the finding.
+type Node struct {
+	// Name: Full Resource name of the Compute Engine VM running the cluster
+	// node.
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Node) MarshalJSON() ([]byte, error) {
+	type NoMethod Node
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// NodePool: Provides GKE Node Pool information.
+type NodePool struct {
+	// Name: Kubernetes Node pool name.
+	Name string `json:"name,omitempty"`
+
+	// Nodes: Nodes associated with the finding.
+	Nodes []*Node `json:"nodes,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *NodePool) MarshalJSON() ([]byte, error) {
+	type NoMethod NodePool
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2846,6 +3752,44 @@ type OrganizationSettings struct {
 
 func (s *OrganizationSettings) MarshalJSON() ([]byte, error) {
 	type NoMethod OrganizationSettings
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Pod: Kubernetes Pod.
+type Pod struct {
+	// Containers: Pod containers associated with this finding, if any.
+	Containers []*Container `json:"containers,omitempty"`
+
+	// Labels: Pod labels. For Kubernetes containers, these are applied to
+	// the container.
+	Labels []*Label `json:"labels,omitempty"`
+
+	// Name: Kubernetes Pod name.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Kubernetes Pod namespace.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Containers") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Containers") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Pod) MarshalJSON() ([]byte, error) {
+	type NoMethod Pod
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2960,6 +3904,99 @@ func (s *Policy) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Process: Represents an operating system process.
+type Process struct {
+	// Args: Process arguments as JSON encoded strings.
+	Args []string `json:"args,omitempty"`
+
+	// ArgumentsTruncated: True if `args` is incomplete.
+	ArgumentsTruncated bool `json:"argumentsTruncated,omitempty"`
+
+	// Binary: File information for the process executable.
+	Binary *File `json:"binary,omitempty"`
+
+	// EnvVariables: Process environment variables.
+	EnvVariables []*EnvironmentVariable `json:"envVariables,omitempty"`
+
+	// EnvVariablesTruncated: True if `env_variables` is incomplete.
+	EnvVariablesTruncated bool `json:"envVariablesTruncated,omitempty"`
+
+	// Libraries: File information for libraries loaded by the process.
+	Libraries []*File `json:"libraries,omitempty"`
+
+	// Name: The process name visible in utilities like `top` and `ps`; it
+	// can be accessed via `/proc/[pid]/comm` and changed with
+	// `prctl(PR_SET_NAME)`.
+	Name string `json:"name,omitempty"`
+
+	// ParentPid: The parent process id.
+	ParentPid int64 `json:"parentPid,omitempty,string"`
+
+	// Pid: The process id.
+	Pid int64 `json:"pid,omitempty,string"`
+
+	// Script: When the process represents the invocation of a script,
+	// `binary` provides information about the interpreter while `script`
+	// provides information about the script file provided to the
+	// interpreter.
+	Script *File `json:"script,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Args") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Args") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Process) MarshalJSON() ([]byte, error) {
+	type NoMethod Process
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ProcessSignature: Indicates what signature matched this process.
+type ProcessSignature struct {
+	// MemoryHashSignature: Signature indicating that a binary family was
+	// matched.
+	MemoryHashSignature *MemoryHashSignature `json:"memoryHashSignature,omitempty"`
+
+	// YaraRuleSignature: Signature indicating that a YARA rule was matched.
+	YaraRuleSignature *YaraRuleSignature `json:"yaraRuleSignature,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "MemoryHashSignature")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "MemoryHashSignature") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ProcessSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod ProcessSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Reference: Additional Links
 type Reference struct {
 	// Source: Source of the reference e.g. NVD
@@ -2988,6 +4025,45 @@ type Reference struct {
 
 func (s *Reference) MarshalJSON() ([]byte, error) {
 	type NoMethod Reference
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Role: Kubernetes Role or ClusterRole.
+type Role struct {
+	// Kind: Role type.
+	//
+	// Possible values:
+	//   "KIND_UNSPECIFIED" - Role type is not specified.
+	//   "ROLE" - Kubernetes Role.
+	//   "CLUSTER_ROLE" - Kubernetes ClusterRole.
+	Kind string `json:"kind,omitempty"`
+
+	// Name: Role name.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Role namespace.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Role) MarshalJSON() ([]byte, error) {
+	type NoMethod Role
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3102,6 +4178,46 @@ type SecurityMarks struct {
 
 func (s *SecurityMarks) MarshalJSON() ([]byte, error) {
 	type NoMethod SecurityMarks
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ServiceAccountDelegationInfo: Identity delegation history of an
+// authenticated service account.
+type ServiceAccountDelegationInfo struct {
+	// PrincipalEmail: The email address of a Google account.
+	PrincipalEmail string `json:"principalEmail,omitempty"`
+
+	// PrincipalSubject: A string representing the principal_subject
+	// associated with the identity. As compared to `principal_email`,
+	// supports principals that aren't associated with email addresses, such
+	// as third party principals. For most identities, the format will be
+	// `principal://iam.googleapis.com/{identity pool
+	// name}/subjects/{subject}` except for some GKE identities
+	// (GKE_WORKLOAD, FREEFORM, GKE_HUB_WORKLOAD) that are still in the
+	// legacy format `serviceAccount:{identity pool name}[{subject}]`
+	PrincipalSubject string `json:"principalSubject,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PrincipalEmail") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PrincipalEmail") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ServiceAccountDelegationInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod ServiceAccountDelegationInfo
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3278,6 +4394,47 @@ func (s *Status) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Subject: Represents a Kubernetes Subject.
+type Subject struct {
+	// Kind: Authentication type for subject.
+	//
+	// Possible values:
+	//   "AUTH_TYPE_UNSPECIFIED" - Authentication is not specified.
+	//   "USER" - User with valid certificate.
+	//   "SERVICEACCOUNT" - Users managed by Kubernetes API with credentials
+	// stored as Secrets.
+	//   "GROUP" - Collection of users.
+	Kind string `json:"kind,omitempty"`
+
+	// Name: Name for subject.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace for subject.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Subject) MarshalJSON() ([]byte, error) {
+	type NoMethod Subject
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // TestIamPermissionsRequest: Request message for `TestIamPermissions`
 // method.
 type TestIamPermissionsRequest struct {
@@ -3374,6 +4531,34 @@ func (s *Vulnerability) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// YaraRuleSignature: A signature corresponding to a YARA rule.
+type YaraRuleSignature struct {
+	// YaraRule: The name of the YARA rule.
+	YaraRule string `json:"yaraRule,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "YaraRule") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "YaraRule") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *YaraRuleSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod YaraRuleSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // method id "securitycenter.organizations.getOrganizationSettings":
 
 type OrganizationsGetOrganizationSettingsCall struct {
@@ -3387,9 +4572,9 @@ type OrganizationsGetOrganizationSettingsCall struct {
 
 // GetOrganizationSettings: Gets the settings for an organization.
 //
-// - name: Name of the organization to get organization settings for.
-//   Its format is
-//   "organizations/[organization_id]/organizationSettings".
+//   - name: Name of the organization to get organization settings for.
+//     Its format is
+//     "organizations/[organization_id]/organizationSettings".
 func (r *OrganizationsService) GetOrganizationSettings(name string) *OrganizationsGetOrganizationSettingsCall {
 	c := &OrganizationsGetOrganizationSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3471,17 +4656,17 @@ func (c *OrganizationsGetOrganizationSettingsCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrganizationSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3535,9 +4720,9 @@ type OrganizationsUpdateOrganizationSettingsCall struct {
 
 // UpdateOrganizationSettings: Updates an organization's settings.
 //
-// - name: The relative resource name of the settings. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example: "organizations/{organization_id}/organizationSettings".
+//   - name: The relative resource name of the settings. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example: "organizations/{organization_id}/organizationSettings".
 func (r *OrganizationsService) UpdateOrganizationSettings(name string, organizationsettings *OrganizationSettings) *OrganizationsUpdateOrganizationSettingsCall {
 	c := &OrganizationsUpdateOrganizationSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3619,17 +4804,17 @@ func (c *OrganizationsUpdateOrganizationSettingsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrganizationSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3693,8 +4878,8 @@ type OrganizationsAssetsGroupCall struct {
 // Group: Filters an organization's assets and groups them by their
 // specified properties.
 //
-// - parent: Name of the organization to groupBy. Its format is
-//   "organizations/[organization_id]".
+//   - parent: Name of the organization to groupBy. Its format is
+//     "organizations/[organization_id]".
 func (r *OrganizationsAssetsService) Group(parent string, groupassetsrequest *GroupAssetsRequest) *OrganizationsAssetsGroupCall {
 	c := &OrganizationsAssetsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3769,17 +4954,17 @@ func (c *OrganizationsAssetsGroupCall) Do(opts ...googleapi.CallOption) (*GroupA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3857,8 +5042,8 @@ type OrganizationsAssetsListCall struct {
 
 // List: Lists an organization's assets.
 //
-// - parent: Name of the organization assets should belong to. Its
-//   format is "organizations/[organization_id]".
+//   - parent: Name of the organization assets should belong to. Its
+//     format is "organizations/[organization_id]".
 func (r *OrganizationsAssetsService) List(parent string) *OrganizationsAssetsListCall {
 	c := &OrganizationsAssetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4033,17 +5218,17 @@ func (c *OrganizationsAssetsListCall) Do(opts ...googleapi.CallOption) (*ListAss
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4160,8 +5345,8 @@ type OrganizationsAssetsRunDiscoveryCall struct {
 // frequency for an organization. If it is called too frequently the
 // caller will receive a TOO_MANY_REQUESTS error.
 //
-// - parent: Name of the organization to run asset discovery for. Its
-//   format is "organizations/[organization_id]".
+//   - parent: Name of the organization to run asset discovery for. Its
+//     format is "organizations/[organization_id]".
 func (r *OrganizationsAssetsService) RunDiscovery(parent string, runassetdiscoveryrequest *RunAssetDiscoveryRequest) *OrganizationsAssetsRunDiscoveryCall {
 	c := &OrganizationsAssetsRunDiscoveryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4236,17 +5421,17 @@ func (c *OrganizationsAssetsRunDiscoveryCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4303,12 +5488,12 @@ type OrganizationsAssetsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *OrganizationsAssetsService) UpdateSecurityMarks(name string, googlecloudsecuritycenterv1beta1securitymarks *GoogleCloudSecuritycenterV1beta1SecurityMarks) *OrganizationsAssetsUpdateSecurityMarksCall {
 	c := &OrganizationsAssetsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4399,17 +5584,17 @@ func (c *OrganizationsAssetsUpdateSecurityMarksCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1beta1SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{
@@ -4562,17 +5747,17 @@ func (c *OrganizationsOperationsCancelCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4700,17 +5885,17 @@ func (c *OrganizationsOperationsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4848,17 +6033,17 @@ func (c *OrganizationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Oper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4912,14 +6097,7 @@ type OrganizationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *OrganizationsOperationsService) List(name string) *OrganizationsOperationsListCall {
@@ -5024,17 +6202,17 @@ func (c *OrganizationsOperationsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5048,7 +6226,7 @@ func (c *OrganizationsOperationsListCall) Do(opts ...googleapi.CallOption) (*Lis
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1beta1/organizations/{organizationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.operations.list",
@@ -5125,8 +6303,8 @@ type OrganizationsSourcesCreateCall struct {
 
 // Create: Creates a source.
 //
-// - parent: Resource name of the new source's parent. Its format should
-//   be "organizations/[organization_id]".
+//   - parent: Resource name of the new source's parent. Its format should
+//     be "organizations/[organization_id]".
 func (r *OrganizationsSourcesService) Create(parent string, source *Source) *OrganizationsSourcesCreateCall {
 	c := &OrganizationsSourcesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5201,17 +6379,17 @@ func (c *OrganizationsSourcesCreateCall) Do(opts ...googleapi.CallOption) (*Sour
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Source{
 		ServerResponse: googleapi.ServerResponse{
@@ -5268,8 +6446,8 @@ type OrganizationsSourcesGetCall struct {
 
 // Get: Gets a source.
 //
-// - name: Relative resource name of the source. Its format is
-//   "organizations/[organization_id]/source/[source_id]".
+//   - name: Relative resource name of the source. Its format is
+//     "organizations/[organization_id]/source/[source_id]".
 func (r *OrganizationsSourcesService) Get(name string) *OrganizationsSourcesGetCall {
 	c := &OrganizationsSourcesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5351,17 +6529,17 @@ func (c *OrganizationsSourcesGetCall) Do(opts ...googleapi.CallOption) (*Source,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Source{
 		ServerResponse: googleapi.ServerResponse{
@@ -5415,10 +6593,10 @@ type OrganizationsSourcesGetIamPolicyCall struct {
 
 // GetIamPolicy: Gets the access control policy on the specified Source.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsSourcesService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *OrganizationsSourcesGetIamPolicyCall {
 	c := &OrganizationsSourcesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5493,17 +6671,17 @@ func (c *OrganizationsSourcesGetIamPolicyCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5560,8 +6738,8 @@ type OrganizationsSourcesListCall struct {
 
 // List: Lists all sources belonging to an organization.
 //
-// - parent: Resource name of the parent of sources to list. Its format
-//   should be "organizations/[organization_id]".
+//   - parent: Resource name of the parent of sources to list. Its format
+//     should be "organizations/[organization_id]".
 func (r *OrganizationsSourcesService) List(parent string) *OrganizationsSourcesListCall {
 	c := &OrganizationsSourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5660,17 +6838,17 @@ func (c *OrganizationsSourcesListCall) Do(opts ...googleapi.CallOption) (*ListSo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5756,9 +6934,9 @@ type OrganizationsSourcesPatchCall struct {
 
 // Patch: Updates a source.
 //
-// - name: The relative resource name of this source. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example: "organizations/{organization_id}/sources/{source_id}".
+//   - name: The relative resource name of this source. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example: "organizations/{organization_id}/sources/{source_id}".
 func (r *OrganizationsSourcesService) Patch(name string, source *Source) *OrganizationsSourcesPatchCall {
 	c := &OrganizationsSourcesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5840,17 +7018,17 @@ func (c *OrganizationsSourcesPatchCall) Do(opts ...googleapi.CallOption) (*Sourc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Source{
 		ServerResponse: googleapi.ServerResponse{
@@ -5913,10 +7091,10 @@ type OrganizationsSourcesSetIamPolicyCall struct {
 
 // SetIamPolicy: Sets the access control policy on the specified Source.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsSourcesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *OrganizationsSourcesSetIamPolicyCall {
 	c := &OrganizationsSourcesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5991,17 +7169,17 @@ func (c *OrganizationsSourcesSetIamPolicyCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6059,10 +7237,10 @@ type OrganizationsSourcesTestIamPermissionsCall struct {
 // TestIamPermissions: Returns the permissions that a caller has on the
 // specified source.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsSourcesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *OrganizationsSourcesTestIamPermissionsCall {
 	c := &OrganizationsSourcesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6137,17 +7315,17 @@ func (c *OrganizationsSourcesTestIamPermissionsCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6205,8 +7383,8 @@ type OrganizationsSourcesFindingsCreateCall struct {
 // Create: Creates a finding. The corresponding source must exist for
 // finding creation to succeed.
 //
-// - parent: Resource name of the new finding's parent. Its format
-//   should be "organizations/[organization_id]/sources/[source_id]".
+//   - parent: Resource name of the new finding's parent. Its format
+//     should be "organizations/[organization_id]/sources/[source_id]".
 func (r *OrganizationsSourcesFindingsService) Create(parent string, googlecloudsecuritycenterv1beta1finding *GoogleCloudSecuritycenterV1beta1Finding) *OrganizationsSourcesFindingsCreateCall {
 	c := &OrganizationsSourcesFindingsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6291,17 +7469,17 @@ func (c *OrganizationsSourcesFindingsCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1beta1Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -6366,10 +7544,10 @@ type OrganizationsSourcesFindingsGroupCall struct {
 // `-` as the source id. Example:
 // /v1beta1/organizations/{organization_id}/sources/-/findings
 //
-// - parent: Name of the source to groupBy. Its format is
-//   "organizations/[organization_id]/sources/[source_id]". To groupBy
-//   across all sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-.
+//   - parent: Name of the source to groupBy. Its format is
+//     "organizations/[organization_id]/sources/[source_id]". To groupBy
+//     across all sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-.
 func (r *OrganizationsSourcesFindingsService) Group(parent string, groupfindingsrequest *GroupFindingsRequest) *OrganizationsSourcesFindingsGroupCall {
 	c := &OrganizationsSourcesFindingsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6444,17 +7622,17 @@ func (c *OrganizationsSourcesFindingsGroupCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6534,10 +7712,10 @@ type OrganizationsSourcesFindingsListCall struct {
 // sources provide a `-` as the source id. Example:
 // /v1beta1/organizations/{organization_id}/sources/-/findings
 //
-// - parent: Name of the source the findings belong to. Its format is
-//   "organizations/[organization_id]/sources/[source_id]". To list
-//   across all sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-.
+//   - parent: Name of the source the findings belong to. Its format is
+//     "organizations/[organization_id]/sources/[source_id]". To list
+//     across all sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-.
 func (r *OrganizationsSourcesFindingsService) List(parent string) *OrganizationsSourcesFindingsListCall {
 	c := &OrganizationsSourcesFindingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6686,17 +7864,17 @@ func (c *OrganizationsSourcesFindingsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6805,11 +7983,11 @@ type OrganizationsSourcesFindingsPatchCall struct {
 // Patch: Creates or updates a finding. The corresponding source must
 // exist for a finding creation to succeed.
 //
-// - name: The relative resource name of this finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}".
+//   - name: The relative resource name of this finding. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}".
 func (r *OrganizationsSourcesFindingsService) Patch(name string, googlecloudsecuritycenterv1beta1finding *GoogleCloudSecuritycenterV1beta1Finding) *OrganizationsSourcesFindingsPatchCall {
 	c := &OrganizationsSourcesFindingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6893,17 +8071,17 @@ func (c *OrganizationsSourcesFindingsPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1beta1Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -6966,11 +8144,11 @@ type OrganizationsSourcesFindingsSetStateCall struct {
 
 // SetState: Updates the state of a finding.
 //
-// - name: The relative resource name of the finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/finding/{findin
-//   g_id}".
+//   - name: The relative resource name of the finding. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/sources/{source_id}/finding/{findin
+//     g_id}".
 func (r *OrganizationsSourcesFindingsService) SetState(name string, setfindingstaterequest *SetFindingStateRequest) *OrganizationsSourcesFindingsSetStateCall {
 	c := &OrganizationsSourcesFindingsSetStateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7046,17 +8224,17 @@ func (c *OrganizationsSourcesFindingsSetStateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1beta1Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -7113,12 +8291,12 @@ type OrganizationsSourcesFindingsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *OrganizationsSourcesFindingsService) UpdateSecurityMarks(name string, googlecloudsecuritycenterv1beta1securitymarks *GoogleCloudSecuritycenterV1beta1SecurityMarks) *OrganizationsSourcesFindingsUpdateSecurityMarksCall {
 	c := &OrganizationsSourcesFindingsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7209,17 +8387,17 @@ func (c *OrganizationsSourcesFindingsUpdateSecurityMarksCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1beta1SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{

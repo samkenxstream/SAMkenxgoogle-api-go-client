@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/fit/rest/v1/get-started
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/fitness/v1"
-//   ...
-//   ctx := context.Background()
-//   fitnessService, err := fitness.NewService(ctx)
+//	import "google.golang.org/api/fitness/v1"
+//	...
+//	ctx := context.Background()
+//	fitnessService, err := fitness.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   fitnessService, err := fitness.NewService(ctx, option.WithScopes(fitness.FitnessSleepWriteScope))
+//	fitnessService, err := fitness.NewService(ctx, option.WithScopes(fitness.FitnessSleepWriteScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   fitnessService, err := fitness.NewService(ctx, option.WithAPIKey("AIza..."))
+//	fitnessService, err := fitness.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   fitnessService, err := fitness.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	fitnessService, err := fitness.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package fitness // import "google.golang.org/api/fitness/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "fitness:v1"
 const apiName = "fitness"
@@ -1468,8 +1469,8 @@ type UsersDataSourcesCreateCall struct {
 // number is obfuscated when read by any other developer reading public
 // data types.
 //
-// - userId: Create the data source for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - userId: Create the data source for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesService) Create(userId string, datasource *DataSource) *UsersDataSourcesCreateCall {
 	c := &UsersDataSourcesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -1544,17 +1545,17 @@ func (c *UsersDataSourcesCreateCall) Do(opts ...googleapi.CallOption) (*DataSour
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DataSource{
 		ServerResponse: googleapi.ServerResponse{
@@ -1621,9 +1622,9 @@ type UsersDataSourcesDeleteCall struct {
 // Delete: Deletes the specified data source. The request will fail if
 // the data source contains any data points.
 //
-// - dataSourceId: The data stream ID of the data source to delete.
-// - userId: Retrieve a data source for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - dataSourceId: The data stream ID of the data source to delete.
+//   - userId: Retrieve a data source for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesService) Delete(userId string, dataSourceId string) *UsersDataSourcesDeleteCall {
 	c := &UsersDataSourcesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -1694,17 +1695,17 @@ func (c *UsersDataSourcesDeleteCall) Do(opts ...googleapi.CallOption) (*DataSour
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DataSource{
 		ServerResponse: googleapi.ServerResponse{
@@ -1775,9 +1776,9 @@ type UsersDataSourcesGetCall struct {
 
 // Get: Returns the specified data source.
 //
-// - dataSourceId: The data stream ID of the data source to retrieve.
-// - userId: Retrieve a data source for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - dataSourceId: The data stream ID of the data source to retrieve.
+//   - userId: Retrieve a data source for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesService) Get(userId string, dataSourceId string) *UsersDataSourcesGetCall {
 	c := &UsersDataSourcesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -1861,17 +1862,17 @@ func (c *UsersDataSourcesGetCall) Do(opts ...googleapi.CallOption) (*DataSource,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DataSource{
 		ServerResponse: googleapi.ServerResponse{
@@ -1955,8 +1956,8 @@ type UsersDataSourcesListCall struct {
 // have private data sources that are only visible to other developers,
 // or calls using other scopes.
 //
-// - userId: List data sources for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - userId: List data sources for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesService) List(userId string) *UsersDataSourcesListCall {
 	c := &UsersDataSourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -2046,17 +2047,17 @@ func (c *UsersDataSourcesListCall) Do(opts ...googleapi.CallOption) (*ListDataSo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDataSourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2140,9 +2141,9 @@ type UsersDataSourcesUpdateCall struct {
 // exception of version, cannot be modified. Data sources are identified
 // by their dataStreamId.
 //
-// - dataSourceId: The data stream ID of the data source to update.
-// - userId: Update the data source for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - dataSourceId: The data stream ID of the data source to update.
+//   - userId: Update the data source for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesService) Update(userId string, dataSourceId string, datasource *DataSource) *UsersDataSourcesUpdateCall {
 	c := &UsersDataSourcesUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -2219,17 +2220,17 @@ func (c *UsersDataSourcesUpdateCall) Do(opts ...googleapi.CallOption) (*DataSour
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DataSource{
 		ServerResponse: googleapi.ServerResponse{
@@ -2304,10 +2305,10 @@ type UsersDataSourcesDataPointChangesListCall struct {
 // List: Queries for user's data point changes for a particular data
 // source.
 //
-// - dataSourceId: The data stream ID of the data source that created
-//   the dataset.
-// - userId: List data points for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - dataSourceId: The data stream ID of the data source that created
+//     the dataset.
+//   - userId: List data points for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesDataPointChangesService) List(userId string, dataSourceId string) *UsersDataSourcesDataPointChangesListCall {
 	c := &UsersDataSourcesDataPointChangesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -2407,17 +2408,17 @@ func (c *UsersDataSourcesDataPointChangesListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDataPointChangesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2537,15 +2538,15 @@ type UsersDataSourcesDatasetsDeleteCall struct {
 // straddles either end point of the dataset, only the overlapping
 // portion of the data point will be deleted.
 //
-// - dataSourceId: The data stream ID of the data source that created
-//   the dataset.
-// - datasetId: Dataset identifier that is a composite of the minimum
-//   data point start time and maximum data point end time represented
-//   as nanoseconds from the epoch. The ID is formatted like:
-//   "startTime-endTime" where startTime and endTime are 64 bit
-//   integers.
-// - userId: Delete a dataset for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - dataSourceId: The data stream ID of the data source that created
+//     the dataset.
+//   - datasetId: Dataset identifier that is a composite of the minimum
+//     data point start time and maximum data point end time represented
+//     as nanoseconds from the epoch. The ID is formatted like:
+//     "startTime-endTime" where startTime and endTime are 64 bit
+//     integers.
+//   - userId: Delete a dataset for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesDatasetsService) Delete(userId string, dataSourceId string, datasetId string) *UsersDataSourcesDatasetsDeleteCall {
 	c := &UsersDataSourcesDatasetsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -2613,7 +2614,7 @@ func (c *UsersDataSourcesDatasetsDeleteCall) Do(opts ...googleapi.CallOption) er
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -2683,15 +2684,15 @@ type UsersDataSourcesDatasetsGetCall struct {
 // time is less than or equal to the dataset end time and whose end time
 // is greater than or equal to the dataset start time.
 //
-// - dataSourceId: The data stream ID of the data source that created
-//   the dataset.
-// - datasetId: Dataset identifier that is a composite of the minimum
-//   data point start time and maximum data point end time represented
-//   as nanoseconds from the epoch. The ID is formatted like:
-//   "startTime-endTime" where startTime and endTime are 64 bit
-//   integers.
-// - userId: Retrieve a dataset for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - dataSourceId: The data stream ID of the data source that created
+//     the dataset.
+//   - datasetId: Dataset identifier that is a composite of the minimum
+//     data point start time and maximum data point end time represented
+//     as nanoseconds from the epoch. The ID is formatted like:
+//     "startTime-endTime" where startTime and endTime are 64 bit
+//     integers.
+//   - userId: Retrieve a dataset for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesDatasetsService) Get(userId string, dataSourceId string, datasetId string) *UsersDataSourcesDatasetsGetCall {
 	c := &UsersDataSourcesDatasetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -2799,17 +2800,17 @@ func (c *UsersDataSourcesDatasetsGetCall) Do(opts ...googleapi.CallOption) (*Dat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Dataset{
 		ServerResponse: googleapi.ServerResponse{
@@ -2936,11 +2937,11 @@ type UsersDataSourcesDatasetsPatchCall struct {
 // semantics: the data points provided are merely inserted, with no
 // existing data replaced.
 //
-// - dataSourceId: The data stream ID of the data source that created
-//   the dataset.
-// - datasetId: This field is not used, and can be safely omitted.
-// - userId: Patch a dataset for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - dataSourceId: The data stream ID of the data source that created
+//     the dataset.
+//   - datasetId: This field is not used, and can be safely omitted.
+//   - userId: Patch a dataset for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDataSourcesDatasetsService) Patch(userId string, dataSourceId string, datasetId string, dataset *Dataset) *UsersDataSourcesDatasetsPatchCall {
 	c := &UsersDataSourcesDatasetsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -3019,17 +3020,17 @@ func (c *UsersDataSourcesDatasetsPatchCall) Do(opts ...googleapi.CallOption) (*D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Dataset{
 		ServerResponse: googleapi.ServerResponse{
@@ -3133,8 +3134,8 @@ type UsersDatasetAggregateCall struct {
 // types and from multiple sources can be aggregated into exactly one
 // bucket type per request.
 //
-// - userId: Aggregate data for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - userId: Aggregate data for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersDatasetService) Aggregate(userId string, aggregaterequest *AggregateRequest) *UsersDatasetAggregateCall {
 	c := &UsersDatasetAggregateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -3209,17 +3210,17 @@ func (c *UsersDatasetAggregateCall) Do(opts ...googleapi.CallOption) (*Aggregate
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AggregateResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3296,9 +3297,9 @@ type UsersSessionsDeleteCall struct {
 
 // Delete: Deletes a session specified by the given session ID.
 //
-// - sessionId: The ID of the session to be deleted.
-// - userId: Delete a session for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - sessionId: The ID of the session to be deleted.
+//   - userId: Delete a session for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersSessionsService) Delete(userId string, sessionId string) *UsersSessionsDeleteCall {
 	c := &UsersSessionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -3364,7 +3365,7 @@ func (c *UsersSessionsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -3412,8 +3413,8 @@ type UsersSessionsListCall struct {
 
 // List: Lists sessions previously created.
 //
-// - userId: List sessions for the person identified. Use me to indicate
-//   the authenticated user. Only me is supported at this time.
+//   - userId: List sessions for the person identified. Use me to indicate
+//     the authenticated user. Only me is supported at this time.
 func (r *UsersSessionsService) List(userId string) *UsersSessionsListCall {
 	c := &UsersSessionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -3546,17 +3547,17 @@ func (c *UsersSessionsListCall) Do(opts ...googleapi.CallOption) (*ListSessionsR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSessionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3679,9 +3680,9 @@ type UsersSessionsUpdateCall struct {
 
 // Update: Updates or insert a given session.
 //
-// - sessionId: The ID of the session to be created.
-// - userId: Create sessions for the person identified. Use me to
-//   indicate the authenticated user. Only me is supported at this time.
+//   - sessionId: The ID of the session to be created.
+//   - userId: Create sessions for the person identified. Use me to
+//     indicate the authenticated user. Only me is supported at this time.
 func (r *UsersSessionsService) Update(userId string, sessionId string, session *Session) *UsersSessionsUpdateCall {
 	c := &UsersSessionsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -3758,17 +3759,17 @@ func (c *UsersSessionsUpdateCall) Do(opts ...googleapi.CallOption) (*Session, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Session{
 		ServerResponse: googleapi.ServerResponse{

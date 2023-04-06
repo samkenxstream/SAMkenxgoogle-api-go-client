@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/authorized-buyers/apis/realtimebidding/reference/rest/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/realtimebidding/v1alpha"
-//   ...
-//   ctx := context.Background()
-//   realtimebiddingService, err := realtimebidding.NewService(ctx)
+//	import "google.golang.org/api/realtimebidding/v1alpha"
+//	...
+//	ctx := context.Background()
+//	realtimebiddingService, err := realtimebidding.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithAPIKey("AIza..."))
+//	realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package realtimebidding // import "google.golang.org/api/realtimebidding/v1alpha"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "realtimebidding:v1alpha"
 const apiName = "realtimebidding"
@@ -190,7 +191,7 @@ type BiddingFunction struct {
 	// functions per account.
 	//   "ARCHIVED" - A function that is no longer made available for
 	// invocation in a simulation and instead archived. An archived function
-	// can later be made active by activating the function via
+	// can later be made active by activating the function through
 	// `ActivateBiddingFunction`.
 	State string `json:"state,omitempty"`
 
@@ -291,9 +292,9 @@ type BiddingFunction struct {
 	// (https://developers.google.com/authorized-buyers/rtb/openrtb-guide#bidfeedback),
 	// for the Google protocol and OpenRTB protocol respectively. In
 	// addition, the debug string can be inserted into the creative HTML
-	// snippet via macro substitution if the following string is included in
-	// the snippet: “%%DEBUG_STRING%%”. Please ensure the debug string
-	// complies with [Platform Program
+	// snippet through macro substitution if the following string is
+	// included in the snippet: “%%DEBUG_STRING%%”. Ensure the debug
+	// string complies with [Platform Program
 	// Policies](https://support.google.com/platformspolicy/answer/3013851).
 	// Sample Bidding Function: ``` function biddingFunction(inputs) { ...
 	// return { "buyerCreativeId": "ad_creative_id_1", "bidPriceCpm": 0.3,
@@ -383,9 +384,9 @@ type BiddersBiddingFunctionsActivateCall struct {
 // function is available for invocation for the server-side TURTLEDOVE
 // simulations.
 //
-// - name: The name of the bidding function to activate. Format:
-//   `bidders/{bidder_account_id}/biddingFunction/{bidding_function_name}
-//   `.
+//   - name: The name of the bidding function to activate. Format:
+//     `bidders/{bidder_account_id}/biddingFunction/{bidding_function_name}
+//     `.
 func (r *BiddersBiddingFunctionsService) Activate(name string, activatebiddingfunctionrequest *ActivateBiddingFunctionRequest) *BiddersBiddingFunctionsActivateCall {
 	c := &BiddersBiddingFunctionsActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -460,17 +461,17 @@ func (c *BiddersBiddingFunctionsActivateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BiddingFunction{
 		ServerResponse: googleapi.ServerResponse{
@@ -529,9 +530,9 @@ type BiddersBiddingFunctionsArchiveCall struct {
 // will not be available for function invocation for the server-side
 // TURTLEDOVE simulations unless it is activated.
 //
-// - name: The name of the bidding function to archive. Format:
-//   `bidders/{bidder_account_id}/biddingFunction/{bidding_function_name}
-//   `.
+//   - name: The name of the bidding function to archive. Format:
+//     `bidders/{bidder_account_id}/biddingFunction/{bidding_function_name}
+//     `.
 func (r *BiddersBiddingFunctionsService) Archive(name string, archivebiddingfunctionrequest *ArchiveBiddingFunctionRequest) *BiddersBiddingFunctionsArchiveCall {
 	c := &BiddersBiddingFunctionsArchiveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -606,17 +607,17 @@ func (c *BiddersBiddingFunctionsArchiveCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BiddingFunction{
 		ServerResponse: googleapi.ServerResponse{
@@ -673,8 +674,8 @@ type BiddersBiddingFunctionsCreateCall struct {
 
 // Create: Creates a new bidding function.
 //
-// - parent: The name of the bidder for which to create the bidding
-//   function. Format: `bidders/{bidderAccountId}`.
+//   - parent: The name of the bidder for which to create the bidding
+//     function. Format: `bidders/{bidderAccountId}`.
 func (r *BiddersBiddingFunctionsService) Create(parent string, biddingfunction *BiddingFunction) *BiddersBiddingFunctionsCreateCall {
 	c := &BiddersBiddingFunctionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -749,17 +750,17 @@ func (c *BiddersBiddingFunctionsCreateCall) Do(opts ...googleapi.CallOption) (*B
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BiddingFunction{
 		ServerResponse: googleapi.ServerResponse{
@@ -817,8 +818,8 @@ type BiddersBiddingFunctionsListCall struct {
 // List: Lists the bidding functions that a bidder currently has
 // registered.
 //
-// - parent: Name of the bidder whose bidding functions will be listed.
-//   Format: `bidders/{bidder_account_id}`.
+//   - parent: Name of the bidder whose bidding functions will be listed.
+//     Format: `bidders/{bidder_account_id}`.
 func (r *BiddersBiddingFunctionsService) List(parent string) *BiddersBiddingFunctionsListCall {
 	c := &BiddersBiddingFunctionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -916,17 +917,17 @@ func (c *BiddersBiddingFunctionsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBiddingFunctionsResponse{
 		ServerResponse: googleapi.ServerResponse{

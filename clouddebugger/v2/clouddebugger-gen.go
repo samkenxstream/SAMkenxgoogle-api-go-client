@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/debugger
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/clouddebugger/v2"
-//   ...
-//   ctx := context.Background()
-//   clouddebuggerService, err := clouddebugger.NewService(ctx)
+//	import "google.golang.org/api/clouddebugger/v2"
+//	...
+//	ctx := context.Background()
+//	clouddebuggerService, err := clouddebugger.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   clouddebuggerService, err := clouddebugger.NewService(ctx, option.WithScopes(clouddebugger.CloudDebuggerScope))
+//	clouddebuggerService, err := clouddebugger.NewService(ctx, option.WithScopes(clouddebugger.CloudDebuggerScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   clouddebuggerService, err := clouddebugger.NewService(ctx, option.WithAPIKey("AIza..."))
+//	clouddebuggerService, err := clouddebugger.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   clouddebuggerService, err := clouddebugger.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	clouddebuggerService, err := clouddebugger.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package clouddebugger // import "google.golang.org/api/clouddebugger/v2"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "clouddebugger:v2"
 const apiName = "clouddebugger"
@@ -1301,7 +1302,7 @@ type UpdateActiveBreakpointResponse struct {
 // the pointee was not captured: T* p = new T; { // Captured variable
 // name: "p", type: "T*", value: "0x00400400" status { is_error: true,
 // description { format: "unavailable" } } } The status should describe
-// the reason for the missing value, such as ``, ``, ``. Note that a
+// the reason for the missing value, such as “, “, “. Note that a
 // null pointer should not have members. 5) An unnamed value: int* p =
 // new int(7); { // Captured variable name: "p", value: "0x00500500",
 // type: "int*", members { value: "7", type: "int" } } 6) An unnamed
@@ -1473,17 +1474,17 @@ func (c *ControllerDebuggeesRegisterCall) Do(opts ...googleapi.CallOption) (*Reg
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RegisterDebuggeeResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1651,17 +1652,17 @@ func (c *ControllerDebuggeesBreakpointsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListActiveBreakpointsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1816,17 +1817,17 @@ func (c *ControllerDebuggeesBreakpointsUpdateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UpdateActiveBreakpointResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1988,17 +1989,17 @@ func (c *DebuggerDebuggeesListCall) Do(opts ...googleapi.CallOption) (*ListDebug
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDebuggeesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2139,17 +2140,17 @@ func (c *DebuggerDebuggeesBreakpointsDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2309,17 +2310,17 @@ func (c *DebuggerDebuggeesBreakpointsGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GetBreakpointResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2396,10 +2397,14 @@ func (r *DebuggerDebuggeesBreakpointsService) List(debuggeeId string) *DebuggerD
 // breakpoints with the specified action will pass the filter.
 //
 // Possible values:
-//   "CAPTURE" - Capture stack frame and variables and update the
+//
+//	"CAPTURE" - Capture stack frame and variables and update the
+//
 // breakpoint. The data is only captured once. After that the breakpoint
 // is set in a final state.
-//   "LOG" - Log each breakpoint hit. The breakpoint remains active
+//
+//	"LOG" - Log each breakpoint hit. The breakpoint remains active
+//
 // until deleted or expired.
 func (c *DebuggerDebuggeesBreakpointsListCall) ActionValue(actionValue string) *DebuggerDebuggeesBreakpointsListCall {
 	c.urlParams_.Set("action.value", actionValue)
@@ -2524,17 +2529,17 @@ func (c *DebuggerDebuggeesBreakpointsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBreakpointsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2638,12 +2643,18 @@ func (r *DebuggerDebuggeesBreakpointsService) Set(debuggeeId string, breakpoint 
 // option set by the user upon setting breakpoint.
 //
 // Possible values:
-//   "CANARY_OPTION_UNSPECIFIED" - Depends on the canary_mode of the
+//
+//	"CANARY_OPTION_UNSPECIFIED" - Depends on the canary_mode of the
+//
 // debuggee.
-//   "CANARY_OPTION_TRY_ENABLE" - Enable the canary for this breakpoint
+//
+//	"CANARY_OPTION_TRY_ENABLE" - Enable the canary for this breakpoint
+//
 // if the canary_mode of the debuggee is not CANARY_MODE_ALWAYS_ENABLED
 // or CANARY_MODE_ALWAYS_DISABLED.
-//   "CANARY_OPTION_TRY_DISABLE" - Disable the canary for this
+//
+//	"CANARY_OPTION_TRY_DISABLE" - Disable the canary for this
+//
 // breakpoint if the canary_mode of the debuggee is not
 // CANARY_MODE_ALWAYS_ENABLED or CANARY_MODE_ALWAYS_DISABLED.
 func (c *DebuggerDebuggeesBreakpointsSetCall) CanaryOption(canaryOption string) *DebuggerDebuggeesBreakpointsSetCall {
@@ -2726,17 +2737,17 @@ func (c *DebuggerDebuggeesBreakpointsSetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SetBreakpointResponse{
 		ServerResponse: googleapi.ServerResponse{

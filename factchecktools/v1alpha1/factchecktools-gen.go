@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/fact-check/tools/api/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/factchecktools/v1alpha1"
-//   ...
-//   ctx := context.Background()
-//   factchecktoolsService, err := factchecktools.NewService(ctx)
+//	import "google.golang.org/api/factchecktools/v1alpha1"
+//	...
+//	ctx := context.Background()
+//	factchecktoolsService, err := factchecktools.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   factchecktoolsService, err := factchecktools.NewService(ctx, option.WithAPIKey("AIza..."))
+//	factchecktoolsService, err := factchecktools.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   factchecktoolsService, err := factchecktools.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	factchecktoolsService, err := factchecktools.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package factchecktools // import "google.golang.org/api/factchecktools/v1alpha1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "factchecktools:v1alpha1"
 const apiName = "factchecktools"
@@ -768,17 +769,17 @@ func (c *ClaimsSearchCall) Do(opts ...googleapi.CallOption) (*GoogleFactchecking
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFactcheckingFactchecktoolsV1alpha1FactCheckedClaimSearchResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -950,17 +951,17 @@ func (c *PagesCreateCall) Do(opts ...googleapi.CallOption) (*GoogleFactcheckingF
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFactcheckingFactchecktoolsV1alpha1ClaimReviewMarkupPage{
 		ServerResponse: googleapi.ServerResponse{
@@ -1006,8 +1007,8 @@ type PagesDeleteCall struct {
 
 // Delete: Delete all `ClaimReview` markup on a page.
 //
-// - name: The name of the resource to delete, in the form of
-//   `pages/{page_id}`.
+//   - name: The name of the resource to delete, in the form of
+//     `pages/{page_id}`.
 func (r *PagesService) Delete(name string) *PagesDeleteCall {
 	c := &PagesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1076,17 +1077,17 @@ func (c *PagesDeleteCall) Do(opts ...googleapi.CallOption) (*GoogleProtobufEmpty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1140,8 +1141,8 @@ type PagesGetCall struct {
 
 // Get: Get all `ClaimReview` markup on a page.
 //
-// - name: The name of the resource to get, in the form of
-//   `pages/{page_id}`.
+//   - name: The name of the resource to get, in the form of
+//     `pages/{page_id}`.
 func (r *PagesService) Get(name string) *PagesGetCall {
 	c := &PagesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1226,17 +1227,17 @@ func (c *PagesGetCall) Do(opts ...googleapi.CallOption) (*GoogleFactcheckingFact
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFactcheckingFactchecktoolsV1alpha1ClaimReviewMarkupPage{
 		ServerResponse: googleapi.ServerResponse{
@@ -1415,17 +1416,17 @@ func (c *PagesListCall) Do(opts ...googleapi.CallOption) (*GoogleFactcheckingFac
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFactcheckingFactchecktoolsV1alpha1ListClaimReviewMarkupPagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1522,9 +1523,9 @@ type PagesUpdateCall struct {
 // and finally call Update with the entire `ClaimReview` markup as the
 // body.
 //
-// - name: The name of this `ClaimReview` markup page resource, in the
-//   form of `pages/{page_id}`. Except for update requests, this field
-//   is output-only and should not be set by the user.
+//   - name: The name of this `ClaimReview` markup page resource, in the
+//     form of `pages/{page_id}`. Except for update requests, this field
+//     is output-only and should not be set by the user.
 func (r *PagesService) Update(name string, googlefactcheckingfactchecktoolsv1alpha1claimreviewmarkuppage *GoogleFactcheckingFactchecktoolsV1alpha1ClaimReviewMarkupPage) *PagesUpdateCall {
 	c := &PagesUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1602,17 +1603,17 @@ func (c *PagesUpdateCall) Do(opts ...googleapi.CallOption) (*GoogleFactcheckingF
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFactcheckingFactchecktoolsV1alpha1ClaimReviewMarkupPage{
 		ServerResponse: googleapi.ServerResponse{

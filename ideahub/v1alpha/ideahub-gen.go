@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://console.cloud.google.com/apis/library/ideahub.googleapis.com
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/ideahub/v1alpha"
-//   ...
-//   ctx := context.Background()
-//   ideahubService, err := ideahub.NewService(ctx)
+//	import "google.golang.org/api/ideahub/v1alpha"
+//	...
+//	ctx := context.Background()
+//	ideahubService, err := ideahub.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   ideahubService, err := ideahub.NewService(ctx, option.WithAPIKey("AIza..."))
+//	ideahubService, err := ideahub.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   ideahubService, err := ideahub.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	ideahubService, err := ideahub.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package ideahub // import "google.golang.org/api/ideahub/v1alpha"
@@ -672,17 +672,17 @@ func (c *IdeasListCall) Do(opts ...googleapi.CallOption) (*GoogleSearchIdeahubV1
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleSearchIdeahubV1alphaListIdeasResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -771,8 +771,8 @@ type PlatformsPropertiesIdeaActivitiesCreateCall struct {
 
 // Create: Creates an idea activity entry.
 //
-// - parent: The parent resource where this idea activity will be
-//   created. Format: platforms/{platform}/property/{property}.
+//   - parent: The parent resource where this idea activity will be
+//     created. Format: platforms/{platform}/property/{property}.
 func (r *PlatformsPropertiesIdeaActivitiesService) Create(parent string, googlesearchideahubv1alphaideaactivity *GoogleSearchIdeahubV1alphaIdeaActivity) *PlatformsPropertiesIdeaActivitiesCreateCall {
 	c := &PlatformsPropertiesIdeaActivitiesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -848,17 +848,17 @@ func (c *PlatformsPropertiesIdeaActivitiesCreateCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleSearchIdeahubV1alphaIdeaActivity{
 		ServerResponse: googleapi.ServerResponse{
@@ -912,8 +912,8 @@ type PlatformsPropertiesIdeaStatesPatchCall struct {
 
 // Patch: Update an idea state resource.
 //
-// - name: Unique identifier for the idea state. Format:
-//   platforms/{platform}/properties/{property}/ideaStates/{idea_state}.
+//   - name: Unique identifier for the idea state. Format:
+//     platforms/{platform}/properties/{property}/ideaStates/{idea_state}.
 func (r *PlatformsPropertiesIdeaStatesService) Patch(nameid string, googlesearchideahubv1alphaideastate *GoogleSearchIdeahubV1alphaIdeaState) *PlatformsPropertiesIdeaStatesPatchCall {
 	c := &PlatformsPropertiesIdeaStatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -996,17 +996,17 @@ func (c *PlatformsPropertiesIdeaStatesPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleSearchIdeahubV1alphaIdeaState{
 		ServerResponse: googleapi.ServerResponse{
@@ -1066,8 +1066,8 @@ type PlatformsPropertiesIdeasListCall struct {
 
 // List: List ideas for a given Creator and filter and sort options.
 //
-// - parent: If defined, specifies the creator for which to filter by.
-//   Format: publishers/{publisher}/properties/{property}.
+//   - parent: If defined, specifies the creator for which to filter by.
+//     Format: publishers/{publisher}/properties/{property}.
 func (r *PlatformsPropertiesIdeasService) List(parent string) *PlatformsPropertiesIdeasListCall {
 	c := &PlatformsPropertiesIdeasListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1189,17 +1189,17 @@ func (c *PlatformsPropertiesIdeasListCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleSearchIdeahubV1alphaListIdeasResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1293,8 +1293,8 @@ type PlatformsPropertiesLocalesListCall struct {
 // List: Returns which locales ideas are available in for a given
 // Creator.
 //
-// - parent: The web property to check idea availability for Format:
-//   platforms/{platform}/property/{property}.
+//   - parent: The web property to check idea availability for Format:
+//     platforms/{platform}/property/{property}.
 func (r *PlatformsPropertiesLocalesService) List(parent string) *PlatformsPropertiesLocalesListCall {
 	c := &PlatformsPropertiesLocalesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1398,17 +1398,17 @@ func (c *PlatformsPropertiesLocalesListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleSearchIdeahubV1alphaListAvailableLocalesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1491,8 +1491,8 @@ type PlatformsPropertiesTopicStatesPatchCall struct {
 
 // Patch: Update a topic state resource.
 //
-// - name: Unique identifier for the topic state. Format:
-//   platforms/{platform}/properties/{property}/topicStates/{topic_state}.
+//   - name: Unique identifier for the topic state. Format:
+//     platforms/{platform}/properties/{property}/topicStates/{topic_state}.
 func (r *PlatformsPropertiesTopicStatesService) Patch(nameid string, googlesearchideahubv1alphatopicstate *GoogleSearchIdeahubV1alphaTopicState) *PlatformsPropertiesTopicStatesPatchCall {
 	c := &PlatformsPropertiesTopicStatesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -1575,17 +1575,17 @@ func (c *PlatformsPropertiesTopicStatesPatchCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleSearchIdeahubV1alphaTopicState{
 		ServerResponse: googleapi.ServerResponse{

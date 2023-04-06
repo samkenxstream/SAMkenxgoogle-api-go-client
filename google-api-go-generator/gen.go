@@ -66,6 +66,11 @@ var (
 	errNoDoc       = errors.New("could not read discovery doc")
 )
 
+// skipAPIGeneration is a set of APIs to not generate when generating all clients.
+var skipAPIGeneration = map[string]bool{
+	"sql:v1beta4": true,
+}
+
 // API represents an API to generate, as well as its state while it's
 // generating.
 type API struct {
@@ -120,11 +125,6 @@ type compileError struct {
 
 func (e *compileError) Error() string {
 	return fmt.Sprintf("API %s failed to compile:\n%v", e.api.ID, e.output)
-}
-
-// skipAPIGeneration is a set of APIs to not generate when generating all clients.
-var skipAPIGeneration = map[string]bool{
-	"sql:v1beta4": true,
 }
 
 func main() {
@@ -392,7 +392,9 @@ var oddVersionRE = regexp.MustCompile(`^(.+)_(v[\d\.]+)$`)
 // that the final path component of the import path doesn't look
 // like a Go identifier. This keeps the consistency that import paths
 // for the generated Go packages look like:
-//     google.golang.org/api/NAME/v<version>
+//
+//	google.golang.org/api/NAME/v<version>
+//
 // and have package NAME.
 // See https://github.com/google/google-api-go-client/issues/78
 func renameVersion(version string) string {
@@ -730,6 +732,7 @@ func (a *API) GenerateCode() ([]byte, error) {
 	pn("var _ = strings.Replace")
 	pn("var _ = context.Canceled")
 	pn("var _ = internaloption.WithDefaultEndpoint")
+	pn("var _ = internal.Version")
 	pn("")
 	pn("const apiId = %q", a.doc.ID)
 	pn("const apiName = %q", a.doc.Name)
@@ -963,6 +966,7 @@ var pointerFields = []fieldName{
 	{api: "androidpublisher:v3", schema: "ProductPurchase", field: "PurchaseType"},
 	{api: "androidpublisher:v2", schema: "SubscriptionPurchase", field: "CancelReason"},
 	{api: "androidpublisher:v2", schema: "SubscriptionPurchase", field: "PaymentState"},
+	{api: "androidpublisher:v3", schema: "SubscriptionPurchase", field: "PaymentState"},
 	{api: "androidpublisher:v2", schema: "SubscriptionPurchase", field: "PurchaseType"},
 	{api: "androidpublisher:v3", schema: "SubscriptionPurchase", field: "PurchaseType"},
 	{api: "cloudmonitoring:v2beta2", schema: "Point", field: "BoolValue"},
@@ -1011,6 +1015,7 @@ var pointerFields = []fieldName{
 	{api: "sqladmin:v1beta4", schema: "Settings", field: "StorageAutoResize"},
 	{api: "sqladmin:v1", schema: "Settings", field: "StorageAutoResize"},
 	{api: "storage:v1", schema: "BucketLifecycleRuleCondition", field: "IsLive"},
+	{api: "storage:v1", schema: "BucketLifecycleRuleCondition", field: "Age"},
 	{api: "storage:v1beta2", schema: "BucketLifecycleRuleCondition", field: "IsLive"},
 	{api: "tasks:v1", schema: "Task", field: "Completed"},
 	{api: "youtube:v3", schema: "ChannelSectionSnippet", field: "Position"},
@@ -2162,7 +2167,7 @@ func (meth *Method) generateCode() {
 			pn("if err := googleapi.CheckResponse(res); err != nil {")
 		}
 		pn("res.Body.Close()")
-		pn("return nil, err")
+		pn("return nil, gensupport.WrapError(err)")
 		pn("}")
 		pn("return res, nil")
 		pn("}")
@@ -2194,15 +2199,15 @@ func (meth *Method) generateCode() {
 		if retTypeComma != "" && !mapRetType {
 			pn("if res != nil && res.StatusCode == http.StatusNotModified {")
 			pn(" if res.Body != nil { res.Body.Close() }")
-			pn(" return nil, &googleapi.Error{")
+			pn(" return nil, gensupport.WrapError(&googleapi.Error{")
 			pn("  Code: res.StatusCode,")
 			pn("  Header: res.Header,")
-			pn(" }")
+			pn(" })")
 			pn("}")
 		}
 		pn("if err != nil { return %serr }", nilRet)
 		pn("defer googleapi.CloseBody(res)")
-		pn("if err := googleapi.CheckResponse(res); err != nil { return %serr }", nilRet)
+		pn("if err := googleapi.CheckResponse(res); err != nil { return %sgensupport.WrapError(err) }", nilRet)
 		if meth.supportsMediaUpload() {
 			pn(`rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))`)
 			pn("if rx != nil {")
@@ -2219,7 +2224,7 @@ func (meth *Method) generateCode() {
 			pn(" res, err = rx.Upload(ctx)")
 			pn(" if err != nil { return %serr }", nilRet)
 			pn(" defer res.Body.Close()")
-			pn(" if err := googleapi.CheckResponse(res); err != nil { return %serr }", nilRet)
+			pn(" if err := googleapi.CheckResponse(res); err != nil { return %sgensupport.WrapError(err) }", nilRet)
 			pn("}")
 		}
 		if retTypeComma == "" {

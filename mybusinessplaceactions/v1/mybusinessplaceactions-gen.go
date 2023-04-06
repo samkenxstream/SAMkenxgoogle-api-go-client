@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/my-business/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/mybusinessplaceactions/v1"
-//   ...
-//   ctx := context.Background()
-//   mybusinessplaceactionsService, err := mybusinessplaceactions.NewService(ctx)
+//	import "google.golang.org/api/mybusinessplaceactions/v1"
+//	...
+//	ctx := context.Background()
+//	mybusinessplaceactionsService, err := mybusinessplaceactions.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   mybusinessplaceactionsService, err := mybusinessplaceactions.NewService(ctx, option.WithAPIKey("AIza..."))
+//	mybusinessplaceactionsService, err := mybusinessplaceactions.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   mybusinessplaceactionsService, err := mybusinessplaceactions.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	mybusinessplaceactionsService, err := mybusinessplaceactions.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package mybusinessplaceactions // import "google.golang.org/api/mybusinessplaceactions/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "mybusinessplaceactions:v1"
 const apiName = "mybusinessplaceactions"
@@ -289,6 +290,8 @@ type PlaceActionLink struct {
 	// and/or takeout.
 	//   "FOOD_DELIVERY" - The action type is ordering food for delivery.
 	//   "FOOD_TAKEOUT" - The action type is ordering food for takeout.
+	//   "SHOP_ONLINE" - The action type is shopping, that can be delivery
+	// and/or pickup.
 	PlaceActionType string `json:"placeActionType,omitempty"`
 
 	// ProviderType: Output only. Specifies the provider type.
@@ -357,6 +360,8 @@ type PlaceActionTypeMetadata struct {
 	// and/or takeout.
 	//   "FOOD_DELIVERY" - The action type is ordering food for delivery.
 	//   "FOOD_TAKEOUT" - The action type is ordering food for takeout.
+	//   "SHOP_ONLINE" - The action type is shopping, that can be delivery
+	// and/or pickup.
 	PlaceActionType string `json:"placeActionType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DisplayName") to
@@ -399,8 +404,8 @@ type LocationsPlaceActionLinksCreateCall struct {
 // `place_action_link.place_action_type` are the same as a previous
 // request.
 //
-// - parent: The resource name of the location where to create this
-//   place action link. `locations/{location_id}`.
+//   - parent: The resource name of the location where to create this
+//     place action link. `locations/{location_id}`.
 func (r *LocationsPlaceActionLinksService) Create(parent string, placeactionlink *PlaceActionLink) *LocationsPlaceActionLinksCreateCall {
 	c := &LocationsPlaceActionLinksCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -475,17 +480,17 @@ func (c *LocationsPlaceActionLinksCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PlaceActionLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -538,8 +543,8 @@ type LocationsPlaceActionLinksDeleteCall struct {
 
 // Delete: Deletes a place action link from the specified location.
 //
-// - name: The resource name of the place action link to remove from the
-//   location.
+//   - name: The resource name of the place action link to remove from the
+//     location.
 func (r *LocationsPlaceActionLinksService) Delete(name string) *LocationsPlaceActionLinksDeleteCall {
 	c := &LocationsPlaceActionLinksDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -608,17 +613,17 @@ func (c *LocationsPlaceActionLinksDeleteCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -751,17 +756,17 @@ func (c *LocationsPlaceActionLinksGetCall) Do(opts ...googleapi.CallOption) (*Pl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PlaceActionLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -812,8 +817,8 @@ type LocationsPlaceActionLinksListCall struct {
 
 // List: Lists the place action links for the specified location.
 //
-// - parent: The name of the location whose place action links will be
-//   listed. `locations/{location_id}`.
+//   - parent: The name of the location whose place action links will be
+//     listed. `locations/{location_id}`.
 func (r *LocationsPlaceActionLinksService) List(parent string) *LocationsPlaceActionLinksListCall {
 	c := &LocationsPlaceActionLinksListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -918,17 +923,17 @@ func (c *LocationsPlaceActionLinksListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPlaceActionLinksResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1016,14 +1021,14 @@ type LocationsPlaceActionLinksPatchCall struct {
 
 // Patch: Updates the specified place action link and returns it.
 //
-// - name: Optional. The resource name, in the format
-//   `locations/{location_id}/placeActionLinks/{place_action_link_id}`.
-//   The name field will only be considered in UpdatePlaceActionLink and
-//   DeletePlaceActionLink requests for updating and deleting links
-//   respectively. However, it will be ignored in CreatePlaceActionLink
-//   request, where `place_action_link_id` will be assigned by the
-//   server on successful creation of a new link and returned as part of
-//   the response.
+//   - name: Optional. The resource name, in the format
+//     `locations/{location_id}/placeActionLinks/{place_action_link_id}`.
+//     The name field will only be considered in UpdatePlaceActionLink and
+//     DeletePlaceActionLink requests for updating and deleting links
+//     respectively. However, it will be ignored in CreatePlaceActionLink
+//     request, where `place_action_link_id` will be assigned by the
+//     server on successful creation of a new link and returned as part of
+//     the response.
 func (r *LocationsPlaceActionLinksService) Patch(name string, placeactionlink *PlaceActionLink) *LocationsPlaceActionLinksPatchCall {
 	c := &LocationsPlaceActionLinksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1108,17 +1113,17 @@ func (c *LocationsPlaceActionLinksPatchCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PlaceActionLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -1292,17 +1297,17 @@ func (c *PlaceActionTypeMetadataListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPlaceActionTypeMetadataResponse{
 		ServerResponse: googleapi.ServerResponse{

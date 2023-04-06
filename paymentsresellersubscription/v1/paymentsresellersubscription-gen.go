@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/payments/reseller/subscription/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/paymentsresellersubscription/v1"
-//   ...
-//   ctx := context.Background()
-//   paymentsresellersubscriptionService, err := paymentsresellersubscription.NewService(ctx)
+//	import "google.golang.org/api/paymentsresellersubscription/v1"
+//	...
+//	ctx := context.Background()
+//	paymentsresellersubscriptionService, err := paymentsresellersubscription.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   paymentsresellersubscriptionService, err := paymentsresellersubscription.NewService(ctx, option.WithAPIKey("AIza..."))
+//	paymentsresellersubscriptionService, err := paymentsresellersubscription.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   paymentsresellersubscriptionService, err := paymentsresellersubscription.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	paymentsresellersubscriptionService, err := paymentsresellersubscription.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package paymentsresellersubscription // import "google.golang.org/api/paymentsresellersubscription/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "paymentsresellersubscription:v1"
 const apiName = "paymentsresellersubscription"
@@ -170,11 +171,47 @@ type PartnersSubscriptionsService struct {
 	s *Service
 }
 
+// GoogleCloudPaymentsResellerSubscriptionV1Amount: Describes the amount
+// unit including the currency code.
+type GoogleCloudPaymentsResellerSubscriptionV1Amount struct {
+	// AmountMicros: Required. Amount in micros (1_000_000 micros = 1
+	// currency unit)
+	AmountMicros int64 `json:"amountMicros,omitempty,string"`
+
+	// CurrencyCode: Required. Currency codes in accordance with [ISO-4217
+	// Currency Codes] (https://en.wikipedia.org/wiki/ISO_4217). For
+	// example, USD.
+	CurrencyCode string `json:"currencyCode,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AmountMicros") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AmountMicros") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudPaymentsResellerSubscriptionV1Amount) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1Amount
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 type GoogleCloudPaymentsResellerSubscriptionV1CancelSubscriptionRequest struct {
-	// CancelImmediately: Optional. If true, the subscription will be
-	// cancelled immediately. Otherwise, the subscription will be cancelled
-	// at renewal_time, and therefore no prorated refund will be issued for
-	// the rest of the cycle.
+	// CancelImmediately: Optional. If true, Google will cancel the
+	// subscription immediately, and may or may not (based on the contract)
+	// issue a prorated refund for the remainder of the billing cycle.
+	// Otherwise, Google defers the cancelation at renewal_time, and will
+	// not issue a refund.
 	CancelImmediately bool `json:"cancelImmediately,omitempty"`
 
 	// CancellationReason: Specifies the reason for the cancellation.
@@ -448,14 +485,17 @@ func (s *GoogleCloudPaymentsResellerSubscriptionV1Extension) MarshalJSON() ([]by
 
 type GoogleCloudPaymentsResellerSubscriptionV1FindEligiblePromotionsRequest struct {
 	// Filter: Optional. Specifies the filters for the promotion results.
-	// The syntax defined in the EBNF grammar:
-	// https://google.aip.dev/assets/misc/ebnf-filtering.txt. An error will
-	// be thrown if any specified parameter is not supported. Currently, it
-	// can only be used by Youtube partners. Allowed parameters are: -
-	// regionCodes - zipCode - eligibilityId - applicableProducts Multiple
-	// parameters can be specified, for example: "regionCodes=US
-	// zipCode=94043 eligibilityId=2022H1Campaign", or
-	// "applicableProducts=partners/p1/products/product2"
+	// The syntax is defined in https://google.aip.dev/160 with the
+	// following caveats: - Only the following features are supported: -
+	// Logical operator `AND` - Comparison operator `=` (no wildcards `*`) -
+	// Traversal operator `.` - Has operator `:` (no wildcards `*`) - Only
+	// the following fields are supported: - `applicableProducts` -
+	// `regionCodes` - `youtubePayload.partnerEligibilityId` -
+	// `youtubePayload.postalCode` - Unless explicitly mentioned above,
+	// other features are not supported. Example:
+	// `applicableProducts:partners/partner1/products/product1 AND
+	// regionCodes:US AND youtubePayload.postalCode=94043 AND
+	// youtubePayload.partnerEligibilityId=eligibility-id`
 	Filter string `json:"filter,omitempty"`
 
 	// PageSize: Optional. The maximum number of promotions to return. The
@@ -526,6 +566,70 @@ type GoogleCloudPaymentsResellerSubscriptionV1FindEligiblePromotionsResponse str
 
 func (s *GoogleCloudPaymentsResellerSubscriptionV1FindEligiblePromotionsResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1FindEligiblePromotionsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudPaymentsResellerSubscriptionV1GoogleOnePayload: Payload
+// specific to Google One products.
+type GoogleCloudPaymentsResellerSubscriptionV1GoogleOnePayload struct {
+	// Campaigns: Campaign attributed to sales of this subscription.
+	Campaigns []string `json:"campaigns,omitempty"`
+
+	// Offering: The type of offering the subscription was sold by the
+	// partner. e.g. VAS.
+	//
+	// Possible values:
+	//   "OFFERING_UNSPECIFIED" - The type of partner offering is
+	// unspecified.
+	//   "OFFERING_VAS_BUNDLE" - Google One product purchased as a Value
+	// added service in addition to existing partner's products. Customer
+	// pays additional amount for Google One product.
+	//   "OFFERING_VAS_STANDALONE" - Google One product purchased by itself
+	// by customer as a value add service. Customer pays additional amount
+	// for Google One product.
+	//   "OFFERING_HARD_BUNDLE" - Product purchased as part of a hard bundle
+	// where Google One was included with the bundle. Google One pricing is
+	// included in the bundle.
+	//   "OFFERING_SOFT_BUNDLE" - Purchased as part of a bundle where Google
+	// One was provided as an option. Google One pricing is included in the
+	// bundle.
+	Offering string `json:"offering,omitempty"`
+
+	// SalesChannel: The type of sales channel through which the
+	// subscription was sold.
+	//
+	// Possible values:
+	//   "CHANNEL_UNSPECIFIED" - The channel type is unspecified.
+	//   "CHANNEL_RETAIL" - Sold at store.
+	//   "CHANNEL_ONLINE_WEB" - Sold through partner website.
+	//   "CHANNEL_ONLINE_ANDROID_APP" - Sold through partner android app.
+	//   "CHANNEL_ONLINE_IOS_APP" - Sold through partner iOS app.
+	SalesChannel string `json:"salesChannel,omitempty"`
+
+	// StoreId: The identifier for the partner store where the subscription
+	// was sold.
+	StoreId string `json:"storeId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Campaigns") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Campaigns") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudPaymentsResellerSubscriptionV1GoogleOnePayload) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1GoogleOnePayload
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -636,10 +740,13 @@ func (s *GoogleCloudPaymentsResellerSubscriptionV1Location) MarshalJSON() ([]byt
 // GoogleCloudPaymentsResellerSubscriptionV1Product: A Product resource
 // that defines a subscription service that can be resold.
 type GoogleCloudPaymentsResellerSubscriptionV1Product struct {
-	// Name: Output only. Response only. Resource name of the subscription.
-	// It will have the format of
-	// "partners/{partner_id}/products/{product_id}"
+	// Name: Output only. Response only. Resource name of the product. It
+	// will have the format of "partners/{partner_id}/products/{product_id}"
 	Name string `json:"name,omitempty"`
+
+	// PriceConfigs: Output only. Price configs for the product in the
+	// available regions.
+	PriceConfigs []*GoogleCloudPaymentsResellerSubscriptionV1ProductPriceConfig `json:"priceConfigs,omitempty"`
 
 	// RegionCodes: Output only. 2-letter ISO region code where the product
 	// is available in. Ex. "US" Please refers to:
@@ -672,6 +779,72 @@ type GoogleCloudPaymentsResellerSubscriptionV1Product struct {
 
 func (s *GoogleCloudPaymentsResellerSubscriptionV1Product) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1Product
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudPaymentsResellerSubscriptionV1ProductPayload: Specifies
+// product specific payload.
+type GoogleCloudPaymentsResellerSubscriptionV1ProductPayload struct {
+	// GoogleOnePayload: Payload specific to Google One products.
+	GoogleOnePayload *GoogleCloudPaymentsResellerSubscriptionV1GoogleOnePayload `json:"googleOnePayload,omitempty"`
+
+	// YoutubePayload: Payload specific to Youtube products.
+	YoutubePayload *GoogleCloudPaymentsResellerSubscriptionV1YoutubePayload `json:"youtubePayload,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "GoogleOnePayload") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GoogleOnePayload") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudPaymentsResellerSubscriptionV1ProductPayload) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1ProductPayload
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudPaymentsResellerSubscriptionV1ProductPriceConfig: Configs
+// the prices in an available region.
+type GoogleCloudPaymentsResellerSubscriptionV1ProductPriceConfig struct {
+	// Amount: Output only. The price in the region.
+	Amount *GoogleCloudPaymentsResellerSubscriptionV1Amount `json:"amount,omitempty"`
+
+	// RegionCode: Output only. 2-letter ISO region code where the product
+	// is available in. Ex. "US".
+	RegionCode string `json:"regionCode,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Amount") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Amount") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudPaymentsResellerSubscriptionV1ProductPriceConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1ProductPriceConfig
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -784,11 +957,23 @@ func (s *GoogleCloudPaymentsResellerSubscriptionV1PromotionIntroductoryPricingDe
 // etailsIntroductoryPricingSpec: The duration of an introductory
 // pricing promotion.
 type GoogleCloudPaymentsResellerSubscriptionV1PromotionIntroductoryPricingDetailsIntroductoryPricingSpec struct {
+	// DiscountAmount: Output only. The discount amount. The value is
+	// positive.
+	DiscountAmount *GoogleCloudPaymentsResellerSubscriptionV1Amount `json:"discountAmount,omitempty"`
+
+	// DiscountRatioMicros: Output only. The discount percentage in micros.
+	// For example, 50,000 represents 5%.
+	DiscountRatioMicros int64 `json:"discountRatioMicros,omitempty,string"`
+
 	// RecurrenceCount: Output only. Output Only. The duration of an
 	// introductory offer in billing cycles.
 	RecurrenceCount int64 `json:"recurrenceCount,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "RecurrenceCount") to
+	// RegionCode: Output only. 2-letter ISO region code where the product
+	// is available in. Ex. "US".
+	RegionCode string `json:"regionCode,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DiscountAmount") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -796,7 +981,7 @@ type GoogleCloudPaymentsResellerSubscriptionV1PromotionIntroductoryPricingDetail
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "RecurrenceCount") to
+	// NullFields is a list of field names (e.g. "DiscountAmount") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -808,6 +993,41 @@ type GoogleCloudPaymentsResellerSubscriptionV1PromotionIntroductoryPricingDetail
 
 func (s *GoogleCloudPaymentsResellerSubscriptionV1PromotionIntroductoryPricingDetailsIntroductoryPricingSpec) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1PromotionIntroductoryPricingDetailsIntroductoryPricingSpec
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudPaymentsResellerSubscriptionV1ServicePeriod: A description
+// of what time period or moment in time the product or service is being
+// delivered over.
+type GoogleCloudPaymentsResellerSubscriptionV1ServicePeriod struct {
+	// EndTime: Optional. The end time of the service period. Time is
+	// exclusive.
+	EndTime string `json:"endTime,omitempty"`
+
+	// StartTime: Required. The start time of the service period. Time is
+	// inclusive.
+	StartTime string `json:"startTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "EndTime") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "EndTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudPaymentsResellerSubscriptionV1ServicePeriod) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1ServicePeriod
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -841,9 +1061,9 @@ type GoogleCloudPaymentsResellerSubscriptionV1Subscription struct {
 	// LineItems: Required. The line items of the subscription.
 	LineItems []*GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItem `json:"lineItems,omitempty"`
 
-	// Name: Output only. Response only. Resource name of the subscription.
-	// It will have the format of
-	// "partners/{partner_id}/subscriptions/{subscription_id}"
+	// Name: Optional. Resource name of the subscription. It will have the
+	// format of "partners/{partner_id}/subscriptions/{subscription_id}".
+	// This is available for authorizeAddon, but otherwise is response only.
 	Name string `json:"name,omitempty"`
 
 	// PartnerUserToken: Required. Identifier of the end-user in partner’s
@@ -911,11 +1131,16 @@ type GoogleCloudPaymentsResellerSubscriptionV1Subscription struct {
 	//   "STATE_CREATED" - The subscription is created, a state before it is
 	// moved to STATE_ACTIVE.
 	//   "STATE_ACTIVE" - The subscription is active.
-	//   "STATE_CANCELLED" - The subscription is cancelled.
-	//   "STATE_IN_GRACE_PERIOD" - The subscription has not been extended by
-	// the partner after the end of current cycle.
+	//   "STATE_CANCELLED" - The subscription is cancelled. This is the
+	// final state of the subscription, as it can no longer be modified or
+	// reactivated.
+	//   "STATE_IN_GRACE_PERIOD" - The subscription is in grace period. It
+	// can happen: 1) in manual extend mode, the subscription is not
+	// extended by the partner at the end of current cycle. 2) for outbound
+	// authorization enabled partners, a renewal purchase order is rejected.
 	//   "STATE_CANCEL_AT_END_OF_CYCLE" - The subscription is waiting to be
 	// cancelled by the next recurrence cycle.
+	//   "STATE_SUSPENDED" - The subscription is suspended.
 	State string `json:"state,omitempty"`
 
 	// UpdateTime: Output only. System generated timestamp when the
@@ -1000,11 +1225,19 @@ func (s *GoogleCloudPaymentsResellerSubscriptionV1SubscriptionCancellationDetail
 }
 
 // GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItem:
-// Individual line item definition of a subscription. Next id: 5
+// Individual line item definition of a subscription.
 type GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItem struct {
-	// LineItemFreeTrialEndTime: Output only. It is set only if the line
-	// item has its own free trial applied. End time of the line item free
-	// trial period, in ISO 8061 format. For example,
+	// Amount: Output only. The price of the product/service in this line
+	// item. The amount could be the wholesale price, or it can include a
+	// cost of sale based on the contract.
+	Amount *GoogleCloudPaymentsResellerSubscriptionV1Amount `json:"amount,omitempty"`
+
+	// Description: Output only. Description of this line item.
+	Description string `json:"description,omitempty"`
+
+	// LineItemFreeTrialEndTime: Output only. The free trial end time will
+	// be populated after the line item is successfully processed. End time
+	// of the line item free trial period, in ISO 8061 format. For example,
 	// "2019-08-31T17:28:54.564Z". It will be set the same as createTime if
 	// no free trial promotion is specified.
 	LineItemFreeTrialEndTime string `json:"lineItemFreeTrialEndTime,omitempty"`
@@ -1016,15 +1249,36 @@ type GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItem struct {
 	// resource name only.
 	LineItemPromotionSpecs []*GoogleCloudPaymentsResellerSubscriptionV1SubscriptionPromotionSpec `json:"lineItemPromotionSpecs,omitempty"`
 
+	// OneTimeRecurrenceDetails: Output only. Details only set for a
+	// ONE_TIME recurrence line item.
+	OneTimeRecurrenceDetails *GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItemOneTimeRecurrenceDetails `json:"oneTimeRecurrenceDetails,omitempty"`
+
 	// Product: Required. Product resource name that identifies one the line
 	// item The format is 'partners/{partner_id}/products/{product_id}'.
 	Product string `json:"product,omitempty"`
+
+	// ProductPayload: Optional. Product specific payload for this line
+	// item.
+	ProductPayload *GoogleCloudPaymentsResellerSubscriptionV1ProductPayload `json:"productPayload,omitempty"`
+
+	// RecurrenceType: Output only. The recurrence type of the line item.
+	//
+	// Possible values:
+	//   "LINE_ITEM_RECURRENCE_TYPE_UNSPECIFIED" - The line item recurrence
+	// type is unspecified.
+	//   "LINE_ITEM_RECURRENCE_TYPE_PERIODIC" - The line item recurs
+	// periodically.
+	//   "LINE_ITEM_RECURRENCE_TYPE_ONE_TIME" - The line item does not recur
+	// in the future.
+	RecurrenceType string `json:"recurrenceType,omitempty"`
 
 	// State: Output only. The state of the line item.
 	//
 	// Possible values:
 	//   "LINE_ITEM_STATE_UNSPECIFIED" - Unspecified state.
-	//   "LINE_ITEM_STATE_ACTIVE" - The line item is in ACTIVE state.
+	//   "LINE_ITEM_STATE_ACTIVE" - The line item is in ACTIVE state. If the
+	// subscription is cancelled or suspended, the line item will not be
+	// charged even if the line item is active.
 	//   "LINE_ITEM_STATE_INACTIVE" - The line item is in INACTIVE state.
 	//   "LINE_ITEM_STATE_NEW" - The line item is new, and is not activated
 	// or charged yet.
@@ -1033,30 +1287,59 @@ type GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItem struct {
 	// line item is pending a prorated charge at the end of the free trial
 	// period, as indicated by `line_item_free_trial_end_time`.
 	//   "LINE_ITEM_STATE_DEACTIVATING" - The line item is being
-	// deactivated.
+	// deactivated, and a prorated refund in being processed.
+	//   "LINE_ITEM_STATE_WAITING_TO_DEACTIVATE" - The line item is
+	// scheduled to be deactivated at the end of the current cycle.
 	State string `json:"state,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g.
-	// "LineItemFreeTrialEndTime") to unconditionally include in API
-	// requests. By default, fields with empty or default values are omitted
-	// from API requests. However, any non-pointer, non-interface field
-	// appearing in ForceSendFields will be sent to the server regardless of
-	// whether the field is empty or not. This may be used to include empty
-	// fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g. "Amount") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "LineItemFreeTrialEndTime")
-	// to include in API requests with the JSON null value. By default,
-	// fields with empty values are omitted from API requests. However, any
-	// field with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Amount") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
 func (s *GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItem) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItem
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItemOneTimeRe
+// currenceDetails: Details for a ONE_TIME recurrence line item.
+type GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItemOneTimeRecurrenceDetails struct {
+	// ServicePeriod: The service period of the ONE_TIME line item.
+	ServicePeriod *GoogleCloudPaymentsResellerSubscriptionV1ServicePeriod `json:"servicePeriod,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ServicePeriod") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ServicePeriod") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItemOneTimeRecurrenceDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1SubscriptionLineItemOneTimeRecurrenceDetails
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1195,6 +1478,38 @@ func (s *GoogleCloudPaymentsResellerSubscriptionV1UndoCancelSubscriptionResponse
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudPaymentsResellerSubscriptionV1YoutubePayload: Payload
+// specific to Youtube products.
+type GoogleCloudPaymentsResellerSubscriptionV1YoutubePayload struct {
+	// PartnerEligibilityIds: The list of eligibility_ids which are
+	// applicable for the line item.
+	PartnerEligibilityIds []string `json:"partnerEligibilityIds,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "PartnerEligibilityIds") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PartnerEligibilityIds") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudPaymentsResellerSubscriptionV1YoutubePayload) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudPaymentsResellerSubscriptionV1YoutubePayload
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleTypeLocalizedText: Localized variant of a text in a particular
 // language.
 type GoogleTypeLocalizedText struct {
@@ -1244,8 +1559,8 @@ type PartnersProductsListCall struct {
 // List: To retrieve the products that can be resold by the partner. It
 // should be autenticated with a service account.
 //
-// - parent: The parent, the partner that can resell. Format:
-//   partners/{partner}.
+//   - parent: The parent, the partner that can resell. Format:
+//     partners/{partner}.
 func (r *PartnersProductsService) List(parent string) *PartnersProductsListCall {
 	c := &PartnersProductsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1253,13 +1568,16 @@ func (r *PartnersProductsService) List(parent string) *PartnersProductsListCall 
 }
 
 // Filter sets the optional parameter "filter": Specifies the filters
-// for the products results. The syntax defined in the EBNF grammar:
-// https://google.aip.dev/assets/misc/ebnf-filtering.txt. An error will
-// be thrown if any specified parameter is not supported. Currently, it
-// can only be used by Youtube partners. Allowed parameters are: -
-// regionCodes - zipCode - eligibilityId Multiple parameters can be
-// specified, for example: "regionCodes=US zipCode=94043
-// eligibilityId=2022H1Campaign"
+// for the product results. The syntax is defined in
+// https://google.aip.dev/160 with the following caveats: - Only the
+// following features are supported: - Logical operator `AND` -
+// Comparison operator `=` (no wildcards `*`) - Traversal operator `.` -
+// Has operator `:` (no wildcards `*`) - Only the following fields are
+// supported: - `regionCodes` - `youtubePayload.partnerEligibilityId` -
+// `youtubePayload.postalCode` - Unless explicitly mentioned above,
+// other features are not supported. Example: `regionCodes:US AND
+// youtubePayload.postalCode=94043 AND
+// youtubePayload.partnerEligibilityId=eligibility-id`
 func (c *PartnersProductsListCall) Filter(filter string) *PartnersProductsListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -1362,17 +1680,17 @@ func (c *PartnersProductsListCall) Do(opts ...googleapi.CallOption) (*GoogleClou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1ListProductsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1395,7 +1713,7 @@ func (c *PartnersProductsListCall) Do(opts ...googleapi.CallOption) (*GoogleClou
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Optional. Specifies the filters for the products results. The syntax defined in the EBNF grammar: https://google.aip.dev/assets/misc/ebnf-filtering.txt. An error will be thrown if any specified parameter is not supported. Currently, it can only be used by Youtube partners. Allowed parameters are: - regionCodes - zipCode - eligibilityId Multiple parameters can be specified, for example: \"regionCodes=US zipCode=94043 eligibilityId=2022H1Campaign\"",
+	//       "description": "Optional. Specifies the filters for the product results. The syntax is defined in https://google.aip.dev/160 with the following caveats: - Only the following features are supported: - Logical operator `AND` - Comparison operator `=` (no wildcards `*`) - Traversal operator `.` - Has operator `:` (no wildcards `*`) - Only the following fields are supported: - `regionCodes` - `youtubePayload.partnerEligibilityId` - `youtubePayload.postalCode` - Unless explicitly mentioned above, other features are not supported. Example: `regionCodes:US AND youtubePayload.postalCode=94043 AND youtubePayload.partnerEligibilityId=eligibility-id`",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -1462,8 +1780,8 @@ type PartnersPromotionsFindEligibleCall struct {
 // API requires user authorization via OAuth. The user is inferred from
 // the authenticated OAuth credential.
 //
-// - parent: The parent, the partner that can resell. Format:
-//   partners/{partner}.
+//   - parent: The parent, the partner that can resell. Format:
+//     partners/{partner}.
 func (r *PartnersPromotionsService) FindEligible(parent string, googlecloudpaymentsresellersubscriptionv1findeligiblepromotionsrequest *GoogleCloudPaymentsResellerSubscriptionV1FindEligiblePromotionsRequest) *PartnersPromotionsFindEligibleCall {
 	c := &PartnersPromotionsFindEligibleCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1541,17 +1859,17 @@ func (c *PartnersPromotionsFindEligibleCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1FindEligiblePromotionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1630,8 +1948,8 @@ type PartnersPromotionsListCall struct {
 // used by the partner. It should be autenticated with a service
 // account.
 //
-// - parent: The parent, the partner that can resell. Format:
-//   partners/{partner}.
+//   - parent: The parent, the partner that can resell. Format:
+//     partners/{partner}.
 func (r *PartnersPromotionsService) List(parent string) *PartnersPromotionsListCall {
 	c := &PartnersPromotionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1639,13 +1957,17 @@ func (r *PartnersPromotionsService) List(parent string) *PartnersPromotionsListC
 }
 
 // Filter sets the optional parameter "filter": Specifies the filters
-// for the promotion results. The syntax defined in the EBNF grammar:
-// https://google.aip.dev/assets/misc/ebnf-filtering.txt. An error will
-// be thrown if the specified parameter(s) is not supported. Currently,
-// it can only be used by Youtube partners. Allowed parameters are: -
-// region_codes: "US" - zip_code: "94043" - eligibility_id:
-// "2022H1Campaign" Multiple parameters can be specified, for example:
-// "region_codes=US zip_code=94043 eligibility_id=2022H1Campaign"
+// for the promotion results. The syntax is defined in
+// https://google.aip.dev/160 with the following caveats: - Only the
+// following features are supported: - Logical operator `AND` -
+// Comparison operator `=` (no wildcards `*`) - Traversal operator `.` -
+// Has operator `:` (no wildcards `*`) - Only the following fields are
+// supported: - `applicableProducts` - `regionCodes` -
+// `youtubePayload.partnerEligibilityId` - `youtubePayload.postalCode` -
+// Unless explicitly mentioned above, other features are not supported.
+// Example: `applicableProducts:partners/partner1/products/product1 AND
+// regionCodes:US AND youtubePayload.postalCode=94043 AND
+// youtubePayload.partnerEligibilityId=eligibility-id`
 func (c *PartnersPromotionsListCall) Filter(filter string) *PartnersPromotionsListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -1748,17 +2070,17 @@ func (c *PartnersPromotionsListCall) Do(opts ...googleapi.CallOption) (*GoogleCl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1ListPromotionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1781,7 +2103,7 @@ func (c *PartnersPromotionsListCall) Do(opts ...googleapi.CallOption) (*GoogleCl
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Optional. Specifies the filters for the promotion results. The syntax defined in the EBNF grammar: https://google.aip.dev/assets/misc/ebnf-filtering.txt. An error will be thrown if the specified parameter(s) is not supported. Currently, it can only be used by Youtube partners. Allowed parameters are: - region_codes: \"US\" - zip_code: \"94043\" - eligibility_id: \"2022H1Campaign\" Multiple parameters can be specified, for example: \"region_codes=US zip_code=94043 eligibility_id=2022H1Campaign\"",
+	//       "description": "Optional. Specifies the filters for the promotion results. The syntax is defined in https://google.aip.dev/160 with the following caveats: - Only the following features are supported: - Logical operator `AND` - Comparison operator `=` (no wildcards `*`) - Traversal operator `.` - Has operator `:` (no wildcards `*`) - Only the following fields are supported: - `applicableProducts` - `regionCodes` - `youtubePayload.partnerEligibilityId` - `youtubePayload.postalCode` - Unless explicitly mentioned above, other features are not supported. Example: `applicableProducts:partners/partner1/products/product1 AND regionCodes:US AND youtubePayload.postalCode=94043 AND youtubePayload.partnerEligibilityId=eligibility-id`",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -1849,9 +2171,9 @@ type PartnersSubscriptionsCancelCall struct {
 // customers. It should be called directly by the partner using service
 // accounts.
 //
-// - name: The name of the subscription resource to be cancelled. It
-//   will have the format of
-//   "partners/{partner_id}/subscriptions/{subscription_id}".
+//   - name: The name of the subscription resource to be cancelled. It
+//     will have the format of
+//     "partners/{partner_id}/subscriptions/{subscription_id}".
 func (r *PartnersSubscriptionsService) Cancel(name string, googlecloudpaymentsresellersubscriptionv1cancelsubscriptionrequest *GoogleCloudPaymentsResellerSubscriptionV1CancelSubscriptionRequest) *PartnersSubscriptionsCancelCall {
 	c := &PartnersSubscriptionsCancelCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1929,17 +2251,17 @@ func (c *PartnersSubscriptionsCancelCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1CancelSubscriptionResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1996,8 +2318,8 @@ type PartnersSubscriptionsCreateCall struct {
 // inferred from the end user credentials. This API must be authorized
 // by the end user using OAuth.
 //
-// - parent: The parent resource name, which is the identifier of the
-//   partner. It will have the format of "partners/{partner_id}".
+//   - parent: The parent resource name, which is the identifier of the
+//     partner. It will have the format of "partners/{partner_id}".
 func (r *PartnersSubscriptionsService) Create(parentid string, googlecloudpaymentsresellersubscriptionv1subscription *GoogleCloudPaymentsResellerSubscriptionV1Subscription) *PartnersSubscriptionsCreateCall {
 	c := &PartnersSubscriptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -2084,17 +2406,17 @@ func (c *PartnersSubscriptionsCreateCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2156,9 +2478,9 @@ type PartnersSubscriptionsEntitleCall struct {
 // inferred from the authorized credential of the request. This API must
 // be authorized by the end user using OAuth.
 //
-// - name: The name of the subscription resource that is entitled to the
-//   current end user. It will have the format of
-//   "partners/{partner_id}/subscriptions/{subscription_id}".
+//   - name: The name of the subscription resource that is entitled to the
+//     current end user. It will have the format of
+//     "partners/{partner_id}/subscriptions/{subscription_id}".
 func (r *PartnersSubscriptionsService) Entitle(name string, googlecloudpaymentsresellersubscriptionv1entitlesubscriptionrequest *GoogleCloudPaymentsResellerSubscriptionV1EntitleSubscriptionRequest) *PartnersSubscriptionsEntitleCall {
 	c := &PartnersSubscriptionsEntitleCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2236,17 +2558,17 @@ func (c *PartnersSubscriptionsEntitleCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1EntitleSubscriptionResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2298,14 +2620,15 @@ type PartnersSubscriptionsExtendCall struct {
 	header_                                                            http.Header
 }
 
-// Extend: Used by partners to extend a subscription service for their
+// Extend: [Deprecated] New partners should be on auto-extend by
+// default. Used by partners to extend a subscription service for their
 // customers on an ongoing basis for the subscription to remain active
 // and renewable. It should be called directly by the partner using
 // service accounts.
 //
-// - name: The name of the subscription resource to be extended. It will
-//   have the format of
-//   "partners/{partner_id}/subscriptions/{subscription_id}".
+//   - name: The name of the subscription resource to be extended. It will
+//     have the format of
+//     "partners/{partner_id}/subscriptions/{subscription_id}".
 func (r *PartnersSubscriptionsService) Extend(name string, googlecloudpaymentsresellersubscriptionv1extendsubscriptionrequest *GoogleCloudPaymentsResellerSubscriptionV1ExtendSubscriptionRequest) *PartnersSubscriptionsExtendCall {
 	c := &PartnersSubscriptionsExtendCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2383,17 +2706,17 @@ func (c *PartnersSubscriptionsExtendCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1ExtendSubscriptionResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2407,7 +2730,7 @@ func (c *PartnersSubscriptionsExtendCall) Do(opts ...googleapi.CallOption) (*Goo
 	}
 	return ret, nil
 	// {
-	//   "description": "Used by partners to extend a subscription service for their customers on an ongoing basis for the subscription to remain active and renewable. It should be called directly by the partner using service accounts.",
+	//   "description": "[Deprecated] New partners should be on auto-extend by default. Used by partners to extend a subscription service for their customers on an ongoing basis for the subscription to remain active and renewable. It should be called directly by the partner using service accounts.",
 	//   "flatPath": "v1/partners/{partnersId}/subscriptions/{subscriptionsId}:extend",
 	//   "httpMethod": "POST",
 	//   "id": "paymentsresellersubscription.partners.subscriptions.extend",
@@ -2448,9 +2771,9 @@ type PartnersSubscriptionsGetCall struct {
 // Get: Used by partners to get a subscription by id. It should be
 // called directly by the partner using service accounts.
 //
-// - name: The name of the subscription resource to retrieve. It will
-//   have the format of
-//   "partners/{partner_id}/subscriptions/{subscription_id}".
+//   - name: The name of the subscription resource to retrieve. It will
+//     have the format of
+//     "partners/{partner_id}/subscriptions/{subscription_id}".
 func (r *PartnersSubscriptionsService) Get(name string) *PartnersSubscriptionsGetCall {
 	c := &PartnersSubscriptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2534,17 +2857,17 @@ func (c *PartnersSubscriptionsGetCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2600,8 +2923,8 @@ type PartnersSubscriptionsProvisionCall struct {
 // the subscription. It should be called directly by the partner using
 // service accounts.
 //
-// - parent: The parent resource name, which is the identifier of the
-//   partner. It will have the format of "partners/{partner_id}".
+//   - parent: The parent resource name, which is the identifier of the
+//     partner. It will have the format of "partners/{partner_id}".
 func (r *PartnersSubscriptionsService) Provision(parentid string, googlecloudpaymentsresellersubscriptionv1subscription *GoogleCloudPaymentsResellerSubscriptionV1Subscription) *PartnersSubscriptionsProvisionCall {
 	c := &PartnersSubscriptionsProvisionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -2688,17 +3011,17 @@ func (c *PartnersSubscriptionsProvisionCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2761,9 +3084,9 @@ type PartnersSubscriptionsUndoCancelCall struct {
 // fail. It should be called directly by the partner using service
 // accounts.
 //
-// - name: The name of the subscription resource whose pending
-//   cancellation needs to be undone. It will have the format of
-//   "partners/{partner_id}/subscriptions/{subscription_id}".
+//   - name: The name of the subscription resource whose pending
+//     cancellation needs to be undone. It will have the format of
+//     "partners/{partner_id}/subscriptions/{subscription_id}".
 func (r *PartnersSubscriptionsService) UndoCancel(name string, googlecloudpaymentsresellersubscriptionv1undocancelsubscriptionrequest *GoogleCloudPaymentsResellerSubscriptionV1UndoCancelSubscriptionRequest) *PartnersSubscriptionsUndoCancelCall {
 	c := &PartnersSubscriptionsUndoCancelCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2841,17 +3164,17 @@ func (c *PartnersSubscriptionsUndoCancelCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudPaymentsResellerSubscriptionV1UndoCancelSubscriptionResponse{
 		ServerResponse: googleapi.ServerResponse{

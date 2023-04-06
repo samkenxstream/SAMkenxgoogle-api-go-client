@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://firebase.google.com/docs/storage
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/firebasestorage/v1beta"
-//   ...
-//   ctx := context.Background()
-//   firebasestorageService, err := firebasestorage.NewService(ctx)
+//	import "google.golang.org/api/firebasestorage/v1beta"
+//	...
+//	ctx := context.Background()
+//	firebasestorageService, err := firebasestorage.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   firebasestorageService, err := firebasestorage.NewService(ctx, option.WithScopes(firebasestorage.FirebaseScope))
+//	firebasestorageService, err := firebasestorage.NewService(ctx, option.WithScopes(firebasestorage.FirebaseScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   firebasestorageService, err := firebasestorage.NewService(ctx, option.WithAPIKey("AIza..."))
+//	firebasestorageService, err := firebasestorage.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   firebasestorageService, err := firebasestorage.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	firebasestorageService, err := firebasestorage.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package firebasestorage // import "google.golang.org/api/firebasestorage/v1beta"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "firebasestorage:v1beta"
 const apiName = "firebasestorage"
@@ -174,21 +175,14 @@ type AddFirebaseRequest struct {
 // Bucket: A storage bucket and its relation to a parent Firebase
 // project.
 type Bucket struct {
-	// Location: Output only. Location of the storage bucket.
-	Location string `json:"location,omitempty"`
-
 	// Name: Resource name of the bucket.
 	Name string `json:"name,omitempty"`
-
-	// Reconciling: Output only. Represents whether a bucket is being moved
-	// to a new location, in which case reconciling is set to true.
-	Reconciling bool `json:"reconciling,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Location") to
+	// ForceSendFields is a list of field names (e.g. "Name") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -196,8 +190,8 @@ type Bucket struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Location") to include in
-	// API requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -404,9 +398,9 @@ type ProjectsBucketsAddFirebaseCall struct {
 // AddFirebase: Links a Google Cloud Storage bucket to a Firebase
 // project.
 //
-// - bucket: Resource name of the bucket, mirrors the ID of the
-//   underlying Google Cloud Storage bucket,
-//   `projects/{project_number}/buckets/{bucket_id}`.
+//   - bucket: Resource name of the bucket, mirrors the ID of the
+//     underlying Google Cloud Storage bucket,
+//     `projects/{project_number}/buckets/{bucket_id}`.
 func (r *ProjectsBucketsService) AddFirebase(bucket string, addfirebaserequest *AddFirebaseRequest) *ProjectsBucketsAddFirebaseCall {
 	c := &ProjectsBucketsAddFirebaseCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.bucket = bucket
@@ -481,17 +475,17 @@ func (c *ProjectsBucketsAddFirebaseCall) Do(opts ...googleapi.CallOption) (*Buck
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Bucket{
 		ServerResponse: googleapi.ServerResponse{
@@ -549,9 +543,9 @@ type ProjectsBucketsGetCall struct {
 
 // Get: Gets a single linked storage bucket.
 //
-// - name: Resource name of the bucket, mirrors the ID of the underlying
-//   Google Cloud Storage bucket,
-//   `projects/{project_number}/buckets/{bucket_id}`.
+//   - name: Resource name of the bucket, mirrors the ID of the underlying
+//     Google Cloud Storage bucket,
+//     `projects/{project_number}/buckets/{bucket_id}`.
 func (r *ProjectsBucketsService) Get(name string) *ProjectsBucketsGetCall {
 	c := &ProjectsBucketsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -633,17 +627,17 @@ func (c *ProjectsBucketsGetCall) Do(opts ...googleapi.CallOption) (*Bucket, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Bucket{
 		ServerResponse: googleapi.ServerResponse{
@@ -698,8 +692,8 @@ type ProjectsBucketsListCall struct {
 
 // List: Lists the linked storage buckets for a project.
 //
-// - parent: Resource name of the parent Firebase project,
-//   `projects/{project_number}`.
+//   - parent: Resource name of the parent Firebase project,
+//     `projects/{project_number}`.
 func (r *ProjectsBucketsService) List(parent string) *ProjectsBucketsListCall {
 	c := &ProjectsBucketsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -798,17 +792,17 @@ func (c *ProjectsBucketsListCall) Do(opts ...googleapi.CallOption) (*ListBuckets
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBucketsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -896,9 +890,9 @@ type ProjectsBucketsRemoveFirebaseCall struct {
 // RemoveFirebase: Unlinks a linked Google Cloud Storage bucket from a
 // Firebase project.
 //
-// - bucket: Resource name of the bucket, mirrors the ID of the
-//   underlying Google Cloud Storage bucket,
-//   `projects/{project_number}/buckets/{bucket_id}`.
+//   - bucket: Resource name of the bucket, mirrors the ID of the
+//     underlying Google Cloud Storage bucket,
+//     `projects/{project_number}/buckets/{bucket_id}`.
 func (r *ProjectsBucketsService) RemoveFirebase(bucket string, removefirebaserequest *RemoveFirebaseRequest) *ProjectsBucketsRemoveFirebaseCall {
 	c := &ProjectsBucketsRemoveFirebaseCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.bucket = bucket
@@ -973,17 +967,17 @@ func (c *ProjectsBucketsRemoveFirebaseCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{

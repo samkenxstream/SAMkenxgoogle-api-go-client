@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/authorized-buyers/apis/marketplace/reference/rest/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/authorizedbuyersmarketplace/v1"
-//   ...
-//   ctx := context.Background()
-//   authorizedbuyersmarketplaceService, err := authorizedbuyersmarketplace.NewService(ctx)
+//	import "google.golang.org/api/authorizedbuyersmarketplace/v1"
+//	...
+//	ctx := context.Background()
+//	authorizedbuyersmarketplaceService, err := authorizedbuyersmarketplace.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   authorizedbuyersmarketplaceService, err := authorizedbuyersmarketplace.NewService(ctx, option.WithAPIKey("AIza..."))
+//	authorizedbuyersmarketplaceService, err := authorizedbuyersmarketplace.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   authorizedbuyersmarketplaceService, err := authorizedbuyersmarketplace.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	authorizedbuyersmarketplaceService, err := authorizedbuyersmarketplace.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package authorizedbuyersmarketplace // import "google.golang.org/api/authorizedbuyersmarketplace/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "authorizedbuyersmarketplace:v1"
 const apiName = "authorizedbuyersmarketplace"
@@ -1396,6 +1397,45 @@ func (s *InventorySizeTargeting) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// InventoryTypeTargeting: Targeting of the inventory types a bid
+// request can originate from.
+type InventoryTypeTargeting struct {
+	// InventoryTypes: The list of targeted inventory types for the bid
+	// request.
+	//
+	// Possible values:
+	//   "INVENTORY_TYPE_UNSPECIFIED" - Unspecified inventory type
+	//   "BROWSER" - Desktop or mobile web browser excluding ads inside a
+	// video player
+	//   "MOBILE_APP" - Mobile apps other than video players and web
+	// browsers
+	//   "VIDEO_PLAYER" - Instream video and audio
+	InventoryTypes []string `json:"inventoryTypes,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "InventoryTypes") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "InventoryTypes") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InventoryTypeTargeting) MarshalJSON() ([]byte, error) {
+	type NoMethod InventoryTypeTargeting
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ListAuctionPackagesResponse: Response message for listing auction
 // packages.
 type ListAuctionPackagesResponse struct {
@@ -1671,6 +1711,10 @@ type MarketplaceTargeting struct {
 	// InventorySizeTargeting: Output only. Inventory sizes to be
 	// included/excluded.
 	InventorySizeTargeting *InventorySizeTargeting `json:"inventorySizeTargeting,omitempty"`
+
+	// InventoryTypeTargeting: Output only. Inventory type targeting
+	// information.
+	InventoryTypeTargeting *InventoryTypeTargeting `json:"inventoryTypeTargeting,omitempty"`
 
 	// PlacementTargeting: Output only. Placement targeting information, for
 	// example, URL, mobile applications.
@@ -2901,10 +2945,10 @@ type BiddersFinalizedDealsListCall struct {
 // "/v1/bidders/{accountId}/finalizedDeals" to list finalized deals for
 // the bidder, its buyers and all their clients.
 //
-// - parent: The buyer to list the finalized deals for, in the format:
-//   `buyers/{accountId}`. When used to list finalized deals for a
-//   bidder, its buyers and clients, in the format
-//   `bidders/{accountId}`.
+//   - parent: The buyer to list the finalized deals for, in the format:
+//     `buyers/{accountId}`. When used to list finalized deals for a
+//     bidder, its buyers and clients, in the format
+//     `bidders/{accountId}`.
 func (r *BiddersFinalizedDealsService) List(parent string) *BiddersFinalizedDealsListCall {
 	c := &BiddersFinalizedDealsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3029,17 +3073,17 @@ func (c *BiddersFinalizedDealsListCall) Do(opts ...googleapi.CallOption) (*ListF
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFinalizedDealsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3135,8 +3179,8 @@ type BuyersAuctionPackagesGetCall struct {
 
 // Get: Gets an auction package given its name.
 //
-// - name: Name of auction package to get. Format:
-//   `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
+//   - name: Name of auction package to get. Format:
+//     `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
 func (r *BuyersAuctionPackagesService) Get(name string) *BuyersAuctionPackagesGetCall {
 	c := &BuyersAuctionPackagesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3218,17 +3262,17 @@ func (c *BuyersAuctionPackagesGetCall) Do(opts ...googleapi.CallOption) (*Auctio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuctionPackage{
 		ServerResponse: googleapi.ServerResponse{
@@ -3283,8 +3327,8 @@ type BuyersAuctionPackagesListCall struct {
 // List: List the auction packages subscribed by a buyer and its
 // clients.
 //
-// - parent: Name of the parent buyer that can access the auction
-//   package. Format: `buyers/{accountId}`.
+//   - parent: Name of the parent buyer that can access the auction
+//     package. Format: `buyers/{accountId}`.
 func (r *BuyersAuctionPackagesService) List(parent string) *BuyersAuctionPackagesListCall {
 	c := &BuyersAuctionPackagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3381,17 +3425,17 @@ func (c *BuyersAuctionPackagesListCall) Do(opts ...googleapi.CallOption) (*ListA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAuctionPackagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3480,8 +3524,8 @@ type BuyersAuctionPackagesSubscribeCall struct {
 // matching the auction package targeting criteria with the auction
 // package deal ID and the specified buyer.
 //
-// - name: Name of the auction package. Format:
-//   `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
+//   - name: Name of the auction package. Format:
+//     `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
 func (r *BuyersAuctionPackagesService) Subscribe(name string, subscribeauctionpackagerequest *SubscribeAuctionPackageRequest) *BuyersAuctionPackagesSubscribeCall {
 	c := &BuyersAuctionPackagesSubscribeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3556,17 +3600,17 @@ func (c *BuyersAuctionPackagesSubscribeCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuctionPackage{
 		ServerResponse: googleapi.ServerResponse{
@@ -3627,8 +3671,8 @@ type BuyersAuctionPackagesSubscribeClientsCall struct {
 // clients in the list will not be subscribed. Subscribing an already
 // subscribed client will have no effect.
 //
-// - auctionPackage: Name of the auction package. Format:
-//   `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
+//   - auctionPackage: Name of the auction package. Format:
+//     `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
 func (r *BuyersAuctionPackagesService) SubscribeClients(auctionPackage string, subscribeclientsrequest *SubscribeClientsRequest) *BuyersAuctionPackagesSubscribeClientsCall {
 	c := &BuyersAuctionPackagesSubscribeClientsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.auctionPackage = auctionPackage
@@ -3703,17 +3747,17 @@ func (c *BuyersAuctionPackagesSubscribeClientsCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuctionPackage{
 		ServerResponse: googleapi.ServerResponse{
@@ -3772,8 +3816,8 @@ type BuyersAuctionPackagesUnsubscribeCall struct {
 // buyer. Once unsubscribed, the bidder will no longer receive a call
 // out for the auction package deal ID and the specified buyer.
 //
-// - name: Name of the auction package. Format:
-//   `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
+//   - name: Name of the auction package. Format:
+//     `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
 func (r *BuyersAuctionPackagesService) Unsubscribe(name string, unsubscribeauctionpackagerequest *UnsubscribeAuctionPackageRequest) *BuyersAuctionPackagesUnsubscribeCall {
 	c := &BuyersAuctionPackagesUnsubscribeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3848,17 +3892,17 @@ func (c *BuyersAuctionPackagesUnsubscribeCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuctionPackage{
 		ServerResponse: googleapi.ServerResponse{
@@ -3917,8 +3961,8 @@ type BuyersAuctionPackagesUnsubscribeClientsCall struct {
 // specified clients of the buyer. Unsubscribing a client that is not
 // subscribed will have no effect.
 //
-// - auctionPackage: Name of the auction package. Format:
-//   `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
+//   - auctionPackage: Name of the auction package. Format:
+//     `buyers/{accountId}/auctionPackages/{auctionPackageId}`.
 func (r *BuyersAuctionPackagesService) UnsubscribeClients(auctionPackage string, unsubscribeclientsrequest *UnsubscribeClientsRequest) *BuyersAuctionPackagesUnsubscribeClientsCall {
 	c := &BuyersAuctionPackagesUnsubscribeClientsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.auctionPackage = auctionPackage
@@ -3993,17 +4037,17 @@ func (c *BuyersAuctionPackagesUnsubscribeClientsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuctionPackage{
 		ServerResponse: googleapi.ServerResponse{
@@ -4137,17 +4181,17 @@ func (c *BuyersClientsActivateCall) Do(opts ...googleapi.CallOption) (*Client, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -4279,17 +4323,17 @@ func (c *BuyersClientsCreateCall) Do(opts ...googleapi.CallOption) (*Client, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -4423,17 +4467,17 @@ func (c *BuyersClientsDeactivateCall) Do(opts ...googleapi.CallOption) (*Client,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -4572,17 +4616,17 @@ func (c *BuyersClientsGetCall) Do(opts ...googleapi.CallOption) (*Client, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -4747,17 +4791,17 @@ func (c *BuyersClientsListCall) Do(opts ...googleapi.CallOption) (*ListClientsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4848,8 +4892,8 @@ type BuyersClientsPatchCall struct {
 
 // Patch: Updates an existing client.
 //
-// - name: Output only. The resource name of the client. Format:
-//   `buyers/{accountId}/clients/{clientAccountId}`.
+//   - name: Output only. The resource name of the client. Format:
+//     `buyers/{accountId}/clients/{clientAccountId}`.
 func (r *BuyersClientsService) Patch(name string, client *Client) *BuyersClientsPatchCall {
 	c := &BuyersClientsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4940,17 +4984,17 @@ func (c *BuyersClientsPatchCall) Do(opts ...googleapi.CallOption) (*Client, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -5017,9 +5061,9 @@ type BuyersClientsUsersActivateCall struct {
 // be returned if the client user to activate is still in "INVITED"
 // state.
 //
-// - name: Format:
-//   `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
-//   Id}`.
+//   - name: Format:
+//     `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
+//     Id}`.
 func (r *BuyersClientsUsersService) Activate(name string, activateclientuserrequest *ActivateClientUserRequest) *BuyersClientsUsersActivateCall {
 	c := &BuyersClientsUsersActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5094,17 +5138,17 @@ func (c *BuyersClientsUsersActivateCall) Do(opts ...googleapi.CallOption) (*Clie
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUser{
 		ServerResponse: googleapi.ServerResponse{
@@ -5163,8 +5207,8 @@ type BuyersClientsUsersCreateCall struct {
 // invitation will be sent to the new user, once accepted the user will
 // become active.
 //
-// - parent: The name of the client. Format:
-//   `buyers/{accountId}/clients/{clientAccountId}`.
+//   - parent: The name of the client. Format:
+//     `buyers/{accountId}/clients/{clientAccountId}`.
 func (r *BuyersClientsUsersService) Create(parent string, clientuser *ClientUser) *BuyersClientsUsersCreateCall {
 	c := &BuyersClientsUsersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5239,17 +5283,17 @@ func (c *BuyersClientsUsersCreateCall) Do(opts ...googleapi.CallOption) (*Client
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUser{
 		ServerResponse: googleapi.ServerResponse{
@@ -5310,9 +5354,9 @@ type BuyersClientsUsersDeactivateCall struct {
 // error will be returned if the client user to deactivate is still in
 // "INVITED" state.
 //
-// - name: Format:
-//   `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
-//   Id}`.
+//   - name: Format:
+//     `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
+//     Id}`.
 func (r *BuyersClientsUsersService) Deactivate(name string, deactivateclientuserrequest *DeactivateClientUserRequest) *BuyersClientsUsersDeactivateCall {
 	c := &BuyersClientsUsersDeactivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5387,17 +5431,17 @@ func (c *BuyersClientsUsersDeactivateCall) Do(opts ...googleapi.CallOption) (*Cl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUser{
 		ServerResponse: googleapi.ServerResponse{
@@ -5456,9 +5500,9 @@ type BuyersClientsUsersDeleteCall struct {
 // deleted, the user's access to the UI can't be restored unless a new
 // client user is created and activated.
 //
-// - name: Format:
-//   `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
-//   Id}`.
+//   - name: Format:
+//     `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
+//     Id}`.
 func (r *BuyersClientsUsersService) Delete(name string) *BuyersClientsUsersDeleteCall {
 	c := &BuyersClientsUsersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5527,17 +5571,17 @@ func (c *BuyersClientsUsersDeleteCall) Do(opts ...googleapi.CallOption) (*Empty,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5591,9 +5635,9 @@ type BuyersClientsUsersGetCall struct {
 
 // Get: Retrieves an existing client user.
 //
-// - name: Format:
-//   `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
-//   Id}`.
+//   - name: Format:
+//     `buyers/{buyerAccountId}/clients/{clientAccountId}/clientUsers/{user
+//     Id}`.
 func (r *BuyersClientsUsersService) Get(name string) *BuyersClientsUsersGetCall {
 	c := &BuyersClientsUsersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5675,17 +5719,17 @@ func (c *BuyersClientsUsersGetCall) Do(opts ...googleapi.CallOption) (*ClientUse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUser{
 		ServerResponse: googleapi.ServerResponse{
@@ -5739,8 +5783,8 @@ type BuyersClientsUsersListCall struct {
 
 // List: Lists all client users for a specified client.
 //
-// - parent: The name of the client. Format:
-//   `buyers/{buyerAccountId}/clients/{clientAccountId}`.
+//   - parent: The name of the client. Format:
+//     `buyers/{buyerAccountId}/clients/{clientAccountId}`.
 func (r *BuyersClientsUsersService) List(parent string) *BuyersClientsUsersListCall {
 	c := &BuyersClientsUsersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5838,17 +5882,17 @@ func (c *BuyersClientsUsersListCall) Do(opts ...googleapi.CallOption) (*ListClie
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientUsersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5942,8 +5986,8 @@ type BuyersFinalizedDealsAddCreativeCall struct {
 // applies to programmatic guaranteed deals. Maximum number of 1000
 // creatives can be added to a finalized deal.
 //
-// - deal: Name of the finalized deal in the format of:
-//   `buyers/{accountId}/finalizedDeals/{dealId}`.
+//   - deal: Name of the finalized deal in the format of:
+//     `buyers/{accountId}/finalizedDeals/{dealId}`.
 func (r *BuyersFinalizedDealsService) AddCreative(deal string, addcreativerequest *AddCreativeRequest) *BuyersFinalizedDealsAddCreativeCall {
 	c := &BuyersFinalizedDealsAddCreativeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.deal = deal
@@ -6018,17 +6062,17 @@ func (c *BuyersFinalizedDealsAddCreativeCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FinalizedDeal{
 		ServerResponse: googleapi.ServerResponse{
@@ -6167,17 +6211,17 @@ func (c *BuyersFinalizedDealsGetCall) Do(opts ...googleapi.CallOption) (*Finaliz
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FinalizedDeal{
 		ServerResponse: googleapi.ServerResponse{
@@ -6235,10 +6279,10 @@ type BuyersFinalizedDealsListCall struct {
 // "/v1/bidders/{accountId}/finalizedDeals" to list finalized deals for
 // the bidder, its buyers and all their clients.
 //
-// - parent: The buyer to list the finalized deals for, in the format:
-//   `buyers/{accountId}`. When used to list finalized deals for a
-//   bidder, its buyers and clients, in the format
-//   `bidders/{accountId}`.
+//   - parent: The buyer to list the finalized deals for, in the format:
+//     `buyers/{accountId}`. When used to list finalized deals for a
+//     bidder, its buyers and clients, in the format
+//     `bidders/{accountId}`.
 func (r *BuyersFinalizedDealsService) List(parent string) *BuyersFinalizedDealsListCall {
 	c := &BuyersFinalizedDealsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6363,17 +6407,17 @@ func (c *BuyersFinalizedDealsListCall) Do(opts ...googleapi.CallOption) (*ListFi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFinalizedDealsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6547,17 +6591,17 @@ func (c *BuyersFinalizedDealsPauseCall) Do(opts ...googleapi.CallOption) (*Final
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FinalizedDeal{
 		ServerResponse: googleapi.ServerResponse{
@@ -6693,17 +6737,17 @@ func (c *BuyersFinalizedDealsResumeCall) Do(opts ...googleapi.CallOption) (*Fina
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FinalizedDeal{
 		ServerResponse: googleapi.ServerResponse{
@@ -6759,13 +6803,15 @@ type BuyersFinalizedDealsSetReadyToServeCall struct {
 }
 
 // SetReadyToServe: Sets the given finalized deal as ready to serve. By
-// default, deals are ready to serve as soon as they're finalized. A
-// bidder can opt out of this feature by asking to be included in an
-// allowlist. Once opted out, finalized deals belonging to the bidder
-// and its child seats will not start serving until this method is
-// called. This method is useful to the bidders who prefer to not
-// receive bid requests before the creative is ready. This method only
-// applies to programmatic guaranteed deals.
+// default, deals are set as ready to serve as soon as they're
+// finalized. If you want to opt out of the default behavior, and
+// manually indicate that deals are ready to serve, ask your Technical
+// Account Manager to add you to the allowlist. If you choose to use
+// this method, finalized deals belonging to the bidder and its child
+// seats don't start serving until after you call `setReadyToServe`, and
+// after the deals become active. For example, you can use this method
+// to delay receiving bid requests until your creative is ready. This
+// method only applies to programmatic guaranteed deals.
 //
 // - deal: Format: `buyers/{accountId}/finalizedDeals/{dealId}`.
 func (r *BuyersFinalizedDealsService) SetReadyToServe(deal string, setreadytoserverequest *SetReadyToServeRequest) *BuyersFinalizedDealsSetReadyToServeCall {
@@ -6842,17 +6888,17 @@ func (c *BuyersFinalizedDealsSetReadyToServeCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FinalizedDeal{
 		ServerResponse: googleapi.ServerResponse{
@@ -6866,7 +6912,7 @@ func (c *BuyersFinalizedDealsSetReadyToServeCall) Do(opts ...googleapi.CallOptio
 	}
 	return ret, nil
 	// {
-	//   "description": "Sets the given finalized deal as ready to serve. By default, deals are ready to serve as soon as they're finalized. A bidder can opt out of this feature by asking to be included in an allowlist. Once opted out, finalized deals belonging to the bidder and its child seats will not start serving until this method is called. This method is useful to the bidders who prefer to not receive bid requests before the creative is ready. This method only applies to programmatic guaranteed deals.",
+	//   "description": "Sets the given finalized deal as ready to serve. By default, deals are set as ready to serve as soon as they're finalized. If you want to opt out of the default behavior, and manually indicate that deals are ready to serve, ask your Technical Account Manager to add you to the allowlist. If you choose to use this method, finalized deals belonging to the bidder and its child seats don't start serving until after you call `setReadyToServe`, and after the deals become active. For example, you can use this method to delay receiving bid requests until your creative is ready. This method only applies to programmatic guaranteed deals.",
 	//   "flatPath": "v1/buyers/{buyersId}/finalizedDeals/{finalizedDealsId}:setReadyToServe",
 	//   "httpMethod": "POST",
 	//   "id": "authorizedbuyersmarketplace.buyers.finalizedDeals.setReadyToServe",
@@ -6917,8 +6963,8 @@ type BuyersProposalsAcceptCall struct {
 // means the buyer understands and accepts the
 // Proposal.terms_and_conditions proposed by the seller.
 //
-// - name: Name of the proposal. Format:
-//   `buyers/{accountId}/proposals/{proposalId}`.
+//   - name: Name of the proposal. Format:
+//     `buyers/{accountId}/proposals/{proposalId}`.
 func (r *BuyersProposalsService) Accept(name string, acceptproposalrequest *AcceptProposalRequest) *BuyersProposalsAcceptCall {
 	c := &BuyersProposalsAcceptCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6993,17 +7039,17 @@ func (c *BuyersProposalsAcceptCall) Do(opts ...googleapi.CallOption) (*Proposal,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -7060,8 +7106,8 @@ type BuyersProposalsAddNoteCall struct {
 
 // AddNote: Creates a note for this proposal and sends to the seller.
 //
-// - proposal: Name of the proposal. Format:
-//   `buyers/{accountId}/proposals/{proposalId}`.
+//   - proposal: Name of the proposal. Format:
+//     `buyers/{accountId}/proposals/{proposalId}`.
 func (r *BuyersProposalsService) AddNote(proposal string, addnoterequest *AddNoteRequest) *BuyersProposalsAddNoteCall {
 	c := &BuyersProposalsAddNoteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.proposal = proposal
@@ -7136,17 +7182,17 @@ func (c *BuyersProposalsAddNoteCall) Do(opts ...googleapi.CallOption) (*Proposal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -7211,8 +7257,8 @@ type BuyersProposalsCancelNegotiationCall struct {
 // Proposal.proposal_revision. This method does not support private
 // auction proposals whose Proposal.deal_type is 'PRIVATE_AUCTION'.
 //
-// - proposal: Name of the proposal. Format:
-//   `buyers/{accountId}/proposals/{proposalId}`.
+//   - proposal: Name of the proposal. Format:
+//     `buyers/{accountId}/proposals/{proposalId}`.
 func (r *BuyersProposalsService) CancelNegotiation(proposal string, cancelnegotiationrequest *CancelNegotiationRequest) *BuyersProposalsCancelNegotiationCall {
 	c := &BuyersProposalsCancelNegotiationCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.proposal = proposal
@@ -7287,17 +7333,17 @@ func (c *BuyersProposalsCancelNegotiationCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -7355,8 +7401,8 @@ type BuyersProposalsGetCall struct {
 // Get: Gets a proposal using its name. The proposal is returned at most
 // recent revision. revision.
 //
-// - name: Name of the proposal. Format:
-//   `buyers/{accountId}/proposals/{proposalId}`.
+//   - name: Name of the proposal. Format:
+//     `buyers/{accountId}/proposals/{proposalId}`.
 func (r *BuyersProposalsService) Get(name string) *BuyersProposalsGetCall {
 	c := &BuyersProposalsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7438,17 +7484,17 @@ func (c *BuyersProposalsGetCall) Do(opts ...googleapi.CallOption) (*Proposal, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -7505,8 +7551,8 @@ type BuyersProposalsListCall struct {
 // versions of proposals that are being renegotiated; to retrieve these
 // use the finalizedProposals resource.
 //
-// - parent: Parent that owns the collection of proposals Format:
-//   `buyers/{accountId}`.
+//   - parent: Parent that owns the collection of proposals Format:
+//     `buyers/{accountId}`.
 func (r *BuyersProposalsService) List(parent string) *BuyersProposalsListCall {
 	c := &BuyersProposalsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7613,17 +7659,17 @@ func (c *BuyersProposalsListCall) Do(opts ...googleapi.CallOption) (*ListProposa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProposalsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7722,8 +7768,8 @@ type BuyersProposalsPatchCall struct {
 // Updating a private auction proposal is not allowed and will result in
 // an error.
 //
-// - name: Immutable. The name of the proposal serving as a unique
-//   identifier. Format: buyers/{accountId}/proposals/{proposalId}.
+//   - name: Immutable. The name of the proposal serving as a unique
+//     identifier. Format: buyers/{accountId}/proposals/{proposalId}.
 func (r *BuyersProposalsService) Patch(nameid string, proposal *Proposal) *BuyersProposalsPatchCall {
 	c := &BuyersProposalsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -7814,17 +7860,17 @@ func (c *BuyersProposalsPatchCall) Do(opts ...googleapi.CallOption) (*Proposal, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -7893,8 +7939,8 @@ type BuyersProposalsSendRfpCall struct {
 // returned in the response. The publisher may review your request and
 // respond with detailed deals in the proposal.
 //
-// - buyer: The current buyer who is sending the RFP in the format:
-//   `buyers/{accountId}`.
+//   - buyer: The current buyer who is sending the RFP in the format:
+//     `buyers/{accountId}`.
 func (r *BuyersProposalsService) SendRfp(buyer string, sendrfprequest *SendRfpRequest) *BuyersProposalsSendRfpCall {
 	c := &BuyersProposalsSendRfpCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.buyer = buyer
@@ -7969,17 +8015,17 @@ func (c *BuyersProposalsSendRfpCall) Do(opts ...googleapi.CallOption) (*Proposal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -8036,8 +8082,8 @@ type BuyersProposalsDealsBatchUpdateCall struct {
 
 // BatchUpdate: Batch updates multiple deals in the same proposal.
 //
-// - parent: The name of the proposal containing the deals to batch
-//   update. Format: buyers/{accountId}/proposals/{proposalId}.
+//   - parent: The name of the proposal containing the deals to batch
+//     update. Format: buyers/{accountId}/proposals/{proposalId}.
 func (r *BuyersProposalsDealsService) BatchUpdate(parent string, batchupdatedealsrequest *BatchUpdateDealsRequest) *BuyersProposalsDealsBatchUpdateCall {
 	c := &BuyersProposalsDealsBatchUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8112,17 +8158,17 @@ func (c *BuyersProposalsDealsBatchUpdateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchUpdateDealsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8180,8 +8226,8 @@ type BuyersProposalsDealsGetCall struct {
 // Get: Gets a deal given its name. The deal is returned at its head
 // revision.
 //
-// - name: Format:
-//   buyers/{accountId}/proposals/{proposalId}/deals/{dealId}.
+//   - name: Format:
+//     buyers/{accountId}/proposals/{proposalId}/deals/{dealId}.
 func (r *BuyersProposalsDealsService) Get(name string) *BuyersProposalsDealsGetCall {
 	c := &BuyersProposalsDealsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8263,17 +8309,17 @@ func (c *BuyersProposalsDealsGetCall) Do(opts ...googleapi.CallOption) (*Deal, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Deal{
 		ServerResponse: googleapi.ServerResponse{
@@ -8329,8 +8375,8 @@ type BuyersProposalsDealsListCall struct {
 // revision deals regardless if a deal is being renegotiated, see the
 // FinalizedDeals resource.
 //
-// - parent: The name of the proposal containing the deals to retrieve.
-//   Format: buyers/{accountId}/proposals/{proposalId}.
+//   - parent: The name of the proposal containing the deals to retrieve.
+//     Format: buyers/{accountId}/proposals/{proposalId}.
 func (r *BuyersProposalsDealsService) List(parent string) *BuyersProposalsDealsListCall {
 	c := &BuyersProposalsDealsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8428,17 +8474,17 @@ func (c *BuyersProposalsDealsListCall) Do(opts ...googleapi.CallOption) (*ListDe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDealsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8534,9 +8580,9 @@ type BuyersProposalsDealsPatchCall struct {
 // updates), then the server can detect conflicts and reject the
 // proposed changes.
 //
-// - name: Immutable. The unique identifier of the deal. Auto-generated
-//   by the server when a deal is created. Format:
-//   buyers/{accountId}/proposals/{proposalId}/deals/{dealId}.
+//   - name: Immutable. The unique identifier of the deal. Auto-generated
+//     by the server when a deal is created. Format:
+//     buyers/{accountId}/proposals/{proposalId}/deals/{dealId}.
 func (r *BuyersProposalsDealsService) Patch(nameid string, deal *Deal) *BuyersProposalsDealsPatchCall {
 	c := &BuyersProposalsDealsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -8627,17 +8673,17 @@ func (c *BuyersProposalsDealsPatchCall) Do(opts ...googleapi.CallOption) (*Deal,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Deal{
 		ServerResponse: googleapi.ServerResponse{
@@ -8700,8 +8746,8 @@ type BuyersPublisherProfilesGetCall struct {
 
 // Get: Gets the requested publisher profile by name.
 //
-// - name: Name of the publisher profile. Format:
-//   `buyers/{buyerId}/publisherProfiles/{publisherProfileId}`.
+//   - name: Name of the publisher profile. Format:
+//     `buyers/{buyerId}/publisherProfiles/{publisherProfileId}`.
 func (r *BuyersPublisherProfilesService) Get(name string) *BuyersPublisherProfilesGetCall {
 	c := &BuyersPublisherProfilesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8783,17 +8829,17 @@ func (c *BuyersPublisherProfilesGetCall) Do(opts ...googleapi.CallOption) (*Publ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PublisherProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -8845,10 +8891,13 @@ type BuyersPublisherProfilesListCall struct {
 	header_      http.Header
 }
 
-// List: Lists publisher profiles
+// List: Lists publisher profiles. The returned publisher profiles
+// aren't in any defined order. The order of the results might change. A
+// new publisher profile can appear in any place in the list of returned
+// results.
 //
-// - parent: Parent that owns the collection of publisher profiles
-//   Format: `buyers/{buyerId}`.
+//   - parent: Parent that owns the collection of publisher profiles
+//     Format: `buyers/{buyerId}`.
 func (r *BuyersPublisherProfilesService) List(parent string) *BuyersPublisherProfilesListCall {
 	c := &BuyersPublisherProfilesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8955,17 +9004,17 @@ func (c *BuyersPublisherProfilesListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPublisherProfilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8979,7 +9028,7 @@ func (c *BuyersPublisherProfilesListCall) Do(opts ...googleapi.CallOption) (*Lis
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists publisher profiles",
+	//   "description": "Lists publisher profiles. The returned publisher profiles aren't in any defined order. The order of the results might change. A new publisher profile can appear in any place in the list of returned results.",
 	//   "flatPath": "v1/buyers/{buyersId}/publisherProfiles",
 	//   "httpMethod": "GET",
 	//   "id": "authorizedbuyersmarketplace.buyers.publisherProfiles.list",

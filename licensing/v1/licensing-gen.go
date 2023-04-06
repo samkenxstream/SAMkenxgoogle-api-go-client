@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/admin-sdk/licensing/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/licensing/v1"
-//   ...
-//   ctx := context.Background()
-//   licensingService, err := licensing.NewService(ctx)
+//	import "google.golang.org/api/licensing/v1"
+//	...
+//	ctx := context.Background()
+//	licensingService, err := licensing.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   licensingService, err := licensing.NewService(ctx, option.WithAPIKey("AIza..."))
+//	licensingService, err := licensing.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   licensingService, err := licensing.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	licensingService, err := licensing.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package licensing // import "google.golang.org/api/licensing/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "licensing:v1"
 const apiName = "licensing"
@@ -303,17 +304,17 @@ type LicenseAssignmentsDeleteCall struct {
 
 // Delete: Revoke a license.
 //
-// - productId: A product's unique identifier. For more information
-//   about products in this version of the API, see Products and SKUs.
-// - skuId: A product SKU's unique identifier. For more information
-//   about available SKUs in this version of the API, see Products and
-//   SKUs.
-// - userId: The user's current primary email address. If the user's
-//   email address changes, use the new email address in your API
-//   requests. Since a `userId` is subject to change, do not use a
-//   `userId` value as a key for persistent data. This key could break
-//   if the current user's email address changes. If the `userId` is
-//   suspended, the license status changes.
+//   - productId: A product's unique identifier. For more information
+//     about products in this version of the API, see Products and SKUs.
+//   - skuId: A product SKU's unique identifier. For more information
+//     about available SKUs in this version of the API, see Products and
+//     SKUs.
+//   - userId: The user's current primary email address. If the user's
+//     email address changes, use the new email address in your API
+//     requests. Since a `userId` is subject to change, do not use a
+//     `userId` value as a key for persistent data. This key could break
+//     if the current user's email address changes. If the `userId` is
+//     suspended, the license status changes.
 func (r *LicenseAssignmentsService) Delete(productId string, skuId string, userId string) *LicenseAssignmentsDeleteCall {
 	c := &LicenseAssignmentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.productId = productId
@@ -386,17 +387,17 @@ func (c *LicenseAssignmentsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -465,17 +466,17 @@ type LicenseAssignmentsGetCall struct {
 
 // Get: Get a specific user's license by product SKU.
 //
-// - productId: A product's unique identifier. For more information
-//   about products in this version of the API, see Products and SKUs.
-// - skuId: A product SKU's unique identifier. For more information
-//   about available SKUs in this version of the API, see Products and
-//   SKUs.
-// - userId: The user's current primary email address. If the user's
-//   email address changes, use the new email address in your API
-//   requests. Since a `userId` is subject to change, do not use a
-//   `userId` value as a key for persistent data. This key could break
-//   if the current user's email address changes. If the `userId` is
-//   suspended, the license status changes.
+//   - productId: A product's unique identifier. For more information
+//     about products in this version of the API, see Products and SKUs.
+//   - skuId: A product SKU's unique identifier. For more information
+//     about available SKUs in this version of the API, see Products and
+//     SKUs.
+//   - userId: The user's current primary email address. If the user's
+//     email address changes, use the new email address in your API
+//     requests. Since a `userId` is subject to change, do not use a
+//     `userId` value as a key for persistent data. This key could break
+//     if the current user's email address changes. If the `userId` is
+//     suspended, the license status changes.
 func (r *LicenseAssignmentsService) Get(productId string, skuId string, userId string) *LicenseAssignmentsGetCall {
 	c := &LicenseAssignmentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.productId = productId
@@ -561,17 +562,17 @@ func (c *LicenseAssignmentsGetCall) Do(opts ...googleapi.CallOption) (*LicenseAs
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LicenseAssignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -639,11 +640,11 @@ type LicenseAssignmentsInsertCall struct {
 
 // Insert: Assign a license.
 //
-// - productId: A product's unique identifier. For more information
-//   about products in this version of the API, see Products and SKUs.
-// - skuId: A product SKU's unique identifier. For more information
-//   about available SKUs in this version of the API, see Products and
-//   SKUs.
+//   - productId: A product's unique identifier. For more information
+//     about products in this version of the API, see Products and SKUs.
+//   - skuId: A product SKU's unique identifier. For more information
+//     about available SKUs in this version of the API, see Products and
+//     SKUs.
 func (r *LicenseAssignmentsService) Insert(productId string, skuId string, licenseassignmentinsert *LicenseAssignmentInsert) *LicenseAssignmentsInsertCall {
 	c := &LicenseAssignmentsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.productId = productId
@@ -720,17 +721,17 @@ func (c *LicenseAssignmentsInsertCall) Do(opts ...googleapi.CallOption) (*Licens
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LicenseAssignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -794,11 +795,11 @@ type LicenseAssignmentsListForProductCall struct {
 // ListForProduct: List all users assigned licenses for a specific
 // product SKU.
 //
-// - customerId: The customer's unique ID as defined in the Admin
-//   console, such as `C00000000`. If the customer is suspended, the
-//   server returns an error.
-// - productId: A product's unique identifier. For more information
-//   about products in this version of the API, see Products and SKUs.
+//   - customerId: The customer's unique ID as defined in the Admin
+//     console, such as `C00000000`. If the customer is suspended, the
+//     server returns an error.
+//   - productId: A product's unique identifier. For more information
+//     about products in this version of the API, see Products and SKUs.
 func (r *LicenseAssignmentsService) ListForProduct(productId string, customerId string) *LicenseAssignmentsListForProductCall {
 	c := &LicenseAssignmentsListForProductCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.productId = productId
@@ -900,17 +901,17 @@ func (c *LicenseAssignmentsListForProductCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LicenseAssignmentList{
 		ServerResponse: googleapi.ServerResponse{
@@ -1008,14 +1009,14 @@ type LicenseAssignmentsListForProductAndSkuCall struct {
 // ListForProductAndSku: List all users assigned licenses for a specific
 // product SKU.
 //
-// - customerId: The customer's unique ID as defined in the Admin
-//   console, such as `C00000000`. If the customer is suspended, the
-//   server returns an error.
-// - productId: A product's unique identifier. For more information
-//   about products in this version of the API, see Products and SKUs.
-// - skuId: A product SKU's unique identifier. For more information
-//   about available SKUs in this version of the API, see Products and
-//   SKUs.
+//   - customerId: The customer's unique ID as defined in the Admin
+//     console, such as `C00000000`. If the customer is suspended, the
+//     server returns an error.
+//   - productId: A product's unique identifier. For more information
+//     about products in this version of the API, see Products and SKUs.
+//   - skuId: A product SKU's unique identifier. For more information
+//     about available SKUs in this version of the API, see Products and
+//     SKUs.
 func (r *LicenseAssignmentsService) ListForProductAndSku(productId string, skuId string, customerId string) *LicenseAssignmentsListForProductAndSkuCall {
 	c := &LicenseAssignmentsListForProductAndSkuCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.productId = productId
@@ -1119,17 +1120,17 @@ func (c *LicenseAssignmentsListForProductAndSkuCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LicenseAssignmentList{
 		ServerResponse: googleapi.ServerResponse{
@@ -1235,17 +1236,17 @@ type LicenseAssignmentsPatchCall struct {
 // Patch: Reassign a user's product SKU with a different SKU in the same
 // product. This method supports patch semantics.
 //
-// - productId: A product's unique identifier. For more information
-//   about products in this version of the API, see Products and SKUs.
-// - skuId: A product SKU's unique identifier. For more information
-//   about available SKUs in this version of the API, see Products and
-//   SKUs.
-// - userId: The user's current primary email address. If the user's
-//   email address changes, use the new email address in your API
-//   requests. Since a `userId` is subject to change, do not use a
-//   `userId` value as a key for persistent data. This key could break
-//   if the current user's email address changes. If the `userId` is
-//   suspended, the license status changes.
+//   - productId: A product's unique identifier. For more information
+//     about products in this version of the API, see Products and SKUs.
+//   - skuId: A product SKU's unique identifier. For more information
+//     about available SKUs in this version of the API, see Products and
+//     SKUs.
+//   - userId: The user's current primary email address. If the user's
+//     email address changes, use the new email address in your API
+//     requests. Since a `userId` is subject to change, do not use a
+//     `userId` value as a key for persistent data. This key could break
+//     if the current user's email address changes. If the `userId` is
+//     suspended, the license status changes.
 func (r *LicenseAssignmentsService) Patch(productId string, skuId string, userId string, licenseassignment *LicenseAssignment) *LicenseAssignmentsPatchCall {
 	c := &LicenseAssignmentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.productId = productId
@@ -1324,17 +1325,17 @@ func (c *LicenseAssignmentsPatchCall) Do(opts ...googleapi.CallOption) (*License
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LicenseAssignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -1407,17 +1408,17 @@ type LicenseAssignmentsUpdateCall struct {
 // Update: Reassign a user's product SKU with a different SKU in the
 // same product.
 //
-// - productId: A product's unique identifier. For more information
-//   about products in this version of the API, see Products and SKUs.
-// - skuId: A product SKU's unique identifier. For more information
-//   about available SKUs in this version of the API, see Products and
-//   SKUs.
-// - userId: The user's current primary email address. If the user's
-//   email address changes, use the new email address in your API
-//   requests. Since a `userId` is subject to change, do not use a
-//   `userId` value as a key for persistent data. This key could break
-//   if the current user's email address changes. If the `userId` is
-//   suspended, the license status changes.
+//   - productId: A product's unique identifier. For more information
+//     about products in this version of the API, see Products and SKUs.
+//   - skuId: A product SKU's unique identifier. For more information
+//     about available SKUs in this version of the API, see Products and
+//     SKUs.
+//   - userId: The user's current primary email address. If the user's
+//     email address changes, use the new email address in your API
+//     requests. Since a `userId` is subject to change, do not use a
+//     `userId` value as a key for persistent data. This key could break
+//     if the current user's email address changes. If the `userId` is
+//     suspended, the license status changes.
 func (r *LicenseAssignmentsService) Update(productId string, skuId string, userId string, licenseassignment *LicenseAssignment) *LicenseAssignmentsUpdateCall {
 	c := &LicenseAssignmentsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.productId = productId
@@ -1496,17 +1497,17 @@ func (c *LicenseAssignmentsUpdateCall) Do(opts ...googleapi.CallOption) (*Licens
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LicenseAssignment{
 		ServerResponse: googleapi.ServerResponse{

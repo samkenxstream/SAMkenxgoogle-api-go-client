@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/compute/docs/osconfig/rest
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/osconfig/v1"
-//   ...
-//   ctx := context.Background()
-//   osconfigService, err := osconfig.NewService(ctx)
+//	import "google.golang.org/api/osconfig/v1"
+//	...
+//	ctx := context.Background()
+//	osconfigService, err := osconfig.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   osconfigService, err := osconfig.NewService(ctx, option.WithAPIKey("AIza..."))
+//	osconfigService, err := osconfig.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   osconfigService, err := osconfig.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	osconfigService, err := osconfig.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package osconfig // import "google.golang.org/api/osconfig/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "osconfig:v1"
 const apiName = "osconfig"
@@ -1726,7 +1727,8 @@ func (s *OSPolicy) MarshalJSON() ([]byte, error) {
 // desired state configuration for a Compute Engine VM instance through
 // a set of configuration resources that provide capabilities such as
 // installing or removing software packages, or executing a script. For
-// more information, see OS policy and OS policy assignment
+// more information about the OS policy resource definitions and
+// examples, see OS policy and OS policy assignment
 // (https://cloud.google.com/compute/docs/os-configuration-management/working-with-os-policies).
 type OSPolicyAssignment struct {
 	// Baseline: Output only. Indicates that this revision has been
@@ -2462,8 +2464,7 @@ type OSPolicyResourceExecResourceExec struct {
 	// non-compliant. Output file size is limited to 100K bytes.
 	OutputFilePath string `json:"outputFilePath,omitempty"`
 
-	// Script: An inline script. The size of the script is limited to 1024
-	// characters.
+	// Script: An inline script. The size of the script is limited to 32KiB.
 	Script string `json:"script,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Args") to
@@ -2602,7 +2603,7 @@ func (s *OSPolicyResourceFileRemote) MarshalJSON() ([]byte, error) {
 // file.
 type OSPolicyResourceFileResource struct {
 	// Content: A a file with this content. The size of the content is
-	// limited to 1024 characters.
+	// limited to 32KiB.
 	Content string `json:"content,omitempty"`
 
 	// File: A remote or local source.
@@ -4579,11 +4580,11 @@ type ProjectsLocationsInstancesInventoriesGetCall struct {
 // Get: Get inventory data for the specified VM instance. If the VM has
 // no associated inventory, the message `NOT_FOUND` is returned.
 //
-// - name: API resource name for inventory resource. Format:
-//   `projects/{project}/locations/{location}/instances/{instance}/invent
-//   ory` For `{project}`, either `project-number` or `project-id` can
-//   be provided. For `{instance}`, either Compute Engine `instance-id`
-//   or `instance-name` can be provided.
+//   - name: API resource name for inventory resource. Format:
+//     `projects/{project}/locations/{location}/instances/{instance}/invent
+//     ory` For `{project}`, either `project-number` or `project-id` can
+//     be provided. For `{instance}`, either Compute Engine `instance-id`
+//     or `instance-name` can be provided.
 func (r *ProjectsLocationsInstancesInventoriesService) Get(name string) *ProjectsLocationsInstancesInventoriesGetCall {
 	c := &ProjectsLocationsInstancesInventoriesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4595,11 +4596,16 @@ func (r *ProjectsLocationsInstancesInventoriesService) Get(name string) *Project
 // unspecified, the default view is BASIC.
 //
 // Possible values:
-//   "INVENTORY_VIEW_UNSPECIFIED" - The default value. The API defaults
+//
+//	"INVENTORY_VIEW_UNSPECIFIED" - The default value. The API defaults
+//
 // to the BASIC view.
-//   "BASIC" - Returns the basic inventory information that includes
+//
+//	"BASIC" - Returns the basic inventory information that includes
+//
 // `os_info`.
-//   "FULL" - Returns all fields.
+//
+//	"FULL" - Returns all fields.
 func (c *ProjectsLocationsInstancesInventoriesGetCall) View(view string) *ProjectsLocationsInstancesInventoriesGetCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -4680,17 +4686,17 @@ func (c *ProjectsLocationsInstancesInventoriesGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Inventory{
 		ServerResponse: googleapi.ServerResponse{
@@ -4759,10 +4765,10 @@ type ProjectsLocationsInstancesInventoriesListCall struct {
 
 // List: List inventory data for all VM instances in the specified zone.
 //
-// - parent: The parent resource name. Format:
-//   `projects/{project}/locations/{location}/instances/-` For
-//   `{project}`, either `project-number` or `project-id` can be
-//   provided.
+//   - parent: The parent resource name. Format:
+//     `projects/{project}/locations/{location}/instances/-` For
+//     `{project}`, either `project-number` or `project-id` can be
+//     provided.
 func (r *ProjectsLocationsInstancesInventoriesService) List(parent string) *ProjectsLocationsInstancesInventoriesListCall {
 	c := &ProjectsLocationsInstancesInventoriesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4797,11 +4803,16 @@ func (c *ProjectsLocationsInstancesInventoriesListCall) PageToken(pageToken stri
 // unspecified, the default view is BASIC.
 //
 // Possible values:
-//   "INVENTORY_VIEW_UNSPECIFIED" - The default value. The API defaults
+//
+//	"INVENTORY_VIEW_UNSPECIFIED" - The default value. The API defaults
+//
 // to the BASIC view.
-//   "BASIC" - Returns the basic inventory information that includes
+//
+//	"BASIC" - Returns the basic inventory information that includes
+//
 // `os_info`.
-//   "FULL" - Returns all fields.
+//
+//	"FULL" - Returns all fields.
 func (c *ProjectsLocationsInstancesInventoriesListCall) View(view string) *ProjectsLocationsInstancesInventoriesListCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -4882,17 +4893,17 @@ func (c *ProjectsLocationsInstancesInventoriesListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInventoriesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4999,13 +5010,13 @@ type ProjectsLocationsInstancesOsPolicyAssignmentsReportsGetCall struct {
 // Get: Get the OS policy asssignment report for the specified Compute
 // Engine VM instance.
 //
-// - name: API resource name for OS policy assignment report. Format:
-//   `/projects/{project}/locations/{location}/instances/{instance}/osPol
-//   icyAssignments/{assignment}/report` For `{project}`, either
-//   `project-number` or `project-id` can be provided. For
-//   `{instance_id}`, either Compute Engine `instance-id` or
-//   `instance-name` can be provided. For `{assignment_id}`, the
-//   OSPolicyAssignment id must be provided.
+//   - name: API resource name for OS policy assignment report. Format:
+//     `/projects/{project}/locations/{location}/instances/{instance}/osPol
+//     icyAssignments/{assignment}/report` For `{project}`, either
+//     `project-number` or `project-id` can be provided. For
+//     `{instance_id}`, either Compute Engine `instance-id` or
+//     `instance-name` can be provided. For `{assignment_id}`, the
+//     OSPolicyAssignment id must be provided.
 func (r *ProjectsLocationsInstancesOsPolicyAssignmentsReportsService) Get(name string) *ProjectsLocationsInstancesOsPolicyAssignmentsReportsGetCall {
 	c := &ProjectsLocationsInstancesOsPolicyAssignmentsReportsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5087,17 +5098,17 @@ func (c *ProjectsLocationsInstancesOsPolicyAssignmentsReportsGetCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OSPolicyAssignmentReport{
 		ServerResponse: googleapi.ServerResponse{
@@ -5152,26 +5163,26 @@ type ProjectsLocationsInstancesOsPolicyAssignmentsReportsListCall struct {
 // List: List OS policy asssignment reports for all Compute Engine VM
 // instances in the specified zone.
 //
-// - parent: The parent resource name. Format:
-//   `projects/{project}/locations/{location}/instances/{instance}/osPoli
-//   cyAssignments/{assignment}/reports` For `{project}`, either
-//   `project-number` or `project-id` can be provided. For `{instance}`,
-//   either `instance-name`, `instance-id`, or `-` can be provided. If
-//   '-' is provided, the response will include
-//   OSPolicyAssignmentReports for all instances in the
-//   project/location. For `{assignment}`, either `assignment-id` or `-`
-//   can be provided. If '-' is provided, the response will include
-//   OSPolicyAssignmentReports for all OSPolicyAssignments in the
-//   project/location. Either {instance} or {assignment} must be `-`.
-//   For example:
-//   `projects/{project}/locations/{location}/instances/{instance}/osPoli
-//   cyAssignments/-/reports` returns all reports for the instance
-//   `projects/{project}/locations/{location}/instances/-/osPolicyAssignm
-//   ents/{assignment-id}/reports` returns all the reports for the given
-//   assignment across all instances.
-//   `projects/{project}/locations/{location}/instances/-/osPolicyAssignm
-//   ents/-/reports` returns all the reports for all assignments across
-//   all instances.
+//   - parent: The parent resource name. Format:
+//     `projects/{project}/locations/{location}/instances/{instance}/osPoli
+//     cyAssignments/{assignment}/reports` For `{project}`, either
+//     `project-number` or `project-id` can be provided. For `{instance}`,
+//     either `instance-name`, `instance-id`, or `-` can be provided. If
+//     '-' is provided, the response will include
+//     OSPolicyAssignmentReports for all instances in the
+//     project/location. For `{assignment}`, either `assignment-id` or `-`
+//     can be provided. If '-' is provided, the response will include
+//     OSPolicyAssignmentReports for all OSPolicyAssignments in the
+//     project/location. Either {instance} or {assignment} must be `-`.
+//     For example:
+//     `projects/{project}/locations/{location}/instances/{instance}/osPoli
+//     cyAssignments/-/reports` returns all reports for the instance
+//     `projects/{project}/locations/{location}/instances/-/osPolicyAssignm
+//     ents/{assignment-id}/reports` returns all the reports for the given
+//     assignment across all instances.
+//     `projects/{project}/locations/{location}/instances/-/osPolicyAssignm
+//     ents/-/reports` returns all the reports for all assignments across
+//     all instances.
 func (r *ProjectsLocationsInstancesOsPolicyAssignmentsReportsService) List(parent string) *ProjectsLocationsInstancesOsPolicyAssignmentsReportsListCall {
 	c := &ProjectsLocationsInstancesOsPolicyAssignmentsReportsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5278,17 +5289,17 @@ func (c *ProjectsLocationsInstancesOsPolicyAssignmentsReportsListCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOSPolicyAssignmentReportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5381,11 +5392,11 @@ type ProjectsLocationsInstancesVulnerabilityReportsGetCall struct {
 // Only VMs with inventory data have vulnerability reports associated
 // with them.
 //
-// - name: API resource name for vulnerability resource. Format:
-//   `projects/{project}/locations/{location}/instances/{instance}/vulner
-//   abilityReport` For `{project}`, either `project-number` or
-//   `project-id` can be provided. For `{instance}`, either Compute
-//   Engine `instance-id` or `instance-name` can be provided.
+//   - name: API resource name for vulnerability resource. Format:
+//     `projects/{project}/locations/{location}/instances/{instance}/vulner
+//     abilityReport` For `{project}`, either `project-number` or
+//     `project-id` can be provided. For `{instance}`, either Compute
+//     Engine `instance-id` or `instance-name` can be provided.
 func (r *ProjectsLocationsInstancesVulnerabilityReportsService) Get(name string) *ProjectsLocationsInstancesVulnerabilityReportsGetCall {
 	c := &ProjectsLocationsInstancesVulnerabilityReportsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5467,17 +5478,17 @@ func (c *ProjectsLocationsInstancesVulnerabilityReportsGetCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VulnerabilityReport{
 		ServerResponse: googleapi.ServerResponse{
@@ -5532,10 +5543,10 @@ type ProjectsLocationsInstancesVulnerabilityReportsListCall struct {
 // List: List vulnerability reports for all VM instances in the
 // specified zone.
 //
-// - parent: The parent resource name. Format:
-//   `projects/{project}/locations/{location}/instances/-` For
-//   `{project}`, either `project-number` or `project-id` can be
-//   provided.
+//   - parent: The parent resource name. Format:
+//     `projects/{project}/locations/{location}/instances/-` For
+//     `{project}`, either `project-number` or `project-id` can be
+//     provided.
 func (r *ProjectsLocationsInstancesVulnerabilityReportsService) List(parent string) *ProjectsLocationsInstancesVulnerabilityReportsListCall {
 	c := &ProjectsLocationsInstancesVulnerabilityReportsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5650,17 +5661,17 @@ func (c *ProjectsLocationsInstancesVulnerabilityReportsListCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVulnerabilityReportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5756,8 +5767,9 @@ type ProjectsLocationsOsPolicyAssignmentsCreateCall struct {
 // see Method: projects.locations.osPolicyAssignments.operations.cancel
 // (https://cloud.google.com/compute/docs/osconfig/rest/v1/projects.locations.osPolicyAssignments.operations/cancel).
 //
-// - parent: The parent resource name in the form:
-//   projects/{project}/locations/{location}.
+//   - parent: The parent resource name in the form:
+//     projects/{project}/locations/{location}. Note: Specify the zone of
+//     your VMs as the location.
 func (r *ProjectsLocationsOsPolicyAssignmentsService) Create(parent string, ospolicyassignment *OSPolicyAssignment) *ProjectsLocationsOsPolicyAssignmentsCreateCall {
 	c := &ProjectsLocationsOsPolicyAssignmentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5843,17 +5855,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsCreateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5881,7 +5893,7 @@ func (c *ProjectsLocationsOsPolicyAssignmentsCreateCall) Do(opts ...googleapi.Ca
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent resource name in the form: projects/{project}/locations/{location}",
+	//       "description": "Required. The parent resource name in the form: projects/{project}/locations/{location}. Note: Specify the zone of your VMs as the location.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -5990,17 +6002,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsDeleteCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6057,9 +6069,9 @@ type ProjectsLocationsOsPolicyAssignmentsGetCall struct {
 // of the assignment, also provide the revision ID in the `name`
 // parameter.
 //
-// - name: The resource name of OS policy assignment. Format:
-//   `projects/{project}/locations/{location}/osPolicyAssignments/{os_pol
-//   icy_assignment}@{revisionId}`.
+//   - name: The resource name of OS policy assignment. Format:
+//     `projects/{project}/locations/{location}/osPolicyAssignments/{os_pol
+//     icy_assignment}@{revisionId}`.
 func (r *ProjectsLocationsOsPolicyAssignmentsService) Get(name string) *ProjectsLocationsOsPolicyAssignmentsGetCall {
 	c := &ProjectsLocationsOsPolicyAssignmentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6141,17 +6153,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OSPolicyAssignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -6303,17 +6315,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOSPolicyAssignmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6498,17 +6510,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsListRevisionsCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOSPolicyAssignmentRevisionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6599,10 +6611,10 @@ type ProjectsLocationsOsPolicyAssignmentsPatchCall struct {
 // see Method: projects.locations.osPolicyAssignments.operations.cancel
 // (https://cloud.google.com/compute/docs/osconfig/rest/v1/projects.locations.osPolicyAssignments.operations/cancel).
 //
-// - name: Resource name. Format:
-//   `projects/{project_number}/locations/{location}/osPolicyAssignments/
-//   {os_policy_assignment_id}` This field is ignored when you create an
-//   OS policy assignment.
+//   - name: Resource name. Format:
+//     `projects/{project_number}/locations/{location}/osPolicyAssignments/
+//     {os_policy_assignment_id}` This field is ignored when you create an
+//     OS policy assignment.
 func (r *ProjectsLocationsOsPolicyAssignmentsService) Patch(name string, ospolicyassignment *OSPolicyAssignment) *ProjectsLocationsOsPolicyAssignmentsPatchCall {
 	c := &ProjectsLocationsOsPolicyAssignmentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6684,17 +6696,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsPatchCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6841,17 +6853,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsOperationsCancelCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6992,17 +7004,17 @@ func (c *ProjectsLocationsOsPolicyAssignmentsOperationsGetCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7056,8 +7068,8 @@ type ProjectsPatchDeploymentsCreateCall struct {
 
 // Create: Create an OS Config patch deployment.
 //
-// - parent: The project to apply this patch deployment to in the form
-//   `projects/*`.
+//   - parent: The project to apply this patch deployment to in the form
+//     `projects/*`.
 func (r *ProjectsPatchDeploymentsService) Create(parent string, patchdeployment *PatchDeployment) *ProjectsPatchDeploymentsCreateCall {
 	c := &ProjectsPatchDeploymentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7143,17 +7155,17 @@ func (c *ProjectsPatchDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -7214,8 +7226,8 @@ type ProjectsPatchDeploymentsDeleteCall struct {
 
 // Delete: Delete an OS Config patch deployment.
 //
-// - name: The resource name of the patch deployment in the form
-//   `projects/*/patchDeployments/*`.
+//   - name: The resource name of the patch deployment in the form
+//     `projects/*/patchDeployments/*`.
 func (r *ProjectsPatchDeploymentsService) Delete(name string) *ProjectsPatchDeploymentsDeleteCall {
 	c := &ProjectsPatchDeploymentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7284,17 +7296,17 @@ func (c *ProjectsPatchDeploymentsDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -7348,8 +7360,8 @@ type ProjectsPatchDeploymentsGetCall struct {
 
 // Get: Get an OS Config patch deployment.
 //
-// - name: The resource name of the patch deployment in the form
-//   `projects/*/patchDeployments/*`.
+//   - name: The resource name of the patch deployment in the form
+//     `projects/*/patchDeployments/*`.
 func (r *ProjectsPatchDeploymentsService) Get(name string) *ProjectsPatchDeploymentsGetCall {
 	c := &ProjectsPatchDeploymentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7431,17 +7443,17 @@ func (c *ProjectsPatchDeploymentsGetCall) Do(opts ...googleapi.CallOption) (*Pat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -7592,17 +7604,17 @@ func (c *ProjectsPatchDeploymentsListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPatchDeploymentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7688,10 +7700,10 @@ type ProjectsPatchDeploymentsPatchCall struct {
 
 // Patch: Update an OS Config patch deployment.
 //
-// - name: Unique name for the patch deployment resource in a project.
-//   The patch deployment name is in the form:
-//   `projects/{project_id}/patchDeployments/{patch_deployment_id}`.
-//   This field is ignored when you create a new patch deployment.
+//   - name: Unique name for the patch deployment resource in a project.
+//     The patch deployment name is in the form:
+//     `projects/{project_id}/patchDeployments/{patch_deployment_id}`.
+//     This field is ignored when you create a new patch deployment.
 func (r *ProjectsPatchDeploymentsService) Patch(name string, patchdeployment *PatchDeployment) *ProjectsPatchDeploymentsPatchCall {
 	c := &ProjectsPatchDeploymentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7773,17 +7785,17 @@ func (c *ProjectsPatchDeploymentsPatchCall) Do(opts ...googleapi.CallOption) (*P
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -7847,8 +7859,8 @@ type ProjectsPatchDeploymentsPauseCall struct {
 // Pause: Change state of patch deployment to "PAUSED". Patch deployment
 // in paused state doesn't generate patch jobs.
 //
-// - name: The resource name of the patch deployment in the form
-//   `projects/*/patchDeployments/*`.
+//   - name: The resource name of the patch deployment in the form
+//     `projects/*/patchDeployments/*`.
 func (r *ProjectsPatchDeploymentsService) Pause(name string, pausepatchdeploymentrequest *PausePatchDeploymentRequest) *ProjectsPatchDeploymentsPauseCall {
 	c := &ProjectsPatchDeploymentsPauseCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7923,17 +7935,17 @@ func (c *ProjectsPatchDeploymentsPauseCall) Do(opts ...googleapi.CallOption) (*P
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -7991,8 +8003,8 @@ type ProjectsPatchDeploymentsResumeCall struct {
 // Resume: Change state of patch deployment back to "ACTIVE". Patch
 // deployment in active state continues to generate patch jobs.
 //
-// - name: The resource name of the patch deployment in the form
-//   `projects/*/patchDeployments/*`.
+//   - name: The resource name of the patch deployment in the form
+//     `projects/*/patchDeployments/*`.
 func (r *ProjectsPatchDeploymentsService) Resume(name string, resumepatchdeploymentrequest *ResumePatchDeploymentRequest) *ProjectsPatchDeploymentsResumeCall {
 	c := &ProjectsPatchDeploymentsResumeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8067,17 +8079,17 @@ func (c *ProjectsPatchDeploymentsResumeCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -8210,17 +8222,17 @@ func (c *ProjectsPatchJobsCancelCall) Do(opts ...googleapi.CallOption) (*PatchJo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -8277,8 +8289,8 @@ type ProjectsPatchJobsExecuteCall struct {
 
 // Execute: Patch VM instances by creating and running a patch job.
 //
-// - parent: The project in which to run this patch in the form
-//   `projects/*`.
+//   - parent: The project in which to run this patch in the form
+//     `projects/*`.
 func (r *ProjectsPatchJobsService) Execute(parent string, executepatchjobrequest *ExecutePatchJobRequest) *ProjectsPatchJobsExecuteCall {
 	c := &ProjectsPatchJobsExecuteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8353,17 +8365,17 @@ func (c *ProjectsPatchJobsExecuteCall) Do(opts ...googleapi.CallOption) (*PatchJ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -8503,17 +8515,17 @@ func (c *ProjectsPatchJobsGetCall) Do(opts ...googleapi.CallOption) (*PatchJob, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PatchJob{
 		ServerResponse: googleapi.ServerResponse{
@@ -8673,17 +8685,17 @@ func (c *ProjectsPatchJobsListCall) Do(opts ...googleapi.CallOption) (*ListPatch
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPatchJobsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8774,8 +8786,8 @@ type ProjectsPatchJobsInstanceDetailsListCall struct {
 
 // List: Get a list of instance details for a given patch job.
 //
-// - parent: The parent for the instances are in the form of
-//   `projects/*/patchJobs/*`.
+//   - parent: The parent for the instances are in the form of
+//     `projects/*/patchJobs/*`.
 func (r *ProjectsPatchJobsInstanceDetailsService) List(parent string) *ProjectsPatchJobsInstanceDetailsListCall {
 	c := &ProjectsPatchJobsInstanceDetailsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8881,17 +8893,17 @@ func (c *ProjectsPatchJobsInstanceDetailsListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPatchJobInstanceDetailsResponse{
 		ServerResponse: googleapi.ServerResponse{

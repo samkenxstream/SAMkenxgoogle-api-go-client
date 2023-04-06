@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/display-video/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/displayvideo/v1"
-//   ...
-//   ctx := context.Background()
-//   displayvideoService, err := displayvideo.NewService(ctx)
+//	import "google.golang.org/api/displayvideo/v1"
+//	...
+//	ctx := context.Background()
+//	displayvideoService, err := displayvideo.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   displayvideoService, err := displayvideo.NewService(ctx, option.WithScopes(displayvideo.DoubleclickbidmanagerScope))
+//	displayvideoService, err := displayvideo.NewService(ctx, option.WithScopes(displayvideo.DoubleclickbidmanagerScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   displayvideoService, err := displayvideo.NewService(ctx, option.WithAPIKey("AIza..."))
+//	displayvideoService, err := displayvideo.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   displayvideoService, err := displayvideo.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	displayvideoService, err := displayvideo.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package displayvideo // import "google.golang.org/api/displayvideo/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "displayvideo:v1"
 const apiName = "displayvideo"
@@ -143,6 +144,7 @@ func New(client *http.Client) (*Service, error) {
 	s.FirstAndThirdPartyAudiences = NewFirstAndThirdPartyAudiencesService(s)
 	s.FloodlightGroups = NewFloodlightGroupsService(s)
 	s.GoogleAudiences = NewGoogleAudiencesService(s)
+	s.GuaranteedOrders = NewGuaranteedOrdersService(s)
 	s.InventorySourceGroups = NewInventorySourceGroupsService(s)
 	s.InventorySources = NewInventorySourcesService(s)
 	s.Media = NewMediaService(s)
@@ -171,6 +173,8 @@ type Service struct {
 	FloodlightGroups *FloodlightGroupsService
 
 	GoogleAudiences *GoogleAudiencesService
+
+	GuaranteedOrders *GuaranteedOrdersService
 
 	InventorySourceGroups *InventorySourceGroupsService
 
@@ -518,6 +522,15 @@ func NewGoogleAudiencesService(s *Service) *GoogleAudiencesService {
 }
 
 type GoogleAudiencesService struct {
+	s *Service
+}
+
+func NewGuaranteedOrdersService(s *Service) *GuaranteedOrdersService {
+	rs := &GuaranteedOrdersService{s: s}
+	return rs
+}
+
+type GuaranteedOrdersService struct {
 	s *Service
 }
 
@@ -1177,7 +1190,7 @@ type AgeRangeAssignedTargetingOptionDetails struct {
 	// in this field can be 1) targeted solely, or, 2) part of a larger
 	// continuous age range. The reach of a continuous age range targeting
 	// can be expanded by also targeting an audience of an unknown age.
-	// Output only in v1.
+	// Output only in v1. Required in v2.
 	//
 	// Possible values:
 	//   "AGE_RANGE_UNSPECIFIED" - Default value when age range is not
@@ -1399,7 +1412,13 @@ type Asset struct {
 
 	// MediaId: Media ID of the uploaded asset. This is a unique identifier
 	// for the asset. This ID can be passed to other API calls, e.g.
-	// CreateCreative to associate the asset with a creative.
+	// CreateCreative to associate the asset with a creative. **On April 5,
+	// 2023, the value of this ID will be updated. Before this date, we
+	// recommend that you stop using any cached media IDs when creating or
+	// updating creatives, and instead upload assets immediately before
+	// using them for creative production.** **After April 5, you can update
+	// cached media IDs to the new values by retrieving them from associated
+	// creative resources or re-uploading them.**
 	MediaId int64 `json:"mediaId,omitempty,string"`
 
 	// ForceSendFields is a list of field names (e.g. "Content") to
@@ -2194,7 +2213,8 @@ func (s *AudienceGroupAssignedTargetingOptionDetails) MarshalJSON() ([]byte, err
 // is not supported. Remove all audio content type targeting options to
 // achieve this effect.
 type AudioContentTypeAssignedTargetingOptionDetails struct {
-	// AudioContentType: The audio content type. Output only in v1.
+	// AudioContentType: The audio content type. Output only in v1. Required
+	// in v2.
 	//
 	// Possible values:
 	//   "AUDIO_CONTENT_TYPE_UNSPECIFIED" - Audio content type is not
@@ -4371,8 +4391,8 @@ func (s *ContactInfo) MarshalJSON() ([]byte, error) {
 // defining Customer Match audience members.
 type ContactInfoList struct {
 	// ContactInfos: A list of ContactInfo objects defining Customer Match
-	// audience members. The size of contact_infos mustn't be greater than
-	// 500,000.
+	// audience members. The size of members after splitting the
+	// contact_infos mustn't be greater than 500,000.
 	ContactInfos []*ContactInfo `json:"contactInfos,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ContactInfos") to
@@ -4586,7 +4606,7 @@ type ContentInstreamPositionAssignedTargetingOptionDetails struct {
 	AdType string `json:"adType,omitempty"`
 
 	// ContentInstreamPosition: The content instream position for video or
-	// audio ads. Output only in v1.
+	// audio ads. Output only in v1. Required in v2.
 	//
 	// Possible values:
 	//   "CONTENT_INSTREAM_POSITION_UNSPECIFIED" - Content instream position
@@ -4700,7 +4720,7 @@ type ContentOutstreamPositionAssignedTargetingOptionDetails struct {
 	AdType string `json:"adType,omitempty"`
 
 	// ContentOutstreamPosition: The content outstream position. Output only
-	// in v1.
+	// in v1. Required in v2.
 	//
 	// Possible values:
 	//   "CONTENT_OUTSTREAM_POSITION_UNSPECIFIED" - Content outstream
@@ -5195,6 +5215,7 @@ type CreateSdfDownloadTaskRequest struct {
 	//   "SDF_VERSION_5_2" - SDF version 5.2
 	//   "SDF_VERSION_5_3" - SDF version 5.3
 	//   "SDF_VERSION_5_4" - SDF version 5.4
+	//   "SDF_VERSION_5_5" - SDF version 5.5
 	Version string `json:"version,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AdvertiserId") to
@@ -5834,6 +5855,16 @@ type CustomBiddingAlgorithm struct {
 	// for deletion.
 	EntityStatus string `json:"entityStatus,omitempty"`
 
+	// ModelReadiness: Output only. The state of custom bidding model
+	// readiness for each advertiser who has access. This field may only
+	// include the state of the queried advertiser if the algorithm `owner`
+	// (/display-video/api/reference/rest/v1/customBiddingAlgorithms#CustomBi
+	// ddingAlgorithm.FIELDS.oneof_owner) is a partner and is being
+	// retrieved using an advertiser `accessor`
+	// (/display-video/api/reference/rest/v1/customBiddingAlgorithms/list#bod
+	// y.QUERY_PARAMETERS.oneof_accessor).
+	ModelReadiness []*CustomBiddingModelReadinessState `json:"modelReadiness,omitempty"`
+
 	// Name: Output only. The resource name of the custom bidding algorithm.
 	Name string `json:"name,omitempty"`
 
@@ -5874,6 +5905,52 @@ type CustomBiddingAlgorithm struct {
 
 func (s *CustomBiddingAlgorithm) MarshalJSON() ([]byte, error) {
 	type NoMethod CustomBiddingAlgorithm
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CustomBiddingModelReadinessState: The custom bidding algorithm model
+// readiness state for a single shared advertiser.
+type CustomBiddingModelReadinessState struct {
+	// AdvertiserId: The unique ID of the relevant advertiser.
+	AdvertiserId int64 `json:"advertiserId,omitempty,string"`
+
+	// ReadinessState: The readiness state of custom bidding model.
+	//
+	// Possible values:
+	//   "READINESS_STATE_UNSPECIFIED" - State is not specified or is
+	// unknown in this version.
+	//   "READINESS_STATE_ACTIVE" - The model is trained and ready for
+	// serving.
+	//   "READINESS_STATE_INSUFFICIENT_DATA" - There is not enough data to
+	// train the serving model.
+	//   "READINESS_STATE_TRAINING" - The model is training and not ready
+	// for serving.
+	//   "READINESS_STATE_NO_VALID_SCRIPT" - A valid custom bidding script
+	// has not been provided with which to train the model. This state will
+	// only be applied to algorithms whose `custom_bidding_algorithm_type`
+	// is `SCRIPT_BASED`.
+	ReadinessState string `json:"readinessState,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AdvertiserId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AdvertiserId") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CustomBiddingModelReadinessState) MarshalJSON() ([]byte, error) {
+	type NoMethod CustomBiddingModelReadinessState
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -6440,6 +6517,7 @@ func (s *DeviceMakeModelTargetingOptionDetails) MarshalJSON() ([]byte, error) {
 // `TARGETING_TYPE_DEVICE_TYPE`.
 type DeviceTypeAssignedTargetingOptionDetails struct {
 	// DeviceType: The display name of the device type. Output only in v1.
+	// Required in v2.
 	//
 	// Possible values:
 	//   "DEVICE_TYPE_UNSPECIFIED" - Default value when device type is not
@@ -7110,6 +7188,162 @@ func (s *EditCustomerMatchMembersResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// EditGuaranteedOrderReadAccessorsRequest: Request message for
+// GuaranteedOrderService.EditGuaranteedOrderReadAccessors.
+type EditGuaranteedOrderReadAccessorsRequest struct {
+	// AddedAdvertisers: The advertisers to add as read accessors to the
+	// guaranteed order.
+	AddedAdvertisers googleapi.Int64s `json:"addedAdvertisers,omitempty"`
+
+	// PartnerId: Required. The partner context in which the change is being
+	// made.
+	PartnerId int64 `json:"partnerId,omitempty,string"`
+
+	// ReadAccessInherited: Whether to give all advertisers of the
+	// read/write accessor partner read access to the guaranteed order. Only
+	// applicable if read_write_partner_id is set in the guaranteed order.
+	ReadAccessInherited bool `json:"readAccessInherited,omitempty"`
+
+	// RemovedAdvertisers: The advertisers to remove as read accessors to
+	// the guaranteed order.
+	RemovedAdvertisers googleapi.Int64s `json:"removedAdvertisers,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AddedAdvertisers") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AddedAdvertisers") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EditGuaranteedOrderReadAccessorsRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod EditGuaranteedOrderReadAccessorsRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type EditGuaranteedOrderReadAccessorsResponse struct {
+	// ReadAccessInherited: Whether all advertisers of read_write_partner_id
+	// have read access to the guaranteed order.
+	ReadAccessInherited bool `json:"readAccessInherited,omitempty"`
+
+	// ReadAdvertiserIds: The IDs of advertisers with read access to the
+	// guaranteed order.
+	ReadAdvertiserIds googleapi.Int64s `json:"readAdvertiserIds,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "ReadAccessInherited")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ReadAccessInherited") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EditGuaranteedOrderReadAccessorsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod EditGuaranteedOrderReadAccessorsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// EditInventorySourceReadWriteAccessorsRequest: Request message for
+// InventorySourceService.EditInventorySourceReadWriteAccessors.
+type EditInventorySourceReadWriteAccessorsRequest struct {
+	// AdvertisersUpdate: The advertisers to add or remove from the list of
+	// advertisers that have read/write access to the inventory source. This
+	// change will remove an existing partner read/write accessor.
+	AdvertisersUpdate *EditInventorySourceReadWriteAccessorsRequestAdvertisersUpdate `json:"advertisersUpdate,omitempty"`
+
+	// AssignPartner: Set the partner context as read/write accessor of the
+	// inventory source. This will remove all other current read/write
+	// advertiser accessors.
+	AssignPartner bool `json:"assignPartner,omitempty"`
+
+	// PartnerId: Required. The partner context by which the accessors
+	// change is being made.
+	PartnerId int64 `json:"partnerId,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "AdvertisersUpdate")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AdvertisersUpdate") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EditInventorySourceReadWriteAccessorsRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod EditInventorySourceReadWriteAccessorsRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// EditInventorySourceReadWriteAccessorsRequestAdvertisersUpdate: Update
+// to the list of advertisers with read/write access to the inventory
+// source.
+type EditInventorySourceReadWriteAccessorsRequestAdvertisersUpdate struct {
+	// AddedAdvertisers: The advertisers to add.
+	AddedAdvertisers googleapi.Int64s `json:"addedAdvertisers,omitempty"`
+
+	// RemovedAdvertisers: The advertisers to remove.
+	RemovedAdvertisers googleapi.Int64s `json:"removedAdvertisers,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AddedAdvertisers") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AddedAdvertisers") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EditInventorySourceReadWriteAccessorsRequestAdvertisersUpdate) MarshalJSON() ([]byte, error) {
+	type NoMethod EditInventorySourceReadWriteAccessorsRequestAdvertisersUpdate
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Empty: A generic empty message that you can re-use to avoid defining
 // duplicated empty messages in your APIs. A typical example is to use
 // it as the request or the response type of an API method. For
@@ -7126,7 +7360,8 @@ type Empty struct {
 // of an AssignedTargetingOption when targeting_type is
 // `TARGETING_TYPE_ENVIRONMENT`.
 type EnvironmentAssignedTargetingOptionDetails struct {
-	// Environment: The serving environment. Output only in v1.
+	// Environment: The serving environment. Output only in v1. Required in
+	// v2.
 	//
 	// Possible values:
 	//   "ENVIRONMENT_UNSPECIFIED" - Default value when environment is not
@@ -7354,9 +7589,18 @@ type ExchangeConfigEnabledExchange struct {
 	//   "EXCHANGE_WAZE" - Waze.
 	//   "EXCHANGE_SOUNDCAST" - SoundCast.
 	//   "EXCHANGE_SHARETHROUGH" - Sharethrough.
+	//   "EXCHANGE_FYBER" - Fyber.
 	//   "EXCHANGE_RED_FOR_PUBLISHERS" - Red For Publishers.
 	//   "EXCHANGE_MEDIANET" - Media.net.
 	//   "EXCHANGE_TAPJOY" - Tapjoy.
+	//   "EXCHANGE_VISTAR" - Vistar.
+	//   "EXCHANGE_DAX" - DAX.
+	//   "EXCHANGE_JCD" - JCD.
+	//   "EXCHANGE_PLACE_EXCHANGE" - Place Exchange.
+	//   "EXCHANGE_APPLOVIN" - AppLovin.
+	//   "EXCHANGE_CONNATIX" - Connatix.
+	//   "EXCHANGE_RESET_DIGITAL" - Reset Digital.
+	//   "EXCHANGE_HIVESTACK" - Hivestack.
 	Exchange string `json:"exchange,omitempty"`
 
 	// GoogleAdManagerAgencyId: Output only. Agency ID of Google Ad Manager.
@@ -7465,9 +7709,18 @@ type ExchangeReviewStatus struct {
 	//   "EXCHANGE_WAZE" - Waze.
 	//   "EXCHANGE_SOUNDCAST" - SoundCast.
 	//   "EXCHANGE_SHARETHROUGH" - Sharethrough.
+	//   "EXCHANGE_FYBER" - Fyber.
 	//   "EXCHANGE_RED_FOR_PUBLISHERS" - Red For Publishers.
 	//   "EXCHANGE_MEDIANET" - Media.net.
 	//   "EXCHANGE_TAPJOY" - Tapjoy.
+	//   "EXCHANGE_VISTAR" - Vistar.
+	//   "EXCHANGE_DAX" - DAX.
+	//   "EXCHANGE_JCD" - JCD.
+	//   "EXCHANGE_PLACE_EXCHANGE" - Place Exchange.
+	//   "EXCHANGE_APPLOVIN" - AppLovin.
+	//   "EXCHANGE_CONNATIX" - Connatix.
+	//   "EXCHANGE_RESET_DIGITAL" - Reset Digital.
+	//   "EXCHANGE_HIVESTACK" - Hivestack.
 	Exchange string `json:"exchange,omitempty"`
 
 	// Status: Status of the exchange review.
@@ -7575,9 +7828,18 @@ type ExchangeTargetingOptionDetails struct {
 	//   "EXCHANGE_WAZE" - Waze.
 	//   "EXCHANGE_SOUNDCAST" - SoundCast.
 	//   "EXCHANGE_SHARETHROUGH" - Sharethrough.
+	//   "EXCHANGE_FYBER" - Fyber.
 	//   "EXCHANGE_RED_FOR_PUBLISHERS" - Red For Publishers.
 	//   "EXCHANGE_MEDIANET" - Media.net.
 	//   "EXCHANGE_TAPJOY" - Tapjoy.
+	//   "EXCHANGE_VISTAR" - Vistar.
+	//   "EXCHANGE_DAX" - DAX.
+	//   "EXCHANGE_JCD" - JCD.
+	//   "EXCHANGE_PLACE_EXCHANGE" - Place Exchange.
+	//   "EXCHANGE_APPLOVIN" - AppLovin.
+	//   "EXCHANGE_CONNATIX" - Connatix.
+	//   "EXCHANGE_RESET_DIGITAL" - Reset Digital.
+	//   "EXCHANGE_HIVESTACK" - Hivestack.
 	Exchange string `json:"exchange,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Exchange") to
@@ -8043,7 +8305,7 @@ func (s *FloodlightGroup) MarshalJSON() ([]byte, error) {
 type FrequencyCap struct {
 	// MaxImpressions: The maximum number of times a user may be shown the
 	// same ad during this period. Must be greater than 0. Required when
-	// unlimited is `false`.
+	// unlimited is `false` and max_views is not set.
 	MaxImpressions int64 `json:"maxImpressions,omitempty"`
 
 	// TimeUnit: The time unit in which the frequency cap will be applied.
@@ -8107,9 +8369,10 @@ func (s *FrequencyCap) MarshalJSON() ([]byte, error) {
 // GenderAssignedTargetingOptionDetails: Details for assigned gender
 // targeting option. This will be populated in the details field of an
 // AssignedTargetingOption when targeting_type is
-// `TARTGETING_TYPE_GENDER`.
+// `TARGETING_TYPE_GENDER`.
 type GenderAssignedTargetingOptionDetails struct {
-	// Gender: The gender of the audience. Output only in v1.
+	// Gender: The gender of the audience. Output only in v1. Required in
+	// v2.
 	//
 	// Possible values:
 	//   "GENDER_UNSPECIFIED" - Default value when gender is not specified
@@ -8200,7 +8463,8 @@ type GenerateDefaultLineItemRequest struct {
 	//
 	// Possible values:
 	//   "LINE_ITEM_TYPE_UNSPECIFIED" - Type value is not specified or is
-	// unknown in this version.
+	// unknown in this version. Line items of this type and their targeting
+	// cannot be created or updated using the API.
 	//   "LINE_ITEM_TYPE_DISPLAY_DEFAULT" - Image, HTML5, native, or rich
 	// media ads.
 	//   "LINE_ITEM_TYPE_DISPLAY_MOBILE_APP_INSTALL" - Display ads that
@@ -8210,9 +8474,11 @@ type GenerateDefaultLineItemRequest struct {
 	//   "LINE_ITEM_TYPE_VIDEO_MOBILE_APP_INSTALL" - Video ads that drive
 	// installs of an app.
 	//   "LINE_ITEM_TYPE_DISPLAY_MOBILE_APP_INVENTORY" - Display ads served
-	// on mobile app inventory.
+	// on mobile app inventory. Line items of this type and their targeting
+	// cannot be created or updated using the API.
 	//   "LINE_ITEM_TYPE_VIDEO_MOBILE_APP_INVENTORY" - Video ads served on
-	// mobile app inventory.
+	// mobile app inventory. Line items of this type and their targeting
+	// cannot be created or updated using the API.
 	//   "LINE_ITEM_TYPE_AUDIO_DEFAULT" - RTB Audio ads sold for a variety
 	// of environments.
 	//   "LINE_ITEM_TYPE_VIDEO_OVER_THE_TOP" - Over-the-top ads present in
@@ -8593,12 +8859,259 @@ func (s *GoogleBytestreamMedia) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GuaranteedOrder: A guaranteed order. Guaranteed orders are parent
+// entity of guaranteed inventory sources. When creating a guaranteed
+// inventory source, a guaranteed order ID must be assigned to the
+// inventory source.
+type GuaranteedOrder struct {
+	// DefaultAdvertiserId: Output only. The ID of default advertiser of the
+	// guaranteed order. The default advertiser is either the
+	// read_write_advertiser_id or, if that is not set, the first advertiser
+	// listed in read_advertiser_ids. Otherwise, there is no default
+	// advertiser.
+	DefaultAdvertiserId int64 `json:"defaultAdvertiserId,omitempty,string"`
+
+	// DefaultCampaignId: The ID of the default campaign that is assigned to
+	// the guaranteed order. The default campaign must belong to the default
+	// advertiser.
+	DefaultCampaignId int64 `json:"defaultCampaignId,omitempty,string"`
+
+	// DisplayName: Required. The display name of the guaranteed order. Must
+	// be UTF-8 encoded with a maximum size of 240 bytes.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// Exchange: Required. Immutable. The exchange where the guaranteed
+	// order originated.
+	//
+	// Possible values:
+	//   "EXCHANGE_UNSPECIFIED" - Exchange is not specified or is unknown in
+	// this version.
+	//   "EXCHANGE_GOOGLE_AD_MANAGER" - Google Ad Manager.
+	//   "EXCHANGE_APPNEXUS" - AppNexus.
+	//   "EXCHANGE_BRIGHTROLL" - BrightRoll Exchange for Video from Yahoo!.
+	//   "EXCHANGE_ADFORM" - Adform.
+	//   "EXCHANGE_ADMETA" - Admeta.
+	//   "EXCHANGE_ADMIXER" - Admixer.
+	//   "EXCHANGE_ADSMOGO" - AdsMogo.
+	//   "EXCHANGE_ADSWIZZ" - AdsWizz.
+	//   "EXCHANGE_BIDSWITCH" - BidSwitch.
+	//   "EXCHANGE_BRIGHTROLL_DISPLAY" - BrightRoll Exchange for Display
+	// from Yahoo!.
+	//   "EXCHANGE_CADREON" - Cadreon.
+	//   "EXCHANGE_DAILYMOTION" - Dailymotion.
+	//   "EXCHANGE_FIVE" - Five.
+	//   "EXCHANGE_FLUCT" - Fluct.
+	//   "EXCHANGE_FREEWHEEL" - FreeWheel SSP.
+	//   "EXCHANGE_GENIEE" - Geniee.
+	//   "EXCHANGE_GUMGUM" - GumGum.
+	//   "EXCHANGE_IMOBILE" - i-mobile.
+	//   "EXCHANGE_IBILLBOARD" - iBILLBOARD.
+	//   "EXCHANGE_IMPROVE_DIGITAL" - Improve Digital.
+	//   "EXCHANGE_INDEX" - Index Exchange.
+	//   "EXCHANGE_KARGO" - Kargo.
+	//   "EXCHANGE_MICROAD" - MicroAd.
+	//   "EXCHANGE_MOPUB" - MoPub.
+	//   "EXCHANGE_NEND" - Nend.
+	//   "EXCHANGE_ONE_BY_AOL_DISPLAY" - ONE by AOL: Display Market Place.
+	//   "EXCHANGE_ONE_BY_AOL_MOBILE" - ONE by AOL: Mobile.
+	//   "EXCHANGE_ONE_BY_AOL_VIDEO" - ONE by AOL: Video.
+	//   "EXCHANGE_OOYALA" - Ooyala.
+	//   "EXCHANGE_OPENX" - OpenX.
+	//   "EXCHANGE_PERMODO" - Permodo.
+	//   "EXCHANGE_PLATFORMONE" - Platform One.
+	//   "EXCHANGE_PLATFORMID" - PlatformId.
+	//   "EXCHANGE_PUBMATIC" - PubMatic.
+	//   "EXCHANGE_PULSEPOINT" - PulsePoint.
+	//   "EXCHANGE_REVENUEMAX" - RevenueMax.
+	//   "EXCHANGE_RUBICON" - Rubicon.
+	//   "EXCHANGE_SMARTCLIP" - SmartClip.
+	//   "EXCHANGE_SMARTRTB" - SmartRTB+.
+	//   "EXCHANGE_SMARTSTREAMTV" - SmartstreamTv.
+	//   "EXCHANGE_SOVRN" - Sovrn.
+	//   "EXCHANGE_SPOTXCHANGE" - SpotXchange.
+	//   "EXCHANGE_STROER" - Ströer SSP.
+	//   "EXCHANGE_TEADSTV" - TeadsTv.
+	//   "EXCHANGE_TELARIA" - Telaria.
+	//   "EXCHANGE_TVN" - TVN.
+	//   "EXCHANGE_UNITED" - United.
+	//   "EXCHANGE_YIELDLAB" - Yieldlab.
+	//   "EXCHANGE_YIELDMO" - Yieldmo.
+	//   "EXCHANGE_UNRULYX" - UnrulyX.
+	//   "EXCHANGE_OPEN8" - Open8.
+	//   "EXCHANGE_TRITON" - Triton.
+	//   "EXCHANGE_TRIPLELIFT" - TripleLift.
+	//   "EXCHANGE_TABOOLA" - Taboola.
+	//   "EXCHANGE_INMOBI" - InMobi.
+	//   "EXCHANGE_SMAATO" - Smaato.
+	//   "EXCHANGE_AJA" - Aja.
+	//   "EXCHANGE_SUPERSHIP" - Supership.
+	//   "EXCHANGE_NEXSTAR_DIGITAL" - Nexstar Digital.
+	//   "EXCHANGE_WAZE" - Waze.
+	//   "EXCHANGE_SOUNDCAST" - SoundCast.
+	//   "EXCHANGE_SHARETHROUGH" - Sharethrough.
+	//   "EXCHANGE_FYBER" - Fyber.
+	//   "EXCHANGE_RED_FOR_PUBLISHERS" - Red For Publishers.
+	//   "EXCHANGE_MEDIANET" - Media.net.
+	//   "EXCHANGE_TAPJOY" - Tapjoy.
+	//   "EXCHANGE_VISTAR" - Vistar.
+	//   "EXCHANGE_DAX" - DAX.
+	//   "EXCHANGE_JCD" - JCD.
+	//   "EXCHANGE_PLACE_EXCHANGE" - Place Exchange.
+	//   "EXCHANGE_APPLOVIN" - AppLovin.
+	//   "EXCHANGE_CONNATIX" - Connatix.
+	//   "EXCHANGE_RESET_DIGITAL" - Reset Digital.
+	//   "EXCHANGE_HIVESTACK" - Hivestack.
+	Exchange string `json:"exchange,omitempty"`
+
+	// GuaranteedOrderId: Output only. The unique identifier of the
+	// guaranteed order. The guaranteed order IDs have the format
+	// `{exchange}-{legacy_guaranteed_order_id}`.
+	GuaranteedOrderId string `json:"guaranteedOrderId,omitempty"`
+
+	// LegacyGuaranteedOrderId: Output only. The legacy ID of the guaranteed
+	// order. Assigned by the original exchange. The legacy ID is unique
+	// within one exchange, but is not guaranteed to be unique across all
+	// guaranteed orders. This ID is used in SDF and UI.
+	LegacyGuaranteedOrderId string `json:"legacyGuaranteedOrderId,omitempty"`
+
+	// Name: Output only. The resource name of the guaranteed order.
+	Name string `json:"name,omitempty"`
+
+	// PublisherName: Required. The publisher name of the guaranteed order.
+	// Must be UTF-8 encoded with a maximum size of 240 bytes.
+	PublisherName string `json:"publisherName,omitempty"`
+
+	// ReadAccessInherited: Whether all advertisers of read_write_partner_id
+	// have read access to the guaranteed order. Only applicable if
+	// read_write_partner_id is set. If True, overrides read_advertiser_ids.
+	ReadAccessInherited bool `json:"readAccessInherited,omitempty"`
+
+	// ReadAdvertiserIds: The IDs of advertisers with read access to the
+	// guaranteed order. This field must not include the advertiser assigned
+	// to read_write_advertiser_id if it is set. All advertisers in this
+	// field must belong to read_write_partner_id or the same partner as
+	// read_write_advertiser_id.
+	ReadAdvertiserIds googleapi.Int64s `json:"readAdvertiserIds,omitempty"`
+
+	// ReadWriteAdvertiserId: The advertiser with read/write access to the
+	// guaranteed order. This is also the default advertiser of the
+	// guaranteed order.
+	ReadWriteAdvertiserId int64 `json:"readWriteAdvertiserId,omitempty,string"`
+
+	// ReadWritePartnerId: The partner with read/write access to the
+	// guaranteed order.
+	ReadWritePartnerId int64 `json:"readWritePartnerId,omitempty,string"`
+
+	// Status: The status settings of the guaranteed order.
+	Status *GuaranteedOrderStatus `json:"status,omitempty"`
+
+	// UpdateTime: Output only. The timestamp when the guaranteed order was
+	// last updated. Assigned by the system.
+	UpdateTime string `json:"updateTime,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "DefaultAdvertiserId")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DefaultAdvertiserId") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GuaranteedOrder) MarshalJSON() ([]byte, error) {
+	type NoMethod GuaranteedOrder
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GuaranteedOrderStatus: The status settings of the guaranteed order.
+type GuaranteedOrderStatus struct {
+	// ConfigStatus: Output only. The configuration status of the guaranteed
+	// order. Acceptable values are `PENDING` and `COMPLETED`. A guaranteed
+	// order must be configured (fill in the required fields, choose
+	// creatives, and select a default campaign) before it can serve.
+	// Currently the configuration action can only be performed via UI.
+	//
+	// Possible values:
+	//   "GUARANTEED_ORDER_CONFIG_STATUS_UNSPECIFIED" - The approval status
+	// is not specified or is unknown in this version.
+	//   "PENDING" - The beginning state of a guaranteed order. The
+	// guaranteed order in this state needs to be configured before it can
+	// serve.
+	//   "COMPLETED" - The state after the buyer configures a guaranteed
+	// order.
+	ConfigStatus string `json:"configStatus,omitempty"`
+
+	// EntityPauseReason: The user-provided reason for pausing this
+	// guaranteed order. Must be UTF-8 encoded with a maximum length of 100
+	// bytes. Only applicable when entity_status is set to
+	// `ENTITY_STATUS_PAUSED`.
+	EntityPauseReason string `json:"entityPauseReason,omitempty"`
+
+	// EntityStatus: Whether or not the guaranteed order is servable.
+	// Acceptable values are `ENTITY_STATUS_ACTIVE`,
+	// `ENTITY_STATUS_ARCHIVED`, and `ENTITY_STATUS_PAUSED`. Default value
+	// is `ENTITY_STATUS_ACTIVE`.
+	//
+	// Possible values:
+	//   "ENTITY_STATUS_UNSPECIFIED" - Default value when status is not
+	// specified or is unknown in this version.
+	//   "ENTITY_STATUS_ACTIVE" - The entity is enabled to bid and spend
+	// budget.
+	//   "ENTITY_STATUS_ARCHIVED" - The entity is archived. Bidding and
+	// budget spending are disabled. An entity can be deleted after
+	// archived. Deleted entities cannot be retrieved.
+	//   "ENTITY_STATUS_DRAFT" - The entity is under draft. Bidding and
+	// budget spending are disabled.
+	//   "ENTITY_STATUS_PAUSED" - Bidding and budget spending are paused for
+	// the entity.
+	//   "ENTITY_STATUS_SCHEDULED_FOR_DELETION" - The entity is scheduled
+	// for deletion.
+	EntityStatus string `json:"entityStatus,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ConfigStatus") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ConfigStatus") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GuaranteedOrderStatus) MarshalJSON() ([]byte, error) {
+	type NoMethod GuaranteedOrderStatus
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // HouseholdIncomeAssignedTargetingOptionDetails: Details for assigned
 // household income targeting option. This will be populated in the
 // details field of an AssignedTargetingOption when targeting_type is
 // `TARGETING_TYPE_HOUSEHOLD_INCOME`.
 type HouseholdIncomeAssignedTargetingOptionDetails struct {
-	// HouseholdIncome: Output only. The household income of the audience.
+	// HouseholdIncome: The household income of the audience. Output only in
+	// v1. Required in v2.
 	//
 	// Possible values:
 	//   "HOUSEHOLD_INCOME_UNSPECIFIED" - Default value when household
@@ -8980,8 +9493,7 @@ type InsertionOrderBudgetSegment struct {
 
 	// Description: The budget segment description. It can be used to enter
 	// Purchase Order information for each budget segment and have that
-	// information printed on the invoices. Must be UTF-8 encoded with a
-	// length of no more than 80 characters.
+	// information printed on the invoices. Must be UTF-8 encoded.
 	Description string `json:"description,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "BudgetAmountMicros")
@@ -9314,14 +9826,59 @@ type InventorySource struct {
 	//   "EXCHANGE_WAZE" - Waze.
 	//   "EXCHANGE_SOUNDCAST" - SoundCast.
 	//   "EXCHANGE_SHARETHROUGH" - Sharethrough.
+	//   "EXCHANGE_FYBER" - Fyber.
 	//   "EXCHANGE_RED_FOR_PUBLISHERS" - Red For Publishers.
 	//   "EXCHANGE_MEDIANET" - Media.net.
 	//   "EXCHANGE_TAPJOY" - Tapjoy.
+	//   "EXCHANGE_VISTAR" - Vistar.
+	//   "EXCHANGE_DAX" - DAX.
+	//   "EXCHANGE_JCD" - JCD.
+	//   "EXCHANGE_PLACE_EXCHANGE" - Place Exchange.
+	//   "EXCHANGE_APPLOVIN" - AppLovin.
+	//   "EXCHANGE_CONNATIX" - Connatix.
+	//   "EXCHANGE_RESET_DIGITAL" - Reset Digital.
+	//   "EXCHANGE_HIVESTACK" - Hivestack.
 	Exchange string `json:"exchange,omitempty"`
+
+	// GuaranteedOrderId: Immutable. The ID of the guaranteed order that
+	// this inventory source belongs to. Only applicable when commitment is
+	// `INVENTORY_SOURCE_COMMITMENT_GUARANTEED`.
+	GuaranteedOrderId string `json:"guaranteedOrderId,omitempty"`
 
 	// InventorySourceId: Output only. The unique ID of the inventory
 	// source. Assigned by the system.
 	InventorySourceId int64 `json:"inventorySourceId,omitempty,string"`
+
+	// InventorySourceProductType: Output only. The product type of the
+	// inventory source, denoting the way through which it sells inventory.
+	//
+	// Possible values:
+	//   "INVENTORY_SOURCE_PRODUCT_TYPE_UNSPECIFIED" - The product type is
+	// not specified or is unknown in this version. Modifying inventory
+	// sources of this product type are not supported via API.
+	//   "PREFERRED_DEAL" - The inventory source sells inventory through
+	// Preferred Deal.
+	//   "PRIVATE_AUCTION" - The inventory source sells inventory through
+	// Private Auction.
+	//   "PROGRAMMATIC_GUARANTEED" - The inventory source sells inventory
+	// through Programmatic Guaranteed.
+	//   "TAG_GUARANTEED" - The inventory source sells inventory through Tag
+	// Guaranteed.
+	//   "YOUTUBE_RESERVE" - The inventory source sells inventory through
+	// YouTube Reserve.
+	//   "INSTANT_RESERVE" - The inventory source sells inventory through
+	// Instant Reserve. Modifying inventory sources of this product type are
+	// not supported via API.
+	//   "GUARANTEED_PACKAGE" - The inventory source sells inventory through
+	// Guaranteed Package. Modifying inventory sources of this product type
+	// are not supported via API.
+	//   "PROGRAMMATIC_TV" - The inventory source sells inventory through
+	// Programmtic TV. Modifying inventory sources of this product type are
+	// not supported via API.
+	//   "AUCTION_PACKAGE" - The inventory source sells inventory through
+	// Auction Package. Modifying inventory sources of this product type are
+	// not supported via API.
+	InventorySourceProductType string `json:"inventorySourceProductType,omitempty"`
 
 	// InventorySourceType: Denotes the type of the inventory source.
 	//
@@ -9341,8 +9898,33 @@ type InventorySource struct {
 	// RateDetails: Required. The rate details of the inventory source.
 	RateDetails *RateDetails `json:"rateDetails,omitempty"`
 
+	// ReadAdvertiserIds: Output only. The IDs of advertisers with read-only
+	// access to the inventory source.
+	ReadAdvertiserIds googleapi.Int64s `json:"readAdvertiserIds,omitempty"`
+
+	// ReadPartnerIds: Output only. The IDs of partners with read-only
+	// access to the inventory source. All advertisers of partners in this
+	// field inherit read-only access to the inventory source.
+	ReadPartnerIds googleapi.Int64s `json:"readPartnerIds,omitempty"`
+
+	// ReadWriteAccessors: The partner or advertisers that have read/write
+	// access to the inventory source. Output only when commitment is
+	// `INVENTORY_SOURCE_COMMITMENT_GUARANTEED`, in which case the
+	// read/write accessors are inherited from the parent guaranteed order.
+	// Required when commitment is
+	// `INVENTORY_SOURCE_COMMITMENT_NON_GUARANTEED`. If commitment is
+	// `INVENTORY_SOURCE_COMMITMENT_NON_GUARANTEED` and a partner is set in
+	// this field, all advertisers under this partner will automatically
+	// have read-only access to the inventory source. These advertisers will
+	// not be included in read_advertiser_ids.
+	ReadWriteAccessors *InventorySourceAccessors `json:"readWriteAccessors,omitempty"`
+
 	// Status: The status settings of the inventory source.
 	Status *InventorySourceStatus `json:"status,omitempty"`
+
+	// SubSitePropertyId: Immutable. The unique ID of the sub-site property
+	// assigned to this inventory source.
+	SubSitePropertyId int64 `json:"subSitePropertyId,omitempty,string"`
 
 	// TimeRange: The time range when this inventory source starts and stops
 	// serving.
@@ -9375,6 +9957,101 @@ type InventorySource struct {
 
 func (s *InventorySource) MarshalJSON() ([]byte, error) {
 	type NoMethod InventorySource
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// InventorySourceAccessors: The partner or advertisers with access to
+// the inventory source.
+type InventorySourceAccessors struct {
+	// Advertisers: The advertisers with access to the inventory source. All
+	// advertisers must belong to the same partner.
+	Advertisers *InventorySourceAccessorsAdvertiserAccessors `json:"advertisers,omitempty"`
+
+	// Partner: The partner with access to the inventory source.
+	Partner *InventorySourceAccessorsPartnerAccessor `json:"partner,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Advertisers") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Advertisers") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InventorySourceAccessors) MarshalJSON() ([]byte, error) {
+	type NoMethod InventorySourceAccessors
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// InventorySourceAccessorsAdvertiserAccessors: The advertisers with
+// access to the inventory source.
+type InventorySourceAccessorsAdvertiserAccessors struct {
+	// AdvertiserIds: The IDs of the advertisers.
+	AdvertiserIds googleapi.Int64s `json:"advertiserIds,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AdvertiserIds") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AdvertiserIds") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InventorySourceAccessorsAdvertiserAccessors) MarshalJSON() ([]byte, error) {
+	type NoMethod InventorySourceAccessorsAdvertiserAccessors
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// InventorySourceAccessorsPartnerAccessor: The partner with access to
+// the inventory source.
+type InventorySourceAccessorsPartnerAccessor struct {
+	// PartnerId: The ID of the partner.
+	PartnerId int64 `json:"partnerId,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "PartnerId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PartnerId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *InventorySourceAccessorsPartnerAccessor) MarshalJSON() ([]byte, error) {
+	type NoMethod InventorySourceAccessorsPartnerAccessor
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -9993,7 +10670,8 @@ type LineItem struct {
 	//
 	// Possible values:
 	//   "LINE_ITEM_TYPE_UNSPECIFIED" - Type value is not specified or is
-	// unknown in this version.
+	// unknown in this version. Line items of this type and their targeting
+	// cannot be created or updated using the API.
 	//   "LINE_ITEM_TYPE_DISPLAY_DEFAULT" - Image, HTML5, native, or rich
 	// media ads.
 	//   "LINE_ITEM_TYPE_DISPLAY_MOBILE_APP_INSTALL" - Display ads that
@@ -10003,9 +10681,11 @@ type LineItem struct {
 	//   "LINE_ITEM_TYPE_VIDEO_MOBILE_APP_INSTALL" - Video ads that drive
 	// installs of an app.
 	//   "LINE_ITEM_TYPE_DISPLAY_MOBILE_APP_INVENTORY" - Display ads served
-	// on mobile app inventory.
+	// on mobile app inventory. Line items of this type and their targeting
+	// cannot be created or updated using the API.
 	//   "LINE_ITEM_TYPE_VIDEO_MOBILE_APP_INVENTORY" - Video ads served on
-	// mobile app inventory.
+	// mobile app inventory. Line items of this type and their targeting
+	// cannot be created or updated using the API.
 	//   "LINE_ITEM_TYPE_AUDIO_DEFAULT" - RTB Audio ads sold for a variety
 	// of environments.
 	//   "LINE_ITEM_TYPE_VIDEO_OVER_THE_TOP" - Over-the-top ads present in
@@ -10048,9 +10728,13 @@ type LineItem struct {
 	ReservationType string `json:"reservationType,omitempty"`
 
 	// TargetingExpansion: The targeting expansion
-	// (https://support.google.com/displayvideo/answer/10191558) settings of
-	// the line item. This config is only applicable when eligible audience
-	// list targeting is assigned to the line item.
+	// (//support.google.com/displayvideo/answer/10191558) settings of the
+	// line item. This config is only applicable when eligible audience list
+	// targeting is assigned to the line item. Beginning **March 25, 2023**,
+	// these settings may represent the optimized targeting feature
+	// (//support.google.com/displayvideo/answer/12060859) in place of
+	// targeting expansion. This feature will be rolled out to all partners
+	// by mid-April 2023.
 	TargetingExpansion *TargetingExpansionConfig `json:"targetingExpansion,omitempty"`
 
 	// UpdateTime: Output only. The timestamp when the line item was last
@@ -10104,6 +10788,12 @@ type LineItem struct {
 	// any creative for the targeted deals.
 	//   "TARGETING_DEPRECATED_GEO_TARGET" - This line item targets a geo
 	// target that is deprecated.
+	//   "DEPRECATED_FIRST_PARTY_AUDIENCE_EXCLUSION" - This line item uses
+	// the exclude_first_party_audience setting, which is deprecated and
+	// scheduled to sunset after **March 25, 2023**. Update your API
+	// integration to directly exclude any first-party audiences using
+	// audience targeting before **March 25, 2023** to account for the
+	// sunset of the exclude_first_party_audience field.
 	WarningMessages []string `json:"warningMessages,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -10802,6 +11492,44 @@ type ListGoogleAudiencesResponse struct {
 
 func (s *ListGoogleAudiencesResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod ListGoogleAudiencesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ListGuaranteedOrdersResponse struct {
+	// GuaranteedOrders: The list of guaranteed orders. This list will be
+	// absent if empty.
+	GuaranteedOrders []*GuaranteedOrder `json:"guaranteedOrders,omitempty"`
+
+	// NextPageToken: A token to retrieve the next page of results. Pass
+	// this value in the page_token field in the subsequent call to
+	// `ListGuaranteedOrders` method to retrieve the next page of results.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "GuaranteedOrders") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GuaranteedOrders") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ListGuaranteedOrdersResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod ListGuaranteedOrdersResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -11841,7 +12569,8 @@ func (s *Money) MarshalJSON() ([]byte, error) {
 // Explicitly targeting all options is not supported. Remove all native
 // content position targeting options to achieve this effect.
 type NativeContentPositionAssignedTargetingOptionDetails struct {
-	// ContentPosition: The content position. Output only in v1.
+	// ContentPosition: The content position. Output only in v1. Required in
+	// v2.
 	//
 	// Possible values:
 	//   "NATIVE_CONTENT_POSITION_UNSPECIFIED" - Native content position is
@@ -12140,7 +12869,7 @@ func (s *ObaIcon) MarshalJSON() ([]byte, error) {
 // `TARGETING_TYPE_OMID`.
 type OmidAssignedTargetingOptionDetails struct {
 	// Omid: The type of Open Measurement enabled inventory. Output only in
-	// v1.
+	// v1. Required in v2.
 	//
 	// Possible values:
 	//   "OMID_UNSPECIFIED" - Default value when omid targeting is not
@@ -12601,9 +13330,10 @@ func (s *ParentEntityFilter) MarshalJSON() ([]byte, error) {
 // ParentalStatusAssignedTargetingOptionDetails: Details for assigned
 // parental status targeting option. This will be populated in the
 // details field of an AssignedTargetingOption when targeting_type is
-// `TARTGETING_TYPE_PARENTAL_STATUS`.
+// `TARGETING_TYPE_PARENTAL_STATUS`.
 type ParentalStatusAssignedTargetingOptionDetails struct {
-	// ParentalStatus: Output only. The parental status of the audience.
+	// ParentalStatus: The parental status of the audience. Output only in
+	// v1. Required in v2.
 	//
 	// Possible values:
 	//   "PARENTAL_STATUS_UNSPECIFIED" - Default value when parental status
@@ -13930,6 +14660,7 @@ type SdfConfig struct {
 	//   "SDF_VERSION_5_2" - SDF version 5.2
 	//   "SDF_VERSION_5_3" - SDF version 5.3
 	//   "SDF_VERSION_5_4" - SDF version 5.4
+	//   "SDF_VERSION_5_5" - SDF version 5.5
 	Version string `json:"version,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AdminEmail") to
@@ -14011,6 +14742,7 @@ type SdfDownloadTaskMetadata struct {
 	//   "SDF_VERSION_5_2" - SDF version 5.2
 	//   "SDF_VERSION_5_3" - SDF version 5.3
 	//   "SDF_VERSION_5_4" - SDF version 5.4
+	//   "SDF_VERSION_5_5" - SDF version 5.5
 	Version string `json:"version,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CreateTime") to
@@ -14052,7 +14784,7 @@ type SearchTargetingOptionsRequest struct {
 	// Can only be used when targeting_type is `TARGETING_TYPE_GEO_REGION`.
 	GeoRegionSearchTerms *GeoRegionSearchTerms `json:"geoRegionSearchTerms,omitempty"`
 
-	// PageSize: Requested page size. Must be between `1` and `100`. If
+	// PageSize: Requested page size. Must be between `1` and `200`. If
 	// unspecified will default to `100`. Returns error code
 	// `INVALID_ARGUMENT` if an invalid value is specified.
 	PageSize int64 `json:"pageSize,omitempty"`
@@ -14138,8 +14870,8 @@ type SensitiveCategoryAssignedTargetingOptionDetails struct {
 	// be EXCLUDED.
 	ExcludedTargetingOptionId string `json:"excludedTargetingOptionId,omitempty"`
 
-	// SensitiveCategory: An enum for the DV360 Sensitive category content
-	// classifier. Output only in v1.
+	// SensitiveCategory: Output only. An enum for the DV360 Sensitive
+	// category content classifier.
 	//
 	// Possible values:
 	//   "SENSITIVE_CATEGORY_UNSPECIFIED" - This enum is only a placeholder
@@ -14454,17 +15186,42 @@ func (s *SubExchangeTargetingOptionDetails) MarshalJSON() ([]byte, error) {
 // TargetingExpansionConfig: Settings that control the targeting
 // expansion of the line item. Targeting expansion allows the line item
 // to reach a larger audience based on the original audience list and
-// the targeting expansion level.
+// the targeting expansion level. Beginning **March 25, 2023**, these
+// settings may represent the optimized targeting feature
+// (//support.google.com/displayvideo/answer/12060859) in place of
+// targeting expansion. This feature will be rolled out to all partners
+// by mid-April 2023.
 type TargetingExpansionConfig struct {
-	// ExcludeFirstPartyAudience: Required. Whether to exclude first party
-	// audiences from targeting. Similar audiences of the excluded first
-	// party lists will not be excluded. Only applicable when a first-party
-	// audience is positively targeted (directly or included in a combined
-	// audience), otherwise this selection will be ignored.
+	// ExcludeFirstPartyAudience: Required. Whether to exclude first-party
+	// audiences from use in targeting expansion or optimized targeting.
+	// Similar audiences of the excluded first-party lists will not be
+	// excluded. Only applicable when a first-party audience is positively
+	// targeted (directly or included in a combined audience), otherwise
+	// this selection will be ignored. Beginning **March 25, 2023**, this
+	// field may be deprecated with the replacement of targeting expansion
+	// with optimized targeting
+	// (//support.google.com/displayvideo/answer/12060859). Upon
+	// deprecation, this field will be set to `false`. If this field is set
+	// to `true` when deprecated, all positive first-party audience
+	// targeting assigned to this line item will be replaced with negative
+	// targeting of the same first-party audiences to ensure the continued
+	// exclusion of those audiences. This field will be deprecated for all
+	// partners by mid-April 2023.
 	ExcludeFirstPartyAudience bool `json:"excludeFirstPartyAudience,omitempty"`
 
 	// TargetingExpansionLevel: Required. Magnitude of expansion for
-	// applicable targeting under this line item.
+	// applicable targeting under this line item. Beginning **March 25,
+	// 2023**, the behavior of this field may change in the following ways
+	// with the replacement of targeting expansion with optimized targeting
+	// (//support.google.com/displayvideo/answer/12060859): * This field
+	// will represent the optimized targeting checkbox, with a
+	// `NO_EXPANSION` value representing optimized targeting turned off and
+	// a `LEAST_EXPANSION` value representing optimized targeting turned on.
+	// * `NO_EXPANSION` will be the default value for the field and will be
+	// automatically assigned if you do not set the field. * If you set the
+	// field to any value other than `NO_EXPANSION`, it will automatically
+	// be set to `LEAST_EXPANSION`. This behavior will be rolled out to all
+	// partners by mid-April 2023.
 	//
 	// Possible values:
 	//   "TARGETING_EXPANSION_LEVEL_UNSPECIFIED" - Targeting expansion level
@@ -15292,7 +16049,8 @@ type VideoPlayerSizeAssignedTargetingOptionDetails struct {
 	// targeting_type is `TARGETING_TYPE_VIDEO_PLAYER_SIZE`.
 	TargetingOptionId string `json:"targetingOptionId,omitempty"`
 
-	// VideoPlayerSize: The video player size. Output only in v1.
+	// VideoPlayerSize: The video player size. Output only in v1. Required
+	// in v2.
 	//
 	// Possible values:
 	//   "VIDEO_PLAYER_SIZE_UNSPECIFIED" - Video player size is not
@@ -15393,6 +16151,7 @@ type ViewabilityAssignedTargetingOptionDetails struct {
 	TargetingOptionId string `json:"targetingOptionId,omitempty"`
 
 	// Viewability: The predicted viewability percentage. Output only in v1.
+	// Required in v2.
 	//
 	// Possible values:
 	//   "VIEWABILITY_UNSPECIFIED" - Default value when viewability is not
@@ -15605,17 +16364,17 @@ func (c *AdvertisersAuditCall) Do(opts ...googleapi.CallOption) (*AuditAdvertise
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuditAdvertiserResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15758,17 +16517,17 @@ func (c *AdvertisersBulkEditAdvertiserAssignedTargetingOptionsCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditAdvertiserAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15954,17 +16713,17 @@ func (c *AdvertisersBulkListAdvertiserAssignedTargetingOptionsCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkListAdvertiserAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16131,17 +16890,17 @@ func (c *AdvertisersCreateCall) Do(opts ...googleapi.CallOption) (*Advertiser, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Advertiser{
 		ServerResponse: googleapi.ServerResponse{
@@ -16258,17 +17017,17 @@ func (c *AdvertisersDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -16405,17 +17164,17 @@ func (c *AdvertisersGetCall) Do(opts ...googleapi.CallOption) (*Advertiser, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Advertiser{
 		ServerResponse: googleapi.ServerResponse{
@@ -16508,7 +17267,7 @@ func (c *AdvertisersListCall) OrderBy(orderBy string) *AdvertisersListCall {
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 func (c *AdvertisersListCall) PageSize(pageSize int64) *AdvertisersListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -16604,17 +17363,17 @@ func (c *AdvertisersListCall) Do(opts ...googleapi.CallOption) (*ListAdvertisers
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAdvertisersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16645,7 +17404,7 @@ func (c *AdvertisersListCall) Do(opts ...googleapi.CallOption) (*ListAdvertisers
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -16708,8 +17467,8 @@ type AdvertisersPatchCall struct {
 // Patch: Updates an existing advertiser. Returns the updated advertiser
 // if successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser.
-//   Assigned by the system.
+//   - advertiserId: Output only. The unique ID of the advertiser.
+//     Assigned by the system.
 func (r *AdvertisersService) Patch(advertiserId int64, advertiser *Advertiser) *AdvertisersPatchCall {
 	c := &AdvertisersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -16791,17 +17550,17 @@ func (c *AdvertisersPatchCall) Do(opts ...googleapi.CallOption) (*Advertiser, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Advertiser{
 		ServerResponse: googleapi.ServerResponse{
@@ -16999,17 +17758,17 @@ func (c *AdvertisersAssetsUploadCall) Do(opts ...googleapi.CallOption) (*CreateA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -17025,7 +17784,7 @@ func (c *AdvertisersAssetsUploadCall) Do(opts ...googleapi.CallOption) (*CreateA
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &CreateAssetResponse{
@@ -17098,9 +17857,9 @@ type AdvertisersCampaignsBulkListCampaignAssignedTargetingOptionsCall struct {
 // BulkListCampaignAssignedTargetingOptions: Lists assigned targeting
 // options of a campaign across targeting types.
 //
-// - advertiserId: The ID of the advertiser the campaign belongs to.
-// - campaignId: The ID of the campaign to list assigned targeting
-//   options for.
+//   - advertiserId: The ID of the advertiser the campaign belongs to.
+//   - campaignId: The ID of the campaign to list assigned targeting
+//     options for.
 func (r *AdvertisersCampaignsService) BulkListCampaignAssignedTargetingOptions(advertiserId int64, campaignId int64) *AdvertisersCampaignsBulkListCampaignAssignedTargetingOptionsCall {
 	c := &AdvertisersCampaignsBulkListCampaignAssignedTargetingOptionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -17233,17 +17992,17 @@ func (c *AdvertisersCampaignsBulkListCampaignAssignedTargetingOptionsCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkListCampaignAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17350,8 +18109,8 @@ type AdvertisersCampaignsCreateCall struct {
 // Create: Creates a new campaign. Returns the newly created campaign if
 // successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser the
-//   campaign belongs to.
+//   - advertiserId: Output only. The unique ID of the advertiser the
+//     campaign belongs to.
 func (r *AdvertisersCampaignsService) Create(advertiserId int64, campaign *Campaign) *AdvertisersCampaignsCreateCall {
 	c := &AdvertisersCampaignsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -17426,17 +18185,17 @@ func (c *AdvertisersCampaignsCreateCall) Do(opts ...googleapi.CallOption) (*Camp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Campaign{
 		ServerResponse: googleapi.ServerResponse{
@@ -17569,17 +18328,17 @@ func (c *AdvertisersCampaignsDeleteCall) Do(opts ...googleapi.CallOption) (*Empt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -17730,17 +18489,17 @@ func (c *AdvertisersCampaignsGetCall) Do(opts ...googleapi.CallOption) (*Campaig
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Campaign{
 		ServerResponse: googleapi.ServerResponse{
@@ -17849,7 +18608,7 @@ func (c *AdvertisersCampaignsListCall) OrderBy(orderBy string) *AdvertisersCampa
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 func (c *AdvertisersCampaignsListCall) PageSize(pageSize int64) *AdvertisersCampaignsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -17940,17 +18699,17 @@ func (c *AdvertisersCampaignsListCall) Do(opts ...googleapi.CallOption) (*ListCa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCampaignsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17991,7 +18750,7 @@ func (c *AdvertisersCampaignsListCall) Do(opts ...googleapi.CallOption) (*ListCa
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -18050,10 +18809,10 @@ type AdvertisersCampaignsPatchCall struct {
 // Patch: Updates an existing campaign. Returns the updated campaign if
 // successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser the
-//   campaign belongs to.
-// - campaignId: Output only. The unique ID of the campaign. Assigned by
-//   the system.
+//   - advertiserId: Output only. The unique ID of the advertiser the
+//     campaign belongs to.
+//   - campaignId: Output only. The unique ID of the campaign. Assigned by
+//     the system.
 func (r *AdvertisersCampaignsService) Patch(advertiserId int64, campaignId int64, campaign *Campaign) *AdvertisersCampaignsPatchCall {
 	c := &AdvertisersCampaignsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -18137,17 +18896,17 @@ func (c *AdvertisersCampaignsPatchCall) Do(opts ...googleapi.CallOption) (*Campa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Campaign{
 		ServerResponse: googleapi.ServerResponse{
@@ -18224,29 +18983,29 @@ type AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsGetCall struct {
 
 // Get: Gets a single targeting option assigned to a campaign.
 //
-// - advertiserId: The ID of the advertiser the campaign belongs to.
-// - assignedTargetingOptionId: An identifier unique to the targeting
-//   type in this campaign that identifies the assigned targeting option
-//   being requested.
-// - campaignId: The ID of the campaign the assigned targeting option
-//   belongs to.
-// - targetingType: Identifies the type of this assigned targeting
-//   option. Supported targeting types: * `TARGETING_TYPE_AGE_RANGE` *
-//   `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
-//   `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
-//   `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
-//   `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
-//   `TARGETING_TYPE_HOUSEHOLD_INCOME` *
-//   `TARGETING_TYPE_INVENTORY_SOURCE` *
-//   `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_LANGUAGE`
-//   * `TARGETING_TYPE_ON_SCREEN_POSITION` *
-//   `TARGETING_TYPE_PARENTAL_STATUS` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
-//   `TARGETING_TYPE_SUB_EXCHANGE` *
-//   `TARGETING_TYPE_THIRD_PARTY_VERIFIER` *
-//   `TARGETING_TYPE_VIEWABILITY`.
+//   - advertiserId: The ID of the advertiser the campaign belongs to.
+//   - assignedTargetingOptionId: An identifier unique to the targeting
+//     type in this campaign that identifies the assigned targeting option
+//     being requested.
+//   - campaignId: The ID of the campaign the assigned targeting option
+//     belongs to.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types: * `TARGETING_TYPE_AGE_RANGE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_LANGUAGE`
+//   - `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` *
+//     `TARGETING_TYPE_VIEWABILITY`.
 func (r *AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsService) Get(advertiserId int64, campaignId int64, targetingType string, assignedTargetingOptionId string) *AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsGetCall {
 	c := &AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -18334,17 +19093,17 @@ func (c *AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsGetCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -18523,26 +19282,26 @@ type AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsListCall struct {
 // List: Lists the targeting options assigned to a campaign for a
 // specified targeting type.
 //
-// - advertiserId: The ID of the advertiser the campaign belongs to.
-// - campaignId: The ID of the campaign to list assigned targeting
-//   options for.
-// - targetingType: Identifies the type of assigned targeting options to
-//   list. Supported targeting types: * `TARGETING_TYPE_AGE_RANGE` *
-//   `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
-//   `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
-//   `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
-//   `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
-//   `TARGETING_TYPE_HOUSEHOLD_INCOME` *
-//   `TARGETING_TYPE_INVENTORY_SOURCE` *
-//   `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_LANGUAGE`
-//   * `TARGETING_TYPE_ON_SCREEN_POSITION` *
-//   `TARGETING_TYPE_PARENTAL_STATUS` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
-//   `TARGETING_TYPE_SUB_EXCHANGE` *
-//   `TARGETING_TYPE_THIRD_PARTY_VERIFIER` *
-//   `TARGETING_TYPE_VIEWABILITY`.
+//   - advertiserId: The ID of the advertiser the campaign belongs to.
+//   - campaignId: The ID of the campaign to list assigned targeting
+//     options for.
+//   - targetingType: Identifies the type of assigned targeting options to
+//     list. Supported targeting types: * `TARGETING_TYPE_AGE_RANGE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_LANGUAGE`
+//   - `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` *
+//     `TARGETING_TYPE_VIEWABILITY`.
 func (r *AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsService) List(advertiserId int64, campaignId int64, targetingType string) *AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsListCall {
 	c := &AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -18676,17 +19435,17 @@ func (c *AdvertisersCampaignsTargetingTypesAssignedTargetingOptionsListCall) Do(
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCampaignAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18897,8 +19656,8 @@ type AdvertisersChannelsCreateCall struct {
 // Create: Creates a new channel. Returns the newly created channel if
 // successful.
 //
-// - advertiserId: The ID of the advertiser that owns the created
-//   channel.
+//   - advertiserId: The ID of the advertiser that owns the created
+//     channel.
 func (r *AdvertisersChannelsService) Create(advertiserId int64, channel *Channel) *AdvertisersChannelsCreateCall {
 	c := &AdvertisersChannelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -18980,17 +19739,17 @@ func (c *AdvertisersChannelsCreateCall) Do(opts ...googleapi.CallOption) (*Chann
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -19055,9 +19814,9 @@ type AdvertisersChannelsGetCall struct {
 
 // Get: Gets a channel for a partner or advertiser.
 //
-// - advertiserId: The ID of the advertiser that owns the fetched
-//   channel.
-// - channelId: The ID of the channel to fetch.
+//   - advertiserId: The ID of the advertiser that owns the fetched
+//     channel.
+//   - channelId: The ID of the channel to fetch.
 func (r *AdvertisersChannelsService) Get(advertiserId int64, channelId int64) *AdvertisersChannelsGetCall {
 	c := &AdvertisersChannelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -19148,17 +19907,17 @@ func (c *AdvertisersChannelsGetCall) Do(opts ...googleapi.CallOption) (*Channel,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -19259,7 +20018,7 @@ func (c *AdvertisersChannelsListCall) OrderBy(orderBy string) *AdvertisersChanne
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *AdvertisersChannelsListCall) PageSize(pageSize int64) *AdvertisersChannelsListCall {
@@ -19359,17 +20118,17 @@ func (c *AdvertisersChannelsListCall) Do(opts ...googleapi.CallOption) (*ListCha
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListChannelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19410,7 +20169,7 @@ func (c *AdvertisersChannelsListCall) Do(opts ...googleapi.CallOption) (*ListCha
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -19473,10 +20232,10 @@ type AdvertisersChannelsPatchCall struct {
 
 // Patch: Updates a channel. Returns the updated channel if successful.
 //
-// - advertiserId: The ID of the advertiser that owns the created
-//   channel.
-// - channelId: Output only. The unique ID of the channel. Assigned by
-//   the system.
+//   - advertiserId: The ID of the advertiser that owns the created
+//     channel.
+//   - channelId: Output only. The unique ID of the channel. Assigned by
+//     the system.
 func (r *AdvertisersChannelsService) Patch(advertiserId int64, channelId int64, channel *Channel) *AdvertisersChannelsPatchCall {
 	c := &AdvertisersChannelsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -19567,17 +20326,17 @@ func (c *AdvertisersChannelsPatchCall) Do(opts ...googleapi.CallOption) (*Channe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -19658,9 +20417,9 @@ type AdvertisersChannelsSitesBulkEditCall struct {
 // delete the sites provided in BulkEditSitesRequest.deleted_sites and
 // then create the sites provided in BulkEditSitesRequest.created_sites.
 //
-// - advertiserId: The ID of the advertiser that owns the parent
-//   channel.
-// - channelId: The ID of the parent channel to which the sites belong.
+//   - advertiserId: The ID of the advertiser that owns the parent
+//     channel.
+//   - channelId: The ID of the parent channel to which the sites belong.
 func (r *AdvertisersChannelsSitesService) BulkEdit(advertiserId int64, channelId int64, bulkeditsitesrequest *BulkEditSitesRequest) *AdvertisersChannelsSitesBulkEditCall {
 	c := &AdvertisersChannelsSitesBulkEditCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -19737,17 +20496,17 @@ func (c *AdvertisersChannelsSitesBulkEditCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditSitesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19814,10 +20573,10 @@ type AdvertisersChannelsSitesCreateCall struct {
 
 // Create: Creates a site in a channel.
 //
-// - advertiserId: The ID of the advertiser that owns the parent
-//   channel.
-// - channelId: The ID of the parent channel in which the site will be
-//   created.
+//   - advertiserId: The ID of the advertiser that owns the parent
+//     channel.
+//   - channelId: The ID of the parent channel in which the site will be
+//     created.
 func (r *AdvertisersChannelsSitesService) Create(advertiserId int64, channelId int64, site *Site) *AdvertisersChannelsSitesCreateCall {
 	c := &AdvertisersChannelsSitesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -19901,17 +20660,17 @@ func (c *AdvertisersChannelsSitesCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Site{
 		ServerResponse: googleapi.ServerResponse{
@@ -19984,10 +20743,10 @@ type AdvertisersChannelsSitesDeleteCall struct {
 
 // Delete: Deletes a site from a channel.
 //
-// - advertiserId: The ID of the advertiser that owns the parent
-//   channel.
-// - channelId: The ID of the parent channel to which the site belongs.
-// - urlOrAppId: The URL or app ID of the site to delete.
+//   - advertiserId: The ID of the advertiser that owns the parent
+//     channel.
+//   - channelId: The ID of the parent channel to which the site belongs.
+//   - urlOrAppId: The URL or app ID of the site to delete.
 func (r *AdvertisersChannelsSitesService) Delete(advertiserId int64, channelId int64, urlOrAppId string) *AdvertisersChannelsSitesDeleteCall {
 	c := &AdvertisersChannelsSitesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -20067,17 +20826,17 @@ func (c *AdvertisersChannelsSitesDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -20155,10 +20914,10 @@ type AdvertisersChannelsSitesListCall struct {
 
 // List: Lists sites in a channel.
 //
-// - advertiserId: The ID of the advertiser that owns the parent
-//   channel.
-// - channelId: The ID of the parent channel to which the requested
-//   sites belong.
+//   - advertiserId: The ID of the advertiser that owns the parent
+//     channel.
+//   - channelId: The ID of the parent channel to which the requested
+//     sites belong.
 func (r *AdvertisersChannelsSitesService) List(advertiserId int64, channelId int64) *AdvertisersChannelsSitesListCall {
 	c := &AdvertisersChannelsSitesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -20289,17 +21048,17 @@ func (c *AdvertisersChannelsSitesListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSitesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20414,10 +21173,10 @@ type AdvertisersChannelsSitesReplaceCall struct {
 // operation will replace the sites under a channel with the sites
 // provided in ReplaceSitesRequest.new_sites.
 //
-// - advertiserId: The ID of the advertiser that owns the parent
-//   channel.
-// - channelId: The ID of the parent channel whose sites will be
-//   replaced.
+//   - advertiserId: The ID of the advertiser that owns the parent
+//     channel.
+//   - channelId: The ID of the parent channel whose sites will be
+//     replaced.
 func (r *AdvertisersChannelsSitesService) Replace(advertiserId int64, channelId int64, replacesitesrequest *ReplaceSitesRequest) *AdvertisersChannelsSitesReplaceCall {
 	c := &AdvertisersChannelsSitesReplaceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -20494,17 +21253,17 @@ func (c *AdvertisersChannelsSitesReplaceCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReplaceSitesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20571,8 +21330,8 @@ type AdvertisersCreativesCreateCall struct {
 // Create: Creates a new creative. Returns the newly created creative if
 // successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser the
-//   creative belongs to.
+//   - advertiserId: Output only. The unique ID of the advertiser the
+//     creative belongs to.
 func (r *AdvertisersCreativesService) Create(advertiserId int64, creative *Creative) *AdvertisersCreativesCreateCall {
 	c := &AdvertisersCreativesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -20647,17 +21406,17 @@ func (c *AdvertisersCreativesCreateCall) Do(opts ...googleapi.CallOption) (*Crea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -20790,17 +21549,17 @@ func (c *AdvertisersCreativesDeleteCall) Do(opts ...googleapi.CallOption) (*Empt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -20950,17 +21709,17 @@ func (c *AdvertisersCreativesGetCall) Do(opts ...googleapi.CallOption) (*Creativ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -21044,36 +21803,39 @@ func (r *AdvertisersCreativesService) List(advertiserId int64) *AdvertisersCreat
 // `EQUALS (=)` for the following fields: - `entityStatus` -
 // `creativeType`. - `dimensions` - `minDuration` - `maxDuration` -
 // `approvalStatus` - `exchangeReviewStatus` - `dynamic` - `creativeId`
-// - `minModifiedTime` - `maxModifiedTime` * The operator must be `HAS
-// (:)` for the following fields: - `lineItemIds` * For `entityStatus`,
-// `minDuration`, `maxDuration`, `minModifiedTime`, `maxModifiedTime`,
-// and `dynamic`, there may be at most one restriction. * For
-// `dimensions`, the value is in the form of "{width}x{height}". * For
+// * The operator must be `HAS (:)` for the following fields: -
+// `lineItemIds` * The operator must be `GREATER THAN OR EQUAL TO (>=)`
+// or `LESS THAN OR EQUAL TO (<=)` for the following fields: -
+// `updateTime` (input in ISO 8601 format, or YYYY-MM-DDTHH:MM:SSZ) *
+// For `entityStatus`, `minDuration`, `maxDuration`, `updateTime`, and
+// `dynamic`, there may be at most one restriction. * For `dimensions`,
+// the value is in the form of "{width}x{height}". * For
 // `exchangeReviewStatus`, the value is in the form of
 // `{exchange}-{reviewStatus}`. * For `minDuration` and `maxDuration`,
 // the value is in the form of "{duration}s". Only seconds are
-// supported with millisecond granularity. * For `minModifiedTime` and
-// `maxModifiedTime`, the value is a unix timestamp (GMT) in seconds.
-// The time filtered is against the update_time field in the creative,
-// which includes system updates to the creative (e.g. creative review
-// updates). * There may be multiple `lineItemIds` restrictions in order
-// to search against multiple possible line item IDs. * There may be
-// multiple `creativeId` restrictions in order to search against
-// multiple possible creative IDs. Examples: * All native creatives:
-// `creativeType="CREATIVE_TYPE_NATIVE" * All active creatives with
-// 300x400 or 50x100 dimensions: `entityStatus="ENTITY_STATUS_ACTIVE"
-// AND (dimensions="300x400" OR dimensions="50x100")` * All dynamic
-// creatives that are approved by AdX or AppNexus, with a minimum
-// duration of 5 seconds and 200ms. `dynamic="true" AND
-// minDuration="5.2s" AND
+// supported with millisecond granularity. * For `updateTime`, a
+// creative resource's field value reflects the last time that a
+// creative has been updated, which includes updates made by the system
+// (e.g. creative review updates). * There may be multiple `lineItemIds`
+// restrictions in order to search against multiple possible line item
+// IDs. * There may be multiple `creativeId` restrictions in order to
+// search against multiple possible creative IDs. Examples: * All native
+// creatives: `creativeType="CREATIVE_TYPE_NATIVE" * All active
+// creatives with 300x400 or 50x100 dimensions:
+// `entityStatus="ENTITY_STATUS_ACTIVE" AND (dimensions="300x400" OR
+// dimensions="50x100")` * All dynamic creatives that are approved by
+// AdX or AppNexus, with a minimum duration of 5 seconds and 200ms.
+// `dynamic="true" AND minDuration="5.2s" AND
 // (exchangeReviewStatus="EXCHANGE_GOOGLE_AD_MANAGER-REVIEW_STATUS_APPROV
 // ED" OR
 // exchangeReviewStatus="EXCHANGE_APPNEXUS-REVIEW_STATUS_APPROVED")` *
 // All video creatives that are associated with line item ID 1 or 2:
 // `creativeType="CREATIVE_TYPE_VIDEO" AND (lineItemIds:1 OR
 // lineItemIds:2)` * Find creatives by multiple creative IDs:
-// `creativeId=1 OR creativeId=2` The length of this field should be no
-// more than 500 characters.
+// `creativeId=1 OR creativeId=2` * All creatives with an update time
+// greater than or equal to `2020-11-04T18:54:47Z (format of ISO 8601)`:
+// `updateTime>="2020-11-04T18:54:47Z" The length of this field should
+// be no more than 500 characters.
 func (c *AdvertisersCreativesListCall) Filter(filter string) *AdvertisersCreativesListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -21091,7 +21853,7 @@ func (c *AdvertisersCreativesListCall) OrderBy(orderBy string) *AdvertisersCreat
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *AdvertisersCreativesListCall) PageSize(pageSize int64) *AdvertisersCreativesListCall {
@@ -21184,17 +21946,17 @@ func (c *AdvertisersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -21225,7 +21987,7 @@ func (c *AdvertisersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCr
 	//       "type": "string"
 	//     },
 	//     "filter": {
-	//       "description": "Allows filtering by creative properties. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restriction for the same field must be combined by `OR`. * Restriction for different fields must be combined by `AND`. * Between `(` and `)` there can only be restrictions combined by `OR` for the same field. * A restriction has the form of `{field} {operator} {value}`. * The operator must be `EQUALS (=)` for the following fields: - `entityStatus` - `creativeType`. - `dimensions` - `minDuration` - `maxDuration` - `approvalStatus` - `exchangeReviewStatus` - `dynamic` - `creativeId` - `minModifiedTime` - `maxModifiedTime` * The operator must be `HAS (:)` for the following fields: - `lineItemIds` * For `entityStatus`, `minDuration`, `maxDuration`, `minModifiedTime`, `maxModifiedTime`, and `dynamic`, there may be at most one restriction. * For `dimensions`, the value is in the form of `\"{width}x{height}\"`. * For `exchangeReviewStatus`, the value is in the form of `{exchange}-{reviewStatus}`. * For `minDuration` and `maxDuration`, the value is in the form of `\"{duration}s\"`. Only seconds are supported with millisecond granularity. * For `minModifiedTime` and `maxModifiedTime`, the value is a unix timestamp (GMT) in seconds. The time filtered is against the update_time field in the creative, which includes system updates to the creative (e.g. creative review updates). * There may be multiple `lineItemIds` restrictions in order to search against multiple possible line item IDs. * There may be multiple `creativeId` restrictions in order to search against multiple possible creative IDs. Examples: * All native creatives: `creativeType=\"CREATIVE_TYPE_NATIVE\"` * All active creatives with 300x400 or 50x100 dimensions: `entityStatus=\"ENTITY_STATUS_ACTIVE\" AND (dimensions=\"300x400\" OR dimensions=\"50x100\")` * All dynamic creatives that are approved by AdX or AppNexus, with a minimum duration of 5 seconds and 200ms. `dynamic=\"true\" AND minDuration=\"5.2s\" AND (exchangeReviewStatus=\"EXCHANGE_GOOGLE_AD_MANAGER-REVIEW_STATUS_APPROVED\" OR exchangeReviewStatus=\"EXCHANGE_APPNEXUS-REVIEW_STATUS_APPROVED\")` * All video creatives that are associated with line item ID 1 or 2: `creativeType=\"CREATIVE_TYPE_VIDEO\" AND (lineItemIds:1 OR lineItemIds:2)` * Find creatives by multiple creative IDs: `creativeId=1 OR creativeId=2` The length of this field should be no more than 500 characters.",
+	//       "description": "Allows filtering by creative properties. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restriction for the same field must be combined by `OR`. * Restriction for different fields must be combined by `AND`. * Between `(` and `)` there can only be restrictions combined by `OR` for the same field. * A restriction has the form of `{field} {operator} {value}`. * The operator must be `EQUALS (=)` for the following fields: - `entityStatus` - `creativeType`. - `dimensions` - `minDuration` - `maxDuration` - `approvalStatus` - `exchangeReviewStatus` - `dynamic` - `creativeId` * The operator must be `HAS (:)` for the following fields: - `lineItemIds` * The operator must be `GREATER THAN OR EQUAL TO (\u003e=)` or `LESS THAN OR EQUAL TO (\u003c=)` for the following fields: - `updateTime` (input in ISO 8601 format, or YYYY-MM-DDTHH:MM:SSZ) * For `entityStatus`, `minDuration`, `maxDuration`, `updateTime`, and `dynamic`, there may be at most one restriction. * For `dimensions`, the value is in the form of `\"{width}x{height}\"`. * For `exchangeReviewStatus`, the value is in the form of `{exchange}-{reviewStatus}`. * For `minDuration` and `maxDuration`, the value is in the form of `\"{duration}s\"`. Only seconds are supported with millisecond granularity. * For `updateTime`, a creative resource's field value reflects the last time that a creative has been updated, which includes updates made by the system (e.g. creative review updates). * There may be multiple `lineItemIds` restrictions in order to search against multiple possible line item IDs. * There may be multiple `creativeId` restrictions in order to search against multiple possible creative IDs. Examples: * All native creatives: `creativeType=\"CREATIVE_TYPE_NATIVE\"` * All active creatives with 300x400 or 50x100 dimensions: `entityStatus=\"ENTITY_STATUS_ACTIVE\" AND (dimensions=\"300x400\" OR dimensions=\"50x100\")` * All dynamic creatives that are approved by AdX or AppNexus, with a minimum duration of 5 seconds and 200ms. `dynamic=\"true\" AND minDuration=\"5.2s\" AND (exchangeReviewStatus=\"EXCHANGE_GOOGLE_AD_MANAGER-REVIEW_STATUS_APPROVED\" OR exchangeReviewStatus=\"EXCHANGE_APPNEXUS-REVIEW_STATUS_APPROVED\")` * All video creatives that are associated with line item ID 1 or 2: `creativeType=\"CREATIVE_TYPE_VIDEO\" AND (lineItemIds:1 OR lineItemIds:2)` * Find creatives by multiple creative IDs: `creativeId=1 OR creativeId=2` * All creatives with an update time greater than or equal to `2020-11-04T18:54:47Z (format of ISO 8601)`: `updateTime\u003e=\"2020-11-04T18:54:47Z\"` The length of this field should be no more than 500 characters.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -21235,7 +21997,7 @@ func (c *AdvertisersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCr
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -21293,10 +22055,10 @@ type AdvertisersCreativesPatchCall struct {
 // Patch: Updates an existing creative. Returns the updated creative if
 // successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser the
-//   creative belongs to.
-// - creativeId: Output only. The unique ID of the creative. Assigned by
-//   the system.
+//   - advertiserId: Output only. The unique ID of the advertiser the
+//     creative belongs to.
+//   - creativeId: Output only. The unique ID of the creative. Assigned by
+//     the system.
 func (r *AdvertisersCreativesService) Patch(advertiserId int64, creativeId int64, creative *Creative) *AdvertisersCreativesPatchCall {
 	c := &AdvertisersCreativesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -21380,17 +22142,17 @@ func (c *AdvertisersCreativesPatchCall) Do(opts ...googleapi.CallOption) (*Creat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -21465,10 +22227,10 @@ type AdvertisersInsertionOrdersBulkListInsertionOrderAssignedTargetingOptionsCal
 // BulkListInsertionOrderAssignedTargetingOptions: Lists assigned
 // targeting options of an insertion order across targeting types.
 //
-// - advertiserId: The ID of the advertiser the insertion order belongs
-//   to.
-// - insertionOrderId: The ID of the insertion order to list assigned
-//   targeting options for.
+//   - advertiserId: The ID of the advertiser the insertion order belongs
+//     to.
+//   - insertionOrderId: The ID of the insertion order to list assigned
+//     targeting options for.
 func (r *AdvertisersInsertionOrdersService) BulkListInsertionOrderAssignedTargetingOptions(advertiserId int64, insertionOrderId int64) *AdvertisersInsertionOrdersBulkListInsertionOrderAssignedTargetingOptionsCall {
 	c := &AdvertisersInsertionOrdersBulkListInsertionOrderAssignedTargetingOptionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -21602,17 +22364,17 @@ func (c *AdvertisersInsertionOrdersBulkListInsertionOrderAssignedTargetingOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkListInsertionOrderAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -21719,8 +22481,8 @@ type AdvertisersInsertionOrdersCreateCall struct {
 // Create: Creates a new insertion order. Returns the newly created
 // insertion order if successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser the
-//   insertion order belongs to.
+//   - advertiserId: Output only. The unique ID of the advertiser the
+//     insertion order belongs to.
 func (r *AdvertisersInsertionOrdersService) Create(advertiserId int64, insertionorder *InsertionOrder) *AdvertisersInsertionOrdersCreateCall {
 	c := &AdvertisersInsertionOrdersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -21795,17 +22557,17 @@ func (c *AdvertisersInsertionOrdersCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InsertionOrder{
 		ServerResponse: googleapi.ServerResponse{
@@ -21866,9 +22628,9 @@ type AdvertisersInsertionOrdersDeleteCall struct {
 // archived first, i.e. set entity_status to `ENTITY_STATUS_ARCHIVED`,
 // to be able to delete it.
 //
-// - advertiserId: The ID of the advertiser this insertion order belongs
-//   to.
-// - insertionOrderId: The ID of the insertion order we need to delete.
+//   - advertiserId: The ID of the advertiser this insertion order belongs
+//     to.
+//   - insertionOrderId: The ID of the insertion order to delete.
 func (r *AdvertisersInsertionOrdersService) Delete(advertiserId int64, insertionOrderId int64) *AdvertisersInsertionOrdersDeleteCall {
 	c := &AdvertisersInsertionOrdersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -21939,17 +22701,17 @@ func (c *AdvertisersInsertionOrdersDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -21981,7 +22743,7 @@ func (c *AdvertisersInsertionOrdersDeleteCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "insertionOrderId": {
-	//       "description": "The ID of the insertion order we need to delete.",
+	//       "description": "The ID of the insertion order to delete.",
 	//       "format": "int64",
 	//       "location": "path",
 	//       "pattern": "^[^/]+$",
@@ -22015,9 +22777,9 @@ type AdvertisersInsertionOrdersGetCall struct {
 // Get: Gets an insertion order. Returns error code `NOT_FOUND` if the
 // insertion order does not exist.
 //
-// - advertiserId: The ID of the advertiser this insertion order belongs
-//   to.
-// - insertionOrderId: The ID of the insertion order to fetch.
+//   - advertiserId: The ID of the advertiser this insertion order belongs
+//     to.
+//   - insertionOrderId: The ID of the insertion order to fetch.
 func (r *AdvertisersInsertionOrdersService) Get(advertiserId int64, insertionOrderId int64) *AdvertisersInsertionOrdersGetCall {
 	c := &AdvertisersInsertionOrdersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -22101,17 +22863,17 @@ func (c *AdvertisersInsertionOrdersGetCall) Do(opts ...googleapi.CallOption) (*I
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InsertionOrder{
 		ServerResponse: googleapi.ServerResponse{
@@ -22178,8 +22940,8 @@ type AdvertisersInsertionOrdersListCall struct {
 // specified, insertion orders with `ENTITY_STATUS_ARCHIVED` will not be
 // included in the results.
 //
-// - advertiserId: The ID of the advertiser to list insertion orders
-//   for.
+//   - advertiserId: The ID of the advertiser to list insertion orders
+//     for.
 func (r *AdvertisersInsertionOrdersService) List(advertiserId int64) *AdvertisersInsertionOrdersListCall {
 	c := &AdvertisersInsertionOrdersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -22321,17 +23083,17 @@ func (c *AdvertisersInsertionOrdersListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInsertionOrdersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -22430,10 +23192,10 @@ type AdvertisersInsertionOrdersPatchCall struct {
 // Patch: Updates an existing insertion order. Returns the updated
 // insertion order if successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser the
-//   insertion order belongs to.
-// - insertionOrderId: Output only. The unique ID of the insertion
-//   order. Assigned by the system.
+//   - advertiserId: Output only. The unique ID of the advertiser the
+//     insertion order belongs to.
+//   - insertionOrderId: Output only. The unique ID of the insertion
+//     order. Assigned by the system.
 func (r *AdvertisersInsertionOrdersService) Patch(advertiserId int64, insertionOrderId int64, insertionorder *InsertionOrder) *AdvertisersInsertionOrdersPatchCall {
 	c := &AdvertisersInsertionOrdersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -22517,17 +23279,17 @@ func (c *AdvertisersInsertionOrdersPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InsertionOrder{
 		ServerResponse: googleapi.ServerResponse{
@@ -22603,15 +23365,47 @@ type AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsGetCall str
 
 // Get: Gets a single targeting option assigned to an insertion order.
 //
-// - advertiserId: The ID of the advertiser the insertion order belongs
-//   to.
-// - assignedTargetingOptionId: An identifier unique to the targeting
-//   type in this insertion order that identifies the assigned targeting
-//   option being requested.
-// - insertionOrderId: The ID of the insertion order the assigned
-//   targeting option belongs to.
-// - targetingType: Identifies the type of this assigned targeting
-//   option.
+//   - advertiserId: The ID of the advertiser the insertion order belongs
+//     to.
+//   - assignedTargetingOptionId: An identifier unique to the targeting
+//     type in this insertion order that identifies the assigned targeting
+//     option being requested.
+//   - insertionOrderId: The ID of the insertion order the assigned
+//     targeting option belongs to.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types include: *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` *
+//     `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` *
+//     `TARGETING_TYPE_AUDIO_CONTENT_TYPE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` *
+//     `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` *
+//     `TARGETING_TYPE_CONTENT_GENRE` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_STREAM_TYPE` *
+//     `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL`
+//   - `TARGETING_TYPE_DEVICE_TYPE` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD`
+//   - `TARGETING_TYPE_LANGUAGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` *
+//     `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` *
+//     `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` *
+//     `TARGETING_TYPE_REGIONAL_LOCATION_LIST` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`.
 func (r *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsService) Get(advertiserId int64, insertionOrderId int64, targetingType string, assignedTargetingOptionId string) *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsGetCall {
 	c := &AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -22699,17 +23493,17 @@ func (c *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsGetCall
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -22758,7 +23552,7 @@ func (c *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsGetCall
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of this assigned targeting option.",
+	//       "description": "Required. Identifies the type of this assigned targeting option. Supported targeting types include: * `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` * `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` * `TARGETING_TYPE_AUDIO_CONTENT_TYPE` * `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` * `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` * `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` * `TARGETING_TYPE_CONTENT_GENRE` * `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_STREAM_TYPE` * `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_HOUSEHOLD_INCOME` * `TARGETING_TYPE_INVENTORY_SOURCE` * `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD` * `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_ON_SCREEN_POSITION` * `TARGETING_TYPE_OPERATING_SYSTEM` * `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` * `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` * `TARGETING_TYPE_REGIONAL_LOCATION_LIST` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_SUB_EXCHANGE` * `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` * `TARGETING_TYPE_USER_REWARDED_CONTENT` * `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -22887,12 +23681,44 @@ type AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsListCall st
 
 // List: Lists the targeting options assigned to an insertion order.
 //
-// - advertiserId: The ID of the advertiser the insertion order belongs
-//   to.
-// - insertionOrderId: The ID of the insertion order to list assigned
-//   targeting options for.
-// - targetingType: Identifies the type of assigned targeting options to
-//   list.
+//   - advertiserId: The ID of the advertiser the insertion order belongs
+//     to.
+//   - insertionOrderId: The ID of the insertion order to list assigned
+//     targeting options for.
+//   - targetingType: Identifies the type of assigned targeting options to
+//     list. Supported targeting types include: *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` *
+//     `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` *
+//     `TARGETING_TYPE_AUDIO_CONTENT_TYPE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` *
+//     `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` *
+//     `TARGETING_TYPE_CONTENT_GENRE` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_STREAM_TYPE` *
+//     `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL`
+//   - `TARGETING_TYPE_DEVICE_TYPE` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD`
+//   - `TARGETING_TYPE_LANGUAGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` *
+//     `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` *
+//     `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` *
+//     `TARGETING_TYPE_REGIONAL_LOCATION_LIST` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`.
 func (r *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsService) List(advertiserId int64, insertionOrderId int64, targetingType string) *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsListCall {
 	c := &AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -23026,17 +23852,17 @@ func (c *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsListCal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInsertionOrderAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23098,7 +23924,7 @@ func (c *AdvertisersInsertionOrdersTargetingTypesAssignedTargetingOptionsListCal
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of assigned targeting options to list.",
+	//       "description": "Required. Identifies the type of assigned targeting options to list. Supported targeting types include: * `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` * `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` * `TARGETING_TYPE_AUDIO_CONTENT_TYPE` * `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` * `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` * `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` * `TARGETING_TYPE_CONTENT_GENRE` * `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_STREAM_TYPE` * `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_HOUSEHOLD_INCOME` * `TARGETING_TYPE_INVENTORY_SOURCE` * `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD` * `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_ON_SCREEN_POSITION` * `TARGETING_TYPE_OPERATING_SYSTEM` * `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` * `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` * `TARGETING_TYPE_REGIONAL_LOCATION_LIST` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_SUB_EXCHANGE` * `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` * `TARGETING_TYPE_USER_REWARDED_CONTENT` * `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -23269,16 +24095,17 @@ func (c *AdvertisersInvoicesListCall) IssueMonth(issueMonth string) *Advertisers
 // ignored otherwise.
 //
 // Possible values:
-//   "LOI_SAPIN_INVOICE_TYPE_UNSPECIFIED" - Value is not specified.
-//   "LOI_SAPIN_INVOICE_TYPE_MEDIA" - Invoices with Media cost.
-//   "LOI_SAPIN_INVOICE_TYPE_PLATFORM" - Invoices with Platform fee.
+//
+//	"LOI_SAPIN_INVOICE_TYPE_UNSPECIFIED" - Value is not specified.
+//	"LOI_SAPIN_INVOICE_TYPE_MEDIA" - Invoices with Media cost.
+//	"LOI_SAPIN_INVOICE_TYPE_PLATFORM" - Invoices with Platform fee.
 func (c *AdvertisersInvoicesListCall) LoiSapinInvoiceType(loiSapinInvoiceType string) *AdvertisersInvoicesListCall {
 	c.urlParams_.Set("loiSapinInvoiceType", loiSapinInvoiceType)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *AdvertisersInvoicesListCall) PageSize(pageSize int64) *AdvertisersInvoicesListCall {
@@ -23371,17 +24198,17 @@ func (c *AdvertisersInvoicesListCall) Do(opts ...googleapi.CallOption) (*ListInv
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInvoicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23432,7 +24259,7 @@ func (c *AdvertisersInvoicesListCall) Do(opts ...googleapi.CallOption) (*ListInv
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -23581,17 +24408,17 @@ func (c *AdvertisersInvoicesLookupInvoiceCurrencyCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LookupInvoiceCurrencyResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23658,14 +24485,13 @@ type AdvertisersLineItemsBulkEditLineItemAssignedTargetingOptionsCall struct {
 // then create the assigned targeting options provided in
 // BulkEditLineItemAssignedTargetingOptionsRequest.create_requests.
 // Requests to this endpoint cannot be made concurrently with the
-// following requests updating the same line item: *
-// BulkEditLineItemAssignedTargetingOptions * UpdateLineItem *
+// following requests updating the same line item: * UpdateLineItem *
 // CreateLineItemAssignedTargetingOption *
 // DeleteLineItemAssignedTargetingOption
 //
-// - advertiserId: The ID of the advertiser the line item belongs to.
-// - lineItemId: The ID of the line item the assigned targeting option
-//   will belong to.
+//   - advertiserId: The ID of the advertiser the line item belongs to.
+//   - lineItemId: The ID of the line item the assigned targeting option
+//     will belong to.
 func (r *AdvertisersLineItemsService) BulkEditLineItemAssignedTargetingOptions(advertiserId int64, lineItemId int64, bulkeditlineitemassignedtargetingoptionsrequest *BulkEditLineItemAssignedTargetingOptionsRequest) *AdvertisersLineItemsBulkEditLineItemAssignedTargetingOptionsCall {
 	c := &AdvertisersLineItemsBulkEditLineItemAssignedTargetingOptionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -23744,17 +24570,17 @@ func (c *AdvertisersLineItemsBulkEditLineItemAssignedTargetingOptionsCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditLineItemAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23768,7 +24594,7 @@ func (c *AdvertisersLineItemsBulkEditLineItemAssignedTargetingOptionsCall) Do(op
 	}
 	return ret, nil
 	// {
-	//   "description": "Bulk edits targeting options under a single line item. The operation will delete the assigned targeting options provided in BulkEditLineItemAssignedTargetingOptionsRequest.delete_requests and then create the assigned targeting options provided in BulkEditLineItemAssignedTargetingOptionsRequest.create_requests. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * BulkEditLineItemAssignedTargetingOptions * UpdateLineItem * CreateLineItemAssignedTargetingOption * DeleteLineItemAssignedTargetingOption",
+	//   "description": "Bulk edits targeting options under a single line item. The operation will delete the assigned targeting options provided in BulkEditLineItemAssignedTargetingOptionsRequest.delete_requests and then create the assigned targeting options provided in BulkEditLineItemAssignedTargetingOptionsRequest.create_requests. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * UpdateLineItem * CreateLineItemAssignedTargetingOption * DeleteLineItemAssignedTargetingOption",
 	//   "flatPath": "v1/advertisers/{advertisersId}/lineItems/{lineItemsId}:bulkEditLineItemAssignedTargetingOptions",
 	//   "httpMethod": "POST",
 	//   "id": "displayvideo.advertisers.lineItems.bulkEditLineItemAssignedTargetingOptions",
@@ -23823,9 +24649,9 @@ type AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall struct {
 // BulkListLineItemAssignedTargetingOptions: Lists assigned targeting
 // options of a line item across targeting types.
 //
-// - advertiserId: The ID of the advertiser the line item belongs to.
-// - lineItemId: The ID of the line item to list assigned targeting
-//   options for.
+//   - advertiserId: The ID of the advertiser the line item belongs to.
+//   - lineItemId: The ID of the line item to list assigned targeting
+//     options for.
 func (r *AdvertisersLineItemsService) BulkListLineItemAssignedTargetingOptions(advertiserId int64, lineItemId int64) *AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall {
 	c := &AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -23863,7 +24689,7 @@ func (c *AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall) Order
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
 // The size must be an integer between `1` and `5000`. If unspecified,
-// the default is '5000'. Returns error code `INVALID_ARGUMENT` if an
+// the default is `5000`. Returns error code `INVALID_ARGUMENT` if an
 // invalid value is specified.
 func (c *AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall) PageSize(pageSize int64) *AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
@@ -23958,17 +24784,17 @@ func (c *AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkListLineItemAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24018,7 +24844,7 @@ func (c *AdvertisersLineItemsBulkListLineItemAssignedTargetingOptionsCall) Do(op
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. The size must be an integer between `1` and `5000`. If unspecified, the default is '5000'. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. The size must be an integer between `1` and `5000`. If unspecified, the default is `5000`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -24075,8 +24901,8 @@ type AdvertisersLineItemsCreateCall struct {
 // Create: Creates a new line item. Returns the newly created line item
 // if successful.
 //
-// - advertiserId: Output only. The unique ID of the advertiser the line
-//   item belongs to.
+//   - advertiserId: Output only. The unique ID of the advertiser the line
+//     item belongs to.
 func (r *AdvertisersLineItemsService) Create(advertiserId int64, lineitem *LineItem) *AdvertisersLineItemsCreateCall {
 	c := &AdvertisersLineItemsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -24151,17 +24977,17 @@ func (c *AdvertisersLineItemsCreateCall) Do(opts ...googleapi.CallOption) (*Line
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LineItem{
 		ServerResponse: googleapi.ServerResponse{
@@ -24223,7 +25049,7 @@ type AdvertisersLineItemsDeleteCall struct {
 // delete it.
 //
 // - advertiserId: The ID of the advertiser this line item belongs to.
-// - lineItemId: The ID of the line item we need to fetch.
+// - lineItemId: The ID of the line item to delete.
 func (r *AdvertisersLineItemsService) Delete(advertiserId int64, lineItemId int64) *AdvertisersLineItemsDeleteCall {
 	c := &AdvertisersLineItemsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -24294,17 +25120,17 @@ func (c *AdvertisersLineItemsDeleteCall) Do(opts ...googleapi.CallOption) (*Empt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -24336,7 +25162,7 @@ func (c *AdvertisersLineItemsDeleteCall) Do(opts ...googleapi.CallOption) (*Empt
 	//       "type": "string"
 	//     },
 	//     "lineItemId": {
-	//       "description": "The ID of the line item we need to fetch.",
+	//       "description": "The ID of the line item to delete.",
 	//       "format": "int64",
 	//       "location": "path",
 	//       "pattern": "^[^/]+$",
@@ -24448,17 +25274,17 @@ func (c *AdvertisersLineItemsGenerateDefaultCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LineItem{
 		ServerResponse: googleapi.ServerResponse{
@@ -24602,17 +25428,17 @@ func (c *AdvertisersLineItemsGetCall) Do(opts ...googleapi.CallOption) (*LineIte
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LineItem{
 		ServerResponse: googleapi.ServerResponse{
@@ -24736,7 +25562,7 @@ func (c *AdvertisersLineItemsListCall) OrderBy(orderBy string) *AdvertisersLineI
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *AdvertisersLineItemsListCall) PageSize(pageSize int64) *AdvertisersLineItemsListCall {
@@ -24829,17 +25655,17 @@ func (c *AdvertisersLineItemsListCall) Do(opts ...googleapi.CallOption) (*ListLi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLineItemsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24880,7 +25706,7 @@ func (c *AdvertisersLineItemsListCall) Do(opts ...googleapi.CallOption) (*ListLi
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -24938,14 +25764,14 @@ type AdvertisersLineItemsPatchCall struct {
 // Patch: Updates an existing line item. Returns the updated line item
 // if successful. Requests to this endpoint cannot be made concurrently
 // with the following requests updating the same line item: *
-// BulkEditLineItemAssignedTargetingOptions * UpdateLineItem *
+// BulkEditAssignedTargetingOptions * BulkUpdateLineItems *
 // CreateLineItemAssignedTargetingOption *
 // DeleteLineItemAssignedTargetingOption
 //
-// - advertiserId: Output only. The unique ID of the advertiser the line
-//   item belongs to.
-// - lineItemId: Output only. The unique ID of the line item. Assigned
-//   by the system.
+//   - advertiserId: Output only. The unique ID of the advertiser the line
+//     item belongs to.
+//   - lineItemId: Output only. The unique ID of the line item. Assigned
+//     by the system.
 func (r *AdvertisersLineItemsService) Patch(advertiserId int64, lineItemId int64, lineitem *LineItem) *AdvertisersLineItemsPatchCall {
 	c := &AdvertisersLineItemsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -25029,17 +25855,17 @@ func (c *AdvertisersLineItemsPatchCall) Do(opts ...googleapi.CallOption) (*LineI
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LineItem{
 		ServerResponse: googleapi.ServerResponse{
@@ -25053,7 +25879,7 @@ func (c *AdvertisersLineItemsPatchCall) Do(opts ...googleapi.CallOption) (*LineI
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates an existing line item. Returns the updated line item if successful. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * BulkEditLineItemAssignedTargetingOptions * UpdateLineItem * CreateLineItemAssignedTargetingOption * DeleteLineItemAssignedTargetingOption",
+	//   "description": "Updates an existing line item. Returns the updated line item if successful. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * BulkEditAssignedTargetingOptions * BulkUpdateLineItems * CreateLineItemAssignedTargetingOption * DeleteLineItemAssignedTargetingOption",
 	//   "flatPath": "v1/advertisers/{advertisersId}/lineItems/{lineItemsId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "displayvideo.advertisers.lineItems.patch",
@@ -25115,15 +25941,46 @@ type AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsCreateCall struct
 // Create: Assigns a targeting option to a line item. Returns the
 // assigned targeting option if successful. Requests to this endpoint
 // cannot be made concurrently with the following requests updating the
-// same line item: * BulkEditLineItemAssignedTargetingOptions *
-// UpdateLineItem * CreateLineItemAssignedTargetingOption *
-// DeleteLineItemAssignedTargetingOption
+// same line item: * BulkEditAssignedTargetingOptions * BulkUpdate *
+// UpdateLineItem * DeleteLineItemAssignedTargetingOption
 //
-// - advertiserId: The ID of the advertiser the line item belongs to.
-// - lineItemId: The ID of the line item the assigned targeting option
-//   will belong to.
-// - targetingType: Identifies the type of this assigned targeting
-//   option.
+//   - advertiserId: The ID of the advertiser the line item belongs to.
+//   - lineItemId: The ID of the line item the assigned targeting option
+//     will belong to.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types include: *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` *
+//     `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` *
+//     `TARGETING_TYPE_AUDIO_CONTENT_TYPE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` *
+//     `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` *
+//     `TARGETING_TYPE_CONTENT_GENRE` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_STREAM_TYPE` *
+//     `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL`
+//   - `TARGETING_TYPE_DEVICE_TYPE` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD`
+//   - `TARGETING_TYPE_LANGUAGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` *
+//     `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` *
+//     `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` *
+//     `TARGETING_TYPE_REGIONAL_LOCATION_LIST` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`.
 func (r *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsService) Create(advertiserId int64, lineItemId int64, targetingType string, assignedtargetingoption *AssignedTargetingOption) *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsCreateCall {
 	c := &AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -25202,17 +26059,17 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsCreateCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -25226,7 +26083,7 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsCreateCall) D
 	}
 	return ret, nil
 	// {
-	//   "description": "Assigns a targeting option to a line item. Returns the assigned targeting option if successful. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * BulkEditLineItemAssignedTargetingOptions * UpdateLineItem * CreateLineItemAssignedTargetingOption * DeleteLineItemAssignedTargetingOption",
+	//   "description": "Assigns a targeting option to a line item. Returns the assigned targeting option if successful. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * BulkEditAssignedTargetingOptions * BulkUpdate * UpdateLineItem * DeleteLineItemAssignedTargetingOption",
 	//   "flatPath": "v1/advertisers/{advertisersId}/lineItems/{lineItemsId}/targetingTypes/{targetingTypesId}/assignedTargetingOptions",
 	//   "httpMethod": "POST",
 	//   "id": "displayvideo.advertisers.lineItems.targetingTypes.assignedTargetingOptions.create",
@@ -25253,7 +26110,7 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsCreateCall) D
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of this assigned targeting option.",
+	//       "description": "Required. Identifies the type of this assigned targeting option. Supported targeting types include: * `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` * `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` * `TARGETING_TYPE_AUDIO_CONTENT_TYPE` * `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` * `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` * `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` * `TARGETING_TYPE_CONTENT_GENRE` * `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_STREAM_TYPE` * `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_HOUSEHOLD_INCOME` * `TARGETING_TYPE_INVENTORY_SOURCE` * `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD` * `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_ON_SCREEN_POSITION` * `TARGETING_TYPE_OPERATING_SYSTEM` * `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` * `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` * `TARGETING_TYPE_REGIONAL_LOCATION_LIST` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_SUB_EXCHANGE` * `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` * `TARGETING_TYPE_USER_REWARDED_CONTENT` * `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -25386,17 +26243,48 @@ type AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsDeleteCall struct
 // Delete: Deletes an assigned targeting option from a line item.
 // Requests to this endpoint cannot be made concurrently with the
 // following requests updating the same line item: *
-// BulkEditLineItemAssignedTargetingOptions * UpdateLineItem *
-// CreateLineItemAssignedTargetingOption *
-// DeleteLineItemAssignedTargetingOption
+// BulkEditAssignedTargetingOptions * BulkUpdate * UpdateLineItem *
+// CreateLineItemAssignedTargetingOption
 //
-// - advertiserId: The ID of the advertiser the line item belongs to.
-// - assignedTargetingOptionId: The ID of the assigned targeting option
-//   to delete.
-// - lineItemId: The ID of the line item the assigned targeting option
-//   belongs to.
-// - targetingType: Identifies the type of this assigned targeting
-//   option.
+//   - advertiserId: The ID of the advertiser the line item belongs to.
+//   - assignedTargetingOptionId: The ID of the assigned targeting option
+//     to delete.
+//   - lineItemId: The ID of the line item the assigned targeting option
+//     belongs to.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types include: *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` *
+//     `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` *
+//     `TARGETING_TYPE_AUDIO_CONTENT_TYPE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` *
+//     `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` *
+//     `TARGETING_TYPE_CONTENT_GENRE` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_STREAM_TYPE` *
+//     `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL`
+//   - `TARGETING_TYPE_DEVICE_TYPE` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD`
+//   - `TARGETING_TYPE_LANGUAGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` *
+//     `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` *
+//     `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` *
+//     `TARGETING_TYPE_REGIONAL_LOCATION_LIST` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`.
 func (r *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsService) Delete(advertiserId int64, lineItemId int64, targetingType string, assignedTargetingOptionId string) *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsDeleteCall {
 	c := &AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -25471,17 +26359,17 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsDeleteCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -25495,7 +26383,7 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsDeleteCall) D
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes an assigned targeting option from a line item. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * BulkEditLineItemAssignedTargetingOptions * UpdateLineItem * CreateLineItemAssignedTargetingOption * DeleteLineItemAssignedTargetingOption",
+	//   "description": "Deletes an assigned targeting option from a line item. Requests to this endpoint cannot be made concurrently with the following requests updating the same line item: * BulkEditAssignedTargetingOptions * BulkUpdate * UpdateLineItem * CreateLineItemAssignedTargetingOption",
 	//   "flatPath": "v1/advertisers/{advertisersId}/lineItems/{lineItemsId}/targetingTypes/{targetingTypesId}/assignedTargetingOptions/{assignedTargetingOptionsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "displayvideo.advertisers.lineItems.targetingTypes.assignedTargetingOptions.delete",
@@ -25530,7 +26418,7 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsDeleteCall) D
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of this assigned targeting option.",
+	//       "description": "Required. Identifies the type of this assigned targeting option. Supported targeting types include: * `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` * `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` * `TARGETING_TYPE_AUDIO_CONTENT_TYPE` * `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` * `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` * `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` * `TARGETING_TYPE_CONTENT_GENRE` * `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_STREAM_TYPE` * `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_HOUSEHOLD_INCOME` * `TARGETING_TYPE_INVENTORY_SOURCE` * `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD` * `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_ON_SCREEN_POSITION` * `TARGETING_TYPE_OPERATING_SYSTEM` * `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` * `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` * `TARGETING_TYPE_REGIONAL_LOCATION_LIST` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_SUB_EXCHANGE` * `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` * `TARGETING_TYPE_USER_REWARDED_CONTENT` * `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY`",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -25660,14 +26548,50 @@ type AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsGetCall struct {
 
 // Get: Gets a single targeting option assigned to a line item.
 //
-// - advertiserId: The ID of the advertiser the line item belongs to.
-// - assignedTargetingOptionId: An identifier unique to the targeting
-//   type in this line item that identifies the assigned targeting
-//   option being requested.
-// - lineItemId: The ID of the line item the assigned targeting option
-//   belongs to.
-// - targetingType: Identifies the type of this assigned targeting
-//   option.
+//   - advertiserId: The ID of the advertiser the line item belongs to.
+//   - assignedTargetingOptionId: An identifier unique to the targeting
+//     type in this line item that identifies the assigned targeting
+//     option being requested.
+//   - lineItemId: The ID of the line item the assigned targeting option
+//     belongs to.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types include: *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` *
+//     `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` *
+//     `TARGETING_TYPE_AUDIO_CONTENT_TYPE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` *
+//     `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` *
+//     `TARGETING_TYPE_CONTENT_GENRE` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_STREAM_TYPE` *
+//     `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL`
+//   - `TARGETING_TYPE_DEVICE_TYPE` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD`
+//   - `TARGETING_TYPE_LANGUAGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` *
+//     `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` *
+//     `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` *
+//     `TARGETING_TYPE_REGIONAL_LOCATION_LIST` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY` *
+//     `TARGETING_TYPE_YOUTUBE_CHANNEL` (only for
+//     `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items) *
+//     `TARGETING_TYPE_YOUTUBE_VIDEO` (only for
+//     `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items).
 func (r *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsService) Get(advertiserId int64, lineItemId int64, targetingType string, assignedTargetingOptionId string) *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsGetCall {
 	c := &AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -25755,17 +26679,17 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsGetCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -25814,7 +26738,7 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsGetCall) Do(o
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of this assigned targeting option.",
+	//       "description": "Required. Identifies the type of this assigned targeting option. Supported targeting types include: * `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` * `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` * `TARGETING_TYPE_AUDIO_CONTENT_TYPE` * `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` * `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` * `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` * `TARGETING_TYPE_CONTENT_GENRE` * `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_STREAM_TYPE` * `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_HOUSEHOLD_INCOME` * `TARGETING_TYPE_INVENTORY_SOURCE` * `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD` * `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_ON_SCREEN_POSITION` * `TARGETING_TYPE_OPERATING_SYSTEM` * `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` * `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` * `TARGETING_TYPE_REGIONAL_LOCATION_LIST` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_SUB_EXCHANGE` * `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` * `TARGETING_TYPE_USER_REWARDED_CONTENT` * `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY` * `TARGETING_TYPE_YOUTUBE_CHANNEL` (only for `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items) * `TARGETING_TYPE_YOUTUBE_VIDEO` (only for `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items)",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -25943,11 +26867,47 @@ type AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsListCall struct {
 
 // List: Lists the targeting options assigned to a line item.
 //
-// - advertiserId: The ID of the advertiser the line item belongs to.
-// - lineItemId: The ID of the line item to list assigned targeting
-//   options for.
-// - targetingType: Identifies the type of assigned targeting options to
-//   list.
+//   - advertiserId: The ID of the advertiser the line item belongs to.
+//   - lineItemId: The ID of the line item to list assigned targeting
+//     options for.
+//   - targetingType: Identifies the type of assigned targeting options to
+//     list. Supported targeting types include: *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` *
+//     `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` *
+//     `TARGETING_TYPE_AUDIO_CONTENT_TYPE` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` *
+//     `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` *
+//     `TARGETING_TYPE_CONTENT_GENRE` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_STREAM_TYPE` *
+//     `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL`
+//   - `TARGETING_TYPE_DEVICE_TYPE` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` *
+//     `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE` *
+//     `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD`
+//   - `TARGETING_TYPE_LANGUAGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` *
+//     `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` *
+//     `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` *
+//     `TARGETING_TYPE_REGIONAL_LOCATION_LIST` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY` *
+//     `TARGETING_TYPE_YOUTUBE_CHANNEL` (only for
+//     `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items) *
+//     `TARGETING_TYPE_YOUTUBE_VIDEO` (only for
+//     `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items).
 func (r *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsService) List(advertiserId int64, lineItemId int64, targetingType string) *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsListCall {
 	c := &AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -26081,17 +27041,17 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsListCall) Do(
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLineItemAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -26153,7 +27113,7 @@ func (c *AdvertisersLineItemsTargetingTypesAssignedTargetingOptionsListCall) Do(
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of assigned targeting options to list.",
+	//       "description": "Required. Identifies the type of assigned targeting options to list. Supported targeting types include: * `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_APP` * `TARGETING_TYPE_APP_CATEGORY` * `TARGETING_TYPE_AUDIENCE_GROUP` * `TARGETING_TYPE_AUDIO_CONTENT_TYPE` * `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` * `TARGETING_TYPE_BROWSER` * `TARGETING_TYPE_BUSINESS_CHAIN` * `TARGETING_TYPE_CARRIER_AND_ISP` * `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_CONTENT_DURATION` * `TARGETING_TYPE_CONTENT_GENRE` * `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` * `TARGETING_TYPE_CONTENT_STREAM_TYPE` * `TARGETING_TYPE_DAY_AND_TIME` * `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_ENVIRONMENT` * `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_GENDER` * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_HOUSEHOLD_INCOME` * `TARGETING_TYPE_INVENTORY_SOURCE` * `TARGETING_TYPE_INVENTORY_SOURCE_GROUP` * `TARGETING_TYPE_KEYWORD` * `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_NEGATIVE_KEYWORD_LIST` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_ON_SCREEN_POSITION` * `TARGETING_TYPE_OPERATING_SYSTEM` * `TARGETING_TYPE_PARENTAL_STATUS` * `TARGETING_TYPE_POI` * `TARGETING_TYPE_PROXIMITY_LOCATION_LIST` * `TARGETING_TYPE_REGIONAL_LOCATION_LIST` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_SUB_EXCHANGE` * `TARGETING_TYPE_THIRD_PARTY_VERIFIER` * `TARGETING_TYPE_URL` * `TARGETING_TYPE_USER_REWARDED_CONTENT` * `TARGETING_TYPE_VIDEO_PLAYER_SIZE` * `TARGETING_TYPE_VIEWABILITY` * `TARGETING_TYPE_YOUTUBE_CHANNEL` (only for `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items) * `TARGETING_TYPE_YOUTUBE_VIDEO` (only for `LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_VIDEO_SEQUENCE` line items)",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -26302,8 +27262,8 @@ type AdvertisersLocationListsCreateCall struct {
 // Create: Creates a new location list. Returns the newly created
 // location list if successful.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the location
-//   list belongs.
+//   - advertiserId: The ID of the DV360 advertiser to which the location
+//     list belongs.
 func (r *AdvertisersLocationListsService) Create(advertiserId int64, locationlist *LocationList) *AdvertisersLocationListsCreateCall {
 	c := &AdvertisersLocationListsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -26378,17 +27338,17 @@ func (c *AdvertisersLocationListsCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LocationList{
 		ServerResponse: googleapi.ServerResponse{
@@ -26447,9 +27407,9 @@ type AdvertisersLocationListsGetCall struct {
 
 // Get: Gets a location list.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the fetched
-//   location list belongs.
-// - locationListId: The ID of the location list to fetch.
+//   - advertiserId: The ID of the DV360 advertiser to which the fetched
+//     location list belongs.
+//   - locationListId: The ID of the location list to fetch.
 func (r *AdvertisersLocationListsService) Get(advertiserId int64, locationListId int64) *AdvertisersLocationListsGetCall {
 	c := &AdvertisersLocationListsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -26533,17 +27493,17 @@ func (c *AdvertisersLocationListsGetCall) Do(opts ...googleapi.CallOption) (*Loc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LocationList{
 		ServerResponse: googleapi.ServerResponse{
@@ -26607,8 +27567,8 @@ type AdvertisersLocationListsListCall struct {
 
 // List: Lists location lists based on a given advertiser id.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the fetched
-//   location lists belong.
+//   - advertiserId: The ID of the DV360 advertiser to which the fetched
+//     location lists belong.
 func (r *AdvertisersLocationListsService) List(advertiserId int64) *AdvertisersLocationListsListCall {
 	c := &AdvertisersLocationListsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -26640,7 +27600,7 @@ func (c *AdvertisersLocationListsListCall) OrderBy(orderBy string) *AdvertisersL
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. Defaults to `100` if not set. Returns
+// Must be between `1` and `200`. Defaults to `100` if not set. Returns
 // error code `INVALID_ARGUMENT` if an invalid value is specified.
 func (c *AdvertisersLocationListsListCall) PageSize(pageSize int64) *AdvertisersLocationListsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
@@ -26732,17 +27692,17 @@ func (c *AdvertisersLocationListsListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationListsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -26783,7 +27743,7 @@ func (c *AdvertisersLocationListsListCall) Do(opts ...googleapi.CallOption) (*Li
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. Defaults to `100` if not set. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. Defaults to `100` if not set. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -26841,10 +27801,10 @@ type AdvertisersLocationListsPatchCall struct {
 // Patch: Updates a location list. Returns the updated location list if
 // successful.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the location
-//   lists belongs.
-// - locationListId: Output only. The unique ID of the location list.
-//   Assigned by the system.
+//   - advertiserId: The ID of the DV360 advertiser to which the location
+//     lists belongs.
+//   - locationListId: Output only. The unique ID of the location list.
+//     Assigned by the system.
 func (r *AdvertisersLocationListsService) Patch(advertiserId int64, locationListId int64, locationlist *LocationList) *AdvertisersLocationListsPatchCall {
 	c := &AdvertisersLocationListsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -26928,17 +27888,17 @@ func (c *AdvertisersLocationListsPatchCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LocationList{
 		ServerResponse: googleapi.ServerResponse{
@@ -27016,10 +27976,10 @@ type AdvertisersLocationListsAssignedLocationsBulkEditCall struct {
 // create the assigned locations provided in
 // BulkEditAssignedLocationsRequest.created_assigned_locations.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the location
-//   list belongs.
-// - locationListId: The ID of the location list to which these
-//   assignments are assigned.
+//   - advertiserId: The ID of the DV360 advertiser to which the location
+//     list belongs.
+//   - locationListId: The ID of the location list to which these
+//     assignments are assigned.
 func (r *AdvertisersLocationListsAssignedLocationsService) BulkEdit(advertiserId int64, locationListId int64, bulkeditassignedlocationsrequest *BulkEditAssignedLocationsRequest) *AdvertisersLocationListsAssignedLocationsBulkEditCall {
 	c := &AdvertisersLocationListsAssignedLocationsBulkEditCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -27097,17 +28057,17 @@ func (c *AdvertisersLocationListsAssignedLocationsBulkEditCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditAssignedLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -27174,10 +28134,10 @@ type AdvertisersLocationListsAssignedLocationsCreateCall struct {
 
 // Create: Creates an assignment between a location and a location list.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the location
-//   list belongs.
-// - locationListId: The ID of the location list for which the
-//   assignment will be created.
+//   - advertiserId: The ID of the DV360 advertiser to which the location
+//     list belongs.
+//   - locationListId: The ID of the location list for which the
+//     assignment will be created.
 func (r *AdvertisersLocationListsAssignedLocationsService) Create(advertiserId int64, locationListId int64, assignedlocation *AssignedLocation) *AdvertisersLocationListsAssignedLocationsCreateCall {
 	c := &AdvertisersLocationListsAssignedLocationsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -27254,17 +28214,17 @@ func (c *AdvertisersLocationListsAssignedLocationsCreateCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedLocation{
 		ServerResponse: googleapi.ServerResponse{
@@ -27331,11 +28291,11 @@ type AdvertisersLocationListsAssignedLocationsDeleteCall struct {
 // Delete: Deletes the assignment between a location and a location
 // list.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the location
-//   list belongs.
-// - assignedLocationId: The ID of the assigned location to delete.
-// - locationListId: The ID of the location list to which this
-//   assignment is assigned.
+//   - advertiserId: The ID of the DV360 advertiser to which the location
+//     list belongs.
+//   - assignedLocationId: The ID of the assigned location to delete.
+//   - locationListId: The ID of the location list to which this
+//     assignment is assigned.
 func (r *AdvertisersLocationListsAssignedLocationsService) Delete(advertiserId int64, locationListId int64, assignedLocationId int64) *AdvertisersLocationListsAssignedLocationsDeleteCall {
 	c := &AdvertisersLocationListsAssignedLocationsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -27408,17 +28368,17 @@ func (c *AdvertisersLocationListsAssignedLocationsDeleteCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -27490,10 +28450,10 @@ type AdvertisersLocationListsAssignedLocationsListCall struct {
 
 // List: Lists locations assigned to a location list.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the location
-//   list belongs.
-// - locationListId: The ID of the location list to which these
-//   assignments are assigned.
+//   - advertiserId: The ID of the DV360 advertiser to which the location
+//     list belongs.
+//   - locationListId: The ID of the location list to which these
+//     assignments are assigned.
 func (r *AdvertisersLocationListsAssignedLocationsService) List(advertiserId int64, locationListId int64) *AdvertisersLocationListsAssignedLocationsListCall {
 	c := &AdvertisersLocationListsAssignedLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -27524,7 +28484,7 @@ func (c *AdvertisersLocationListsAssignedLocationsListCall) OrderBy(orderBy stri
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *AdvertisersLocationListsAssignedLocationsListCall) PageSize(pageSize int64) *AdvertisersLocationListsAssignedLocationsListCall {
@@ -27618,17 +28578,17 @@ func (c *AdvertisersLocationListsAssignedLocationsListCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAssignedLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -27676,7 +28636,7 @@ func (c *AdvertisersLocationListsAssignedLocationsListCall) Do(opts ...googleapi
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -27735,9 +28695,9 @@ type AdvertisersManualTriggersActivateCall struct {
 // trigger must be at least 5 minutes apart, otherwise an error will be
 // returned.
 //
-// - advertiserId: The ID of the advertiser that the manual trigger
-//   belongs.
-// - triggerId: The ID of the manual trigger to activate.
+//   - advertiserId: The ID of the advertiser that the manual trigger
+//     belongs.
+//   - triggerId: The ID of the manual trigger to activate.
 func (r *AdvertisersManualTriggersService) Activate(advertiserId int64, triggerId int64, activatemanualtriggerrequest *ActivateManualTriggerRequest) *AdvertisersManualTriggersActivateCall {
 	c := &AdvertisersManualTriggersActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -27814,17 +28774,17 @@ func (c *AdvertisersManualTriggersActivateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManualTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -27892,8 +28852,8 @@ type AdvertisersManualTriggersCreateCall struct {
 // Create: Creates a new manual trigger. Returns the newly created
 // manual trigger if successful.
 //
-// - advertiserId: Immutable. The unique ID of the advertiser that the
-//   manual trigger belongs to.
+//   - advertiserId: Immutable. The unique ID of the advertiser that the
+//     manual trigger belongs to.
 func (r *AdvertisersManualTriggersService) Create(advertiserId int64, manualtrigger *ManualTrigger) *AdvertisersManualTriggersCreateCall {
 	c := &AdvertisersManualTriggersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -27968,17 +28928,17 @@ func (c *AdvertisersManualTriggersCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManualTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -28037,9 +28997,9 @@ type AdvertisersManualTriggersDeactivateCall struct {
 
 // Deactivate: Deactivates a manual trigger.
 //
-// - advertiserId: The ID of the advertiser that the manual trigger
-//   belongs.
-// - triggerId: The ID of the manual trigger to deactivate.
+//   - advertiserId: The ID of the advertiser that the manual trigger
+//     belongs.
+//   - triggerId: The ID of the manual trigger to deactivate.
 func (r *AdvertisersManualTriggersService) Deactivate(advertiserId int64, triggerId int64, deactivatemanualtriggerrequest *DeactivateManualTriggerRequest) *AdvertisersManualTriggersDeactivateCall {
 	c := &AdvertisersManualTriggersDeactivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -28116,17 +29076,17 @@ func (c *AdvertisersManualTriggersDeactivateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManualTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -28194,9 +29154,9 @@ type AdvertisersManualTriggersGetCall struct {
 
 // Get: Gets a manual trigger.
 //
-// - advertiserId: The ID of the advertiser this manual trigger belongs
-//   to.
-// - triggerId: The ID of the manual trigger to fetch.
+//   - advertiserId: The ID of the advertiser this manual trigger belongs
+//     to.
+//   - triggerId: The ID of the manual trigger to fetch.
 func (r *AdvertisersManualTriggersService) Get(advertiserId int64, triggerId int64) *AdvertisersManualTriggersGetCall {
 	c := &AdvertisersManualTriggersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -28280,17 +29240,17 @@ func (c *AdvertisersManualTriggersGetCall) Do(opts ...googleapi.CallOption) (*Ma
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManualTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -28356,8 +29316,8 @@ type AdvertisersManualTriggersListCall struct {
 // for a given advertiser ID. The order is defined by the order_by
 // parameter. A single advertiser_id is required.
 //
-// - advertiserId: The ID of the advertiser that the fetched manual
-//   triggers belong to.
+//   - advertiserId: The ID of the advertiser that the fetched manual
+//     triggers belong to.
 func (r *AdvertisersManualTriggersService) List(advertiserId int64) *AdvertisersManualTriggersListCall {
 	c := &AdvertisersManualTriggersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -28389,7 +29349,7 @@ func (c *AdvertisersManualTriggersListCall) OrderBy(orderBy string) *Advertisers
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 func (c *AdvertisersManualTriggersListCall) PageSize(pageSize int64) *AdvertisersManualTriggersListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -28480,17 +29440,17 @@ func (c *AdvertisersManualTriggersListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListManualTriggersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -28531,7 +29491,7 @@ func (c *AdvertisersManualTriggersListCall) Do(opts ...googleapi.CallOption) (*L
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -28589,9 +29549,9 @@ type AdvertisersManualTriggersPatchCall struct {
 // Patch: Updates a manual trigger. Returns the updated manual trigger
 // if successful.
 //
-// - advertiserId: Immutable. The unique ID of the advertiser that the
-//   manual trigger belongs to.
-// - triggerId: Output only. The unique ID of the manual trigger.
+//   - advertiserId: Immutable. The unique ID of the advertiser that the
+//     manual trigger belongs to.
+//   - triggerId: Output only. The unique ID of the manual trigger.
 func (r *AdvertisersManualTriggersService) Patch(advertiserId int64, triggerId int64, manualtrigger *ManualTrigger) *AdvertisersManualTriggersPatchCall {
 	c := &AdvertisersManualTriggersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -28675,17 +29635,17 @@ func (c *AdvertisersManualTriggersPatchCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManualTrigger{
 		ServerResponse: googleapi.ServerResponse{
@@ -28759,8 +29719,8 @@ type AdvertisersNegativeKeywordListsCreateCall struct {
 // Create: Creates a new negative keyword list. Returns the newly
 // created negative keyword list if successful.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the negative
-//   keyword list will belong.
+//   - advertiserId: The ID of the DV360 advertiser to which the negative
+//     keyword list will belong.
 func (r *AdvertisersNegativeKeywordListsService) Create(advertiserId int64, negativekeywordlist *NegativeKeywordList) *AdvertisersNegativeKeywordListsCreateCall {
 	c := &AdvertisersNegativeKeywordListsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -28835,17 +29795,17 @@ func (c *AdvertisersNegativeKeywordListsCreateCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NegativeKeywordList{
 		ServerResponse: googleapi.ServerResponse{
@@ -28904,10 +29864,10 @@ type AdvertisersNegativeKeywordListsDeleteCall struct {
 // Delete: Deletes a negative keyword list given an advertiser ID and a
 // negative keyword list ID.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the negative
-//   keyword list belongs.
-// - negativeKeywordListId: The ID of the negative keyword list to
-//   delete.
+//   - advertiserId: The ID of the DV360 advertiser to which the negative
+//     keyword list belongs.
+//   - negativeKeywordListId: The ID of the negative keyword list to
+//     delete.
 func (r *AdvertisersNegativeKeywordListsService) Delete(advertiserId int64, negativeKeywordListId int64) *AdvertisersNegativeKeywordListsDeleteCall {
 	c := &AdvertisersNegativeKeywordListsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -28978,17 +29938,17 @@ func (c *AdvertisersNegativeKeywordListsDeleteCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -29054,10 +30014,10 @@ type AdvertisersNegativeKeywordListsGetCall struct {
 // Get: Gets a negative keyword list given an advertiser ID and a
 // negative keyword list ID.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the fetched
-//   negative keyword list belongs.
-// - negativeKeywordListId: The ID of the negative keyword list to
-//   fetch.
+//   - advertiserId: The ID of the DV360 advertiser to which the fetched
+//     negative keyword list belongs.
+//   - negativeKeywordListId: The ID of the negative keyword list to
+//     fetch.
 func (r *AdvertisersNegativeKeywordListsService) Get(advertiserId int64, negativeKeywordListId int64) *AdvertisersNegativeKeywordListsGetCall {
 	c := &AdvertisersNegativeKeywordListsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -29141,17 +30101,17 @@ func (c *AdvertisersNegativeKeywordListsGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NegativeKeywordList{
 		ServerResponse: googleapi.ServerResponse{
@@ -29215,8 +30175,8 @@ type AdvertisersNegativeKeywordListsListCall struct {
 
 // List: Lists negative keyword lists based on a given advertiser id.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the fetched
-//   negative keyword lists belong.
+//   - advertiserId: The ID of the DV360 advertiser to which the fetched
+//     negative keyword lists belong.
 func (r *AdvertisersNegativeKeywordListsService) List(advertiserId int64) *AdvertisersNegativeKeywordListsListCall {
 	c := &AdvertisersNegativeKeywordListsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -29224,7 +30184,7 @@ func (r *AdvertisersNegativeKeywordListsService) List(advertiserId int64) *Adver
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. Defaults to `100` if not set. Returns
+// Must be between `1` and `200`. Defaults to `100` if not set. Returns
 // error code `INVALID_ARGUMENT` if an invalid value is specified.
 func (c *AdvertisersNegativeKeywordListsListCall) PageSize(pageSize int64) *AdvertisersNegativeKeywordListsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
@@ -29316,17 +30276,17 @@ func (c *AdvertisersNegativeKeywordListsListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListNegativeKeywordListsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -29357,7 +30317,7 @@ func (c *AdvertisersNegativeKeywordListsListCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. Defaults to `100` if not set. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. Defaults to `100` if not set. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -29415,10 +30375,10 @@ type AdvertisersNegativeKeywordListsPatchCall struct {
 // Patch: Updates a negative keyword list. Returns the updated negative
 // keyword list if successful.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the negative
-//   keyword list belongs.
-// - negativeKeywordListId: Output only. The unique ID of the negative
-//   keyword list. Assigned by the system.
+//   - advertiserId: The ID of the DV360 advertiser to which the negative
+//     keyword list belongs.
+//   - negativeKeywordListId: Output only. The unique ID of the negative
+//     keyword list. Assigned by the system.
 func (r *AdvertisersNegativeKeywordListsService) Patch(advertiserId int64, negativeKeywordListId int64, negativekeywordlist *NegativeKeywordList) *AdvertisersNegativeKeywordListsPatchCall {
 	c := &AdvertisersNegativeKeywordListsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -29502,17 +30462,17 @@ func (c *AdvertisersNegativeKeywordListsPatchCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NegativeKeywordList{
 		ServerResponse: googleapi.ServerResponse{
@@ -29591,10 +30551,10 @@ type AdvertisersNegativeKeywordListsNegativeKeywordsBulkEditCall struct {
 // operation is guaranteed to be atomic and will never result in a
 // partial success or partial failure.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the parent
-//   negative keyword list belongs.
-// - negativeKeywordListId: The ID of the parent negative keyword list
-//   to which the negative keywords belong.
+//   - advertiserId: The ID of the DV360 advertiser to which the parent
+//     negative keyword list belongs.
+//   - negativeKeywordListId: The ID of the parent negative keyword list
+//     to which the negative keywords belong.
 func (r *AdvertisersNegativeKeywordListsNegativeKeywordsService) BulkEdit(advertiserId int64, negativeKeywordListId int64, bulkeditnegativekeywordsrequest *BulkEditNegativeKeywordsRequest) *AdvertisersNegativeKeywordListsNegativeKeywordsBulkEditCall {
 	c := &AdvertisersNegativeKeywordListsNegativeKeywordsBulkEditCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -29671,17 +30631,17 @@ func (c *AdvertisersNegativeKeywordListsNegativeKeywordsBulkEditCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditNegativeKeywordsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -29748,10 +30708,10 @@ type AdvertisersNegativeKeywordListsNegativeKeywordsCreateCall struct {
 
 // Create: Creates a negative keyword in a negative keyword list.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the parent
-//   negative keyword list belongs.
-// - negativeKeywordListId: The ID of the parent negative keyword list
-//   in which the negative keyword will be created.
+//   - advertiserId: The ID of the DV360 advertiser to which the parent
+//     negative keyword list belongs.
+//   - negativeKeywordListId: The ID of the parent negative keyword list
+//     in which the negative keyword will be created.
 func (r *AdvertisersNegativeKeywordListsNegativeKeywordsService) Create(advertiserId int64, negativeKeywordListId int64, negativekeyword *NegativeKeyword) *AdvertisersNegativeKeywordListsNegativeKeywordsCreateCall {
 	c := &AdvertisersNegativeKeywordListsNegativeKeywordsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -29828,17 +30788,17 @@ func (c *AdvertisersNegativeKeywordListsNegativeKeywordsCreateCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NegativeKeyword{
 		ServerResponse: googleapi.ServerResponse{
@@ -29905,11 +30865,11 @@ type AdvertisersNegativeKeywordListsNegativeKeywordsDeleteCall struct {
 
 // Delete: Deletes a negative keyword from a negative keyword list.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the parent
-//   negative keyword list belongs.
-// - keywordValue: The keyword value of the negative keyword to delete.
-// - negativeKeywordListId: The ID of the parent negative keyword list
-//   to which the negative keyword belongs.
+//   - advertiserId: The ID of the DV360 advertiser to which the parent
+//     negative keyword list belongs.
+//   - keywordValue: The keyword value of the negative keyword to delete.
+//   - negativeKeywordListId: The ID of the parent negative keyword list
+//     to which the negative keyword belongs.
 func (r *AdvertisersNegativeKeywordListsNegativeKeywordsService) Delete(advertiserId int64, negativeKeywordListId int64, keywordValue string) *AdvertisersNegativeKeywordListsNegativeKeywordsDeleteCall {
 	c := &AdvertisersNegativeKeywordListsNegativeKeywordsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -29982,17 +30942,17 @@ func (c *AdvertisersNegativeKeywordListsNegativeKeywordsDeleteCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -30064,10 +31024,10 @@ type AdvertisersNegativeKeywordListsNegativeKeywordsListCall struct {
 
 // List: Lists negative keywords in a negative keyword list.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the parent
-//   negative keyword list belongs.
-// - negativeKeywordListId: The ID of the parent negative keyword list
-//   to which the requested negative keywords belong.
+//   - advertiserId: The ID of the DV360 advertiser to which the parent
+//     negative keyword list belongs.
+//   - negativeKeywordListId: The ID of the parent negative keyword list
+//     to which the requested negative keywords belong.
 func (r *AdvertisersNegativeKeywordListsNegativeKeywordsService) List(advertiserId int64, negativeKeywordListId int64) *AdvertisersNegativeKeywordListsNegativeKeywordsListCall {
 	c := &AdvertisersNegativeKeywordListsNegativeKeywordsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -30192,17 +31152,17 @@ func (c *AdvertisersNegativeKeywordListsNegativeKeywordsListCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListNegativeKeywordsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -30312,10 +31272,10 @@ type AdvertisersNegativeKeywordListsNegativeKeywordsReplaceCall struct {
 // list with keywords provided in
 // ReplaceNegativeKeywordsRequest.new_negative_keywords.
 //
-// - advertiserId: The ID of the DV360 advertiser to which the parent
-//   negative keyword list belongs.
-// - negativeKeywordListId: The ID of the parent negative keyword list
-//   to which the negative keywords belong.
+//   - advertiserId: The ID of the DV360 advertiser to which the parent
+//     negative keyword list belongs.
+//   - negativeKeywordListId: The ID of the parent negative keyword list
+//     to which the negative keywords belong.
 func (r *AdvertisersNegativeKeywordListsNegativeKeywordsService) Replace(advertiserId int64, negativeKeywordListId int64, replacenegativekeywordsrequest *ReplaceNegativeKeywordsRequest) *AdvertisersNegativeKeywordListsNegativeKeywordsReplaceCall {
 	c := &AdvertisersNegativeKeywordListsNegativeKeywordsReplaceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -30392,17 +31352,17 @@ func (c *AdvertisersNegativeKeywordListsNegativeKeywordsReplaceCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReplaceNegativeKeywordsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -30470,12 +31430,12 @@ type AdvertisersTargetingTypesAssignedTargetingOptionsCreateCall struct {
 // Create: Assigns a targeting option to an advertiser. Returns the
 // assigned targeting option if successful.
 //
-// - advertiserId: The ID of the advertiser.
-// - targetingType: Identifies the type of this assigned targeting
-//   option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_OMID` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`.
+//   - advertiserId: The ID of the advertiser.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`.
 func (r *AdvertisersTargetingTypesAssignedTargetingOptionsService) Create(advertiserId int64, targetingType string, assignedtargetingoption *AssignedTargetingOption) *AdvertisersTargetingTypesAssignedTargetingOptionsCreateCall {
 	c := &AdvertisersTargetingTypesAssignedTargetingOptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -30552,17 +31512,17 @@ func (c *AdvertisersTargetingTypesAssignedTargetingOptionsCreateCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -30725,14 +31685,14 @@ type AdvertisersTargetingTypesAssignedTargetingOptionsDeleteCall struct {
 
 // Delete: Deletes an assigned targeting option from an advertiser.
 //
-// - advertiserId: The ID of the advertiser.
-// - assignedTargetingOptionId: The ID of the assigned targeting option
-//   to delete.
-// - targetingType: Identifies the type of this assigned targeting
-//   option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_OMID` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`.
+//   - advertiserId: The ID of the advertiser.
+//   - assignedTargetingOptionId: The ID of the assigned targeting option
+//     to delete.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`.
 func (r *AdvertisersTargetingTypesAssignedTargetingOptionsService) Delete(advertiserId int64, targetingType string, assignedTargetingOptionId string) *AdvertisersTargetingTypesAssignedTargetingOptionsDeleteCall {
 	c := &AdvertisersTargetingTypesAssignedTargetingOptionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -30805,17 +31765,17 @@ func (c *AdvertisersTargetingTypesAssignedTargetingOptionsDeleteCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -30984,15 +31944,16 @@ type AdvertisersTargetingTypesAssignedTargetingOptionsGetCall struct {
 
 // Get: Gets a single targeting option assigned to an advertiser.
 //
-// - advertiserId: The ID of the advertiser.
-// - assignedTargetingOptionId: An identifier unique to the targeting
-//   type in this advertiser that identifies the assigned targeting
-//   option being requested.
-// - targetingType: Identifies the type of this assigned targeting
-//   option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_OMID` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`.
+//   - advertiserId: The ID of the advertiser.
+//   - assignedTargetingOptionId: An identifier unique to the targeting
+//     type in this advertiser that identifies the assigned targeting
+//     option being requested.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_YOUTUBE_VIDEO` * `TARGETING_TYPE_YOUTUBE_CHANNEL`.
 func (r *AdvertisersTargetingTypesAssignedTargetingOptionsService) Get(advertiserId int64, targetingType string, assignedTargetingOptionId string) *AdvertisersTargetingTypesAssignedTargetingOptionsGetCall {
 	c := &AdvertisersTargetingTypesAssignedTargetingOptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -31078,17 +32039,17 @@ func (c *AdvertisersTargetingTypesAssignedTargetingOptionsGetCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -31128,7 +32089,7 @@ func (c *AdvertisersTargetingTypesAssignedTargetingOptionsGetCall) Do(opts ...go
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of this assigned targeting option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`",
+	//       "description": "Required. Identifies the type of this assigned targeting option. Supported targeting types: * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_YOUTUBE_VIDEO` * `TARGETING_TYPE_YOUTUBE_CHANNEL`",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -31256,12 +32217,13 @@ type AdvertisersTargetingTypesAssignedTargetingOptionsListCall struct {
 
 // List: Lists the targeting options assigned to an advertiser.
 //
-// - advertiserId: The ID of the advertiser.
-// - targetingType: Identifies the type of assigned targeting options to
-//   list. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_OMID` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`.
+//   - advertiserId: The ID of the advertiser.
+//   - targetingType: Identifies the type of assigned targeting options to
+//     list. Supported targeting types: * `TARGETING_TYPE_CHANNEL` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_OMID` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_YOUTUBE_VIDEO` * `TARGETING_TYPE_YOUTUBE_CHANNEL`.
 func (r *AdvertisersTargetingTypesAssignedTargetingOptionsService) List(advertiserId int64, targetingType string) *AdvertisersTargetingTypesAssignedTargetingOptionsListCall {
 	c := &AdvertisersTargetingTypesAssignedTargetingOptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.advertiserId = advertiserId
@@ -31390,17 +32352,17 @@ func (c *AdvertisersTargetingTypesAssignedTargetingOptionsListCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAdvertiserAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -31453,7 +32415,7 @@ func (c *AdvertisersTargetingTypesAssignedTargetingOptionsListCall) Do(opts ...g
 	//       "type": "string"
 	//     },
 	//     "targetingType": {
-	//       "description": "Required. Identifies the type of assigned targeting options to list. Supported targeting types: * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION`",
+	//       "description": "Required. Identifies the type of assigned targeting options to list. Supported targeting types: * `TARGETING_TYPE_CHANNEL` * `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` * `TARGETING_TYPE_OMID` * `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` * `TARGETING_TYPE_YOUTUBE_VIDEO` * `TARGETING_TYPE_YOUTUBE_CHANNEL`",
 	//       "enum": [
 	//         "TARGETING_TYPE_UNSPECIFIED",
 	//         "TARGETING_TYPE_CHANNEL",
@@ -31697,17 +32659,17 @@ func (c *CombinedAudiencesGetCall) Do(opts ...googleapi.CallOption) (*CombinedAu
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CombinedAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -31809,7 +32771,7 @@ func (c *CombinedAudiencesListCall) OrderBy(orderBy string) *CombinedAudiencesLi
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *CombinedAudiencesListCall) PageSize(pageSize int64) *CombinedAudiencesListCall {
@@ -31906,17 +32868,17 @@ func (c *CombinedAudiencesListCall) Do(opts ...googleapi.CallOption) (*ListCombi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCombinedAudiencesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -31953,7 +32915,7 @@ func (c *CombinedAudiencesListCall) Do(opts ...googleapi.CallOption) (*ListCombi
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -32084,17 +33046,17 @@ func (c *CustomBiddingAlgorithmsCreateCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomBiddingAlgorithm{
 		ServerResponse: googleapi.ServerResponse{
@@ -32141,8 +33103,8 @@ type CustomBiddingAlgorithmsGetCall struct {
 
 // Get: Gets a custom bidding algorithm.
 //
-// - customBiddingAlgorithmId: The ID of the custom bidding algorithm to
-//   fetch.
+//   - customBiddingAlgorithmId: The ID of the custom bidding algorithm to
+//     fetch.
 func (r *CustomBiddingAlgorithmsService) Get(customBiddingAlgorithmId int64) *CustomBiddingAlgorithmsGetCall {
 	c := &CustomBiddingAlgorithmsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customBiddingAlgorithmId = customBiddingAlgorithmId
@@ -32238,17 +33200,17 @@ func (c *CustomBiddingAlgorithmsGetCall) Do(opts ...googleapi.CallOption) (*Cust
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomBiddingAlgorithm{
 		ServerResponse: googleapi.ServerResponse{
@@ -32335,20 +33297,16 @@ func (c *CustomBiddingAlgorithmsListCall) AdvertiserId(advertiserId int64) *Cust
 // {value}`. * The operator must be `CONTAINS (:)` or `EQUALS (=)`. *
 // The operator must be `CONTAINS (:)` for the following field: -
 // `displayName` * The operator must be `EQUALS (=)` for the following
-// field: - `customBiddingAlgorithmType` - `customBiddingAlgorithmState`
-// * For `displayName`, the value is a string. We return all custom
-// bidding algorithms whose display_name contains such string. * For
+// field: - `customBiddingAlgorithmType` * For `displayName`, the value
+// is a string. We return all custom bidding algorithms whose
+// display_name contains such string. * For
 // `customBiddingAlgorithmType`, the value is a string. We return all
 // algorithms whose custom_bidding_algorithm_type is equal to the given
-// type. * For `customBiddingAlgorithmState`, the value is a string. We
-// return all algorithms whose custom_bidding_algorithm_state is equal
-// to the given type. Examples: * All custom bidding algorithms for
-// which the display name contains "politics": `displayName:politics`. *
-// All custom bidding algorithms for which the type is "SCRIPT_BASED":
-// `customBiddingAlgorithmType=SCRIPT_BASED` * All custom bidding
-// algorithms for which the state is "ENABLED":
-// `customBiddingAlgorithmState=ENABLED` The length of this field should
-// be no more than 500 characters.
+// type. Examples: * All custom bidding algorithms for which the display
+// name contains "politics": `displayName:politics`. * All custom
+// bidding algorithms for which the type is "SCRIPT_BASED":
+// `customBiddingAlgorithmType=SCRIPT_BASED` The length of this field
+// should be no more than 500 characters.
 func (c *CustomBiddingAlgorithmsListCall) Filter(filter string) *CustomBiddingAlgorithmsListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -32365,7 +33323,7 @@ func (c *CustomBiddingAlgorithmsListCall) OrderBy(orderBy string) *CustomBidding
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *CustomBiddingAlgorithmsListCall) PageSize(pageSize int64) *CustomBiddingAlgorithmsListCall {
@@ -32463,17 +33421,17 @@ func (c *CustomBiddingAlgorithmsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCustomBiddingAlgorithmsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -32500,7 +33458,7 @@ func (c *CustomBiddingAlgorithmsListCall) Do(opts ...googleapi.CallOption) (*Lis
 	//       "type": "string"
 	//     },
 	//     "filter": {
-	//       "description": "Allows filtering by custom bidding algorithm fields. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND`. A sequence of restrictions * implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * The operator must be `CONTAINS (:)` or `EQUALS (=)`. * The operator must be `CONTAINS (:)` for the following field: - `displayName` * The operator must be `EQUALS (=)` for the following field: - `customBiddingAlgorithmType` - `customBiddingAlgorithmState` * For `displayName`, the value is a string. We return all custom bidding algorithms whose display_name contains such string. * For `customBiddingAlgorithmType`, the value is a string. We return all algorithms whose custom_bidding_algorithm_type is equal to the given type. * For `customBiddingAlgorithmState`, the value is a string. We return all algorithms whose custom_bidding_algorithm_state is equal to the given type. Examples: * All custom bidding algorithms for which the display name contains \"politics\": `displayName:politics`. * All custom bidding algorithms for which the type is \"SCRIPT_BASED\": `customBiddingAlgorithmType=SCRIPT_BASED` * All custom bidding algorithms for which the state is \"ENABLED\": `customBiddingAlgorithmState=ENABLED` The length of this field should be no more than 500 characters.",
+	//       "description": "Allows filtering by custom bidding algorithm fields. Supported syntax: * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND`. A sequence of restrictions * implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * The operator must be `CONTAINS (:)` or `EQUALS (=)`. * The operator must be `CONTAINS (:)` for the following field: - `displayName` * The operator must be `EQUALS (=)` for the following field: - `customBiddingAlgorithmType` * For `displayName`, the value is a string. We return all custom bidding algorithms whose display_name contains such string. * For `customBiddingAlgorithmType`, the value is a string. We return all algorithms whose custom_bidding_algorithm_type is equal to the given type. Examples: * All custom bidding algorithms for which the display name contains \"politics\": `displayName:politics`. * All custom bidding algorithms for which the type is \"SCRIPT_BASED\": `customBiddingAlgorithmType=SCRIPT_BASED` The length of this field should be no more than 500 characters.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -32510,7 +33468,7 @@ func (c *CustomBiddingAlgorithmsListCall) Do(opts ...googleapi.CallOption) (*Lis
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -32573,8 +33531,8 @@ type CustomBiddingAlgorithmsPatchCall struct {
 // Patch: Updates an existing custom bidding algorithm. Returns the
 // updated custom bidding algorithm if successful.
 //
-// - customBiddingAlgorithmId: Output only. The unique ID of the custom
-//   bidding algorithm. Assigned by the system.
+//   - customBiddingAlgorithmId: Output only. The unique ID of the custom
+//     bidding algorithm. Assigned by the system.
 func (r *CustomBiddingAlgorithmsService) Patch(customBiddingAlgorithmId int64, custombiddingalgorithm *CustomBiddingAlgorithm) *CustomBiddingAlgorithmsPatchCall {
 	c := &CustomBiddingAlgorithmsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customBiddingAlgorithmId = customBiddingAlgorithmId
@@ -32656,17 +33614,17 @@ func (c *CustomBiddingAlgorithmsPatchCall) Do(opts ...googleapi.CallOption) (*Cu
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomBiddingAlgorithm{
 		ServerResponse: googleapi.ServerResponse{
@@ -32734,8 +33692,8 @@ type CustomBiddingAlgorithmsUploadScriptCall struct {
 // should be included in when creating a new custom bidding script
 // object.
 //
-// - customBiddingAlgorithmId: The ID of the custom bidding algorithm
-//   owns the script.
+//   - customBiddingAlgorithmId: The ID of the custom bidding algorithm
+//     owns the script.
 func (r *CustomBiddingAlgorithmsService) UploadScript(customBiddingAlgorithmId int64) *CustomBiddingAlgorithmsUploadScriptCall {
 	c := &CustomBiddingAlgorithmsUploadScriptCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customBiddingAlgorithmId = customBiddingAlgorithmId
@@ -32832,17 +33790,17 @@ func (c *CustomBiddingAlgorithmsUploadScriptCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomBiddingScriptRef{
 		ServerResponse: googleapi.ServerResponse{
@@ -32910,8 +33868,8 @@ type CustomBiddingAlgorithmsScriptsCreateCall struct {
 // Create: Creates a new custom bidding script. Returns the newly
 // created script if successful.
 //
-// - customBiddingAlgorithmId: The ID of the custom bidding algorithm
-//   that owns the script.
+//   - customBiddingAlgorithmId: The ID of the custom bidding algorithm
+//     that owns the script.
 func (r *CustomBiddingAlgorithmsScriptsService) Create(customBiddingAlgorithmId int64, custombiddingscript *CustomBiddingScript) *CustomBiddingAlgorithmsScriptsCreateCall {
 	c := &CustomBiddingAlgorithmsScriptsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customBiddingAlgorithmId = customBiddingAlgorithmId
@@ -33001,17 +33959,17 @@ func (c *CustomBiddingAlgorithmsScriptsCreateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomBiddingScript{
 		ServerResponse: googleapi.ServerResponse{
@@ -33082,10 +34040,10 @@ type CustomBiddingAlgorithmsScriptsGetCall struct {
 
 // Get: Gets a custom bidding script.
 //
-// - customBiddingAlgorithmId: The ID of the custom bidding algorithm
-//   owns the script.
-// - customBiddingScriptId: The ID of the custom bidding script to
-//   fetch.
+//   - customBiddingAlgorithmId: The ID of the custom bidding algorithm
+//     owns the script.
+//   - customBiddingScriptId: The ID of the custom bidding script to
+//     fetch.
 func (r *CustomBiddingAlgorithmsScriptsService) Get(customBiddingAlgorithmId int64, customBiddingScriptId int64) *CustomBiddingAlgorithmsScriptsGetCall {
 	c := &CustomBiddingAlgorithmsScriptsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customBiddingAlgorithmId = customBiddingAlgorithmId
@@ -33184,17 +34142,17 @@ func (c *CustomBiddingAlgorithmsScriptsGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomBiddingScript{
 		ServerResponse: googleapi.ServerResponse{
@@ -33271,8 +34229,8 @@ type CustomBiddingAlgorithmsScriptsListCall struct {
 // List: Lists custom bidding scripts that belong to the given
 // algorithm. The order is defined by the order_by parameter.
 //
-// - customBiddingAlgorithmId: The ID of the custom bidding algorithm
-//   owns the script.
+//   - customBiddingAlgorithmId: The ID of the custom bidding algorithm
+//     owns the script.
 func (r *CustomBiddingAlgorithmsScriptsService) List(customBiddingAlgorithmId int64) *CustomBiddingAlgorithmsScriptsListCall {
 	c := &CustomBiddingAlgorithmsScriptsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customBiddingAlgorithmId = customBiddingAlgorithmId
@@ -33296,7 +34254,7 @@ func (c *CustomBiddingAlgorithmsScriptsListCall) OrderBy(orderBy string) *Custom
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *CustomBiddingAlgorithmsScriptsListCall) PageSize(pageSize int64) *CustomBiddingAlgorithmsScriptsListCall {
@@ -33397,17 +34355,17 @@ func (c *CustomBiddingAlgorithmsScriptsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCustomBiddingScriptsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -33449,7 +34407,7 @@ func (c *CustomBiddingAlgorithmsScriptsListCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -33600,17 +34558,17 @@ func (c *CustomListsGetCall) Do(opts ...googleapi.CallOption) (*CustomList, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomList{
 		ServerResponse: googleapi.ServerResponse{
@@ -33706,7 +34664,7 @@ func (c *CustomListsListCall) OrderBy(orderBy string) *CustomListsListCall {
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *CustomListsListCall) PageSize(pageSize int64) *CustomListsListCall {
@@ -33796,17 +34754,17 @@ func (c *CustomListsListCall) Do(opts ...googleapi.CallOption) (*ListCustomLists
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCustomListsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -33843,7 +34801,7 @@ func (c *CustomListsListCall) Do(opts ...googleapi.CallOption) (*ListCustomLists
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -33977,17 +34935,17 @@ func (c *FirstAndThirdPartyAudiencesCreateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FirstAndThirdPartyAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -34043,8 +35001,8 @@ type FirstAndThirdPartyAudiencesEditCustomerMatchMembersCall struct {
 // audience. Only supported for the following audience_type: *
 // `CUSTOMER_MATCH_CONTACT_INFO` * `CUSTOMER_MATCH_DEVICE_ID`
 //
-// - firstAndThirdPartyAudienceId: The ID of the Customer Match
-//   FirstAndThirdPartyAudience whose members will be edited.
+//   - firstAndThirdPartyAudienceId: The ID of the Customer Match
+//     FirstAndThirdPartyAudience whose members will be edited.
 func (r *FirstAndThirdPartyAudiencesService) EditCustomerMatchMembers(firstAndThirdPartyAudienceId int64, editcustomermatchmembersrequest *EditCustomerMatchMembersRequest) *FirstAndThirdPartyAudiencesEditCustomerMatchMembersCall {
 	c := &FirstAndThirdPartyAudiencesEditCustomerMatchMembersCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.firstAndThirdPartyAudienceId = firstAndThirdPartyAudienceId
@@ -34119,17 +35077,17 @@ func (c *FirstAndThirdPartyAudiencesEditCustomerMatchMembersCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EditCustomerMatchMembersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -34187,8 +35145,8 @@ type FirstAndThirdPartyAudiencesGetCall struct {
 
 // Get: Gets a first and third party audience.
 //
-// - firstAndThirdPartyAudienceId: The ID of the first and third party
-//   audience to fetch.
+//   - firstAndThirdPartyAudienceId: The ID of the first and third party
+//     audience to fetch.
 func (r *FirstAndThirdPartyAudiencesService) Get(firstAndThirdPartyAudienceId int64) *FirstAndThirdPartyAudiencesGetCall {
 	c := &FirstAndThirdPartyAudiencesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.firstAndThirdPartyAudienceId = firstAndThirdPartyAudienceId
@@ -34286,17 +35244,17 @@ func (c *FirstAndThirdPartyAudiencesGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FirstAndThirdPartyAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -34400,7 +35358,7 @@ func (c *FirstAndThirdPartyAudiencesListCall) OrderBy(orderBy string) *FirstAndT
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *FirstAndThirdPartyAudiencesListCall) PageSize(pageSize int64) *FirstAndThirdPartyAudiencesListCall {
@@ -34499,17 +35457,17 @@ func (c *FirstAndThirdPartyAudiencesListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFirstAndThirdPartyAudiencesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -34546,7 +35504,7 @@ func (c *FirstAndThirdPartyAudiencesListCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -34610,8 +35568,8 @@ type FirstAndThirdPartyAudiencesPatchCall struct {
 // for the following audience_type: * `CUSTOMER_MATCH_CONTACT_INFO` *
 // `CUSTOMER_MATCH_DEVICE_ID`
 //
-// - firstAndThirdPartyAudienceId: Output only. The unique ID of the
-//   first and third party audience. Assigned by the system.
+//   - firstAndThirdPartyAudienceId: Output only. The unique ID of the
+//     first and third party audience. Assigned by the system.
 func (r *FirstAndThirdPartyAudiencesService) Patch(firstAndThirdPartyAudienceId int64, firstandthirdpartyaudience *FirstAndThirdPartyAudience) *FirstAndThirdPartyAudiencesPatchCall {
 	c := &FirstAndThirdPartyAudiencesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.firstAndThirdPartyAudienceId = firstAndThirdPartyAudienceId
@@ -34703,17 +35661,17 @@ func (c *FirstAndThirdPartyAudiencesPatchCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FirstAndThirdPartyAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -34872,17 +35830,17 @@ func (c *FloodlightGroupsGetCall) Do(opts ...googleapi.CallOption) (*FloodlightG
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FloodlightGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -34944,8 +35902,8 @@ type FloodlightGroupsPatchCall struct {
 // Patch: Updates an existing Floodlight group. Returns the updated
 // Floodlight group if successful.
 //
-// - floodlightGroupId: Output only. The unique ID of the Floodlight
-//   group. Assigned by the system.
+//   - floodlightGroupId: Output only. The unique ID of the Floodlight
+//     group. Assigned by the system.
 func (r *FloodlightGroupsService) Patch(floodlightGroupId int64, floodlightgroup *FloodlightGroup) *FloodlightGroupsPatchCall {
 	c := &FloodlightGroupsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.floodlightGroupId = floodlightGroupId
@@ -35034,17 +35992,17 @@ func (c *FloodlightGroupsPatchCall) Do(opts ...googleapi.CallOption) (*Floodligh
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FloodlightGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -35209,17 +36167,17 @@ func (c *GoogleAudiencesGetCall) Do(opts ...googleapi.CallOption) (*GoogleAudien
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleAudience{
 		ServerResponse: googleapi.ServerResponse{
@@ -35321,7 +36279,7 @@ func (c *GoogleAudiencesListCall) OrderBy(orderBy string) *GoogleAudiencesListCa
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *GoogleAudiencesListCall) PageSize(pageSize int64) *GoogleAudiencesListCall {
@@ -35418,17 +36376,17 @@ func (c *GoogleAudiencesListCall) Do(opts ...googleapi.CallOption) (*ListGoogleA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListGoogleAudiencesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -35465,7 +36423,7 @@ func (c *GoogleAudiencesListCall) Do(opts ...googleapi.CallOption) (*ListGoogleA
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -35512,6 +36470,908 @@ func (c *GoogleAudiencesListCall) Pages(ctx context.Context, f func(*ListGoogleA
 		}
 		c.PageToken(x.NextPageToken)
 	}
+}
+
+// method id "displayvideo.guaranteedOrders.create":
+
+type GuaranteedOrdersCreateCall struct {
+	s               *Service
+	guaranteedorder *GuaranteedOrder
+	urlParams_      gensupport.URLParams
+	ctx_            context.Context
+	header_         http.Header
+}
+
+// Create: Creates a new guaranteed order. Returns the newly created
+// guaranteed order if successful.
+func (r *GuaranteedOrdersService) Create(guaranteedorder *GuaranteedOrder) *GuaranteedOrdersCreateCall {
+	c := &GuaranteedOrdersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.guaranteedorder = guaranteedorder
+	return c
+}
+
+// AdvertiserId sets the optional parameter "advertiserId": The ID of
+// the advertiser that the request is being made within.
+func (c *GuaranteedOrdersCreateCall) AdvertiserId(advertiserId int64) *GuaranteedOrdersCreateCall {
+	c.urlParams_.Set("advertiserId", fmt.Sprint(advertiserId))
+	return c
+}
+
+// PartnerId sets the optional parameter "partnerId": The ID of the
+// partner that the request is being made within.
+func (c *GuaranteedOrdersCreateCall) PartnerId(partnerId int64) *GuaranteedOrdersCreateCall {
+	c.urlParams_.Set("partnerId", fmt.Sprint(partnerId))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *GuaranteedOrdersCreateCall) Fields(s ...googleapi.Field) *GuaranteedOrdersCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *GuaranteedOrdersCreateCall) Context(ctx context.Context) *GuaranteedOrdersCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *GuaranteedOrdersCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *GuaranteedOrdersCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.guaranteedorder)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/guaranteedOrders")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.guaranteedOrders.create" call.
+// Exactly one of *GuaranteedOrder or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *GuaranteedOrder.ServerResponse.Header or (if a response was returned
+// at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *GuaranteedOrdersCreateCall) Do(opts ...googleapi.CallOption) (*GuaranteedOrder, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GuaranteedOrder{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a new guaranteed order. Returns the newly created guaranteed order if successful.",
+	//   "flatPath": "v1/guaranteedOrders",
+	//   "httpMethod": "POST",
+	//   "id": "displayvideo.guaranteedOrders.create",
+	//   "parameterOrder": [],
+	//   "parameters": {
+	//     "advertiserId": {
+	//       "description": "The ID of the advertiser that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "partnerId": {
+	//       "description": "The ID of the partner that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/guaranteedOrders",
+	//   "request": {
+	//     "$ref": "GuaranteedOrder"
+	//   },
+	//   "response": {
+	//     "$ref": "GuaranteedOrder"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
+}
+
+// method id "displayvideo.guaranteedOrders.editGuaranteedOrderReadAccessors":
+
+type GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall struct {
+	s                                       *Service
+	guaranteedOrderId                       string
+	editguaranteedorderreadaccessorsrequest *EditGuaranteedOrderReadAccessorsRequest
+	urlParams_                              gensupport.URLParams
+	ctx_                                    context.Context
+	header_                                 http.Header
+}
+
+// EditGuaranteedOrderReadAccessors: Edits read advertisers of a
+// guaranteed order.
+//
+//   - guaranteedOrderId: The ID of the guaranteed order to edit. The ID
+//     is of the format `{exchange}-{legacy_guaranteed_order_id}`.
+func (r *GuaranteedOrdersService) EditGuaranteedOrderReadAccessors(guaranteedOrderId string, editguaranteedorderreadaccessorsrequest *EditGuaranteedOrderReadAccessorsRequest) *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall {
+	c := &GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.guaranteedOrderId = guaranteedOrderId
+	c.editguaranteedorderreadaccessorsrequest = editguaranteedorderreadaccessorsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall) Fields(s ...googleapi.Field) *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall) Context(ctx context.Context) *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.editguaranteedorderreadaccessorsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/guaranteedOrders/{+guaranteedOrderId}:editGuaranteedOrderReadAccessors")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"guaranteedOrderId": c.guaranteedOrderId,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.guaranteedOrders.editGuaranteedOrderReadAccessors" call.
+// Exactly one of *EditGuaranteedOrderReadAccessorsResponse or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *EditGuaranteedOrderReadAccessorsResponse.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *GuaranteedOrdersEditGuaranteedOrderReadAccessorsCall) Do(opts ...googleapi.CallOption) (*EditGuaranteedOrderReadAccessorsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &EditGuaranteedOrderReadAccessorsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Edits read advertisers of a guaranteed order.",
+	//   "flatPath": "v1/guaranteedOrders/{guaranteedOrdersId}:editGuaranteedOrderReadAccessors",
+	//   "httpMethod": "POST",
+	//   "id": "displayvideo.guaranteedOrders.editGuaranteedOrderReadAccessors",
+	//   "parameterOrder": [
+	//     "guaranteedOrderId"
+	//   ],
+	//   "parameters": {
+	//     "guaranteedOrderId": {
+	//       "description": "Required. The ID of the guaranteed order to edit. The ID is of the format `{exchange}-{legacy_guaranteed_order_id}`",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/guaranteedOrders/{+guaranteedOrderId}:editGuaranteedOrderReadAccessors",
+	//   "request": {
+	//     "$ref": "EditGuaranteedOrderReadAccessorsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "EditGuaranteedOrderReadAccessorsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
+}
+
+// method id "displayvideo.guaranteedOrders.get":
+
+type GuaranteedOrdersGetCall struct {
+	s                 *Service
+	guaranteedOrderId string
+	urlParams_        gensupport.URLParams
+	ifNoneMatch_      string
+	ctx_              context.Context
+	header_           http.Header
+}
+
+// Get: Gets a guaranteed order.
+//
+//   - guaranteedOrderId: The ID of the guaranteed order to fetch. The ID
+//     is of the format `{exchange}-{legacy_guaranteed_order_id}`.
+func (r *GuaranteedOrdersService) Get(guaranteedOrderId string) *GuaranteedOrdersGetCall {
+	c := &GuaranteedOrdersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.guaranteedOrderId = guaranteedOrderId
+	return c
+}
+
+// AdvertiserId sets the optional parameter "advertiserId": The ID of
+// the advertiser that has access to the guaranteed order.
+func (c *GuaranteedOrdersGetCall) AdvertiserId(advertiserId int64) *GuaranteedOrdersGetCall {
+	c.urlParams_.Set("advertiserId", fmt.Sprint(advertiserId))
+	return c
+}
+
+// PartnerId sets the optional parameter "partnerId": The ID of the
+// partner that has access to the guaranteed order.
+func (c *GuaranteedOrdersGetCall) PartnerId(partnerId int64) *GuaranteedOrdersGetCall {
+	c.urlParams_.Set("partnerId", fmt.Sprint(partnerId))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *GuaranteedOrdersGetCall) Fields(s ...googleapi.Field) *GuaranteedOrdersGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *GuaranteedOrdersGetCall) IfNoneMatch(entityTag string) *GuaranteedOrdersGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *GuaranteedOrdersGetCall) Context(ctx context.Context) *GuaranteedOrdersGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *GuaranteedOrdersGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *GuaranteedOrdersGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/guaranteedOrders/{+guaranteedOrderId}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"guaranteedOrderId": c.guaranteedOrderId,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.guaranteedOrders.get" call.
+// Exactly one of *GuaranteedOrder or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *GuaranteedOrder.ServerResponse.Header or (if a response was returned
+// at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *GuaranteedOrdersGetCall) Do(opts ...googleapi.CallOption) (*GuaranteedOrder, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GuaranteedOrder{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets a guaranteed order.",
+	//   "flatPath": "v1/guaranteedOrders/{guaranteedOrdersId}",
+	//   "httpMethod": "GET",
+	//   "id": "displayvideo.guaranteedOrders.get",
+	//   "parameterOrder": [
+	//     "guaranteedOrderId"
+	//   ],
+	//   "parameters": {
+	//     "advertiserId": {
+	//       "description": "The ID of the advertiser that has access to the guaranteed order.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "guaranteedOrderId": {
+	//       "description": "Required. The ID of the guaranteed order to fetch. The ID is of the format `{exchange}-{legacy_guaranteed_order_id}`",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "partnerId": {
+	//       "description": "The ID of the partner that has access to the guaranteed order.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/guaranteedOrders/{+guaranteedOrderId}",
+	//   "response": {
+	//     "$ref": "GuaranteedOrder"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
+}
+
+// method id "displayvideo.guaranteedOrders.list":
+
+type GuaranteedOrdersListCall struct {
+	s            *Service
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists guaranteed orders that are accessible to the current
+// user. The order is defined by the order_by parameter. If a filter by
+// entity_status is not specified, guaranteed orders with entity status
+// `ENTITY_STATUS_ARCHIVED` will not be included in the results.
+func (r *GuaranteedOrdersService) List() *GuaranteedOrdersListCall {
+	c := &GuaranteedOrdersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	return c
+}
+
+// AdvertiserId sets the optional parameter "advertiserId": The ID of
+// the advertiser that has access to the guaranteed order.
+func (c *GuaranteedOrdersListCall) AdvertiserId(advertiserId int64) *GuaranteedOrdersListCall {
+	c.urlParams_.Set("advertiserId", fmt.Sprint(advertiserId))
+	return c
+}
+
+// Filter sets the optional parameter "filter": Allows filtering by
+// guaranteed order properties. * Filter expressions are made up of one
+// or more restrictions. * Restrictions can be combined by `AND` or `OR`
+// logical operators. A sequence of restrictions implicitly uses `AND`.
+// * A restriction has the form of `{field} {operator} {value}`. * The
+// operator must be `EQUALS (=)`. * Supported fields: -
+// `guaranteed_order_id` - `exchange` - `display_name` -
+// `status.entityStatus` Examples: * All active guaranteed orders:
+// `status.entityStatus="ENTITY_STATUS_ACTIVE" * Guaranteed orders
+// belonging to Google Ad Manager or Rubicon exchanges:
+// `exchange="EXCHANGE_GOOGLE_AD_MANAGER" OR
+// exchange="EXCHANGE_RUBICON" The length of this field should be no
+// more than 500 characters.
+func (c *GuaranteedOrdersListCall) Filter(filter string) *GuaranteedOrdersListCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": Field by which to sort
+// the list. Acceptable values are: * `displayName` (default) The
+// default sorting order is ascending. To specify descending order for a
+// field, a suffix "desc" should be added to the field name. For
+// example, `displayName desc`.
+func (c *GuaranteedOrdersListCall) OrderBy(orderBy string) *GuaranteedOrdersListCall {
+	c.urlParams_.Set("orderBy", orderBy)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Requested page size.
+// Must be between `1` and `200`. If unspecified will default to `100`.
+func (c *GuaranteedOrdersListCall) PageSize(pageSize int64) *GuaranteedOrdersListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": A token
+// identifying a page of results the server should return. Typically,
+// this is the value of next_page_token returned from the previous call
+// to `ListGuaranteedOrders` method. If not specified, the first page of
+// results will be returned.
+func (c *GuaranteedOrdersListCall) PageToken(pageToken string) *GuaranteedOrdersListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// PartnerId sets the optional parameter "partnerId": The ID of the
+// partner that has access to the guaranteed order.
+func (c *GuaranteedOrdersListCall) PartnerId(partnerId int64) *GuaranteedOrdersListCall {
+	c.urlParams_.Set("partnerId", fmt.Sprint(partnerId))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *GuaranteedOrdersListCall) Fields(s ...googleapi.Field) *GuaranteedOrdersListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *GuaranteedOrdersListCall) IfNoneMatch(entityTag string) *GuaranteedOrdersListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *GuaranteedOrdersListCall) Context(ctx context.Context) *GuaranteedOrdersListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *GuaranteedOrdersListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *GuaranteedOrdersListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/guaranteedOrders")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.guaranteedOrders.list" call.
+// Exactly one of *ListGuaranteedOrdersResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *ListGuaranteedOrdersResponse.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *GuaranteedOrdersListCall) Do(opts ...googleapi.CallOption) (*ListGuaranteedOrdersResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &ListGuaranteedOrdersResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists guaranteed orders that are accessible to the current user. The order is defined by the order_by parameter. If a filter by entity_status is not specified, guaranteed orders with entity status `ENTITY_STATUS_ARCHIVED` will not be included in the results.",
+	//   "flatPath": "v1/guaranteedOrders",
+	//   "httpMethod": "GET",
+	//   "id": "displayvideo.guaranteedOrders.list",
+	//   "parameterOrder": [],
+	//   "parameters": {
+	//     "advertiserId": {
+	//       "description": "The ID of the advertiser that has access to the guaranteed order.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "filter": {
+	//       "description": "Allows filtering by guaranteed order properties. * Filter expressions are made up of one or more restrictions. * Restrictions can be combined by `AND` or `OR` logical operators. A sequence of restrictions implicitly uses `AND`. * A restriction has the form of `{field} {operator} {value}`. * The operator must be `EQUALS (=)`. * Supported fields: - `guaranteed_order_id` - `exchange` - `display_name` - `status.entityStatus` Examples: * All active guaranteed orders: `status.entityStatus=\"ENTITY_STATUS_ACTIVE\"` * Guaranteed orders belonging to Google Ad Manager or Rubicon exchanges: `exchange=\"EXCHANGE_GOOGLE_AD_MANAGER\" OR exchange=\"EXCHANGE_RUBICON\"` The length of this field should be no more than 500 characters.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "Field by which to sort the list. Acceptable values are: * `displayName` (default) The default sorting order is ascending. To specify descending order for a field, a suffix \"desc\" should be added to the field name. For example, `displayName desc`.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "A token identifying a page of results the server should return. Typically, this is the value of next_page_token returned from the previous call to `ListGuaranteedOrders` method. If not specified, the first page of results will be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "partnerId": {
+	//       "description": "The ID of the partner that has access to the guaranteed order.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/guaranteedOrders",
+	//   "response": {
+	//     "$ref": "ListGuaranteedOrdersResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *GuaranteedOrdersListCall) Pages(ctx context.Context, f func(*ListGuaranteedOrdersResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "displayvideo.guaranteedOrders.patch":
+
+type GuaranteedOrdersPatchCall struct {
+	s                 *Service
+	guaranteedOrderId string
+	guaranteedorder   *GuaranteedOrder
+	urlParams_        gensupport.URLParams
+	ctx_              context.Context
+	header_           http.Header
+}
+
+// Patch: Updates an existing guaranteed order. Returns the updated
+// guaranteed order if successful.
+//
+//   - guaranteedOrderId: Output only. The unique identifier of the
+//     guaranteed order. The guaranteed order IDs have the format
+//     `{exchange}-{legacy_guaranteed_order_id}`.
+func (r *GuaranteedOrdersService) Patch(guaranteedOrderId string, guaranteedorder *GuaranteedOrder) *GuaranteedOrdersPatchCall {
+	c := &GuaranteedOrdersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.guaranteedOrderId = guaranteedOrderId
+	c.guaranteedorder = guaranteedorder
+	return c
+}
+
+// AdvertiserId sets the optional parameter "advertiserId": The ID of
+// the advertiser that the request is being made within.
+func (c *GuaranteedOrdersPatchCall) AdvertiserId(advertiserId int64) *GuaranteedOrdersPatchCall {
+	c.urlParams_.Set("advertiserId", fmt.Sprint(advertiserId))
+	return c
+}
+
+// PartnerId sets the optional parameter "partnerId": The ID of the
+// partner that the request is being made within.
+func (c *GuaranteedOrdersPatchCall) PartnerId(partnerId int64) *GuaranteedOrdersPatchCall {
+	c.urlParams_.Set("partnerId", fmt.Sprint(partnerId))
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": Required. The
+// mask to control which fields to update.
+func (c *GuaranteedOrdersPatchCall) UpdateMask(updateMask string) *GuaranteedOrdersPatchCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *GuaranteedOrdersPatchCall) Fields(s ...googleapi.Field) *GuaranteedOrdersPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *GuaranteedOrdersPatchCall) Context(ctx context.Context) *GuaranteedOrdersPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *GuaranteedOrdersPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *GuaranteedOrdersPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.guaranteedorder)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/guaranteedOrders/{+guaranteedOrderId}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"guaranteedOrderId": c.guaranteedOrderId,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.guaranteedOrders.patch" call.
+// Exactly one of *GuaranteedOrder or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *GuaranteedOrder.ServerResponse.Header or (if a response was returned
+// at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *GuaranteedOrdersPatchCall) Do(opts ...googleapi.CallOption) (*GuaranteedOrder, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GuaranteedOrder{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates an existing guaranteed order. Returns the updated guaranteed order if successful.",
+	//   "flatPath": "v1/guaranteedOrders/{guaranteedOrdersId}",
+	//   "httpMethod": "PATCH",
+	//   "id": "displayvideo.guaranteedOrders.patch",
+	//   "parameterOrder": [
+	//     "guaranteedOrderId"
+	//   ],
+	//   "parameters": {
+	//     "advertiserId": {
+	//       "description": "The ID of the advertiser that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "guaranteedOrderId": {
+	//       "description": "Output only. The unique identifier of the guaranteed order. The guaranteed order IDs have the format `{exchange}-{legacy_guaranteed_order_id}`.",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "partnerId": {
+	//       "description": "The ID of the partner that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "Required. The mask to control which fields to update.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/guaranteedOrders/{+guaranteedOrderId}",
+	//   "request": {
+	//     "$ref": "GuaranteedOrder"
+	//   },
+	//   "response": {
+	//     "$ref": "GuaranteedOrder"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
 }
 
 // method id "displayvideo.inventorySourceGroups.create":
@@ -35613,17 +37473,17 @@ func (c *InventorySourceGroupsCreateCall) Do(opts ...googleapi.CallOption) (*Inv
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InventorySourceGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -35682,8 +37542,8 @@ type InventorySourceGroupsDeleteCall struct {
 
 // Delete: Deletes an inventory source group.
 //
-// - inventorySourceGroupId: The ID of the inventory source group to
-//   delete.
+//   - inventorySourceGroupId: The ID of the inventory source group to
+//     delete.
 func (r *InventorySourceGroupsService) Delete(inventorySourceGroupId int64) *InventorySourceGroupsDeleteCall {
 	c := &InventorySourceGroupsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.inventorySourceGroupId = inventorySourceGroupId
@@ -35768,17 +37628,17 @@ func (c *InventorySourceGroupsDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -35845,8 +37705,8 @@ type InventorySourceGroupsGetCall struct {
 
 // Get: Gets an inventory source group.
 //
-// - inventorySourceGroupId: The ID of the inventory source group to
-//   fetch.
+//   - inventorySourceGroupId: The ID of the inventory source group to
+//     fetch.
 func (r *InventorySourceGroupsService) Get(inventorySourceGroupId int64) *InventorySourceGroupsGetCall {
 	c := &InventorySourceGroupsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.inventorySourceGroupId = inventorySourceGroupId
@@ -35945,17 +37805,17 @@ func (c *InventorySourceGroupsGetCall) Do(opts ...googleapi.CallOption) (*Invent
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InventorySourceGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -36058,7 +37918,7 @@ func (c *InventorySourceGroupsListCall) OrderBy(orderBy string) *InventorySource
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 func (c *InventorySourceGroupsListCall) PageSize(pageSize int64) *InventorySourceGroupsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -36155,17 +38015,17 @@ func (c *InventorySourceGroupsListCall) Do(opts ...googleapi.CallOption) (*ListI
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInventorySourceGroupsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -36202,7 +38062,7 @@ func (c *InventorySourceGroupsListCall) Do(opts ...googleapi.CallOption) (*ListI
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -36265,8 +38125,8 @@ type InventorySourceGroupsPatchCall struct {
 // Patch: Updates an inventory source group. Returns the updated
 // inventory source group if successful.
 //
-// - inventorySourceGroupId: Output only. The unique ID of the inventory
-//   source group. Assigned by the system.
+//   - inventorySourceGroupId: Output only. The unique ID of the inventory
+//     source group. Assigned by the system.
 func (r *InventorySourceGroupsService) Patch(inventorySourceGroupId int64, inventorysourcegroup *InventorySourceGroup) *InventorySourceGroupsPatchCall {
 	c := &InventorySourceGroupsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.inventorySourceGroupId = inventorySourceGroupId
@@ -36364,17 +38224,17 @@ func (c *InventorySourceGroupsPatchCall) Do(opts ...googleapi.CallOption) (*Inve
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InventorySourceGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -36455,8 +38315,8 @@ type InventorySourceGroupsAssignedInventorySourcesBulkEditCall struct {
 // BulkEditAssignedInventorySourcesRequest.created_assigned_inventory_sou
 // rces.
 //
-// - inventorySourceGroupId: The ID of the inventory source group to
-//   which the assignments are assigned.
+//   - inventorySourceGroupId: The ID of the inventory source group to
+//     which the assignments are assigned.
 func (r *InventorySourceGroupsAssignedInventorySourcesService) BulkEdit(inventorySourceGroupId int64, bulkeditassignedinventorysourcesrequest *BulkEditAssignedInventorySourcesRequest) *InventorySourceGroupsAssignedInventorySourcesBulkEditCall {
 	c := &InventorySourceGroupsAssignedInventorySourcesBulkEditCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.inventorySourceGroupId = inventorySourceGroupId
@@ -36533,17 +38393,17 @@ func (c *InventorySourceGroupsAssignedInventorySourcesBulkEditCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditAssignedInventorySourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -36602,8 +38462,8 @@ type InventorySourceGroupsAssignedInventorySourcesCreateCall struct {
 // Create: Creates an assignment between an inventory source and an
 // inventory source group.
 //
-// - inventorySourceGroupId: The ID of the inventory source group to
-//   which the assignment will be assigned.
+//   - inventorySourceGroupId: The ID of the inventory source group to
+//     which the assignment will be assigned.
 func (r *InventorySourceGroupsAssignedInventorySourcesService) Create(inventorySourceGroupId int64, assignedinventorysource *AssignedInventorySource) *InventorySourceGroupsAssignedInventorySourcesCreateCall {
 	c := &InventorySourceGroupsAssignedInventorySourcesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.inventorySourceGroupId = inventorySourceGroupId
@@ -36695,17 +38555,17 @@ func (c *InventorySourceGroupsAssignedInventorySourcesCreateCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedInventorySource{
 		ServerResponse: googleapi.ServerResponse{
@@ -36776,10 +38636,10 @@ type InventorySourceGroupsAssignedInventorySourcesDeleteCall struct {
 // Delete: Deletes the assignment between an inventory source and an
 // inventory source group.
 //
-// - assignedInventorySourceId: The ID of the assigned inventory source
-//   to delete.
-// - inventorySourceGroupId: The ID of the inventory source group to
-//   which this assignment is assigned.
+//   - assignedInventorySourceId: The ID of the assigned inventory source
+//     to delete.
+//   - inventorySourceGroupId: The ID of the inventory source group to
+//     which this assignment is assigned.
 func (r *InventorySourceGroupsAssignedInventorySourcesService) Delete(inventorySourceGroupId int64, assignedInventorySourceId int64) *InventorySourceGroupsAssignedInventorySourcesDeleteCall {
 	c := &InventorySourceGroupsAssignedInventorySourcesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.inventorySourceGroupId = inventorySourceGroupId
@@ -36867,17 +38727,17 @@ func (c *InventorySourceGroupsAssignedInventorySourcesDeleteCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -36953,8 +38813,8 @@ type InventorySourceGroupsAssignedInventorySourcesListCall struct {
 
 // List: Lists inventory sources assigned to an inventory source group.
 //
-// - inventorySourceGroupId: The ID of the inventory source group to
-//   which these assignments are assigned.
+//   - inventorySourceGroupId: The ID of the inventory source group to
+//     which these assignments are assigned.
 func (r *InventorySourceGroupsAssignedInventorySourcesService) List(inventorySourceGroupId int64) *InventorySourceGroupsAssignedInventorySourcesListCall {
 	c := &InventorySourceGroupsAssignedInventorySourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.inventorySourceGroupId = inventorySourceGroupId
@@ -37097,17 +38957,17 @@ func (c *InventorySourceGroupsAssignedInventorySourcesListCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAssignedInventorySourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -37201,6 +39061,304 @@ func (c *InventorySourceGroupsAssignedInventorySourcesListCall) Pages(ctx contex
 		}
 		c.PageToken(x.NextPageToken)
 	}
+}
+
+// method id "displayvideo.inventorySources.create":
+
+type InventorySourcesCreateCall struct {
+	s               *Service
+	inventorysource *InventorySource
+	urlParams_      gensupport.URLParams
+	ctx_            context.Context
+	header_         http.Header
+}
+
+// Create: Creates a new inventory source. Returns the newly created
+// inventory source if successful.
+func (r *InventorySourcesService) Create(inventorysource *InventorySource) *InventorySourcesCreateCall {
+	c := &InventorySourcesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.inventorysource = inventorysource
+	return c
+}
+
+// AdvertiserId sets the optional parameter "advertiserId": The ID of
+// the advertiser that the request is being made within.
+func (c *InventorySourcesCreateCall) AdvertiserId(advertiserId int64) *InventorySourcesCreateCall {
+	c.urlParams_.Set("advertiserId", fmt.Sprint(advertiserId))
+	return c
+}
+
+// PartnerId sets the optional parameter "partnerId": The ID of the
+// partner that the request is being made within.
+func (c *InventorySourcesCreateCall) PartnerId(partnerId int64) *InventorySourcesCreateCall {
+	c.urlParams_.Set("partnerId", fmt.Sprint(partnerId))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *InventorySourcesCreateCall) Fields(s ...googleapi.Field) *InventorySourcesCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *InventorySourcesCreateCall) Context(ctx context.Context) *InventorySourcesCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *InventorySourcesCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *InventorySourcesCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.inventorysource)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/inventorySources")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.inventorySources.create" call.
+// Exactly one of *InventorySource or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *InventorySource.ServerResponse.Header or (if a response was returned
+// at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *InventorySourcesCreateCall) Do(opts ...googleapi.CallOption) (*InventorySource, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &InventorySource{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a new inventory source. Returns the newly created inventory source if successful.",
+	//   "flatPath": "v1/inventorySources",
+	//   "httpMethod": "POST",
+	//   "id": "displayvideo.inventorySources.create",
+	//   "parameterOrder": [],
+	//   "parameters": {
+	//     "advertiserId": {
+	//       "description": "The ID of the advertiser that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "partnerId": {
+	//       "description": "The ID of the partner that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/inventorySources",
+	//   "request": {
+	//     "$ref": "InventorySource"
+	//   },
+	//   "response": {
+	//     "$ref": "InventorySource"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
+}
+
+// method id "displayvideo.inventorySources.editInventorySourceReadWriteAccessors":
+
+type InventorySourcesEditInventorySourceReadWriteAccessorsCall struct {
+	s                                            *Service
+	inventorySourceId                            int64
+	editinventorysourcereadwriteaccessorsrequest *EditInventorySourceReadWriteAccessorsRequest
+	urlParams_                                   gensupport.URLParams
+	ctx_                                         context.Context
+	header_                                      http.Header
+}
+
+// EditInventorySourceReadWriteAccessors: Edits read/write accessors of
+// an inventory source. Returns the updated read_write_accessors for the
+// inventory source.
+//
+// - inventorySourceId: The ID of inventory source to update.
+func (r *InventorySourcesService) EditInventorySourceReadWriteAccessors(inventorySourceId int64, editinventorysourcereadwriteaccessorsrequest *EditInventorySourceReadWriteAccessorsRequest) *InventorySourcesEditInventorySourceReadWriteAccessorsCall {
+	c := &InventorySourcesEditInventorySourceReadWriteAccessorsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.inventorySourceId = inventorySourceId
+	c.editinventorysourcereadwriteaccessorsrequest = editinventorysourcereadwriteaccessorsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *InventorySourcesEditInventorySourceReadWriteAccessorsCall) Fields(s ...googleapi.Field) *InventorySourcesEditInventorySourceReadWriteAccessorsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *InventorySourcesEditInventorySourceReadWriteAccessorsCall) Context(ctx context.Context) *InventorySourcesEditInventorySourceReadWriteAccessorsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *InventorySourcesEditInventorySourceReadWriteAccessorsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *InventorySourcesEditInventorySourceReadWriteAccessorsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.editinventorysourcereadwriteaccessorsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/inventorySources/{+inventorySourceId}:editInventorySourceReadWriteAccessors")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"inventorySourceId": strconv.FormatInt(c.inventorySourceId, 10),
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.inventorySources.editInventorySourceReadWriteAccessors" call.
+// Exactly one of *InventorySourceAccessors or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *InventorySourceAccessors.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *InventorySourcesEditInventorySourceReadWriteAccessorsCall) Do(opts ...googleapi.CallOption) (*InventorySourceAccessors, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &InventorySourceAccessors{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Edits read/write accessors of an inventory source. Returns the updated read_write_accessors for the inventory source.",
+	//   "flatPath": "v1/inventorySources/{inventorySourcesId}:editInventorySourceReadWriteAccessors",
+	//   "httpMethod": "POST",
+	//   "id": "displayvideo.inventorySources.editInventorySourceReadWriteAccessors",
+	//   "parameterOrder": [
+	//     "inventorySourceId"
+	//   ],
+	//   "parameters": {
+	//     "inventorySourceId": {
+	//       "description": "Required. The ID of inventory source to update.",
+	//       "format": "int64",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/inventorySources/{+inventorySourceId}:editInventorySourceReadWriteAccessors",
+	//   "request": {
+	//     "$ref": "EditInventorySourceReadWriteAccessorsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "InventorySourceAccessors"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
 }
 
 // method id "displayvideo.inventorySources.get":
@@ -37306,17 +39464,17 @@ func (c *InventorySourcesGetCall) Do(opts ...googleapi.CallOption) (*InventorySo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InventorySource{
 		ServerResponse: googleapi.ServerResponse{
@@ -37420,7 +39578,7 @@ func (c *InventorySourcesListCall) OrderBy(orderBy string) *InventorySourcesList
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 func (c *InventorySourcesListCall) PageSize(pageSize int64) *InventorySourcesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -37515,17 +39673,17 @@ func (c *InventorySourcesListCall) Do(opts ...googleapi.CallOption) (*ListInvent
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInventorySourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -37562,7 +39720,7 @@ func (c *InventorySourcesListCall) Do(opts ...googleapi.CallOption) (*ListInvent
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -37611,6 +39769,190 @@ func (c *InventorySourcesListCall) Pages(ctx context.Context, f func(*ListInvent
 	}
 }
 
+// method id "displayvideo.inventorySources.patch":
+
+type InventorySourcesPatchCall struct {
+	s                 *Service
+	inventorySourceId int64
+	inventorysource   *InventorySource
+	urlParams_        gensupport.URLParams
+	ctx_              context.Context
+	header_           http.Header
+}
+
+// Patch: Updates an existing inventory source. Returns the updated
+// inventory source if successful.
+//
+//   - inventorySourceId: Output only. The unique ID of the inventory
+//     source. Assigned by the system.
+func (r *InventorySourcesService) Patch(inventorySourceId int64, inventorysource *InventorySource) *InventorySourcesPatchCall {
+	c := &InventorySourcesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.inventorySourceId = inventorySourceId
+	c.inventorysource = inventorysource
+	return c
+}
+
+// AdvertiserId sets the optional parameter "advertiserId": The ID of
+// the advertiser that the request is being made within.
+func (c *InventorySourcesPatchCall) AdvertiserId(advertiserId int64) *InventorySourcesPatchCall {
+	c.urlParams_.Set("advertiserId", fmt.Sprint(advertiserId))
+	return c
+}
+
+// PartnerId sets the optional parameter "partnerId": The ID of the
+// partner that the request is being made within.
+func (c *InventorySourcesPatchCall) PartnerId(partnerId int64) *InventorySourcesPatchCall {
+	c.urlParams_.Set("partnerId", fmt.Sprint(partnerId))
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": Required. The
+// mask to control which fields to update.
+func (c *InventorySourcesPatchCall) UpdateMask(updateMask string) *InventorySourcesPatchCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *InventorySourcesPatchCall) Fields(s ...googleapi.Field) *InventorySourcesPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *InventorySourcesPatchCall) Context(ctx context.Context) *InventorySourcesPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *InventorySourcesPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *InventorySourcesPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.inventorysource)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/inventorySources/{+inventorySourceId}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"inventorySourceId": strconv.FormatInt(c.inventorySourceId, 10),
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "displayvideo.inventorySources.patch" call.
+// Exactly one of *InventorySource or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *InventorySource.ServerResponse.Header or (if a response was returned
+// at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *InventorySourcesPatchCall) Do(opts ...googleapi.CallOption) (*InventorySource, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &InventorySource{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates an existing inventory source. Returns the updated inventory source if successful.",
+	//   "flatPath": "v1/inventorySources/{inventorySourcesId}",
+	//   "httpMethod": "PATCH",
+	//   "id": "displayvideo.inventorySources.patch",
+	//   "parameterOrder": [
+	//     "inventorySourceId"
+	//   ],
+	//   "parameters": {
+	//     "advertiserId": {
+	//       "description": "The ID of the advertiser that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "inventorySourceId": {
+	//       "description": "Output only. The unique ID of the inventory source. Assigned by the system.",
+	//       "format": "int64",
+	//       "location": "path",
+	//       "pattern": "^[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "partnerId": {
+	//       "description": "The ID of the partner that the request is being made within.",
+	//       "format": "int64",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "Required. The mask to control which fields to update.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/inventorySources/{+inventorySourceId}",
+	//   "request": {
+	//     "$ref": "InventorySource"
+	//   },
+	//   "response": {
+	//     "$ref": "InventorySource"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/display-video"
+	//   ]
+	// }
+
+}
+
 // method id "displayvideo.media.download":
 
 type MediaDownloadCall struct {
@@ -37626,8 +39968,8 @@ type MediaDownloadCall struct {
 // `/download/{resource_name=**}?alt=media.` **Note**: Download requests
 // will not be successful without including `alt=media` query string.
 //
-// - resourceName: Name of the media that is being downloaded. See
-//   ReadRequest.resource_name.
+//   - resourceName: Name of the media that is being downloaded. See
+//     ReadRequest.resource_name.
 func (r *MediaService) Download(resourceName string) *MediaDownloadCall {
 	c := &MediaDownloadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resourceName = resourceName
@@ -37706,7 +40048,7 @@ func (c *MediaDownloadCall) Download(opts ...googleapi.CallOption) (*http.Respon
 	}
 	if err := googleapi.CheckResponse(res); err != nil {
 		res.Body.Close()
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	return res, nil
 }
@@ -37725,17 +40067,17 @@ func (c *MediaDownloadCall) Do(opts ...googleapi.CallOption) (*GoogleBytestreamM
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleBytestreamMedia{
 		ServerResponse: googleapi.ServerResponse{
@@ -37795,8 +40137,8 @@ type MediaUploadCall struct {
 // Upload requests will not be successful without including
 // `upload_type=media` query string.
 //
-// - resourceName: Name of the media that is being downloaded. See
-//   ReadRequest.resource_name.
+//   - resourceName: Name of the media that is being downloaded. See
+//     ReadRequest.resource_name.
 func (r *MediaService) Upload(resourceName string, googlebytestreammedia *GoogleBytestreamMedia) *MediaUploadCall {
 	c := &MediaUploadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resourceName = resourceName
@@ -37921,17 +40263,17 @@ func (c *MediaUploadCall) Do(opts ...googleapi.CallOption) (*GoogleBytestreamMed
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -37947,7 +40289,7 @@ func (c *MediaUploadCall) Do(opts ...googleapi.CallOption) (*GoogleBytestreamMed
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &GoogleBytestreamMedia{
@@ -38089,7 +40431,9 @@ func (c *PartnersBulkEditPartnerAssignedTargetingOptionsCall) doRequest(alt stri
 // error will be non-nil. Any non-2xx status code is an error. Response
 // headers are in either
 // *BulkEditPartnerAssignedTargetingOptionsResponse.ServerResponse.Header
-//  or (if a response was returned at all) in
+//
+//	or (if a response was returned at all) in
+//
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
@@ -38100,17 +40444,17 @@ func (c *PartnersBulkEditPartnerAssignedTargetingOptionsCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditPartnerAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -38250,17 +40594,17 @@ func (c *PartnersGetCall) Do(opts ...googleapi.CallOption) (*Partner, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Partner{
 		ServerResponse: googleapi.ServerResponse{
@@ -38344,7 +40688,7 @@ func (c *PartnersListCall) OrderBy(orderBy string) *PartnersListCall {
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 func (c *PartnersListCall) PageSize(pageSize int64) *PartnersListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -38432,17 +40776,17 @@ func (c *PartnersListCall) Do(opts ...googleapi.CallOption) (*ListPartnersRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPartnersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -38473,7 +40817,7 @@ func (c *PartnersListCall) Do(opts ...googleapi.CallOption) (*ListPartnersRespon
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -38612,17 +40956,17 @@ func (c *PartnersChannelsCreateCall) Do(opts ...googleapi.CallOption) (*Channel,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -38779,17 +41123,17 @@ func (c *PartnersChannelsGetCall) Do(opts ...googleapi.CallOption) (*Channel, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -38897,7 +41241,7 @@ func (c *PartnersChannelsListCall) OrderBy(orderBy string) *PartnersChannelsList
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *PartnersChannelsListCall) PageSize(pageSize int64) *PartnersChannelsListCall {
@@ -38990,17 +41334,17 @@ func (c *PartnersChannelsListCall) Do(opts ...googleapi.CallOption) (*ListChanne
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListChannelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -39039,7 +41383,7 @@ func (c *PartnersChannelsListCall) Do(opts ...googleapi.CallOption) (*ListChanne
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -39104,9 +41448,9 @@ type PartnersChannelsPatchCall struct {
 
 // Patch: Updates a channel. Returns the updated channel if successful.
 //
-// - channelId: Output only. The unique ID of the channel. Assigned by
-//   the system.
-// - partnerId: The ID of the partner that owns the created channel.
+//   - channelId: Output only. The unique ID of the channel. Assigned by
+//     the system.
+//   - partnerId: The ID of the partner that owns the created channel.
 func (r *PartnersChannelsService) Patch(partnerId int64, channelId int64, channel *Channel) *PartnersChannelsPatchCall {
 	c := &PartnersChannelsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -39197,17 +41541,17 @@ func (c *PartnersChannelsPatchCall) Do(opts ...googleapi.CallOption) (*Channel, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -39366,17 +41710,17 @@ func (c *PartnersChannelsSitesBulkEditCall) Do(opts ...googleapi.CallOption) (*B
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditSitesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -39443,9 +41787,9 @@ type PartnersChannelsSitesCreateCall struct {
 
 // Create: Creates a site in a channel.
 //
-// - channelId: The ID of the parent channel in which the site will be
-//   created.
-// - partnerId: The ID of the partner that owns the parent channel.
+//   - channelId: The ID of the parent channel in which the site will be
+//     created.
+//   - partnerId: The ID of the partner that owns the parent channel.
 func (r *PartnersChannelsSitesService) Create(partnerId int64, channelId int64, site *Site) *PartnersChannelsSitesCreateCall {
 	c := &PartnersChannelsSitesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -39529,17 +41873,17 @@ func (c *PartnersChannelsSitesCreateCall) Do(opts ...googleapi.CallOption) (*Sit
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Site{
 		ServerResponse: googleapi.ServerResponse{
@@ -39694,17 +42038,17 @@ func (c *PartnersChannelsSitesDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -39782,9 +42126,9 @@ type PartnersChannelsSitesListCall struct {
 
 // List: Lists sites in a channel.
 //
-// - channelId: The ID of the parent channel to which the requested
-//   sites belong.
-// - partnerId: The ID of the partner that owns the parent channel.
+//   - channelId: The ID of the parent channel to which the requested
+//     sites belong.
+//   - partnerId: The ID of the partner that owns the parent channel.
 func (r *PartnersChannelsSitesService) List(partnerId int64, channelId int64) *PartnersChannelsSitesListCall {
 	c := &PartnersChannelsSitesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -39915,17 +42259,17 @@ func (c *PartnersChannelsSitesListCall) Do(opts ...googleapi.CallOption) (*ListS
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSitesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -40040,9 +42384,9 @@ type PartnersChannelsSitesReplaceCall struct {
 // operation will replace the sites under a channel with the sites
 // provided in ReplaceSitesRequest.new_sites.
 //
-// - channelId: The ID of the parent channel whose sites will be
-//   replaced.
-// - partnerId: The ID of the partner that owns the parent channel.
+//   - channelId: The ID of the parent channel whose sites will be
+//     replaced.
+//   - partnerId: The ID of the partner that owns the parent channel.
 func (r *PartnersChannelsSitesService) Replace(partnerId int64, channelId int64, replacesitesrequest *ReplaceSitesRequest) *PartnersChannelsSitesReplaceCall {
 	c := &PartnersChannelsSitesReplaceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -40119,17 +42463,17 @@ func (c *PartnersChannelsSitesReplaceCall) Do(opts ...googleapi.CallOption) (*Re
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReplaceSitesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -40197,9 +42541,9 @@ type PartnersTargetingTypesAssignedTargetingOptionsCreateCall struct {
 // Create: Assigns a targeting option to a partner. Returns the assigned
 // targeting option if successful.
 //
-// - partnerId: The ID of the partner.
-// - targetingType: Identifies the type of this assigned targeting
-//   option. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
+//   - partnerId: The ID of the partner.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
 func (r *PartnersTargetingTypesAssignedTargetingOptionsService) Create(partnerId int64, targetingType string, assignedtargetingoption *AssignedTargetingOption) *PartnersTargetingTypesAssignedTargetingOptionsCreateCall {
 	c := &PartnersTargetingTypesAssignedTargetingOptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -40276,17 +42620,17 @@ func (c *PartnersTargetingTypesAssignedTargetingOptionsCreateCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -40449,11 +42793,11 @@ type PartnersTargetingTypesAssignedTargetingOptionsDeleteCall struct {
 
 // Delete: Deletes an assigned targeting option from a partner.
 //
-// - assignedTargetingOptionId: The ID of the assigned targeting option
-//   to delete.
-// - partnerId: The ID of the partner.
-// - targetingType: Identifies the type of this assigned targeting
-//   option. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
+//   - assignedTargetingOptionId: The ID of the assigned targeting option
+//     to delete.
+//   - partnerId: The ID of the partner.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
 func (r *PartnersTargetingTypesAssignedTargetingOptionsService) Delete(partnerId int64, targetingType string, assignedTargetingOptionId string) *PartnersTargetingTypesAssignedTargetingOptionsDeleteCall {
 	c := &PartnersTargetingTypesAssignedTargetingOptionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -40526,17 +42870,17 @@ func (c *PartnersTargetingTypesAssignedTargetingOptionsDeleteCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -40705,12 +43049,12 @@ type PartnersTargetingTypesAssignedTargetingOptionsGetCall struct {
 
 // Get: Gets a single targeting option assigned to a partner.
 //
-// - assignedTargetingOptionId: An identifier unique to the targeting
-//   type in this partner that identifies the assigned targeting option
-//   being requested.
-// - partnerId: The ID of the partner.
-// - targetingType: Identifies the type of this assigned targeting
-//   option. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
+//   - assignedTargetingOptionId: An identifier unique to the targeting
+//     type in this partner that identifies the assigned targeting option
+//     being requested.
+//   - partnerId: The ID of the partner.
+//   - targetingType: Identifies the type of this assigned targeting
+//     option. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
 func (r *PartnersTargetingTypesAssignedTargetingOptionsService) Get(partnerId int64, targetingType string, assignedTargetingOptionId string) *PartnersTargetingTypesAssignedTargetingOptionsGetCall {
 	c := &PartnersTargetingTypesAssignedTargetingOptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -40796,17 +43140,17 @@ func (c *PartnersTargetingTypesAssignedTargetingOptionsGetCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AssignedTargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -40974,9 +43318,9 @@ type PartnersTargetingTypesAssignedTargetingOptionsListCall struct {
 
 // List: Lists the targeting options assigned to a partner.
 //
-// - partnerId: The ID of the partner.
-// - targetingType: Identifies the type of assigned targeting options to
-//   list. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
+//   - partnerId: The ID of the partner.
+//   - targetingType: Identifies the type of assigned targeting options to
+//     list. Supported targeting types: * `TARGETING_TYPE_CHANNEL`.
 func (r *PartnersTargetingTypesAssignedTargetingOptionsService) List(partnerId int64, targetingType string) *PartnersTargetingTypesAssignedTargetingOptionsListCall {
 	c := &PartnersTargetingTypesAssignedTargetingOptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.partnerId = partnerId
@@ -41009,7 +43353,7 @@ func (c *PartnersTargetingTypesAssignedTargetingOptionsListCall) OrderBy(orderBy
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *PartnersTargetingTypesAssignedTargetingOptionsListCall) PageSize(pageSize int64) *PartnersTargetingTypesAssignedTargetingOptionsListCall {
@@ -41105,17 +43449,17 @@ func (c *PartnersTargetingTypesAssignedTargetingOptionsListCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPartnerAssignedTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -41149,7 +43493,7 @@ func (c *PartnersTargetingTypesAssignedTargetingOptionsListCall) Do(opts ...goog
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -41392,17 +43736,17 @@ func (c *SdfdownloadtasksCreateCall) Do(opts ...googleapi.CallOption) (*Operatio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -41533,17 +43877,17 @@ func (c *SdfdownloadtasksOperationsGetCall) Do(opts ...googleapi.CallOption) (*O
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -41599,28 +43943,28 @@ type TargetingTypesTargetingOptionsGetCall struct {
 
 // Get: Gets a single targeting option.
 //
-// - targetingOptionId: The ID of the of targeting option to retrieve.
-// - targetingType: The type of targeting option to retrieve. Accepted
-//   values are: * `TARGETING_TYPE_APP_CATEGORY` *
-//   `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_GENDER` *
-//   `TARGETING_TYPE_VIDEO_PLAYER_SIZE` *
-//   `TARGETING_TYPE_USER_REWARDED_CONTENT` *
-//   `TARGETING_TYPE_PARENTAL_STATUS` *
-//   `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
-//   `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
-//   `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_BROWSER` *
-//   `TARGETING_TYPE_HOUSEHOLD_INCOME` *
-//   `TARGETING_TYPE_ON_SCREEN_POSITION` *
-//   `TARGETING_TYPE_CARRIER_AND_ISP` *
-//   `TARGETING_TYPE_OPERATING_SYSTEM` *
-//   `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_ENVIRONMENT` *
-//   `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_VIEWABILITY` *
-//   `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
-//   `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_GEO_REGION` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
-//   `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_SUB_EXCHANGE` *
-//   `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_OMID`.
+//   - targetingOptionId: The ID of the of targeting option to retrieve.
+//   - targetingType: The type of targeting option to retrieve. Accepted
+//     values are: * `TARGETING_TYPE_APP_CATEGORY` *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_GENDER` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_BROWSER` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_ENVIRONMENT` *
+//     `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_VIEWABILITY` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_OMID`.
 func (r *TargetingTypesTargetingOptionsService) Get(targetingType string, targetingOptionId string) *TargetingTypesTargetingOptionsGetCall {
 	c := &TargetingTypesTargetingOptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.targetingType = targetingType
@@ -41711,17 +44055,17 @@ func (c *TargetingTypesTargetingOptionsGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TargetingOption{
 		ServerResponse: googleapi.ServerResponse{
@@ -41885,27 +44229,27 @@ type TargetingTypesTargetingOptionsListCall struct {
 
 // List: Lists targeting options of a given type.
 //
-// - targetingType: The type of targeting option to be listed. Accepted
-//   values are: * `TARGETING_TYPE_APP_CATEGORY` *
-//   `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_GENDER` *
-//   `TARGETING_TYPE_VIDEO_PLAYER_SIZE` *
-//   `TARGETING_TYPE_USER_REWARDED_CONTENT` *
-//   `TARGETING_TYPE_PARENTAL_STATUS` *
-//   `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
-//   `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
-//   `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_BROWSER` *
-//   `TARGETING_TYPE_HOUSEHOLD_INCOME` *
-//   `TARGETING_TYPE_ON_SCREEN_POSITION` *
-//   `TARGETING_TYPE_CARRIER_AND_ISP` *
-//   `TARGETING_TYPE_OPERATING_SYSTEM` *
-//   `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_ENVIRONMENT` *
-//   `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_VIEWABILITY` *
-//   `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
-//   `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_GEO_REGION` *
-//   `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
-//   `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
-//   `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_SUB_EXCHANGE` *
-//   `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_OMID`.
+//   - targetingType: The type of targeting option to be listed. Accepted
+//     values are: * `TARGETING_TYPE_APP_CATEGORY` *
+//     `TARGETING_TYPE_AGE_RANGE` * `TARGETING_TYPE_GENDER` *
+//     `TARGETING_TYPE_VIDEO_PLAYER_SIZE` *
+//     `TARGETING_TYPE_USER_REWARDED_CONTENT` *
+//     `TARGETING_TYPE_PARENTAL_STATUS` *
+//     `TARGETING_TYPE_CONTENT_INSTREAM_POSITION` *
+//     `TARGETING_TYPE_CONTENT_OUTSTREAM_POSITION` *
+//     `TARGETING_TYPE_DEVICE_TYPE` * `TARGETING_TYPE_BROWSER` *
+//     `TARGETING_TYPE_HOUSEHOLD_INCOME` *
+//     `TARGETING_TYPE_ON_SCREEN_POSITION` *
+//     `TARGETING_TYPE_CARRIER_AND_ISP` *
+//     `TARGETING_TYPE_OPERATING_SYSTEM` *
+//     `TARGETING_TYPE_DEVICE_MAKE_MODEL` * `TARGETING_TYPE_ENVIRONMENT` *
+//     `TARGETING_TYPE_CATEGORY` * `TARGETING_TYPE_VIEWABILITY` *
+//     `TARGETING_TYPE_AUTHORIZED_SELLER_STATUS` *
+//     `TARGETING_TYPE_LANGUAGE` * `TARGETING_TYPE_GEO_REGION` *
+//     `TARGETING_TYPE_DIGITAL_CONTENT_LABEL_EXCLUSION` *
+//     `TARGETING_TYPE_SENSITIVE_CATEGORY_EXCLUSION` *
+//     `TARGETING_TYPE_EXCHANGE` * `TARGETING_TYPE_SUB_EXCHANGE` *
+//     `TARGETING_TYPE_NATIVE_CONTENT_POSITION` * `TARGETING_TYPE_OMID`.
 func (r *TargetingTypesTargetingOptionsService) List(targetingType string) *TargetingTypesTargetingOptionsListCall {
 	c := &TargetingTypesTargetingOptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.targetingType = targetingType
@@ -41950,7 +44294,7 @@ func (c *TargetingTypesTargetingOptionsListCall) OrderBy(orderBy string) *Target
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 // Returns error code `INVALID_ARGUMENT` if an invalid value is
 // specified.
 func (c *TargetingTypesTargetingOptionsListCall) PageSize(pageSize int64) *TargetingTypesTargetingOptionsListCall {
@@ -42043,17 +44387,17 @@ func (c *TargetingTypesTargetingOptionsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -42092,7 +44436,7 @@ func (c *TargetingTypesTargetingOptionsListCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`. Returns error code `INVALID_ARGUMENT` if an invalid value is specified.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -42252,9 +44596,9 @@ type TargetingTypesTargetingOptionsSearchCall struct {
 // Search: Searches for targeting options of a given type based on the
 // given search terms.
 //
-// - targetingType: The type of targeting options to retrieve. Accepted
-//   values are: * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_POI` *
-//   `TARGETING_TYPE_BUSINESS_CHAIN`.
+//   - targetingType: The type of targeting options to retrieve. Accepted
+//     values are: * `TARGETING_TYPE_GEO_REGION` * `TARGETING_TYPE_POI` *
+//     `TARGETING_TYPE_BUSINESS_CHAIN`.
 func (r *TargetingTypesTargetingOptionsService) Search(targetingType string, searchtargetingoptionsrequest *SearchTargetingOptionsRequest) *TargetingTypesTargetingOptionsSearchCall {
 	c := &TargetingTypesTargetingOptionsSearchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.targetingType = targetingType
@@ -42329,17 +44673,17 @@ func (c *TargetingTypesTargetingOptionsSearchCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchTargetingOptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -42593,17 +44937,17 @@ func (c *UsersBulkEditAssignedUserRolesCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BulkEditAssignedUserRolesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -42730,17 +45074,17 @@ func (c *UsersCreateCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -42855,17 +45199,17 @@ func (c *UsersDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -43002,17 +45346,17 @@ func (c *UsersGetCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -43113,7 +45457,7 @@ func (c *UsersListCall) OrderBy(orderBy string) *UsersListCall {
 }
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
-// Must be between `1` and `100`. If unspecified will default to `100`.
+// Must be between `1` and `200`. If unspecified will default to `100`.
 func (c *UsersListCall) PageSize(pageSize int64) *UsersListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -43201,17 +45545,17 @@ func (c *UsersListCall) Do(opts ...googleapi.CallOption) (*ListUsersResponse, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListUsersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -43242,7 +45586,7 @@ func (c *UsersListCall) Do(opts ...googleapi.CallOption) (*ListUsersResponse, er
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. Must be between `1` and `100`. If unspecified will default to `100`.",
+	//       "description": "Requested page size. Must be between `1` and `200`. If unspecified will default to `100`.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -43299,8 +45643,8 @@ type UsersPatchCall struct {
 // Patch: Updates an existing user. Returns the updated user if
 // successful.
 //
-// - userId: Output only. The unique ID of the user. Assigned by the
-//   system.
+//   - userId: Output only. The unique ID of the user. Assigned by the
+//     system.
 func (r *UsersService) Patch(userId int64, user *User) *UsersPatchCall {
 	c := &UsersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userId = userId
@@ -43382,17 +45726,17 @@ func (c *UsersPatchCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{

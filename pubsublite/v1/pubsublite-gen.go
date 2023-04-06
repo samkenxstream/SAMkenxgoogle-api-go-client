@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/pubsub/lite/docs
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/pubsublite/v1"
-//   ...
-//   ctx := context.Background()
-//   pubsubliteService, err := pubsublite.NewService(ctx)
+//	import "google.golang.org/api/pubsublite/v1"
+//	...
+//	ctx := context.Background()
+//	pubsubliteService, err := pubsublite.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   pubsubliteService, err := pubsublite.NewService(ctx, option.WithAPIKey("AIza..."))
+//	pubsubliteService, err := pubsublite.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   pubsubliteService, err := pubsublite.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	pubsubliteService, err := pubsublite.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package pubsublite // import "google.golang.org/api/pubsublite/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "pubsublite:v1"
 const apiName = "pubsublite"
@@ -730,6 +731,74 @@ type Empty struct {
 	googleapi.ServerResponse `json:"-"`
 }
 
+// ExportConfig: Configuration for a Pub/Sub Lite subscription that
+// writes messages to a destination. User subscriber clients must not
+// connect to this subscription.
+type ExportConfig struct {
+	// CurrentState: Output only. The current state of the export, which may
+	// be different to the desired state due to errors. This field is output
+	// only.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Default value. This value is unused.
+	//   "ACTIVE" - Messages are being exported.
+	//   "PAUSED" - Exporting messages is suspended.
+	//   "PERMISSION_DENIED" - Messages cannot be exported due to permission
+	// denied errors. Output only.
+	//   "NOT_FOUND" - Messages cannot be exported due to missing resources.
+	// Output only.
+	CurrentState string `json:"currentState,omitempty"`
+
+	// DeadLetterTopic: Optional. The name of an optional Pub/Sub Lite topic
+	// to publish messages that can not be exported to the destination. For
+	// example, the message can not be published to the Pub/Sub service
+	// because it does not satisfy the constraints documented at
+	// https://cloud.google.com/pubsub/docs/publisher. Structured like:
+	// projects/{project_number}/locations/{location}/topics/{topic_id}.
+	// Must be within the same project and location as the subscription. The
+	// topic may be changed or removed.
+	DeadLetterTopic string `json:"deadLetterTopic,omitempty"`
+
+	// DesiredState: The desired state of this export. Setting this to
+	// values other than `ACTIVE` and `PAUSED` will result in an error.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Default value. This value is unused.
+	//   "ACTIVE" - Messages are being exported.
+	//   "PAUSED" - Exporting messages is suspended.
+	//   "PERMISSION_DENIED" - Messages cannot be exported due to permission
+	// denied errors. Output only.
+	//   "NOT_FOUND" - Messages cannot be exported due to missing resources.
+	// Output only.
+	DesiredState string `json:"desiredState,omitempty"`
+
+	// PubsubConfig: Messages are automatically written from the Pub/Sub
+	// Lite topic associated with this subscription to a Pub/Sub topic.
+	PubsubConfig *PubSubConfig `json:"pubsubConfig,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CurrentState") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CurrentState") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ExportConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod ExportConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ListOperationsResponse: The response message for
 // Operations.ListOperations.
 type ListOperationsResponse struct {
@@ -1171,6 +1240,36 @@ func (s *PartitionCursor) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// PubSubConfig: Configuration for exporting to a Pub/Sub topic.
+type PubSubConfig struct {
+	// Topic: The name of the Pub/Sub topic. Structured like:
+	// projects/{project_number}/topics/{topic_id}. The topic may be
+	// changed.
+	Topic string `json:"topic,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Topic") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Topic") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PubSubConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod PubSubConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Reservation: Metadata about a reservation resource.
 type Reservation struct {
 	// Name: The name of the reservation. Structured like:
@@ -1376,6 +1475,11 @@ type Subscription struct {
 	// DeliveryConfig: The settings for this subscription's message
 	// delivery.
 	DeliveryConfig *DeliveryConfig `json:"deliveryConfig,omitempty"`
+
+	// ExportConfig: If present, messages are automatically written from the
+	// Pub/Sub Lite topic associated with this subscription to a
+	// destination.
+	ExportConfig *ExportConfig `json:"exportConfig,omitempty"`
 
 	// Name: The name of the subscription. Structured like:
 	// projects/{project_number}/locations/{location}/subscriptions/{subscrip
@@ -1625,17 +1729,17 @@ func (c *AdminProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1763,17 +1867,17 @@ func (c *AdminProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1911,17 +2015,17 @@ func (c *AdminProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1975,14 +2079,7 @@ type AdminProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *AdminProjectsLocationsOperationsService) List(name string) *AdminProjectsLocationsOperationsListCall {
@@ -2087,17 +2184,17 @@ func (c *AdminProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2111,7 +2208,7 @@ func (c *AdminProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOpti
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/admin/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "pubsublite.admin.projects.locations.operations.list",
@@ -2188,8 +2285,8 @@ type AdminProjectsLocationsReservationsCreateCall struct {
 
 // Create: Creates a new reservation.
 //
-// - parent: The parent location in which to create the reservation.
-//   Structured like `projects/{project_number}/locations/{location}`.
+//   - parent: The parent location in which to create the reservation.
+//     Structured like `projects/{project_number}/locations/{location}`.
 func (r *AdminProjectsLocationsReservationsService) Create(parent string, reservation *Reservation) *AdminProjectsLocationsReservationsCreateCall {
 	c := &AdminProjectsLocationsReservationsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2273,17 +2370,17 @@ func (c *AdminProjectsLocationsReservationsCreateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Reservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2344,9 +2441,9 @@ type AdminProjectsLocationsReservationsDeleteCall struct {
 
 // Delete: Deletes the specified reservation.
 //
-// - name: The name of the reservation to delete. Structured like:
-//   projects/{project_number}/locations/{location}/reservations/{reserva
-//   tion_id}.
+//   - name: The name of the reservation to delete. Structured like:
+//     projects/{project_number}/locations/{location}/reservations/{reserva
+//     tion_id}.
 func (r *AdminProjectsLocationsReservationsService) Delete(name string) *AdminProjectsLocationsReservationsDeleteCall {
 	c := &AdminProjectsLocationsReservationsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2415,17 +2512,17 @@ func (c *AdminProjectsLocationsReservationsDeleteCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2479,10 +2576,10 @@ type AdminProjectsLocationsReservationsGetCall struct {
 
 // Get: Returns the reservation configuration.
 //
-// - name: The name of the reservation whose configuration to return.
-//   Structured like:
-//   projects/{project_number}/locations/{location}/reservations/{reserva
-//   tion_id}.
+//   - name: The name of the reservation whose configuration to return.
+//     Structured like:
+//     projects/{project_number}/locations/{location}/reservations/{reserva
+//     tion_id}.
 func (r *AdminProjectsLocationsReservationsService) Get(name string) *AdminProjectsLocationsReservationsGetCall {
 	c := &AdminProjectsLocationsReservationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2564,17 +2661,17 @@ func (c *AdminProjectsLocationsReservationsGetCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Reservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2628,8 +2725,8 @@ type AdminProjectsLocationsReservationsListCall struct {
 
 // List: Returns the list of reservations for the given project.
 //
-// - parent: The parent whose reservations are to be listed. Structured
-//   like `projects/{project_number}/locations/{location}`.
+//   - parent: The parent whose reservations are to be listed. Structured
+//     like `projects/{project_number}/locations/{location}`.
 func (r *AdminProjectsLocationsReservationsService) List(parent string) *AdminProjectsLocationsReservationsListCall {
 	c := &AdminProjectsLocationsReservationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2730,17 +2827,17 @@ func (c *AdminProjectsLocationsReservationsListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReservationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2826,9 +2923,9 @@ type AdminProjectsLocationsReservationsPatchCall struct {
 
 // Patch: Updates properties of the specified reservation.
 //
-// - name: The name of the reservation. Structured like:
-//   projects/{project_number}/locations/{location}/reservations/{reserva
-//   tion_id}.
+//   - name: The name of the reservation. Structured like:
+//     projects/{project_number}/locations/{location}/reservations/{reserva
+//     tion_id}.
 func (r *AdminProjectsLocationsReservationsService) Patch(name string, reservation *Reservation) *AdminProjectsLocationsReservationsPatchCall {
 	c := &AdminProjectsLocationsReservationsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2910,17 +3007,17 @@ func (c *AdminProjectsLocationsReservationsPatchCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Reservation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2983,10 +3080,10 @@ type AdminProjectsLocationsReservationsTopicsListCall struct {
 
 // List: Lists the topics attached to the specified reservation.
 //
-// - name: The name of the reservation whose topics to list. Structured
-//   like:
-//   projects/{project_number}/locations/{location}/reservations/{reserva
-//   tion_id}.
+//   - name: The name of the reservation whose topics to list. Structured
+//     like:
+//     projects/{project_number}/locations/{location}/reservations/{reserva
+//     tion_id}.
 func (r *AdminProjectsLocationsReservationsTopicsService) List(name string) *AdminProjectsLocationsReservationsTopicsListCall {
 	c := &AdminProjectsLocationsReservationsTopicsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3086,17 +3183,17 @@ func (c *AdminProjectsLocationsReservationsTopicsListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReservationTopicsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3182,8 +3279,8 @@ type AdminProjectsLocationsSubscriptionsCreateCall struct {
 
 // Create: Creates a new subscription.
 //
-// - parent: The parent location in which to create the subscription.
-//   Structured like `projects/{project_number}/locations/{location}`.
+//   - parent: The parent location in which to create the subscription.
+//     Structured like `projects/{project_number}/locations/{location}`.
 func (r *AdminProjectsLocationsSubscriptionsService) Create(parent string, subscription *Subscription) *AdminProjectsLocationsSubscriptionsCreateCall {
 	c := &AdminProjectsLocationsSubscriptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3276,17 +3373,17 @@ func (c *AdminProjectsLocationsSubscriptionsCreateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -3421,17 +3518,17 @@ func (c *AdminProjectsLocationsSubscriptionsDeleteCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3567,17 +3664,17 @@ func (c *AdminProjectsLocationsSubscriptionsGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -3631,8 +3728,8 @@ type AdminProjectsLocationsSubscriptionsListCall struct {
 
 // List: Returns the list of subscriptions for the given project.
 //
-// - parent: The parent whose subscriptions are to be listed. Structured
-//   like `projects/{project_number}/locations/{location}`.
+//   - parent: The parent whose subscriptions are to be listed. Structured
+//     like `projects/{project_number}/locations/{location}`.
 func (r *AdminProjectsLocationsSubscriptionsService) List(parent string) *AdminProjectsLocationsSubscriptionsListCall {
 	c := &AdminProjectsLocationsSubscriptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3733,17 +3830,17 @@ func (c *AdminProjectsLocationsSubscriptionsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSubscriptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3829,9 +3926,9 @@ type AdminProjectsLocationsSubscriptionsPatchCall struct {
 
 // Patch: Updates properties of the specified subscription.
 //
-// - name: The name of the subscription. Structured like:
-//   projects/{project_number}/locations/{location}/subscriptions/{subscr
-//   iption_id}.
+//   - name: The name of the subscription. Structured like:
+//     projects/{project_number}/locations/{location}/subscriptions/{subscr
+//     iption_id}.
 func (r *AdminProjectsLocationsSubscriptionsService) Patch(name string, subscription *Subscription) *AdminProjectsLocationsSubscriptionsPatchCall {
 	c := &AdminProjectsLocationsSubscriptionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3913,17 +4010,17 @@ func (c *AdminProjectsLocationsSubscriptionsPatchCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -4077,17 +4174,17 @@ func (c *AdminProjectsLocationsSubscriptionsSeekCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4144,8 +4241,8 @@ type AdminProjectsLocationsTopicsCreateCall struct {
 
 // Create: Creates a new topic.
 //
-// - parent: The parent location in which to create the topic.
-//   Structured like `projects/{project_number}/locations/{location}`.
+//   - parent: The parent location in which to create the topic.
+//     Structured like `projects/{project_number}/locations/{location}`.
 func (r *AdminProjectsLocationsTopicsService) Create(parent string, topic *Topic) *AdminProjectsLocationsTopicsCreateCall {
 	c := &AdminProjectsLocationsTopicsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4228,17 +4325,17 @@ func (c *AdminProjectsLocationsTopicsCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Topic{
 		ServerResponse: googleapi.ServerResponse{
@@ -4368,17 +4465,17 @@ func (c *AdminProjectsLocationsTopicsDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4514,17 +4611,17 @@ func (c *AdminProjectsLocationsTopicsGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Topic{
 		ServerResponse: googleapi.ServerResponse{
@@ -4661,17 +4758,17 @@ func (c *AdminProjectsLocationsTopicsGetPartitionsCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TopicPartitions{
 		ServerResponse: googleapi.ServerResponse{
@@ -4725,8 +4822,8 @@ type AdminProjectsLocationsTopicsListCall struct {
 
 // List: Returns the list of topics for the given project.
 //
-// - parent: The parent whose topics are to be listed. Structured like
-//   `projects/{project_number}/locations/{location}`.
+//   - parent: The parent whose topics are to be listed. Structured like
+//     `projects/{project_number}/locations/{location}`.
 func (r *AdminProjectsLocationsTopicsService) List(parent string) *AdminProjectsLocationsTopicsListCall {
 	c := &AdminProjectsLocationsTopicsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4825,17 +4922,17 @@ func (c *AdminProjectsLocationsTopicsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTopicsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4921,8 +5018,8 @@ type AdminProjectsLocationsTopicsPatchCall struct {
 
 // Patch: Updates properties of the specified topic.
 //
-// - name: The name of the topic. Structured like:
-//   projects/{project_number}/locations/{location}/topics/{topic_id}.
+//   - name: The name of the topic. Structured like:
+//     projects/{project_number}/locations/{location}/topics/{topic_id}.
 func (r *AdminProjectsLocationsTopicsService) Patch(name string, topic *Topic) *AdminProjectsLocationsTopicsPatchCall {
 	c := &AdminProjectsLocationsTopicsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5004,17 +5101,17 @@ func (c *AdminProjectsLocationsTopicsPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Topic{
 		ServerResponse: googleapi.ServerResponse{
@@ -5178,17 +5275,17 @@ func (c *AdminProjectsLocationsTopicsSubscriptionsListCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTopicSubscriptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5349,17 +5446,17 @@ func (c *CursorProjectsLocationsSubscriptionsCommitCursorCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CommitCursorResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5416,10 +5513,10 @@ type CursorProjectsLocationsSubscriptionsCursorsListCall struct {
 
 // List: Returns all committed cursor information for a subscription.
 //
-// - parent: The subscription for which to retrieve cursors. Structured
-//   like
-//   `projects/{project_number}/locations/{location}/subscriptions/{subsc
-//   ription_id}`.
+//   - parent: The subscription for which to retrieve cursors. Structured
+//     like
+//     `projects/{project_number}/locations/{location}/subscriptions/{subsc
+//     ription_id}`.
 func (r *CursorProjectsLocationsSubscriptionsCursorsService) List(parent string) *CursorProjectsLocationsSubscriptionsCursorsListCall {
 	c := &CursorProjectsLocationsSubscriptionsCursorsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5519,17 +5616,17 @@ func (c *CursorProjectsLocationsSubscriptionsCursorsListCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPartitionCursorsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5695,17 +5792,17 @@ func (c *TopicStatsProjectsLocationsTopicsComputeHeadCursorCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ComputeHeadCursorResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5838,17 +5935,17 @@ func (c *TopicStatsProjectsLocationsTopicsComputeMessageStatsCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ComputeMessageStatsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5981,17 +6078,17 @@ func (c *TopicStatsProjectsLocationsTopicsComputeTimeCursorCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ComputeTimeCursorResponse{
 		ServerResponse: googleapi.ServerResponse{

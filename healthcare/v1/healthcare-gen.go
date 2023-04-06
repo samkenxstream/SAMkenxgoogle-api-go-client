@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/healthcare
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/healthcare/v1"
-//   ...
-//   ctx := context.Background()
-//   healthcareService, err := healthcare.NewService(ctx)
+//	import "google.golang.org/api/healthcare/v1"
+//	...
+//	ctx := context.Background()
+//	healthcareService, err := healthcare.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   healthcareService, err := healthcare.NewService(ctx, option.WithAPIKey("AIza..."))
+//	healthcareService, err := healthcare.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   healthcareService, err := healthcare.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	healthcareService, err := healthcare.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package healthcare // import "google.golang.org/api/healthcare/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "healthcare:v1"
 const apiName = "healthcare"
@@ -740,19 +741,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -764,9 +772,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -1255,8 +1261,12 @@ func (s *CreateMessageRequest) MarshalJSON() ([]byte, error) {
 type CryptoHashConfig struct {
 	// CryptoKey: An AES 128/192/256 bit key. Causes the hash to be computed
 	// based on this key. A default key is generated for each Deidentify
-	// operation and is used wherever crypto_key is not specified.
+	// operation and is used when neither `crypto_key` nor `kms_wrapped` is
+	// specified. Must not be set if `kms_wrapped` is set.
 	CryptoKey string `json:"cryptoKey,omitempty"`
+
+	// KmsWrapped: KMS wrapped key. Must not be set if `crypto_key` is set.
+	KmsWrapped *KmsWrappedCryptoKey `json:"kmsWrapped,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CryptoKey") to
 	// unconditionally include in API requests. By default, fields with
@@ -1327,11 +1337,20 @@ func (s *Dataset) MarshalJSON() ([]byte, error) {
 // amount which is consistent for a given patient and crypto key
 // combination.
 type DateShiftConfig struct {
-	// CryptoKey: An AES 128/192/256 bit key. Causes the shift to be
-	// computed based on this key and the patient ID. A default key is
-	// generated for each Deidentify operation and is used wherever
-	// crypto_key is not specified.
+	// CryptoKey: An AES 128/192/256 bit key. The date shift is computed
+	// based on this key and the patient ID. If the patient ID is empty for
+	// a DICOM resource, the date shift is computed based on this key and
+	// the study instance UID. If `crypto_key` is not set, then
+	// `kms_wrapped` is used to calculate the date shift. If neither is set,
+	// a default key is generated for each de-identify operation. Must not
+	// be set if `kms_wrapped` is set.
 	CryptoKey string `json:"cryptoKey,omitempty"`
+
+	// KmsWrapped: KMS wrapped key. If `kms_wrapped` is not set, then
+	// `crypto_key` is used to calculate the date shift. If neither is set,
+	// a default key is generated for each de-identify operation. Must not
+	// be set if `crypto_key` is set.
+	KmsWrapped *KmsWrappedCryptoKey `json:"kmsWrapped,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CryptoKey") to
 	// unconditionally include in API requests. By default, fields with
@@ -1352,6 +1371,42 @@ type DateShiftConfig struct {
 
 func (s *DateShiftConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod DateShiftConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// DeidentifiedStoreDestination: Contains configuration for streaming
+// de-identified FHIR export.
+type DeidentifiedStoreDestination struct {
+	// Config: The configuration to use when de-identifying resources that
+	// are added to this store.
+	Config *DeidentifyConfig `json:"config,omitempty"`
+
+	// Store: The full resource name of a Cloud Healthcare FHIR store, for
+	// example,
+	// `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}/f
+	// hirStores/{fhir_store_id}`.
+	Store string `json:"store,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Config") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Config") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *DeidentifiedStoreDestination) MarshalJSON() ([]byte, error) {
+	type NoMethod DeidentifiedStoreDestination
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1527,6 +1582,10 @@ type DeidentifyFhirStoreRequest struct {
 	// ResourceFilter: A filter specifying the resources to include in the
 	// output. If not specified, all resources are included in the output.
 	ResourceFilter *FhirFilter `json:"resourceFilter,omitempty"`
+
+	// SkipModifiedResources: If true, skips resources that are created or
+	// modified after the de-identify operation is created.
+	SkipModifiedResources bool `json:"skipModifiedResources,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Config") to
 	// unconditionally include in API requests. By default, fields with
@@ -1770,7 +1829,7 @@ type EntityMention struct {
 
 	// LinkedEntities: linked_entities are candidate ontological concepts
 	// that this entity mention may refer to. They are sorted by decreasing
-	// confidence.it
+	// confidence.
 	LinkedEntities []*LinkedEntity `json:"linkedEntities,omitempty"`
 
 	// MentionId: mention_id uniquely identifies each entity mention in a
@@ -2331,6 +2390,24 @@ func (s *FhirFilter) MarshalJSON() ([]byte, error) {
 
 // FhirStore: Represents a FHIR store.
 type FhirStore struct {
+	// ComplexDataTypeReferenceParsing: Enable parsing of references within
+	// complex FHIR data types such as Extensions. If this value is set to
+	// ENABLED, then features like referential integrity and Bundle
+	// reference rewriting apply to all references. If this flag has not
+	// been specified the behavior of the FHIR store will not change,
+	// references in complex data types will not be parsed. New stores will
+	// have this value set to ENABLED after a notification period. Warning:
+	// turning on this flag causes processing existing resources to fail if
+	// they contain references to non-existent resources.
+	//
+	// Possible values:
+	//   "COMPLEX_DATA_TYPE_REFERENCE_PARSING_UNSPECIFIED" - No parsing
+	// behavior specified. This is the same as DISABLED for backwards
+	// compatibility.
+	//   "DISABLED" - References in complex data types are ignored.
+	//   "ENABLED" - References in complex data types are parsed.
+	ComplexDataTypeReferenceParsing string `json:"complexDataTypeReferenceParsing,omitempty"`
+
 	// DefaultSearchHandlingStrict: If true, overrides the default search
 	// behavior for this FHIR store to `handling=strict` which returns an
 	// error for unrecognized search parameters. If false, uses the FHIR
@@ -2435,7 +2512,7 @@ type FhirStore struct {
 	googleapi.ServerResponse `json:"-"`
 
 	// ForceSendFields is a list of field names (e.g.
-	// "DefaultSearchHandlingStrict") to unconditionally include in API
+	// "ComplexDataTypeReferenceParsing") to unconditionally include in API
 	// requests. By default, fields with empty or default values are omitted
 	// from API requests. However, any non-pointer, non-interface field
 	// appearing in ForceSendFields will be sent to the server regardless of
@@ -2444,8 +2521,8 @@ type FhirStore struct {
 	ForceSendFields []string `json:"-"`
 
 	// NullFields is a list of field names (e.g.
-	// "DefaultSearchHandlingStrict") to include in API requests with the
-	// JSON null value. By default, fields with empty values are omitted
+	// "ComplexDataTypeReferenceParsing") to include in API requests with
+	// the JSON null value. By default, fields with empty values are omitted
 	// from API requests. However, any field with an empty value appearing
 	// in NullFields will be sent to the server as null. It is an error if a
 	// field in this list has a non-empty value. This may be used to include
@@ -2455,6 +2532,81 @@ type FhirStore struct {
 
 func (s *FhirStore) MarshalJSON() ([]byte, error) {
 	type NoMethod FhirStore
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// FhirStoreMetric: Count of resources and total storage size by type
+// for a given FHIR store.
+type FhirStoreMetric struct {
+	// Count: The total count of FHIR resources in the store of this
+	// resource type.
+	Count int64 `json:"count,omitempty,string"`
+
+	// ResourceType: The FHIR resource type this metric applies to.
+	ResourceType string `json:"resourceType,omitempty"`
+
+	// StructuredStorageSizeBytes: The total amount of structured storage
+	// used by FHIR resources of this resource type in the store.
+	StructuredStorageSizeBytes int64 `json:"structuredStorageSizeBytes,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Count") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Count") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *FhirStoreMetric) MarshalJSON() ([]byte, error) {
+	type NoMethod FhirStoreMetric
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// FhirStoreMetrics: List of metrics for a given FHIR store.
+type FhirStoreMetrics struct {
+	// Metrics: List of FhirStoreMetric by resource type.
+	Metrics []*FhirStoreMetric `json:"metrics,omitempty"`
+
+	// Name: The resource name of the FHIR store to get metrics for, in the
+	// format
+	// `projects/{project_id}/datasets/{dataset_id}/fhirStores/{fhir_store_id
+	// }`.
+	Name string `json:"name,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Metrics") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Metrics") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *FhirStoreMetrics) MarshalJSON() ([]byte, error) {
+	type NoMethod FhirStoreMetrics
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2754,9 +2906,9 @@ type GoogleCloudHealthcareV1DicomBigQueryDestination struct {
 	//   "WRITE_DISPOSITION_UNSPECIFIED" - Default behavior is the same as
 	// WRITE_EMPTY.
 	//   "WRITE_EMPTY" - Only export data if the destination table is empty.
-	//   "WRITE_TRUNCATE" - Erase all existing data in a table before
-	// writing the instances.
-	//   "WRITE_APPEND" - Append data to the existing table.
+	//   "WRITE_TRUNCATE" - Erase all existing data in the destination table
+	// before writing the instances.
+	//   "WRITE_APPEND" - Append data to the destination table.
 	WriteDisposition string `json:"writeDisposition,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Force") to
@@ -2914,9 +3066,9 @@ type GoogleCloudHealthcareV1FhirBigQueryDestination struct {
 	// WRITE_EMPTY.
 	//   "WRITE_EMPTY" - Only export data if the destination tables are
 	// empty.
-	//   "WRITE_TRUNCATE" - Erase all existing data in the tables before
-	// writing the instances.
-	//   "WRITE_APPEND" - Append data to the existing tables.
+	//   "WRITE_TRUNCATE" - Erase all existing data in the destination
+	// tables before writing the FHIR resources.
+	//   "WRITE_APPEND" - Append data to the destination tables.
 	WriteDisposition string `json:"writeDisposition,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DatasetUri") to
@@ -3220,8 +3372,8 @@ type Hl7V2Store struct {
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: Resource name of the HL7v2 store, of the form
-	// `projects/{project_id}/datasets/{dataset_id}/hl7V2Stores/{hl7v2_store_
-	// id}`.
+	// `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}/h
+	// l7V2Stores/{hl7v2_store_id}`.
 	Name string `json:"name,omitempty"`
 
 	// NotificationConfigs: A list of notification configs. Each
@@ -3381,7 +3533,10 @@ type ImageConfig struct {
 	//   "TEXT_REDACTION_MODE_UNSPECIFIED" - No text redaction specified.
 	// Same as REDACT_NO_TEXT.
 	//   "REDACT_ALL_TEXT" - Redact all text.
-	//   "REDACT_SENSITIVE_TEXT" - Redact sensitive text.
+	//   "REDACT_SENSITIVE_TEXT" - Redact sensitive text. Uses the set of
+	// [Default DICOM
+	// InfoTypes](https://cloud.google.com/healthcare-api/docs/how-tos/dicom-
+	// deidentify#default_dicom_infotypes).
 	//   "REDACT_NO_TEXT" - Do not redact text.
 	TextRedactionMode string `json:"textRedactionMode,omitempty"`
 
@@ -3649,6 +3804,46 @@ type IngestMessageResponse struct {
 
 func (s *IngestMessageResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod IngestMessageResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// KmsWrappedCryptoKey: Include to use an existing data crypto key
+// wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key.
+// The key must grant the Cloud IAM permission
+// `cloudkms.cryptoKeyVersions.useToDecrypt` to the project's Cloud
+// Healthcare Service Agent service account. For more information, see
+// [Creating a wrapped key]
+// (https://cloud.google.com/dlp/docs/create-wrapped-key).
+type KmsWrappedCryptoKey struct {
+	// CryptoKey: Required. The resource name of the KMS CryptoKey to use
+	// for unwrapping. For example,
+	// `projects/{project_id}/locations/{location_id}/keyRings/{keyring}/cryp
+	// toKeys/{key}`.
+	CryptoKey string `json:"cryptoKey,omitempty"`
+
+	// WrappedKey: Required. The wrapped data crypto key.
+	WrappedKey string `json:"wrappedKey,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CryptoKey") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CryptoKey") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *KmsWrappedCryptoKey) MarshalJSON() ([]byte, error) {
+	type NoMethod KmsWrappedCryptoKey
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -4246,8 +4441,9 @@ type Message struct {
 	MessageType string `json:"messageType,omitempty"`
 
 	// Name: Resource name of the Message, of the form
-	// `projects/{project_id}/datasets/{dataset_id}/hl7V2Stores/{hl7_v2_store
-	// _id}/messages/{message_id}`. Assigned by the server.
+	// `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}/h
+	// l7V2Stores/{hl7_v2_store_id}/messages/{message_id}`. Assigned by the
+	// server.
 	Name string `json:"name,omitempty"`
 
 	// ParsedData: Output only. The parsed version of the raw message data.
@@ -4510,6 +4706,12 @@ type ParserConfig struct {
 	// are off-by-one with respect to the HL7 standard.
 	//   "V2" - The `parsed_data` includes every given non-empty message
 	// field.
+	//   "V3" - This version is the same as V2, with the following change.
+	// The `parsed_data` contains unescaped escaped field separators,
+	// component separators, sub-component separators, repetition
+	// separators, escape characters, and truncation characters. If `schema`
+	// is specified, the schematized parser uses improved parsing heuristics
+	// compared to previous versions.
 	Version string `json:"version,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AllowNullHeader") to
@@ -4944,6 +5146,10 @@ func (s *RevokeConsentRequest) MarshalJSON() ([]byte, error) {
 // SchemaConfig: Configuration for the FHIR BigQuery schema. Determines
 // how the server generates the schema.
 type SchemaConfig struct {
+	// LastUpdatedPartitionConfig: The configuration for exported BigQuery
+	// tables to be partitioned by FHIR resource's last updated time column.
+	LastUpdatedPartitionConfig *TimePartitioning `json:"lastUpdatedPartitionConfig,omitempty"`
+
 	// RecursiveStructureDepth: The depth for all recursive structures in
 	// the output analytics schema. For example, `concept` in the CodeSystem
 	// resource is a recursive structure; when the depth is 2, the
@@ -4965,10 +5171,14 @@ type SchemaConfig struct {
 	// type `Resource`, which can hold any resource type. The affected
 	// fields are `Parameters.parameter.resource`, `Bundle.entry.resource`,
 	// and `Bundle.entry.response.outcome`.
+	//   "ANALYTICS_V2" - Analytics V2, similar to schema defined by the
+	// FHIR community, with added support for extensions with one or more
+	// occurrences and contained resources in stringified JSON. Analytics V2
+	// uses more space in the destination table than Analytics V1.
 	SchemaType string `json:"schemaType,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
-	// "RecursiveStructureDepth") to unconditionally include in API
+	// "LastUpdatedPartitionConfig") to unconditionally include in API
 	// requests. By default, fields with empty or default values are omitted
 	// from API requests. However, any non-pointer, non-interface field
 	// appearing in ForceSendFields will be sent to the server regardless of
@@ -4976,13 +5186,13 @@ type SchemaConfig struct {
 	// fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "RecursiveStructureDepth")
-	// to include in API requests with the JSON null value. By default,
-	// fields with empty values are omitted from API requests. However, any
-	// field with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g.
+	// "LastUpdatedPartitionConfig") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -5408,6 +5618,26 @@ type StreamConfig struct {
 	// (https://cloud.google.com/healthcare/docs/how-tos/logging)).
 	BigqueryDestination *GoogleCloudHealthcareV1FhirBigQueryDestination `json:"bigqueryDestination,omitempty"`
 
+	// DeidentifiedStoreDestination: The destination FHIR store for
+	// de-identified resources. After this field is added, all subsequent
+	// creates/updates/patches to the source store will be de-identified
+	// using the provided configuration and applied to the destination
+	// store. Importing resources to the source store will not trigger the
+	// streaming. If the source store already contains resources when this
+	// option is enabled, those resources will not be copied to the
+	// destination store unless they are subsequently updated. This may
+	// result in invalid references in the destination store. Before adding
+	// this config, you must grant the healthcare.fhirResources.update
+	// permission on the destination store to your project's **Cloud
+	// Healthcare Service Agent** service account
+	// (https://cloud.google.com/healthcare/docs/how-tos/permissions-healthcare-api-gcp-products#the_cloud_healthcare_service_agent).
+	// The destination store must set enable_update_create to true. The
+	// destination store must have disable_referential_integrity set to
+	// true. If a resource cannot be de-identified, errors will be logged to
+	// Cloud Logging (see Viewing error logs in Cloud Logging
+	// (https://cloud.google.com/healthcare/docs/how-tos/logging)).
+	DeidentifiedStoreDestination *DeidentifiedStoreDestination `json:"deidentifiedStoreDestination,omitempty"`
+
 	// ResourceTypes: Supply a FHIR resource type (such as "Patient" or
 	// "Observation"). See
 	// https://www.hl7.org/fhir/valueset-resource-types.html for a list of
@@ -5539,6 +5769,7 @@ func (s *TestIamPermissionsResponse) MarshalJSON() ([]byte, error) {
 
 type TextConfig struct {
 	// Transformations: The transformations to apply to the detected data.
+	// Deprecated. Use `additional_transformations` instead.
 	Transformations []*InfoTypeTransformation `json:"transformations,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Transformations") to
@@ -5593,6 +5824,46 @@ type TextSpan struct {
 
 func (s *TextSpan) MarshalJSON() ([]byte, error) {
 	type NoMethod TextSpan
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// TimePartitioning: Configuration for FHIR BigQuery time-partitioned
+// tables.
+type TimePartitioning struct {
+	// ExpirationMs: Number of milliseconds for which to keep the storage
+	// for a partition.
+	ExpirationMs int64 `json:"expirationMs,omitempty,string"`
+
+	// Type: Type of partitioning.
+	//
+	// Possible values:
+	//   "PARTITION_TYPE_UNSPECIFIED" - Default unknown time.
+	//   "HOUR" - Data partitioned by hour.
+	//   "DAY" - Data partitioned by day.
+	//   "MONTH" - Data partitioned by month.
+	//   "YEAR" - Data partitioned by year.
+	Type string `json:"type,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ExpirationMs") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ExpirationMs") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *TimePartitioning) MarshalJSON() ([]byte, error) {
+	type NoMethod TimePartitioning
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -5902,17 +6173,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -5967,8 +6238,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6074,17 +6345,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6178,9 +6449,9 @@ type ProjectsLocationsDatasetsCreateCall struct {
 // which contains a Dataset or `Operation.error`. The metadata field
 // type is OperationMetadata.
 //
-// - parent: The name of the project where the server creates the
-//   dataset. For example,
-//   `projects/{project_id}/locations/{location_id}`.
+//   - parent: The name of the project where the server creates the
+//     dataset. For example,
+//     `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsDatasetsService) Create(parent string, dataset *Dataset) *ProjectsLocationsDatasetsCreateCall {
 	c := &ProjectsLocationsDatasetsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6263,17 +6534,17 @@ func (c *ProjectsLocationsDatasetsCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6344,9 +6615,9 @@ type ProjectsLocationsDatasetsDeidentifyCall struct {
 // For more information, see Viewing error logs in Cloud Logging
 // (https://cloud.google.com/healthcare/docs/how-tos/logging).
 //
-// - sourceDataset: Source dataset resource name. For example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   `.
+//   - sourceDataset: Source dataset resource name. For example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     `.
 func (r *ProjectsLocationsDatasetsService) Deidentify(sourceDataset string, deidentifydatasetrequest *DeidentifyDatasetRequest) *ProjectsLocationsDatasetsDeidentifyCall {
 	c := &ProjectsLocationsDatasetsDeidentifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.sourceDataset = sourceDataset
@@ -6421,17 +6692,17 @@ func (c *ProjectsLocationsDatasetsDeidentifyCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6489,9 +6760,9 @@ type ProjectsLocationsDatasetsDeleteCall struct {
 // in the dataset. Deleting a dataset does not affect the sources from
 // which the dataset was imported (if any).
 //
-// - name: The name of the dataset to delete. For example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   `.
+//   - name: The name of the dataset to delete. For example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     `.
 func (r *ProjectsLocationsDatasetsService) Delete(name string) *ProjectsLocationsDatasetsDeleteCall {
 	c := &ProjectsLocationsDatasetsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6560,17 +6831,17 @@ func (c *ProjectsLocationsDatasetsDeleteCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6624,9 +6895,9 @@ type ProjectsLocationsDatasetsGetCall struct {
 
 // Get: Gets any metadata associated with a dataset.
 //
-// - name: The name of the dataset to read. For example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   `.
+//   - name: The name of the dataset to read. For example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     `.
 func (r *ProjectsLocationsDatasetsService) Get(name string) *ProjectsLocationsDatasetsGetCall {
 	c := &ProjectsLocationsDatasetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6708,17 +6979,17 @@ func (c *ProjectsLocationsDatasetsGetCall) Do(opts ...googleapi.CallOption) (*Da
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Dataset{
 		ServerResponse: googleapi.ServerResponse{
@@ -6774,9 +7045,10 @@ type ProjectsLocationsDatasetsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsService) GetIamPolicy(resource string) *ProjectsLocationsDatasetsGetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6876,17 +7148,17 @@ func (c *ProjectsLocationsDatasetsGetIamPolicyCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6915,7 +7187,7 @@ func (c *ProjectsLocationsDatasetsGetIamPolicyCall) Do(opts ...googleapi.CallOpt
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+$",
 	//       "required": true,
@@ -6946,8 +7218,8 @@ type ProjectsLocationsDatasetsListCall struct {
 
 // List: Lists the health datasets in the current project.
 //
-// - parent: The name of the project whose datasets should be listed.
-//   For example, `projects/{project_id}/locations/{location_id}`.
+//   - parent: The name of the project whose datasets should be listed.
+//     For example, `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsDatasetsService) List(parent string) *ProjectsLocationsDatasetsListCall {
 	c := &ProjectsLocationsDatasetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7044,17 +7316,17 @@ func (c *ProjectsLocationsDatasetsListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDatasetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7140,9 +7412,9 @@ type ProjectsLocationsDatasetsPatchCall struct {
 
 // Patch: Updates dataset metadata.
 //
-// - name: Resource name of the dataset, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   `.
+//   - name: Resource name of the dataset, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     `.
 func (r *ProjectsLocationsDatasetsService) Patch(name string, dataset *Dataset) *ProjectsLocationsDatasetsPatchCall {
 	c := &ProjectsLocationsDatasetsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7225,17 +7497,17 @@ func (c *ProjectsLocationsDatasetsPatchCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Dataset{
 		ServerResponse: googleapi.ServerResponse{
@@ -7300,9 +7572,10 @@ type ProjectsLocationsDatasetsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsDatasetsSetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7377,17 +7650,17 @@ func (c *ProjectsLocationsDatasetsSetIamPolicyCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7410,7 +7683,7 @@ func (c *ProjectsLocationsDatasetsSetIamPolicyCall) Do(opts ...googleapi.CallOpt
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+$",
 	//       "required": true,
@@ -7449,9 +7722,10 @@ type ProjectsLocationsDatasetsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsDatasetsTestIamPermissionsCall {
 	c := &ProjectsLocationsDatasetsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7526,17 +7800,17 @@ func (c *ProjectsLocationsDatasetsTestIamPermissionsCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7559,7 +7833,7 @@ func (c *ProjectsLocationsDatasetsTestIamPermissionsCall) Do(opts ...googleapi.C
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+$",
 	//       "required": true,
@@ -7595,10 +7869,10 @@ type ProjectsLocationsDatasetsConsentStoresCheckDataAccessCall struct {
 // mapping in the specified consent store is consented for the specified
 // use.
 //
-// - consentStore: Name of the consent store where the requested data_id
-//   is stored, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}`.
+//   - consentStore: Name of the consent store where the requested data_id
+//     is stored, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}`.
 func (r *ProjectsLocationsDatasetsConsentStoresService) CheckDataAccess(consentStore string, checkdataaccessrequest *CheckDataAccessRequest) *ProjectsLocationsDatasetsConsentStoresCheckDataAccessCall {
 	c := &ProjectsLocationsDatasetsConsentStoresCheckDataAccessCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.consentStore = consentStore
@@ -7673,17 +7947,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresCheckDataAccessCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CheckDataAccessResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7826,17 +8100,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresCreateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConsentStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -7967,17 +8241,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresDeleteCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8035,8 +8309,8 @@ type ProjectsLocationsDatasetsConsentStoresEvaluateUserConsentsCall struct {
 // mappings are created or updated and when they are included in
 // EvaluateUserConsents results.
 //
-// - consentStore: Name of the consent store to retrieve User data
-//   mappings from.
+//   - consentStore: Name of the consent store to retrieve User data
+//     mappings from.
 func (r *ProjectsLocationsDatasetsConsentStoresService) EvaluateUserConsents(consentStore string, evaluateuserconsentsrequest *EvaluateUserConsentsRequest) *ProjectsLocationsDatasetsConsentStoresEvaluateUserConsentsCall {
 	c := &ProjectsLocationsDatasetsConsentStoresEvaluateUserConsentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.consentStore = consentStore
@@ -8111,17 +8385,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresEvaluateUserConsentsCall) Do(opts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EvaluateUserConsentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8281,17 +8555,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresGetCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConsentStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -8347,9 +8621,10 @@ type ProjectsLocationsDatasetsConsentStoresGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsConsentStoresService) GetIamPolicy(resource string) *ProjectsLocationsDatasetsConsentStoresGetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsConsentStoresGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8449,17 +8724,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresGetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8488,7 +8763,7 @@ func (c *ProjectsLocationsDatasetsConsentStoresGetIamPolicyCall) Do(opts ...goog
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/consentStores/[^/]+$",
 	//       "required": true,
@@ -8624,17 +8899,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConsentStoresResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8725,10 +9000,10 @@ type ProjectsLocationsDatasetsConsentStoresPatchCall struct {
 
 // Patch: Updates the specified consent store.
 //
-// - name: Resource name of the consent store, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}`. Cannot be changed after
-//   creation.
+//   - name: Resource name of the consent store, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}`. Cannot be changed after
+//     creation.
 func (r *ProjectsLocationsDatasetsConsentStoresService) Patch(name string, consentstore *ConsentStore) *ProjectsLocationsDatasetsConsentStoresPatchCall {
 	c := &ProjectsLocationsDatasetsConsentStoresPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8814,17 +9089,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresPatchCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConsentStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -8915,8 +9190,8 @@ type ProjectsLocationsDatasetsConsentStoresQueryAccessibleDataCall struct {
 // "healthcare_consent_store" } severity: "ERROR" timestamp: "TIMESTAMP"
 // ```
 //
-// - consentStore: Name of the consent store to retrieve User data
-//   mappings from.
+//   - consentStore: Name of the consent store to retrieve User data
+//     mappings from.
 func (r *ProjectsLocationsDatasetsConsentStoresService) QueryAccessibleData(consentStore string, queryaccessibledatarequest *QueryAccessibleDataRequest) *ProjectsLocationsDatasetsConsentStoresQueryAccessibleDataCall {
 	c := &ProjectsLocationsDatasetsConsentStoresQueryAccessibleDataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.consentStore = consentStore
@@ -8991,17 +9266,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresQueryAccessibleDataCall) Do(opts 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9060,9 +9335,10 @@ type ProjectsLocationsDatasetsConsentStoresSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsConsentStoresService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsDatasetsConsentStoresSetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsConsentStoresSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9137,17 +9413,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresSetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9170,7 +9446,7 @@ func (c *ProjectsLocationsDatasetsConsentStoresSetIamPolicyCall) Do(opts ...goog
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/consentStores/[^/]+$",
 	//       "required": true,
@@ -9209,9 +9485,10 @@ type ProjectsLocationsDatasetsConsentStoresTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsConsentStoresService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsDatasetsConsentStoresTestIamPermissionsCall {
 	c := &ProjectsLocationsDatasetsConsentStoresTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9286,17 +9563,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresTestIamPermissionsCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9319,7 +9596,7 @@ func (c *ProjectsLocationsDatasetsConsentStoresTestIamPermissionsCall) Do(opts .
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/consentStores/[^/]+$",
 	//       "required": true,
@@ -9354,8 +9631,8 @@ type ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsCreateCall struct
 // Create: Creates a new Attribute definition in the parent consent
 // store.
 //
-// - parent: The name of the consent store that this Attribute
-//   definition belongs to.
+//   - parent: The name of the consent store that this Attribute
+//     definition belongs to.
 func (r *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsService) Create(parent string, attributedefinition *AttributeDefinition) *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsCreateCall {
 	c := &ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9441,17 +9718,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsCreateCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AttributeDefinition{
 		ServerResponse: googleapi.ServerResponse{
@@ -9514,10 +9791,10 @@ type ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsDeleteCall struct
 // Attribute definition is referenced by any User data mapping, or the
 // latest revision of any Consent.
 //
-// - name: The resource name of the Attribute definition to delete. To
-//   preserve referential integrity, Attribute definitions referenced by
-//   a User data mapping or the latest revision of a Consent cannot be
-//   deleted.
+//   - name: The resource name of the Attribute definition to delete. To
+//     preserve referential integrity, Attribute definitions referenced by
+//     a User data mapping or the latest revision of a Consent cannot be
+//     deleted.
 func (r *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsService) Delete(name string) *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsDeleteCall {
 	c := &ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9586,17 +9863,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsDeleteCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -9732,17 +10009,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsGetCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AttributeDefinition{
 		ServerResponse: googleapi.ServerResponse{
@@ -9796,8 +10073,8 @@ type ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsListCall struct {
 
 // List: Lists the Attribute definitions in the specified consent store.
 //
-// - parent: Name of the consent store to retrieve Attribute definitions
-//   from.
+//   - parent: Name of the consent store to retrieve Attribute definitions
+//     from.
 func (r *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsService) List(parent string) *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsListCall {
 	c := &ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9902,17 +10179,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsListCall) Do(
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAttributeDefinitionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10003,10 +10280,10 @@ type ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsPatchCall struct 
 
 // Patch: Updates the specified Attribute definition.
 //
-// - name: Resource name of the Attribute definition, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/attributeDefinitions/{attribute_de
-//   finition_id}`. Cannot be changed after creation.
+//   - name: Resource name of the Attribute definition, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/attributeDefinitions/{attribute_de
+//     finition_id}`. Cannot be changed after creation.
 func (r *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsService) Patch(name string, attributedefinition *AttributeDefinition) *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsPatchCall {
 	c := &ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10094,17 +10371,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresAttributeDefinitionsPatchCall) Do
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AttributeDefinition{
 		ServerResponse: googleapi.ServerResponse{
@@ -10167,8 +10444,8 @@ type ProjectsLocationsDatasetsConsentStoresConsentArtifactsCreateCall struct {
 
 // Create: Creates a new Consent artifact in the parent consent store.
 //
-// - parent: The name of the consent store this Consent artifact belongs
-//   to.
+//   - parent: The name of the consent store this Consent artifact belongs
+//     to.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentArtifactsService) Create(parent string, consentartifact *ConsentArtifact) *ProjectsLocationsDatasetsConsentStoresConsentArtifactsCreateCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentArtifactsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10243,17 +10520,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentArtifactsCreateCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConsentArtifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -10310,9 +10587,9 @@ type ProjectsLocationsDatasetsConsentStoresConsentArtifactsDeleteCall struct {
 // Delete: Deletes the specified Consent artifact. Fails if the artifact
 // is referenced by the latest revision of any Consent.
 //
-// - name: The resource name of the Consent artifact to delete. To
-//   preserve referential integrity, Consent artifacts referenced by the
-//   latest revision of a Consent cannot be deleted.
+//   - name: The resource name of the Consent artifact to delete. To
+//     preserve referential integrity, Consent artifacts referenced by the
+//     latest revision of a Consent cannot be deleted.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentArtifactsService) Delete(name string) *ProjectsLocationsDatasetsConsentStoresConsentArtifactsDeleteCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentArtifactsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10381,17 +10658,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentArtifactsDeleteCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -10527,17 +10804,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentArtifactsGetCall) Do(opts 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConsentArtifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -10591,8 +10868,8 @@ type ProjectsLocationsDatasetsConsentStoresConsentArtifactsListCall struct {
 
 // List: Lists the Consent artifacts in the specified consent store.
 //
-// - parent: Name of the consent store to retrieve consent artifacts
-//   from.
+//   - parent: Name of the consent store to retrieve consent artifacts
+//     from.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentArtifactsService) List(parent string) *ProjectsLocationsDatasetsConsentStoresConsentArtifactsListCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentArtifactsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10723,17 +11000,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentArtifactsListCall) Do(opts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConsentArtifactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10829,11 +11106,11 @@ type ProjectsLocationsDatasetsConsentStoresConsentsActivateCall struct {
 // latest revision of the specified Consent is in the `REJECTED` or
 // `REVOKED` state.
 //
-// - name: The resource name of the Consent to activate, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}`. An
-//   INVALID_ARGUMENT error occurs if `revision_id` is specified in the
-//   name.
+//   - name: The resource name of the Consent to activate, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}`. An
+//     INVALID_ARGUMENT error occurs if `revision_id` is specified in the
+//     name.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentsService) Activate(name string, activateconsentrequest *ActivateConsentRequest) *ProjectsLocationsDatasetsConsentStoresConsentsActivateCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentsActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10908,17 +11185,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsActivateCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Consent{
 		ServerResponse: googleapi.ServerResponse{
@@ -11050,17 +11327,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsCreateCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Consent{
 		ServerResponse: googleapi.ServerResponse{
@@ -11119,11 +11396,11 @@ type ProjectsLocationsDatasetsConsentStoresConsentsDeleteCall struct {
 // revision of a Consent, see [DeleteConsentRevision]. This operation
 // does not delete the related Consent artifact.
 //
-// - name: The resource name of the Consent to delete, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}`. An
-//   INVALID_ARGUMENT error occurs if `revision_id` is specified in the
-//   name.
+//   - name: The resource name of the Consent to delete, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}`. An
+//     INVALID_ARGUMENT error occurs if `revision_id` is specified in the
+//     name.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentsService) Delete(name string) *ProjectsLocationsDatasetsConsentStoresConsentsDeleteCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11192,17 +11469,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsDeleteCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -11257,12 +11534,12 @@ type ProjectsLocationsDatasetsConsentStoresConsentsDeleteRevisionCall struct {
 // INVALID_ARGUMENT error occurs if the specified revision is the latest
 // revision.
 //
-// - name: The resource name of the Consent revision to delete, of the
-//   form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}@{revision_id
-//   }`. An INVALID_ARGUMENT error occurs if `revision_id` is not
-//   specified in the name.
+//   - name: The resource name of the Consent revision to delete, of the
+//     form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}@{revision_id
+//     }`. An INVALID_ARGUMENT error occurs if `revision_id` is not
+//     specified in the name.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentsService) DeleteRevision(name string) *ProjectsLocationsDatasetsConsentStoresConsentsDeleteRevisionCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentsDeleteRevisionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11331,17 +11608,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsDeleteRevisionCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -11396,14 +11673,14 @@ type ProjectsLocationsDatasetsConsentStoresConsentsGetCall struct {
 // Get: Gets the specified revision of a Consent, or the latest revision
 // if `revision_id` is not specified in the resource name.
 //
-// - name: The resource name of the Consent to retrieve, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}`. In order
-//   to retrieve a previous revision of the Consent, also provide the
-//   revision ID:
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}@{revision_id
-//   }`.
+//   - name: The resource name of the Consent to retrieve, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}`. In order
+//     to retrieve a previous revision of the Consent, also provide the
+//     revision ID:
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}@{revision_id
+//     }`.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentsService) Get(name string) *ProjectsLocationsDatasetsConsentStoresConsentsGetCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11485,17 +11762,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsGetCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Consent{
 		ServerResponse: googleapi.ServerResponse{
@@ -11682,17 +11959,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsListCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConsentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11916,17 +12193,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsListRevisionsCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConsentRevisionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12020,10 +12297,10 @@ type ProjectsLocationsDatasetsConsentStoresConsentsPatchCall struct {
 // error occurs if the latest revision of the specified Consent is in
 // the `REJECTED` or `REVOKED` state.
 //
-// - name: Resource name of the Consent, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}`. Cannot be
-//   changed after creation.
+//   - name: Resource name of the Consent, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}`. Cannot be
+//     changed after creation.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentsService) Patch(name string, consent *Consent) *ProjectsLocationsDatasetsConsentStoresConsentsPatchCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12109,17 +12386,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsPatchCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Consent{
 		ServerResponse: googleapi.ServerResponse{
@@ -12187,11 +12464,11 @@ type ProjectsLocationsDatasetsConsentStoresConsentsRejectCall struct {
 // the latest revision of the specified Consent is in the `ACTIVE` or
 // `REVOKED` state.
 //
-// - name: The resource name of the Consent to reject, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}`. An
-//   INVALID_ARGUMENT error occurs if `revision_id` is specified in the
-//   name.
+//   - name: The resource name of the Consent to reject, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}`. An
+//     INVALID_ARGUMENT error occurs if `revision_id` is specified in the
+//     name.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentsService) Reject(name string, rejectconsentrequest *RejectConsentRequest) *ProjectsLocationsDatasetsConsentStoresConsentsRejectCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentsRejectCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12266,17 +12543,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsRejectCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Consent{
 		ServerResponse: googleapi.ServerResponse{
@@ -12338,11 +12615,11 @@ type ProjectsLocationsDatasetsConsentStoresConsentsRevokeCall struct {
 // the latest revision of the given consent is in `DRAFT` or `REJECTED`
 // state.
 //
-// - name: The resource name of the Consent to revoke, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/consents/{consent_id}`. An
-//   INVALID_ARGUMENT error occurs if `revision_id` is specified in the
-//   name.
+//   - name: The resource name of the Consent to revoke, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/consents/{consent_id}`. An
+//     INVALID_ARGUMENT error occurs if `revision_id` is specified in the
+//     name.
 func (r *ProjectsLocationsDatasetsConsentStoresConsentsService) Revoke(name string, revokeconsentrequest *RevokeConsentRequest) *ProjectsLocationsDatasetsConsentStoresConsentsRevokeCall {
 	c := &ProjectsLocationsDatasetsConsentStoresConsentsRevokeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12417,17 +12694,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresConsentsRevokeCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Consent{
 		ServerResponse: googleapi.ServerResponse{
@@ -12559,17 +12836,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresUserDataMappingsArchiveCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ArchiveUserDataMappingResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12701,17 +12978,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresUserDataMappingsCreateCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserDataMapping{
 		ServerResponse: googleapi.ServerResponse{
@@ -12836,17 +13113,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresUserDataMappingsDeleteCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -12982,17 +13259,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresUserDataMappingsGetCall) Do(opts 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserDataMapping{
 		ServerResponse: googleapi.ServerResponse{
@@ -13046,8 +13323,8 @@ type ProjectsLocationsDatasetsConsentStoresUserDataMappingsListCall struct {
 
 // List: Lists the User data mappings in the specified consent store.
 //
-// - parent: Name of the consent store to retrieve User data mappings
-//   from.
+//   - parent: Name of the consent store to retrieve User data mappings
+//     from.
 func (r *ProjectsLocationsDatasetsConsentStoresUserDataMappingsService) List(parent string) *ProjectsLocationsDatasetsConsentStoresUserDataMappingsListCall {
 	c := &ProjectsLocationsDatasetsConsentStoresUserDataMappingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -13176,17 +13453,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresUserDataMappingsListCall) Do(opts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListUserDataMappingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13277,10 +13554,10 @@ type ProjectsLocationsDatasetsConsentStoresUserDataMappingsPatchCall struct {
 
 // Patch: Updates the specified User data mapping.
 //
-// - name: Resource name of the User data mapping, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /consentStores/{consent_store_id}/userDataMappings/{user_data_mappin
-//   g_id}`.
+//   - name: Resource name of the User data mapping, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /consentStores/{consent_store_id}/userDataMappings/{user_data_mappin
+//     g_id}`.
 func (r *ProjectsLocationsDatasetsConsentStoresUserDataMappingsService) Patch(name string, userdatamapping *UserDataMapping) *ProjectsLocationsDatasetsConsentStoresUserDataMappingsPatchCall {
 	c := &ProjectsLocationsDatasetsConsentStoresUserDataMappingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13366,17 +13643,17 @@ func (c *ProjectsLocationsDatasetsConsentStoresUserDataMappingsPatchCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserDataMapping{
 		ServerResponse: googleapi.ServerResponse{
@@ -13522,17 +13799,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresCreateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DicomStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -13600,11 +13877,12 @@ type ProjectsLocationsDatasetsDicomStoresDeidentifyCall struct {
 // DICOM instances. The output DICOM store will not contain these failed
 // resources. Failed resource totals are tracked in Operation.metadata.
 // Error details are also logged to Cloud Logging (see Viewing error
-// logs in Cloud Logging (/healthcare/docs/how-tos/logging)).
+// logs in Cloud Logging
+// (https://cloud.google.com/healthcare/docs/how-tos/logging)).
 //
-// - sourceStore: Source DICOM store resource name. For example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - sourceStore: Source DICOM store resource name. For example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) Deidentify(sourceStore string, deidentifydicomstorerequest *DeidentifyDicomStoreRequest) *ProjectsLocationsDatasetsDicomStoresDeidentifyCall {
 	c := &ProjectsLocationsDatasetsDicomStoresDeidentifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.sourceStore = sourceStore
@@ -13679,17 +13957,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresDeidentifyCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -13703,7 +13981,7 @@ func (c *ProjectsLocationsDatasetsDicomStoresDeidentifyCall) Do(opts ...googleap
 	}
 	return ret, nil
 	// {
-	//   "description": "De-identifies data from the source store and writes it to the destination store. The metadata field type is OperationMetadata. If the request is successful, the response field type is DeidentifyDicomStoreSummary. If errors occur, error is set. The LRO result may still be successful if de-identification fails for some DICOM instances. The output DICOM store will not contain these failed resources. Failed resource totals are tracked in Operation.metadata. Error details are also logged to Cloud Logging (see [Viewing error logs in Cloud Logging](/healthcare/docs/how-tos/logging)).",
+	//   "description": "De-identifies data from the source store and writes it to the destination store. The metadata field type is OperationMetadata. If the request is successful, the response field type is DeidentifyDicomStoreSummary. If errors occur, error is set. The LRO result may still be successful if de-identification fails for some DICOM instances. The output DICOM store will not contain these failed resources. Failed resource totals are tracked in Operation.metadata. Error details are also logged to Cloud Logging (see [Viewing error logs in Cloud Logging](https://cloud.google.com/healthcare/docs/how-tos/logging)).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/dicomStores/{dicomStoresId}:deidentify",
 	//   "httpMethod": "POST",
 	//   "id": "healthcare.projects.locations.datasets.dicomStores.deidentify",
@@ -13815,17 +14093,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresDeleteCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -13883,10 +14161,10 @@ type ProjectsLocationsDatasetsDicomStoresExportCall struct {
 // (https://cloud.google.com/healthcare/docs/how-tos/logging). The
 // metadata field type is OperationMetadata.
 //
-// - name: The DICOM store resource name from which to export the data.
-//   For example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - name: The DICOM store resource name from which to export the data.
+//     For example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) Export(name string, exportdicomdatarequest *ExportDicomDataRequest) *ProjectsLocationsDatasetsDicomStoresExportCall {
 	c := &ProjectsLocationsDatasetsDicomStoresExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13961,17 +14239,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresExportCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14110,17 +14388,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DicomStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -14176,9 +14454,10 @@ type ProjectsLocationsDatasetsDicomStoresGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsDicomStoresService) GetIamPolicy(resource string) *ProjectsLocationsDatasetsDicomStoresGetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsDicomStoresGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -14278,17 +14557,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresGetIamPolicyCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -14317,7 +14596,7 @@ func (c *ProjectsLocationsDatasetsDicomStoresGetIamPolicyCall) Do(opts ...google
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/dicomStores/[^/]+$",
 	//       "required": true,
@@ -14352,10 +14631,10 @@ type ProjectsLocationsDatasetsDicomStoresImportCall struct {
 // (https://cloud.google.com/healthcare/docs/how-tos/logging). The
 // metadata field type is OperationMetadata.
 //
-// - name: The name of the DICOM store resource into which the data is
-//   imported. For example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - name: The name of the DICOM store resource into which the data is
+//     imported. For example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) Import(name string, importdicomdatarequest *ImportDicomDataRequest) *ProjectsLocationsDatasetsDicomStoresImportCall {
 	c := &ProjectsLocationsDatasetsDicomStoresImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14430,17 +14709,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresImportCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14626,17 +14905,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDicomStoresResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14727,9 +15006,9 @@ type ProjectsLocationsDatasetsDicomStoresPatchCall struct {
 
 // Patch: Updates the specified DICOM store.
 //
-// - name: Resource name of the DICOM store, of the form
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - name: Resource name of the DICOM store, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) Patch(name string, dicomstore *DicomStore) *ProjectsLocationsDatasetsDicomStoresPatchCall {
 	c := &ProjectsLocationsDatasetsDicomStoresPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14812,17 +15091,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresPatchCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DicomStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -14895,13 +15174,13 @@ type ProjectsLocationsDatasetsDicomStoresSearchForInstancesCall struct {
 // series, instances, and frames
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#searching_for_studies_series_instances_and_frames).
 //
-// - dicomWebPath: The path of the SearchForInstancesRequest DICOMweb
-//   request. For example, `instances`, `series/{series_uid}/instances`,
-//   or `studies/{study_uid}/instances`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the SearchForInstancesRequest DICOMweb
+//     request. For example, `instances`, `series/{series_uid}/instances`,
+//     or `studies/{study_uid}/instances`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) SearchForInstances(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresSearchForInstancesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresSearchForInstancesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15034,12 +15313,12 @@ type ProjectsLocationsDatasetsDicomStoresSearchForSeriesCall struct {
 // instances, and frames
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#searching_for_studies_series_instances_and_frames).
 //
-// - dicomWebPath: The path of the SearchForSeries DICOMweb request. For
-//   example, `series` or `studies/{study_uid}/series`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the SearchForSeries DICOMweb request. For
+//     example, `series` or `studies/{study_uid}/series`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) SearchForSeries(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresSearchForSeriesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresSearchForSeriesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15172,12 +15451,12 @@ type ProjectsLocationsDatasetsDicomStoresSearchForStudiesCall struct {
 // instances, and frames
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#searching_for_studies_series_instances_and_frames).
 //
-// - dicomWebPath: The path of the SearchForStudies DICOMweb request.
-//   For example, `studies`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the SearchForStudies DICOMweb request.
+//     For example, `studies`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) SearchForStudies(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresSearchForStudiesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresSearchForStudiesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15302,9 +15581,10 @@ type ProjectsLocationsDatasetsDicomStoresSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsDicomStoresService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsDatasetsDicomStoresSetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsDicomStoresSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -15379,17 +15659,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresSetIamPolicyCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -15412,7 +15692,7 @@ func (c *ProjectsLocationsDatasetsDicomStoresSetIamPolicyCall) Do(opts ...google
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/dicomStores/[^/]+$",
 	//       "required": true,
@@ -15455,13 +15735,13 @@ type ProjectsLocationsDatasetsDicomStoresStoreInstancesCall struct {
 // how to call StoreInstances, see Storing DICOM data
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#storing_dicom_data).
 //
-// - dicomWebPath: The path of the StoreInstances DICOMweb request. For
-//   example, `studies/[{study_uid}]`. Note that the `study_uid` is
-//   optional.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the StoreInstances DICOMweb request. For
+//     example, `studies/[{study_uid}]`. Note that the `study_uid` is
+//     optional.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresService) StoreInstances(parent string, dicomWebPath string, body_ io.Reader) *ProjectsLocationsDatasetsDicomStoresStoreInstancesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStoreInstancesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15579,9 +15859,10 @@ type ProjectsLocationsDatasetsDicomStoresTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsDicomStoresService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsDatasetsDicomStoresTestIamPermissionsCall {
 	c := &ProjectsLocationsDatasetsDicomStoresTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -15656,17 +15937,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresTestIamPermissionsCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15689,7 +15970,7 @@ func (c *ProjectsLocationsDatasetsDicomStoresTestIamPermissionsCall) Do(opts ...
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/dicomStores/[^/]+$",
 	//       "required": true,
@@ -15730,9 +16011,9 @@ type ProjectsLocationsDatasetsDicomStoresStudiesDeleteCall struct {
 // DeleteStudy, see Deleting a study, series, or instance
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#deleting_a_study_series_or_instance).
 //
-// - dicomWebPath: The path of the DeleteStudy request. For example,
-//   `studies/{study_uid}`.
-// - parent: .
+//   - dicomWebPath: The path of the DeleteStudy request. For example,
+//     `studies/{study_uid}`.
+//   - parent: .
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesService) Delete(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesDeleteCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15803,17 +16084,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresStudiesDeleteCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -15884,12 +16165,12 @@ type ProjectsLocationsDatasetsDicomStoresStudiesRetrieveMetadataCall struct {
 // show how to call RetrieveStudyMetadata, see Retrieving metadata
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_metadata).
 //
-// - dicomWebPath: The path of the RetrieveStudyMetadata DICOMweb
-//   request. For example, `studies/{study_uid}/metadata`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveStudyMetadata DICOMweb
+//     request. For example, `studies/{study_uid}/metadata`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesService) RetrieveMetadata(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesRetrieveMetadataCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesRetrieveMetadataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16021,12 +16302,12 @@ type ProjectsLocationsDatasetsDicomStoresStudiesRetrieveStudyCall struct {
 // show how to call RetrieveStudy, see Retrieving DICOM data
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_dicom_data).
 //
-// - dicomWebPath: The path of the RetrieveStudy DICOMweb request. For
-//   example, `studies/{study_uid}`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveStudy DICOMweb request. For
+//     example, `studies/{study_uid}`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesService) RetrieveStudy(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesRetrieveStudyCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesRetrieveStudyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16159,13 +16440,13 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSearchForInstancesCall struct {
 // series, instances, and frames
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#searching_for_studies_series_instances_and_frames).
 //
-// - dicomWebPath: The path of the SearchForInstancesRequest DICOMweb
-//   request. For example, `instances`, `series/{series_uid}/instances`,
-//   or `studies/{study_uid}/instances`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the SearchForInstancesRequest DICOMweb
+//     request. For example, `instances`, `series/{series_uid}/instances`,
+//     or `studies/{study_uid}/instances`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesService) SearchForInstances(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSearchForInstancesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSearchForInstancesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16298,12 +16579,12 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSearchForSeriesCall struct {
 // instances, and frames
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#searching_for_studies_series_instances_and_frames).
 //
-// - dicomWebPath: The path of the SearchForSeries DICOMweb request. For
-//   example, `series` or `studies/{study_uid}/series`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the SearchForSeries DICOMweb request. For
+//     example, `series` or `studies/{study_uid}/series`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesService) SearchForSeries(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSearchForSeriesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSearchForSeriesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16435,13 +16716,13 @@ type ProjectsLocationsDatasetsDicomStoresStudiesStoreInstancesCall struct {
 // how to call StoreInstances, see Storing DICOM data
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#storing_dicom_data).
 //
-// - dicomWebPath: The path of the StoreInstances DICOMweb request. For
-//   example, `studies/[{study_uid}]`. Note that the `study_uid` is
-//   optional.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the StoreInstances DICOMweb request. For
+//     example, `studies/[{study_uid}]`. Note that the `study_uid` is
+//     optional.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesService) StoreInstances(parent string, dicomWebPath string, body_ io.Reader) *ProjectsLocationsDatasetsDicomStoresStudiesStoreInstancesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesStoreInstancesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16561,12 +16842,12 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesDeleteCall struct {
 // to call DeleteSeries, see Deleting a study, series, or instance
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#deleting_a_study_series_or_instance).
 //
-// - dicomWebPath: The path of the DeleteSeries request. For example,
-//   `studies/{study_uid}/series/{series_uid}`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the DeleteSeries request. For example,
+//     `studies/{study_uid}/series/{series_uid}`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesService) Delete(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesDeleteCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16637,17 +16918,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresStudiesSeriesDeleteCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -16719,13 +17000,13 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesRetrieveMetadataCall struc
 // show how to call RetrieveSeriesMetadata, see Retrieving metadata
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_metadata).
 //
-// - dicomWebPath: The path of the RetrieveSeriesMetadata DICOMweb
-//   request. For example,
-//   `studies/{study_uid}/series/{series_uid}/metadata`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveSeriesMetadata DICOMweb
+//     request. For example,
+//     `studies/{study_uid}/series/{series_uid}/metadata`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesService) RetrieveMetadata(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesRetrieveMetadataCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesRetrieveMetadataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16857,12 +17138,12 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesRetrieveSeriesCall struct 
 // show how to call RetrieveSeries, see Retrieving DICOM data
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_dicom_data).
 //
-// - dicomWebPath: The path of the RetrieveSeries DICOMweb request. For
-//   example, `studies/{study_uid}/series/{series_uid}`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveSeries DICOMweb request. For
+//     example, `studies/{study_uid}/series/{series_uid}`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesService) RetrieveSeries(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesRetrieveSeriesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesRetrieveSeriesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16995,13 +17276,13 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesSearchForInstancesCall str
 // series, instances, and frames
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#searching_for_studies_series_instances_and_frames).
 //
-// - dicomWebPath: The path of the SearchForInstancesRequest DICOMweb
-//   request. For example, `instances`, `series/{series_uid}/instances`,
-//   or `studies/{study_uid}/instances`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the SearchForInstancesRequest DICOMweb
+//     request. For example, `instances`, `series/{series_uid}/instances`,
+//     or `studies/{study_uid}/instances`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesService) SearchForInstances(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesSearchForInstancesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesSearchForInstancesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17130,12 +17411,12 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesDeleteCall struct
 // to call DeleteInstance, see Deleting a study, series, or instance
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#deleting_a_study_series_or_instance).
 //
-// - dicomWebPath: The path of the DeleteInstance request. For example,
-//   `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the DeleteInstance request. For example,
+//     `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesService) Delete(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesDeleteCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17206,17 +17487,17 @@ func (c *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesDeleteCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -17290,13 +17571,13 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveInstanceC
 // how to call RetrieveInstance, see Retrieving an instance
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_an_instance).
 //
-// - dicomWebPath: The path of the RetrieveInstance DICOMweb request.
-//   For example,
-//   `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveInstance DICOMweb request.
+//     For example,
+//     `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesService) RetrieveInstance(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveInstanceCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveInstanceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17430,14 +17711,14 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveMetadataC
 // show how to call RetrieveInstanceMetadata, see Retrieving metadata
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_metadata).
 //
-// - dicomWebPath: The path of the RetrieveInstanceMetadata DICOMweb
-//   request. For example,
-//   `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/me
-//   tadata`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveInstanceMetadata DICOMweb
+//     request. For example,
+//     `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/me
+//     tadata`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesService) RetrieveMetadata(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveMetadataCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveMetadataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17571,14 +17852,14 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveRenderedC
 // image formats
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_consumer_image_formats).
 //
-// - dicomWebPath: The path of the RetrieveRenderedInstance DICOMweb
-//   request. For example,
-//   `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/re
-//   ndered`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveRenderedInstance DICOMweb
+//     request. For example,
+//     `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/re
+//     ndered`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesService) RetrieveRendered(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveRenderedCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesRetrieveRenderedCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17710,14 +17991,14 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesRetrieveFra
 // to call RetrieveFrames, see Retrieving DICOM data
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_dicom_data).
 //
-// - dicomWebPath: The path of the RetrieveFrames DICOMweb request. For
-//   example,
-//   `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/fr
-//   ames/{frame_list}`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveFrames DICOMweb request. For
+//     example,
+//     `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/fr
+//     ames/{frame_list}`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesService) RetrieveFrames(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesRetrieveFramesCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesRetrieveFramesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17851,14 +18132,14 @@ type ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesRetrieveRen
 // image formats
 // (https://cloud.google.com/healthcare/docs/how-tos/dicomweb#retrieving_consumer_image_formats).
 //
-// - dicomWebPath: The path of the RetrieveRenderedFrames DICOMweb
-//   request. For example,
-//   `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/fr
-//   ames/{frame_list}/rendered`.
-// - parent: The name of the DICOM store that is being accessed. For
-//   example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /dicomStores/{dicom_store_id}`.
+//   - dicomWebPath: The path of the RetrieveRenderedFrames DICOMweb
+//     request. For example,
+//     `studies/{study_uid}/series/{series_uid}/instances/{instance_uid}/fr
+//     ames/{frame_list}/rendered`.
+//   - parent: The name of the DICOM store that is being accessed. For
+//     example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /dicomStores/{dicom_store_id}`.
 func (r *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesService) RetrieveRendered(parent string, dicomWebPath string) *ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesRetrieveRenderedCall {
 	c := &ProjectsLocationsDatasetsDicomStoresStudiesSeriesInstancesFramesRetrieveRenderedCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -18064,17 +18345,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresCreateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FhirStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -18142,9 +18423,9 @@ type ProjectsLocationsDatasetsFhirStoresDeidentifyCall struct {
 // Cloud Logging
 // (https://cloud.google.com/healthcare/docs/how-tos/logging)).
 //
-// - sourceStore: Source FHIR store resource name. For example,
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /fhirStores/{fhir_store_id}`.
+//   - sourceStore: Source FHIR store resource name. For example,
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /fhirStores/{fhir_store_id}`.
 func (r *ProjectsLocationsDatasetsFhirStoresService) Deidentify(sourceStore string, deidentifyfhirstorerequest *DeidentifyFhirStoreRequest) *ProjectsLocationsDatasetsFhirStoresDeidentifyCall {
 	c := &ProjectsLocationsDatasetsFhirStoresDeidentifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.sourceStore = sourceStore
@@ -18219,17 +18500,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresDeidentifyCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -18355,17 +18636,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresDeleteCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -18427,10 +18708,10 @@ type ProjectsLocationsDatasetsFhirStoresExportCall struct {
 // ExportResourcesResponse is returned in the response field. The
 // metadata field type for this operation is OperationMetadata.
 //
-// - name: The name of the FHIR store to export resource from, in the
-//   format of
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /fhirStores/{fhir_store_id}`.
+//   - name: The name of the FHIR store to export resource from, in the
+//     format of
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /fhirStores/{fhir_store_id}`.
 func (r *ProjectsLocationsDatasetsFhirStoresService) Export(name string, exportresourcesrequest *ExportResourcesRequest) *ProjectsLocationsDatasetsFhirStoresExportCall {
 	c := &ProjectsLocationsDatasetsFhirStoresExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18505,17 +18786,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresExportCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -18654,17 +18935,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FhirStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -18705,6 +18986,152 @@ func (c *ProjectsLocationsDatasetsFhirStoresGetCall) Do(opts ...googleapi.CallOp
 
 }
 
+// method id "healthcare.projects.locations.datasets.fhirStores.getFHIRStoreMetrics":
+
+type ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetFHIRStoreMetrics: Gets metrics associated with the FHIR store.
+//
+// - name: The resource name of the FHIR store to get metrics for.
+func (r *ProjectsLocationsDatasetsFhirStoresService) GetFHIRStoreMetrics(name string) *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall {
+	c := &ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall) Fields(s ...googleapi.Field) *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall) IfNoneMatch(entityTag string) *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall) Context(ctx context.Context) *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:getFHIRStoreMetrics")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "healthcare.projects.locations.datasets.fhirStores.getFHIRStoreMetrics" call.
+// Exactly one of *FhirStoreMetrics or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *FhirStoreMetrics.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsDatasetsFhirStoresGetFHIRStoreMetricsCall) Do(opts ...googleapi.CallOption) (*FhirStoreMetrics, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &FhirStoreMetrics{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets metrics associated with the FHIR store.",
+	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}:getFHIRStoreMetrics",
+	//   "httpMethod": "GET",
+	//   "id": "healthcare.projects.locations.datasets.fhirStores.getFHIRStoreMetrics",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The resource name of the FHIR store to get metrics for.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:getFHIRStoreMetrics",
+	//   "response": {
+	//     "$ref": "FhirStoreMetrics"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "healthcare.projects.locations.datasets.fhirStores.getIamPolicy":
 
 type ProjectsLocationsDatasetsFhirStoresGetIamPolicyCall struct {
@@ -18720,9 +19147,10 @@ type ProjectsLocationsDatasetsFhirStoresGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsFhirStoresService) GetIamPolicy(resource string) *ProjectsLocationsDatasetsFhirStoresGetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsFhirStoresGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -18822,17 +19250,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresGetIamPolicyCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -18861,7 +19289,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresGetIamPolicyCall) Do(opts ...googlea
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
 	//       "required": true,
@@ -18952,10 +19380,10 @@ type ProjectsLocationsDatasetsFhirStoresImportCall struct {
 // ImportResourcesResponse is returned in the response field. The
 // metadata field type for this operation is OperationMetadata.
 //
-// - name: The name of the FHIR store to import FHIR resources to, in
-//   the format of
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /fhirStores/{fhir_store_id}`.
+//   - name: The name of the FHIR store to import FHIR resources to, in
+//     the format of
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /fhirStores/{fhir_store_id}`.
 func (r *ProjectsLocationsDatasetsFhirStoresService) Import(name string, importresourcesrequest *ImportResourcesRequest) *ProjectsLocationsDatasetsFhirStoresImportCall {
 	c := &ProjectsLocationsDatasetsFhirStoresImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19030,17 +19458,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresImportCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -19226,17 +19654,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFhirStoresResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19327,9 +19755,9 @@ type ProjectsLocationsDatasetsFhirStoresPatchCall struct {
 
 // Patch: Updates the configuration of the specified FHIR store.
 //
-// - name: Output only. Resource name of the FHIR store, of the form
-//   `projects/{project_id}/datasets/{dataset_id}/fhirStores/{fhir_store_
-//   id}`.
+//   - name: Output only. Resource name of the FHIR store, of the form
+//     `projects/{project_id}/datasets/{dataset_id}/fhirStores/{fhir_store_
+//     id}`.
 func (r *ProjectsLocationsDatasetsFhirStoresService) Patch(name string, fhirstore *FhirStore) *ProjectsLocationsDatasetsFhirStoresPatchCall {
 	c := &ProjectsLocationsDatasetsFhirStoresPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19412,17 +19840,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresPatchCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FhirStore{
 		ServerResponse: googleapi.ServerResponse{
@@ -19487,9 +19915,10 @@ type ProjectsLocationsDatasetsFhirStoresSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsFhirStoresService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsDatasetsFhirStoresSetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsFhirStoresSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -19564,17 +19993,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresSetIamPolicyCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -19597,7 +20026,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresSetIamPolicyCall) Do(opts ...googlea
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
 	//       "required": true,
@@ -19636,9 +20065,10 @@ type ProjectsLocationsDatasetsFhirStoresTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsFhirStoresService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsDatasetsFhirStoresTestIamPermissionsCall {
 	c := &ProjectsLocationsDatasetsFhirStoresTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -19713,17 +20143,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresTestIamPermissionsCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19746,7 +20176,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresTestIamPermissionsCall) Do(opts ...g
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/fhirStores/[^/]+$",
 	//       "required": true,
@@ -19803,11 +20233,10 @@ type ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall struct {
 // details the eligible resource types and referencing search
 // parameters. For samples that show how to call `Patient-everything`,
 // see Getting all patient compartment resources
-// (/healthcare/docs/how-tos/fhir-resources#getting_all_patient_compartme
-// nt_resources).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#getting_all_patient_compartment_resources).
 //
-// - name: Name of the `Patient` resource for which the information is
-//   required.
+//   - name: Name of the `Patient` resource for which the information is
+//     required.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) PatientEverything(name string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
 	c := &ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19845,23 +20274,28 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Since(Sin
 
 // Type sets the optional parameter "_type": String of comma-delimited
 // FHIR resource types. If provided, only resources of the specified
-// resource type(s) are returned.
+// resource type(s) are returned. Specifying multiple `_type` parameters
+// isn't supported. For example, the result of
+// `_type=Observation&_type=Encounter` is undefined. Use
+// `_type=Observation,Encounter` instead.
 func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Type(Type string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
 	c.urlParams_.Set("_type", Type)
 	return c
 }
 
 // End sets the optional parameter "end": The response includes records
-// prior to the end date. If no end date is provided, all records
-// subsequent to the start date are in scope.
+// prior to the end date. The date uses the format YYYY-MM-DD. If no end
+// date is provided, all records subsequent to the start date are in
+// scope.
 func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) End(end string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
 	c.urlParams_.Set("end", end)
 	return c
 }
 
 // Start sets the optional parameter "start": The response includes
-// records subsequent to the start date. If no start date is provided,
-// all records prior to the end date are in scope.
+// records subsequent to the start date. The date uses the format
+// YYYY-MM-DD. If no start date is provided, all records prior to the
+// end date are in scope.
 func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Start(start string) *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall {
 	c.urlParams_.Set("start", start)
 	return c
@@ -19933,7 +20367,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Do(opts .
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Retrieves a Patient resource and resources related to that patient. Implements the FHIR extended operation Patient-everything ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/patient-operations.html#everything), [STU3](http://hl7.org/implement/standards/fhir/STU3/patient-operations.html#everything), [R4](http://hl7.org/implement/standards/fhir/R4/patient-operations.html#everything)). On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `searchset`, containing the results of the operation. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. The resources in scope for the response are: * The patient resource itself. * All the resources directly referenced by the patient resource. * Resources directly referencing the patient resource that meet the inclusion criteria. The inclusion criteria are based on the membership rules in the patient compartment definition ([DSTU2](http://hl7.org/fhir/DSTU2/compartment-patient.html), [STU3](http://www.hl7.org/fhir/stu3/compartmentdefinition-patient.html), [R4](http://hl7.org/fhir/R4/compartmentdefinition-patient.html)), which details the eligible resource types and referencing search parameters. For samples that show how to call `Patient-everything`, see [Getting all patient compartment resources](/healthcare/docs/how-tos/fhir-resources#getting_all_patient_compartment_resources).",
+	//   "description": "Retrieves a Patient resource and resources related to that patient. Implements the FHIR extended operation Patient-everything ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/patient-operations.html#everything), [STU3](http://hl7.org/implement/standards/fhir/STU3/patient-operations.html#everything), [R4](http://hl7.org/implement/standards/fhir/R4/patient-operations.html#everything)). On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `searchset`, containing the results of the operation. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. The resources in scope for the response are: * The patient resource itself. * All the resources directly referenced by the patient resource. * Resources directly referencing the patient resource that meet the inclusion criteria. The inclusion criteria are based on the membership rules in the patient compartment definition ([DSTU2](http://hl7.org/fhir/DSTU2/compartment-patient.html), [STU3](http://www.hl7.org/fhir/stu3/compartmentdefinition-patient.html), [R4](http://hl7.org/fhir/R4/compartmentdefinition-patient.html)), which details the eligible resource types and referencing search parameters. For samples that show how to call `Patient-everything`, see [Getting all patient compartment resources](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#getting_all_patient_compartment_resources).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/Patient/{PatientId}/$everything",
 	//   "httpMethod": "GET",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.Patient-everything",
@@ -19958,12 +20392,12 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Do(opts .
 	//       "type": "string"
 	//     },
 	//     "_type": {
-	//       "description": "String of comma-delimited FHIR resource types. If provided, only resources of the specified resource type(s) are returned.",
+	//       "description": "String of comma-delimited FHIR resource types. If provided, only resources of the specified resource type(s) are returned. Specifying multiple `_type` parameters isn't supported. For example, the result of `_type=Observation\u0026_type=Encounter` is undefined. Use `_type=Observation,Encounter` instead.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "end": {
-	//       "description": "The response includes records prior to the end date. If no end date is provided, all records subsequent to the start date are in scope.",
+	//       "description": "The response includes records prior to the end date. The date uses the format YYYY-MM-DD. If no end date is provided, all records subsequent to the start date are in scope.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -19975,7 +20409,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirPatientEverythingCall) Do(opts .
 	//       "type": "string"
 	//     },
 	//     "start": {
-	//       "description": "The response includes records subsequent to the start date. If no start date is provided, all records prior to the end date are in scope.",
+	//       "description": "The response includes records subsequent to the start date. The date uses the format YYYY-MM-DD. If no start date is provided, all records prior to the end date are in scope.",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -20007,8 +20441,7 @@ type ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall struct {
 // call this method. This is not a FHIR standard operation. For samples
 // that show how to call `Resource-purge`, see Deleting historical
 // versions of a FHIR resource
-// (/healthcare/docs/how-tos/fhir-resources#deleting_historical_versions_
-// of_a_fhir_resource).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#deleting_historical_versions_of_a_fhir_resource).
 //
 // - name: The name of the resource to purge.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ResourcePurge(name string) *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall {
@@ -20079,17 +20512,17 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -20103,7 +20536,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirResourcePurgeCall) Do(opts ...go
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes all the historical versions of a resource (excluding the current version) from the FHIR store. To remove all versions of a resource, first delete the current version and then call this method. This is not a FHIR standard operation. For samples that show how to call `Resource-purge`, see [Deleting historical versions of a FHIR resource](/healthcare/docs/how-tos/fhir-resources#deleting_historical_versions_of_a_fhir_resource).",
+	//   "description": "Deletes all the historical versions of a resource (excluding the current version) from the FHIR store. To remove all versions of a resource, first delete the current version and then call this method. This is not a FHIR standard operation. For samples that show how to call `Resource-purge`, see [Deleting historical versions of a FHIR resource](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#deleting_historical_versions_of_a_fhir_resource).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/$purge",
 	//   "httpMethod": "DELETE",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.Resource-purge",
@@ -20161,16 +20594,16 @@ type ProjectsLocationsDatasetsFhirStoresFhirResourceValidateCall struct {
 // to a valid API method on a FHIR store, a generic GCP error might be
 // returned instead.
 //
-// - parent: The name of the FHIR store that holds the profiles being
-//   used for validation.
-// - type: The FHIR resource type of the resource being validated. For a
-//   complete list, see the FHIR Resource Index (DSTU2
-//   (http://hl7.org/implement/standards/fhir/DSTU2/resourcelist.html),
-//   STU3
-//   (http://hl7.org/implement/standards/fhir/STU3/resourcelist.html),
-//   or R4
-//   (http://hl7.org/implement/standards/fhir/R4/resourcelist.html)).
-//   Must match the resource type in the provided content.
+//   - parent: The name of the FHIR store that holds the profiles being
+//     used for validation.
+//   - type: The FHIR resource type of the resource being validated. For a
+//     complete list, see the FHIR Resource Index (DSTU2
+//     (http://hl7.org/implement/standards/fhir/DSTU2/resourcelist.html),
+//     STU3
+//     (http://hl7.org/implement/standards/fhir/STU3/resourcelist.html),
+//     or R4
+//     (http://hl7.org/implement/standards/fhir/R4/resourcelist.html)).
+//     Must match the resource type in the provided content.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ResourceValidate(parent string, type_ string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirResourceValidateCall {
 	c := &ProjectsLocationsDatasetsFhirStoresFhirResourceValidateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -20443,17 +20876,17 @@ type ProjectsLocationsDatasetsFhirStoresFhirCreateCall struct {
 // to a valid API method on a FHIR store, a generic GCP error might be
 // returned instead. For samples that show how to call `create`, see
 // Creating a FHIR resource
-// (/healthcare/docs/how-tos/fhir-resources#creating_a_fhir_resource).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#creating_a_fhir_resource).
 //
-// - parent: The name of the FHIR store this resource belongs to.
-// - type: The FHIR resource type to create, such as Patient or
-//   Observation. For a complete list, see the FHIR Resource Index
-//   (DSTU2
-//   (http://hl7.org/implement/standards/fhir/DSTU2/resourcelist.html),
-//   STU3
-//   (http://hl7.org/implement/standards/fhir/STU3/resourcelist.html),
-//   R4 (http://hl7.org/implement/standards/fhir/R4/resourcelist.html)).
-//   Must match the resource type in the provided content.
+//   - parent: The name of the FHIR store this resource belongs to.
+//   - type: The FHIR resource type to create, such as Patient or
+//     Observation. For a complete list, see the FHIR Resource Index
+//     (DSTU2
+//     (http://hl7.org/implement/standards/fhir/DSTU2/resourcelist.html),
+//     STU3
+//     (http://hl7.org/implement/standards/fhir/STU3/resourcelist.html),
+//     R4 (http://hl7.org/implement/standards/fhir/R4/resourcelist.html)).
+//     Must match the resource type in the provided content.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Create(parent string, type_ string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirCreateCall {
 	c := &ProjectsLocationsDatasetsFhirStoresFhirCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -20515,7 +20948,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirCreateCall) Do(opts ...googleapi
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Creates a FHIR resource. Implements the FHIR standard create interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#create), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#create), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#create)), which creates a new resource with a server-assigned resource ID. The request body must contain a JSON-encoded FHIR resource, and the request headers must contain `Content-Type: application/fhir+json`. On success, the response body contains a JSON-encoded representation of the resource as it was created on the server, including the server-assigned resource ID and version ID. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `create`, see [Creating a FHIR resource](/healthcare/docs/how-tos/fhir-resources#creating_a_fhir_resource).",
+	//   "description": "Creates a FHIR resource. Implements the FHIR standard create interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#create), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#create), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#create)), which creates a new resource with a server-assigned resource ID. The request body must contain a JSON-encoded FHIR resource, and the request headers must contain `Content-Type: application/fhir+json`. On success, the response body contains a JSON-encoded representation of the resource as it was created on the server, including the server-assigned resource ID and version ID. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `create`, see [Creating a FHIR resource](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#creating_a_fhir_resource).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}",
 	//   "httpMethod": "POST",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.create",
@@ -20574,7 +21007,7 @@ type ProjectsLocationsDatasetsFhirStoresFhirDeleteCall struct {
 // retrieved through vread and related methods, unless they are removed
 // by the purge method. For samples that show how to call `delete`, see
 // Deleting a FHIR resource
-// (/healthcare/docs/how-tos/fhir-resources#deleting_a_fhir_resource).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#deleting_a_fhir_resource).
 //
 // - name: The name of the resource to delete.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Delete(name string) *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall {
@@ -20636,7 +21069,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirDeleteCall) Do(opts ...googleapi
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Deletes a FHIR resource. Implements the FHIR standard delete interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#delete), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#delete), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#delete)). Note: Unless resource versioning is disabled by setting the disable_resource_versioning flag on the FHIR store, the deleted resources will be moved to a history repository that can still be retrieved through vread and related methods, unless they are removed by the purge method. For samples that show how to call `delete`, see [Deleting a FHIR resource](/healthcare/docs/how-tos/fhir-resources#deleting_a_fhir_resource).",
+	//   "description": "Deletes a FHIR resource. Implements the FHIR standard delete interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#delete), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#delete), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#delete)). Note: Unless resource versioning is disabled by setting the disable_resource_versioning flag on the FHIR store, the deleted resources will be moved to a history repository that can still be retrieved through vread and related methods, unless they are removed by the purge method. For samples that show how to call `delete`, see [Deleting a FHIR resource](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#deleting_a_fhir_resource).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
 	//   "httpMethod": "DELETE",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.delete",
@@ -20676,39 +21109,49 @@ type ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall struct {
 
 // ExecuteBundle: Executes all the requests in the given Bundle.
 // Implements the FHIR standard batch/transaction interaction (DSTU2
-// (http://hl7.org/implement/standards/fhir/DSTU2/http.html#transaction),
+// (https://hl7.org/implement/standards/fhir/DSTU2/http.html#transaction),
 // STU3
-// (http://hl7.org/implement/standards/fhir/STU3/http.html#transaction),
+// (https://hl7.org/implement/standards/fhir/STU3/http.html#transaction),
 // R4
-// (http://hl7.org/implement/standards/fhir/R4/http.html#transaction)).
+// (https://hl7.org/implement/standards/fhir/R4/http.html#transaction)).
 // Supports all interactions within a bundle, except search. This method
 // accepts Bundles of type `batch` and `transaction`, processing them
 // according to the batch processing rules (DSTU2
-// (http://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.1),
+// (https://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.1),
 // STU3
-// (http://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.1),
-// R4 (http://hl7.org/implement/standards/fhir/R4/http.html#brules)) and
-// transaction processing rules (DSTU2
-// (http://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.2),
+// (https://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.1),
+// R4 (https://hl7.org/implement/standards/fhir/R4/http.html#brules))
+// and transaction processing rules (DSTU2
+// (https://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.2),
 // STU3
-// (http://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.2),
-// R4 (http://hl7.org/implement/standards/fhir/R4/http.html#trules)).
+// (https://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.2),
+// R4 (https://hl7.org/implement/standards/fhir/R4/http.html#trules)).
 // The request body must contain a JSON-encoded FHIR `Bundle` resource,
 // and the request headers must contain `Content-Type:
 // application/fhir+json`. For a batch bundle or a successful
-// transaction the response body will contain a JSON-encoded
-// representation of a `Bundle` resource of type `batch-response` or
+// transaction, the response body contains a JSON-encoded representation
+// of a `Bundle` resource of type `batch-response` or
 // `transaction-response` containing one entry for each entry in the
 // request, with the outcome of processing the entry. In the case of an
-// error for a transaction bundle, the response body will contain a
+// error for a transaction bundle, the response body contains a
 // JSON-encoded `OperationOutcome` resource describing the reason for
 // the error. If the request cannot be mapped to a valid API method on a
-// FHIR store, a generic GCP error might be returned instead. For
-// samples that show how to call `executeBundle`, see Managing FHIR
-// resources using FHIR bundles (/healthcare/docs/how-tos/fhir-bundles).
+// FHIR store, a generic GCP error might be returned instead. This
+// method checks permissions for each request in the bundle. The
+// `executeBundle` permission is required to call this method, but you
+// must also grant sufficient permissions to execute the individual
+// requests in the bundle. For example, if the bundle contains a request
+// to create a FHIR resource, the caller must also have been granted the
+// `healthcare.fhirResources.create` permission. You can use audit logs
+// to view the permissions for `executeBundle` and each request in the
+// bundle. For more information, see Viewing Cloud Audit logs
+// (https://cloud.google.com/healthcare-api/docs/how-tos/audit-logging).
+// For samples that show how to call `executeBundle`, see Managing FHIR
+// resources using FHIR bundles
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-bundles).
 //
-// - parent: Name of the FHIR store in which this bundle will be
-//   executed.
+//   - parent: Name of the FHIR store in which this bundle will be
+//     executed.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) ExecuteBundle(parent string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall {
 	c := &ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -20768,7 +21211,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirExecuteBundleCall) Do(opts ...go
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Executes all the requests in the given Bundle. Implements the FHIR standard batch/transaction interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#transaction), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#transaction), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#transaction)). Supports all interactions within a bundle, except search. This method accepts Bundles of type `batch` and `transaction`, processing them according to the batch processing rules ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.1), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.1), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#brules)) and transaction processing rules ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.2), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.2), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#trules)). The request body must contain a JSON-encoded FHIR `Bundle` resource, and the request headers must contain `Content-Type: application/fhir+json`. For a batch bundle or a successful transaction the response body will contain a JSON-encoded representation of a `Bundle` resource of type `batch-response` or `transaction-response` containing one entry for each entry in the request, with the outcome of processing the entry. In the case of an error for a transaction bundle, the response body will contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `executeBundle`, see [Managing FHIR resources using FHIR bundles](/healthcare/docs/how-tos/fhir-bundles).",
+	//   "description": "Executes all the requests in the given Bundle. Implements the FHIR standard batch/transaction interaction ([DSTU2](https://hl7.org/implement/standards/fhir/DSTU2/http.html#transaction), [STU3](https://hl7.org/implement/standards/fhir/STU3/http.html#transaction), [R4](https://hl7.org/implement/standards/fhir/R4/http.html#transaction)). Supports all interactions within a bundle, except search. This method accepts Bundles of type `batch` and `transaction`, processing them according to the batch processing rules ([DSTU2](https://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.1), [STU3](https://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.1), [R4](https://hl7.org/implement/standards/fhir/R4/http.html#brules)) and transaction processing rules ([DSTU2](https://hl7.org/implement/standards/fhir/DSTU2/http.html#2.1.0.16.2), [STU3](https://hl7.org/implement/standards/fhir/STU3/http.html#2.21.0.17.2), [R4](https://hl7.org/implement/standards/fhir/R4/http.html#trules)). The request body must contain a JSON-encoded FHIR `Bundle` resource, and the request headers must contain `Content-Type: application/fhir+json`. For a batch bundle or a successful transaction, the response body contains a JSON-encoded representation of a `Bundle` resource of type `batch-response` or `transaction-response` containing one entry for each entry in the request, with the outcome of processing the entry. In the case of an error for a transaction bundle, the response body contains a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. This method checks permissions for each request in the bundle. The `executeBundle` permission is required to call this method, but you must also grant sufficient permissions to execute the individual requests in the bundle. For example, if the bundle contains a request to create a FHIR resource, the caller must also have been granted the `healthcare.fhirResources.create` permission. You can use audit logs to view the permissions for `executeBundle` and each request in the bundle. For more information, see [Viewing Cloud Audit logs](https://cloud.google.com/healthcare-api/docs/how-tos/audit-logging). For samples that show how to call `executeBundle`, see [Managing FHIR resources using FHIR bundles](https://cloud.google.com/healthcare/docs/how-tos/fhir-bundles).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir",
 	//   "httpMethod": "POST",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.executeBundle",
@@ -20824,8 +21267,7 @@ type ProjectsLocationsDatasetsFhirStoresFhirHistoryCall struct {
 // to a valid API method on a FHIR store, a generic GCP error might be
 // returned instead. For samples that show how to call `history`, see
 // Listing FHIR resource versions
-// (/healthcare/docs/how-tos/fhir-resources#listing_fhir_resource_version
-// s).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#listing_fhir_resource_versions).
 //
 // - name: The name of the resource to retrieve.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) History(name string) *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall {
@@ -20942,7 +21384,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirHistoryCall) Do(opts ...googleap
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Lists all the versions of a resource (including the current version and deleted versions) from the FHIR store. Implements the per-resource form of the FHIR standard history interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#history), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#history), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#history)). On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `history`, containing the version history sorted from most recent to oldest versions. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `history`, see [Listing FHIR resource versions](/healthcare/docs/how-tos/fhir-resources#listing_fhir_resource_versions).",
+	//   "description": "Lists all the versions of a resource (including the current version and deleted versions) from the FHIR store. Implements the per-resource form of the FHIR standard history interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#history), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#history), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#history)). On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `history`, containing the version history sorted from most recent to oldest versions. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `history`, see [Listing FHIR resource versions](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#listing_fhir_resource_versions).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/_history",
 	//   "httpMethod": "GET",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.history",
@@ -21017,7 +21459,7 @@ type ProjectsLocationsDatasetsFhirStoresFhirPatchCall struct {
 // method on a FHIR store, a generic GCP error might be returned
 // instead. For samples that show how to call `patch`, see Patching a
 // FHIR resource
-// (/healthcare/docs/how-tos/fhir-resources#patching_a_fhir_resource).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#patching_a_fhir_resource).
 //
 // - name: The name of the resource to update.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Patch(name string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirPatchCall {
@@ -21079,7 +21521,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirPatchCall) Do(opts ...googleapi.
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Updates part of an existing resource by applying the operations specified in a [JSON Patch](http://jsonpatch.com/) document. Implements the FHIR standard patch interaction ([STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#patch), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#patch)). DSTU2 doesn't define a patch method, but the server supports it in the same way it supports STU3. The request body must contain a JSON Patch document, and the request headers must contain `Content-Type: application/json-patch+json`. On success, the response body contains a JSON-encoded representation of the updated resource, including the server-assigned version ID. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `patch`, see [Patching a FHIR resource](/healthcare/docs/how-tos/fhir-resources#patching_a_fhir_resource).",
+	//   "description": "Updates part of an existing resource by applying the operations specified in a [JSON Patch](http://jsonpatch.com/) document. Implements the FHIR standard patch interaction ([STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#patch), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#patch)). DSTU2 doesn't define a patch method, but the server supports it in the same way it supports STU3. The request body must contain a JSON Patch document, and the request headers must contain `Content-Type: application/json-patch+json`. On success, the response body contains a JSON-encoded representation of the updated resource, including the server-assigned version ID. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `patch`, see [Patching a FHIR resource](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#patching_a_fhir_resource).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
 	//   "httpMethod": "PATCH",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.patch",
@@ -21137,7 +21579,7 @@ type ProjectsLocationsDatasetsFhirStoresFhirReadCall struct {
 // the request cannot be mapped to a valid API method on a FHIR store, a
 // generic GCP error might be returned instead. For samples that show
 // how to call `read`, see Getting a FHIR resource
-// (/healthcare/docs/how-tos/fhir-resources#getting_a_fhir_resource).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#getting_a_fhir_resource).
 //
 // - name: The name of the resource to retrieve.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Read(name string) *ProjectsLocationsDatasetsFhirStoresFhirReadCall {
@@ -21212,7 +21654,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirReadCall) Do(opts ...googleapi.C
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Gets the contents of a FHIR resource. Implements the FHIR standard read interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#read), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#read), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#read)). Also supports the FHIR standard conditional read interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#cread), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#cread), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#cread)) specified by supplying an `If-Modified-Since` header with a date/time value or an `If-None-Match` header with an ETag value. On success, the response body contains a JSON-encoded representation of the resource. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `read`, see [Getting a FHIR resource](/healthcare/docs/how-tos/fhir-resources#getting_a_fhir_resource).",
+	//   "description": "Gets the contents of a FHIR resource. Implements the FHIR standard read interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#read), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#read), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#read)). Also supports the FHIR standard conditional read interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#cread), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#cread), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#cread)) specified by supplying an `If-Modified-Since` header with a date/time value or an `If-None-Match` header with an ETag value. On success, the response body contains a JSON-encoded representation of the resource. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `read`, see [Getting a FHIR resource](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#getting_a_fhir_resource).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
 	//   "httpMethod": "GET",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.read",
@@ -21285,23 +21727,25 @@ type ProjectsLocationsDatasetsFhirStoresFhirSearchCall struct {
 // FHIR search parameters for DSTU2 can be found on each resource's
 // definition page. Supported search modifiers: `:missing`, `:exact`,
 // `:contains`, `:text`, `:in`, `:not-in`, `:above`, `:below`,
-// `:[type]`, `:not`, and `:recurse`. Supported search result
-// parameters: `_sort`, `_count`, `_include`, `_revinclude`,
-// `_summary=text`, `_summary=data`, and `_elements`. The maximum number
-// of search results returned defaults to 100, which can be overridden
-// by the `_count` parameter up to a maximum limit of 1000. If there are
-// additional results, the returned `Bundle` contains a link of
-// `relation` "next", which has a `_page_token` parameter for an opaque
-// pagination token that can be used to retrieve the next page.
-// Resources with a total size larger than 5MB or a field count larger
-// than 50,000 might not be fully searchable as the server might trim
-// its generated search index in those cases. Note: FHIR resources are
-// indexed asynchronously, so there might be a slight delay between the
-// time a resource is created or changes and when the change is
-// reflected in search results. For samples and detailed information,
-// see Searching for FHIR resources
-// (/healthcare/docs/how-tos/fhir-search) and Advanced FHIR search
-// features (/healthcare/docs/how-tos/fhir-advanced-search).
+// `:[type]`, `:not`, and `recurse` (DSTU2 and STU3) or `:iterate` (R4).
+// Supported search result parameters: `_sort`, `_count`, `_include`,
+// `_revinclude`, `_summary=text`, `_summary=data`, and `_elements`. The
+// maximum number of search results returned defaults to 100, which can
+// be overridden by the `_count` parameter up to a maximum limit of
+// 1000. The server might return fewer resources than requested to
+// prevent excessively large responses. If there are additional results,
+// the returned `Bundle` contains a link of `relation` "next", which has
+// a `_page_token` parameter for an opaque pagination token that can be
+// used to retrieve the next page. Resources with a total size larger
+// than 5MB or a field count larger than 50,000 might not be fully
+// searchable as the server might trim its generated search index in
+// those cases. Note: FHIR resources are indexed asynchronously, so
+// there might be a slight delay between the time a resource is created
+// or changes and when the change is reflected in search results. For
+// samples and detailed information, see Searching for FHIR resources
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-search) and
+// Advanced FHIR search features
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-advanced-search).
 //
 // - parent: Name of the FHIR store to retrieve resources from.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Search(parent string, searchresourcesrequest *SearchResourcesRequest) *ProjectsLocationsDatasetsFhirStoresFhirSearchCall {
@@ -21369,7 +21813,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchCall) Do(opts ...googleapi
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Searches for resources in the given FHIR store according to criteria specified as query parameters. Implements the FHIR standard search interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#search), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#search), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#search)) using the search semantics described in the FHIR Search specification ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/search.html), [STU3](http://hl7.org/implement/standards/fhir/STU3/search.html), [R4](http://hl7.org/implement/standards/fhir/R4/search.html)). Supports four methods of search defined by the specification: * `GET [base]?[parameters]` to search across all resources. * `GET [base]/[type]?[parameters]` to search resources of a specified type. * `POST [base]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method across all resources. * `POST [base]/[type]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method for the specified type. The `GET` and `POST` methods do not support compartment searches. The `POST` method does not support `application/x-www-form-urlencoded` search parameters. On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `searchset`, containing the results of the search. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. The server's capability statement, retrieved through capabilities, indicates what search parameters are supported on each FHIR resource. A list of all search parameters defined by the specification can be found in the FHIR Search Parameter Registry ([STU3](http://hl7.org/implement/standards/fhir/STU3/searchparameter-registry.html), [R4](http://hl7.org/implement/standards/fhir/R4/searchparameter-registry.html)). FHIR search parameters for DSTU2 can be found on each resource's definition page. Supported search modifiers: `:missing`, `:exact`, `:contains`, `:text`, `:in`, `:not-in`, `:above`, `:below`, `:[type]`, `:not`, and `:recurse`. Supported search result parameters: `_sort`, `_count`, `_include`, `_revinclude`, `_summary=text`, `_summary=data`, and `_elements`. The maximum number of search results returned defaults to 100, which can be overridden by the `_count` parameter up to a maximum limit of 1000. If there are additional results, the returned `Bundle` contains a link of `relation` \"next\", which has a `_page_token` parameter for an opaque pagination token that can be used to retrieve the next page. Resources with a total size larger than 5MB or a field count larger than 50,000 might not be fully searchable as the server might trim its generated search index in those cases. Note: FHIR resources are indexed asynchronously, so there might be a slight delay between the time a resource is created or changes and when the change is reflected in search results. For samples and detailed information, see [Searching for FHIR resources](/healthcare/docs/how-tos/fhir-search) and [Advanced FHIR search features](/healthcare/docs/how-tos/fhir-advanced-search).",
+	//   "description": "Searches for resources in the given FHIR store according to criteria specified as query parameters. Implements the FHIR standard search interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#search), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#search), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#search)) using the search semantics described in the FHIR Search specification ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/search.html), [STU3](http://hl7.org/implement/standards/fhir/STU3/search.html), [R4](http://hl7.org/implement/standards/fhir/R4/search.html)). Supports four methods of search defined by the specification: * `GET [base]?[parameters]` to search across all resources. * `GET [base]/[type]?[parameters]` to search resources of a specified type. * `POST [base]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method across all resources. * `POST [base]/[type]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method for the specified type. The `GET` and `POST` methods do not support compartment searches. The `POST` method does not support `application/x-www-form-urlencoded` search parameters. On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `searchset`, containing the results of the search. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. The server's capability statement, retrieved through capabilities, indicates what search parameters are supported on each FHIR resource. A list of all search parameters defined by the specification can be found in the FHIR Search Parameter Registry ([STU3](http://hl7.org/implement/standards/fhir/STU3/searchparameter-registry.html), [R4](http://hl7.org/implement/standards/fhir/R4/searchparameter-registry.html)). FHIR search parameters for DSTU2 can be found on each resource's definition page. Supported search modifiers: `:missing`, `:exact`, `:contains`, `:text`, `:in`, `:not-in`, `:above`, `:below`, `:[type]`, `:not`, and `recurse` (DSTU2 and STU3) or `:iterate` (R4). Supported search result parameters: `_sort`, `_count`, `_include`, `_revinclude`, `_summary=text`, `_summary=data`, and `_elements`. The maximum number of search results returned defaults to 100, which can be overridden by the `_count` parameter up to a maximum limit of 1000. The server might return fewer resources than requested to prevent excessively large responses. If there are additional results, the returned `Bundle` contains a link of `relation` \"next\", which has a `_page_token` parameter for an opaque pagination token that can be used to retrieve the next page. Resources with a total size larger than 5MB or a field count larger than 50,000 might not be fully searchable as the server might trim its generated search index in those cases. Note: FHIR resources are indexed asynchronously, so there might be a slight delay between the time a resource is created or changes and when the change is reflected in search results. For samples and detailed information, see [Searching for FHIR resources](https://cloud.google.com/healthcare/docs/how-tos/fhir-search) and [Advanced FHIR search features](https://cloud.google.com/healthcare/docs/how-tos/fhir-advanced-search).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/_search",
 	//   "httpMethod": "POST",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.search",
@@ -21446,32 +21890,34 @@ type ProjectsLocationsDatasetsFhirStoresFhirSearchTypeCall struct {
 // FHIR search parameters for DSTU2 can be found on each resource's
 // definition page. Supported search modifiers: `:missing`, `:exact`,
 // `:contains`, `:text`, `:in`, `:not-in`, `:above`, `:below`,
-// `:[type]`, `:not`, and `:recurse`. Supported search result
-// parameters: `_sort`, `_count`, `_include`, `_revinclude`,
-// `_summary=text`, `_summary=data`, and `_elements`. The maximum number
-// of search results returned defaults to 100, which can be overridden
-// by the `_count` parameter up to a maximum limit of 1000. If there are
-// additional results, the returned `Bundle` contains a link of
-// `relation` "next", which has a `_page_token` parameter for an opaque
-// pagination token that can be used to retrieve the next page.
-// Resources with a total size larger than 5MB or a field count larger
-// than 50,000 might not be fully searchable as the server might trim
-// its generated search index in those cases. Note: FHIR resources are
-// indexed asynchronously, so there might be a slight delay between the
-// time a resource is created or changes and when the change is
-// reflected in search results. For samples and detailed information,
-// see Searching for FHIR resources
-// (/healthcare/docs/how-tos/fhir-search) and Advanced FHIR search
-// features (/healthcare/docs/how-tos/fhir-advanced-search).
+// `:[type]`, `:not`, and `recurse` (DSTU2 and STU3) or `:iterate` (R4).
+// Supported search result parameters: `_sort`, `_count`, `_include`,
+// `_revinclude`, `_summary=text`, `_summary=data`, and `_elements`. The
+// maximum number of search results returned defaults to 100, which can
+// be overridden by the `_count` parameter up to a maximum limit of
+// 1000. The server might return fewer resources than requested to
+// prevent excessively large responses. If there are additional results,
+// the returned `Bundle` contains a link of `relation` "next", which has
+// a `_page_token` parameter for an opaque pagination token that can be
+// used to retrieve the next page. Resources with a total size larger
+// than 5MB or a field count larger than 50,000 might not be fully
+// searchable as the server might trim its generated search index in
+// those cases. Note: FHIR resources are indexed asynchronously, so
+// there might be a slight delay between the time a resource is created
+// or changes and when the change is reflected in search results. For
+// samples and detailed information, see Searching for FHIR resources
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-search) and
+// Advanced FHIR search features
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-advanced-search).
 //
-// - parent: Name of the FHIR store to retrieve resources from.
-// - resourceType: The FHIR resource type to search, such as Patient or
-//   Observation. For a complete list, see the FHIR Resource Index
-//   (DSTU2
-//   (http://hl7.org/implement/standards/fhir/DSTU2/resourcelist.html),
-//   STU3
-//   (http://hl7.org/implement/standards/fhir/STU3/resourcelist.html),
-//   R4 (http://hl7.org/implement/standards/fhir/R4/resourcelist.html)).
+//   - parent: Name of the FHIR store to retrieve resources from.
+//   - resourceType: The FHIR resource type to search, such as Patient or
+//     Observation. For a complete list, see the FHIR Resource Index
+//     (DSTU2
+//     (http://hl7.org/implement/standards/fhir/DSTU2/resourcelist.html),
+//     STU3
+//     (http://hl7.org/implement/standards/fhir/STU3/resourcelist.html),
+//     R4 (http://hl7.org/implement/standards/fhir/R4/resourcelist.html)).
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) SearchType(parent string, resourceType string, searchresourcesrequest *SearchResourcesRequest) *ProjectsLocationsDatasetsFhirStoresFhirSearchTypeCall {
 	c := &ProjectsLocationsDatasetsFhirStoresFhirSearchTypeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -21539,7 +21985,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirSearchTypeCall) Do(opts ...googl
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Searches for resources in the given FHIR store according to criteria specified as query parameters. Implements the FHIR standard search interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#search), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#search), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#search)) using the search semantics described in the FHIR Search specification ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/search.html), [STU3](http://hl7.org/implement/standards/fhir/STU3/search.html), [R4](http://hl7.org/implement/standards/fhir/R4/search.html)). Supports four methods of search defined by the specification: * `GET [base]?[parameters]` to search across all resources. * `GET [base]/[type]?[parameters]` to search resources of a specified type. * `POST [base]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method across all resources. * `POST [base]/[type]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method for the specified type. The `GET` and `POST` methods do not support compartment searches. The `POST` method does not support `application/x-www-form-urlencoded` search parameters. On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `searchset`, containing the results of the search. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. The server's capability statement, retrieved through capabilities, indicates what search parameters are supported on each FHIR resource. A list of all search parameters defined by the specification can be found in the FHIR Search Parameter Registry ([STU3](http://hl7.org/implement/standards/fhir/STU3/searchparameter-registry.html), [R4](http://hl7.org/implement/standards/fhir/R4/searchparameter-registry.html)). FHIR search parameters for DSTU2 can be found on each resource's definition page. Supported search modifiers: `:missing`, `:exact`, `:contains`, `:text`, `:in`, `:not-in`, `:above`, `:below`, `:[type]`, `:not`, and `:recurse`. Supported search result parameters: `_sort`, `_count`, `_include`, `_revinclude`, `_summary=text`, `_summary=data`, and `_elements`. The maximum number of search results returned defaults to 100, which can be overridden by the `_count` parameter up to a maximum limit of 1000. If there are additional results, the returned `Bundle` contains a link of `relation` \"next\", which has a `_page_token` parameter for an opaque pagination token that can be used to retrieve the next page. Resources with a total size larger than 5MB or a field count larger than 50,000 might not be fully searchable as the server might trim its generated search index in those cases. Note: FHIR resources are indexed asynchronously, so there might be a slight delay between the time a resource is created or changes and when the change is reflected in search results. For samples and detailed information, see [Searching for FHIR resources](/healthcare/docs/how-tos/fhir-search) and [Advanced FHIR search features](/healthcare/docs/how-tos/fhir-advanced-search).",
+	//   "description": "Searches for resources in the given FHIR store according to criteria specified as query parameters. Implements the FHIR standard search interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#search), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#search), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#search)) using the search semantics described in the FHIR Search specification ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/search.html), [STU3](http://hl7.org/implement/standards/fhir/STU3/search.html), [R4](http://hl7.org/implement/standards/fhir/R4/search.html)). Supports four methods of search defined by the specification: * `GET [base]?[parameters]` to search across all resources. * `GET [base]/[type]?[parameters]` to search resources of a specified type. * `POST [base]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method across all resources. * `POST [base]/[type]/_search?[parameters]` as an alternate form having the same semantics as the `GET` method for the specified type. The `GET` and `POST` methods do not support compartment searches. The `POST` method does not support `application/x-www-form-urlencoded` search parameters. On success, the response body contains a JSON-encoded representation of a `Bundle` resource of type `searchset`, containing the results of the search. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. The server's capability statement, retrieved through capabilities, indicates what search parameters are supported on each FHIR resource. A list of all search parameters defined by the specification can be found in the FHIR Search Parameter Registry ([STU3](http://hl7.org/implement/standards/fhir/STU3/searchparameter-registry.html), [R4](http://hl7.org/implement/standards/fhir/R4/searchparameter-registry.html)). FHIR search parameters for DSTU2 can be found on each resource's definition page. Supported search modifiers: `:missing`, `:exact`, `:contains`, `:text`, `:in`, `:not-in`, `:above`, `:below`, `:[type]`, `:not`, and `recurse` (DSTU2 and STU3) or `:iterate` (R4). Supported search result parameters: `_sort`, `_count`, `_include`, `_revinclude`, `_summary=text`, `_summary=data`, and `_elements`. The maximum number of search results returned defaults to 100, which can be overridden by the `_count` parameter up to a maximum limit of 1000. The server might return fewer resources than requested to prevent excessively large responses. If there are additional results, the returned `Bundle` contains a link of `relation` \"next\", which has a `_page_token` parameter for an opaque pagination token that can be used to retrieve the next page. Resources with a total size larger than 5MB or a field count larger than 50,000 might not be fully searchable as the server might trim its generated search index in those cases. Note: FHIR resources are indexed asynchronously, so there might be a slight delay between the time a resource is created or changes and when the change is reflected in search results. For samples and detailed information, see [Searching for FHIR resources](https://cloud.google.com/healthcare/docs/how-tos/fhir-search) and [Advanced FHIR search features](https://cloud.google.com/healthcare/docs/how-tos/fhir-advanced-search).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{resourceType}/_search",
 	//   "httpMethod": "POST",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.search-type",
@@ -21610,7 +22056,7 @@ type ProjectsLocationsDatasetsFhirStoresFhirUpdateCall struct {
 // to a valid API method on a FHIR store, a generic GCP error might be
 // returned instead. For samples that show how to call `update`, see
 // Updating a FHIR resource
-// (/healthcare/docs/how-tos/fhir-resources#updating_a_fhir_resource).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#updating_a_fhir_resource).
 //
 // - name: The name of the resource to update.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Update(name string, body_ io.Reader) *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall {
@@ -21672,7 +22118,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirUpdateCall) Do(opts ...googleapi
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Updates the entire contents of a resource. Implements the FHIR standard update interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#update), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#update), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#update)). If the specified resource does not exist and the FHIR store has enable_update_create set, creates the resource with the client-specified ID. It is strongly advised not to include or encode any sensitive data such as patient identifiers in client-specified resource IDs. Those IDs are part of the FHIR resource path recorded in Cloud Audit Logs and Pub/Sub notifications. Those IDs can also be contained in reference fields within other resources. The request body must contain a JSON-encoded FHIR resource, and the request headers must contain `Content-Type: application/fhir+json`. The resource must contain an `id` element having an identical value to the ID in the REST path of the request. On success, the response body contains a JSON-encoded representation of the updated resource, including the server-assigned version ID. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `update`, see [Updating a FHIR resource](/healthcare/docs/how-tos/fhir-resources#updating_a_fhir_resource).",
+	//   "description": "Updates the entire contents of a resource. Implements the FHIR standard update interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#update), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#update), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#update)). If the specified resource does not exist and the FHIR store has enable_update_create set, creates the resource with the client-specified ID. It is strongly advised not to include or encode any sensitive data such as patient identifiers in client-specified resource IDs. Those IDs are part of the FHIR resource path recorded in Cloud Audit Logs and Pub/Sub notifications. Those IDs can also be contained in reference fields within other resources. The request body must contain a JSON-encoded FHIR resource, and the request headers must contain `Content-Type: application/fhir+json`. The resource must contain an `id` element having an identical value to the ID in the REST path of the request. On success, the response body contains a JSON-encoded representation of the updated resource, including the server-assigned version ID. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `update`, see [Updating a FHIR resource](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#updating_a_fhir_resource).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}",
 	//   "httpMethod": "PUT",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.update",
@@ -21726,8 +22172,7 @@ type ProjectsLocationsDatasetsFhirStoresFhirVreadCall struct {
 // FHIR store, a generic GCP error might be returned instead. For
 // samples that show how to call `vread`, see Retrieving a FHIR resource
 // version
-// (/healthcare/docs/how-tos/fhir-resources#retrieving_a_fhir_resource_ve
-// rsion).
+// (https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#retrieving_a_fhir_resource_version).
 //
 // - name: The name of the resource version to retrieve.
 func (r *ProjectsLocationsDatasetsFhirStoresFhirService) Vread(name string) *ProjectsLocationsDatasetsFhirStoresFhirVreadCall {
@@ -21802,7 +22247,7 @@ func (c *ProjectsLocationsDatasetsFhirStoresFhirVreadCall) Do(opts ...googleapi.
 	gensupport.SetOptions(c.urlParams_, opts...)
 	return c.doRequest("")
 	// {
-	//   "description": "Gets the contents of a version (current or historical) of a FHIR resource by version ID. Implements the FHIR standard vread interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#vread), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#vread), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#vread)). On success, the response body contains a JSON-encoded representation of the resource. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `vread`, see [Retrieving a FHIR resource version](/healthcare/docs/how-tos/fhir-resources#retrieving_a_fhir_resource_version).",
+	//   "description": "Gets the contents of a version (current or historical) of a FHIR resource by version ID. Implements the FHIR standard vread interaction ([DSTU2](http://hl7.org/implement/standards/fhir/DSTU2/http.html#vread), [STU3](http://hl7.org/implement/standards/fhir/STU3/http.html#vread), [R4](http://hl7.org/implement/standards/fhir/R4/http.html#vread)). On success, the response body contains a JSON-encoded representation of the resource. Errors generated by the FHIR store contain a JSON-encoded `OperationOutcome` resource describing the reason for the error. If the request cannot be mapped to a valid API method on a FHIR store, a generic GCP error might be returned instead. For samples that show how to call `vread`, see [Retrieving a FHIR resource version](https://cloud.google.com/healthcare/docs/how-tos/fhir-resources#retrieving_a_fhir_resource_version).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/fhirStores/{fhirStoresId}/fhir/{fhirId}/{fhirId1}/_history/{_historyId}",
 	//   "httpMethod": "GET",
 	//   "id": "healthcare.projects.locations.datasets.fhirStores.fhir.vread",
@@ -21925,17 +22370,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresCreateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Hl7V2Store{
 		ServerResponse: googleapi.ServerResponse{
@@ -22066,17 +22511,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresDeleteCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -22137,9 +22582,9 @@ type ProjectsLocationsDatasetsHl7V2StoresExportCall struct {
 // ExportMessagesResponse is returned in the response field. The
 // metadata field type for this operation is OperationMetadata.
 //
-// - name: The name of the source HL7v2 store, in the format
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /hl7v2Stores/{hl7v2_store_id}`.
+//   - name: The name of the source HL7v2 store, in the format
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /hl7v2Stores/{hl7v2_store_id}`.
 func (r *ProjectsLocationsDatasetsHl7V2StoresService) Export(name string, exportmessagesrequest *ExportMessagesRequest) *ProjectsLocationsDatasetsHl7V2StoresExportCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -22214,17 +22659,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresExportCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -22363,17 +22808,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Hl7V2Store{
 		ServerResponse: googleapi.ServerResponse{
@@ -22429,9 +22874,10 @@ type ProjectsLocationsDatasetsHl7V2StoresGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsHl7V2StoresService) GetIamPolicy(resource string) *ProjectsLocationsDatasetsHl7V2StoresGetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -22531,17 +22977,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresGetIamPolicyCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -22570,7 +23016,7 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresGetIamPolicyCall) Do(opts ...google
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/hl7V2Stores/[^/]+$",
 	//       "required": true,
@@ -22627,9 +23073,9 @@ type ProjectsLocationsDatasetsHl7V2StoresImportCall struct {
 // ImportMessagesResponse is returned in the response field. The
 // metadata field type for this operation is OperationMetadata.
 //
-// - name: The name of the target HL7v2 store, in the format
-//   `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
-//   /hl7v2Stores/{hl7v2_store_id}`.
+//   - name: The name of the target HL7v2 store, in the format
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /hl7v2Stores/{hl7v2_store_id}`.
 func (r *ProjectsLocationsDatasetsHl7V2StoresService) Import(name string, importmessagesrequest *ImportMessagesRequest) *ProjectsLocationsDatasetsHl7V2StoresImportCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -22704,17 +23150,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresImportCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -22900,17 +23346,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListHl7V2StoresResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23001,9 +23447,9 @@ type ProjectsLocationsDatasetsHl7V2StoresPatchCall struct {
 
 // Patch: Updates the HL7v2 store.
 //
-// - name: Resource name of the HL7v2 store, of the form
-//   `projects/{project_id}/datasets/{dataset_id}/hl7V2Stores/{hl7v2_stor
-//   e_id}`.
+//   - name: Resource name of the HL7v2 store, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /hl7V2Stores/{hl7v2_store_id}`.
 func (r *ProjectsLocationsDatasetsHl7V2StoresService) Patch(name string, hl7v2store *Hl7V2Store) *ProjectsLocationsDatasetsHl7V2StoresPatchCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -23086,17 +23532,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresPatchCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Hl7V2Store{
 		ServerResponse: googleapi.ServerResponse{
@@ -23119,7 +23565,7 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresPatchCall) Do(opts ...googleapi.Cal
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Resource name of the HL7v2 store, of the form `projects/{project_id}/datasets/{dataset_id}/hl7V2Stores/{hl7v2_store_id}`.",
+	//       "description": "Resource name of the HL7v2 store, of the form `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}/hl7V2Stores/{hl7v2_store_id}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/hl7V2Stores/[^/]+$",
 	//       "required": true,
@@ -23161,9 +23607,10 @@ type ProjectsLocationsDatasetsHl7V2StoresSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsHl7V2StoresService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsDatasetsHl7V2StoresSetIamPolicyCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -23238,17 +23685,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresSetIamPolicyCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -23271,7 +23718,7 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresSetIamPolicyCall) Do(opts ...google
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/hl7V2Stores/[^/]+$",
 	//       "required": true,
@@ -23310,9 +23757,10 @@ type ProjectsLocationsDatasetsHl7V2StoresTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsDatasetsHl7V2StoresService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsDatasetsHl7V2StoresTestIamPermissionsCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -23387,17 +23835,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresTestIamPermissionsCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23420,7 +23868,7 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresTestIamPermissionsCall) Do(opts ...
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/hl7V2Stores/[^/]+$",
 	//       "required": true,
@@ -23459,7 +23907,7 @@ type ProjectsLocationsDatasetsHl7V2StoresMessagesCreateCall struct {
 // topic, the adapter transmits the message when a notification is
 // received.
 //
-// - parent: The name of the dataset this message belongs to.
+// - parent: The name of the HL7v2 store this message belongs to.
 func (r *ProjectsLocationsDatasetsHl7V2StoresMessagesService) Create(parent string, createmessagerequest *CreateMessageRequest) *ProjectsLocationsDatasetsHl7V2StoresMessagesCreateCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresMessagesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -23534,17 +23982,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesCreateCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Message{
 		ServerResponse: googleapi.ServerResponse{
@@ -23567,7 +24015,7 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesCreateCall) Do(opts ...goog
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "The name of the dataset this message belongs to.",
+	//       "description": "The name of the HL7v2 store this message belongs to.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/hl7V2Stores/[^/]+$",
 	//       "required": true,
@@ -23669,17 +24117,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesDeleteCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -23745,15 +24193,22 @@ func (r *ProjectsLocationsDatasetsHl7V2StoresMessagesService) Get(name string) *
 // equivalent to FULL.
 //
 // Possible values:
-//   "MESSAGE_VIEW_UNSPECIFIED" - Not specified, equivalent to FULL.
-//   "RAW_ONLY" - Server responses include all the message fields except
+//
+//	"MESSAGE_VIEW_UNSPECIFIED" - Not specified, equivalent to FULL.
+//	"RAW_ONLY" - Server responses include all the message fields except
+//
 // parsed_data field, and schematized_data fields.
-//   "PARSED_ONLY" - Server responses include all the message fields
+//
+//	"PARSED_ONLY" - Server responses include all the message fields
+//
 // except data field, and schematized_data fields.
-//   "FULL" - Server responses include all the message fields.
-//   "SCHEMATIZED_ONLY" - Server responses include all the message
+//
+//	"FULL" - Server responses include all the message fields.
+//	"SCHEMATIZED_ONLY" - Server responses include all the message
+//
 // fields except data and parsed_data fields.
-//   "BASIC" - Server responses include only the name field.
+//
+//	"BASIC" - Server responses include only the name field.
 func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesGetCall) View(view string) *ProjectsLocationsDatasetsHl7V2StoresMessagesGetCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -23834,17 +24289,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesGetCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Message{
 		ServerResponse: googleapi.ServerResponse{
@@ -24003,17 +24458,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesIngestCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &IngestMessageResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24160,15 +24615,22 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesListCall) PageToken(pageTok
 // the performance of this method.
 //
 // Possible values:
-//   "MESSAGE_VIEW_UNSPECIFIED" - Not specified, equivalent to FULL.
-//   "RAW_ONLY" - Server responses include all the message fields except
+//
+//	"MESSAGE_VIEW_UNSPECIFIED" - Not specified, equivalent to FULL.
+//	"RAW_ONLY" - Server responses include all the message fields except
+//
 // parsed_data field, and schematized_data fields.
-//   "PARSED_ONLY" - Server responses include all the message fields
+//
+//	"PARSED_ONLY" - Server responses include all the message fields
+//
 // except data field, and schematized_data fields.
-//   "FULL" - Server responses include all the message fields.
-//   "SCHEMATIZED_ONLY" - Server responses include all the message
+//
+//	"FULL" - Server responses include all the message fields.
+//	"SCHEMATIZED_ONLY" - Server responses include all the message
+//
 // fields except data and parsed_data fields.
-//   "BASIC" - Server responses include only the name field.
+//
+//	"BASIC" - Server responses include only the name field.
 func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesListCall) View(view string) *ProjectsLocationsDatasetsHl7V2StoresMessagesListCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -24249,17 +24711,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesListCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListMessagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24381,9 +24843,10 @@ type ProjectsLocationsDatasetsHl7V2StoresMessagesPatchCall struct {
 // the existing set of labels. Existing labels with the same keys are
 // updated.
 //
-// - name: Resource name of the Message, of the form
-//   `projects/{project_id}/datasets/{dataset_id}/hl7V2Stores/{hl7_v2_sto
-//   re_id}/messages/{message_id}`. Assigned by the server.
+//   - name: Resource name of the Message, of the form
+//     `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
+//     /hl7V2Stores/{hl7_v2_store_id}/messages/{message_id}`. Assigned by
+//     the server.
 func (r *ProjectsLocationsDatasetsHl7V2StoresMessagesService) Patch(name string, message *Message) *ProjectsLocationsDatasetsHl7V2StoresMessagesPatchCall {
 	c := &ProjectsLocationsDatasetsHl7V2StoresMessagesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -24466,17 +24929,17 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesPatchCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Message{
 		ServerResponse: googleapi.ServerResponse{
@@ -24499,7 +24962,7 @@ func (c *ProjectsLocationsDatasetsHl7V2StoresMessagesPatchCall) Do(opts ...googl
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Resource name of the Message, of the form `projects/{project_id}/datasets/{dataset_id}/hl7V2Stores/{hl7_v2_store_id}/messages/{message_id}`. Assigned by the server.",
+	//       "description": "Resource name of the Message, of the form `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}/hl7V2Stores/{hl7_v2_store_id}/messages/{message_id}`. Assigned by the server.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/datasets/[^/]+/hl7V2Stores/[^/]+/messages/[^/]+$",
 	//       "required": true,
@@ -24623,17 +25086,17 @@ func (c *ProjectsLocationsDatasetsOperationsCancelCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -24774,17 +25237,17 @@ func (c *ProjectsLocationsDatasetsOperationsGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -24838,14 +25301,7 @@ type ProjectsLocationsDatasetsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsDatasetsOperationsService) List(name string) *ProjectsLocationsDatasetsOperationsListCall {
@@ -24950,17 +25406,17 @@ func (c *ProjectsLocationsDatasetsOperationsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24974,7 +25430,7 @@ func (c *ProjectsLocationsDatasetsOperationsListCall) Do(opts ...googleapi.CallO
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/datasets/{datasetsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "healthcare.projects.locations.datasets.operations.list",
@@ -25053,8 +25509,8 @@ type ProjectsLocationsServicesNlpAnalyzeEntitiesCall struct {
 // includes the recognized entity mentions and the relationships between
 // them. AnalyzeEntities uses context aware models to detect entities.
 //
-// - nlpService: The resource name of the service of the form:
-//   "projects/{project_id}/locations/{location_id}/services/nlp".
+//   - nlpService: The resource name of the service of the form:
+//     "projects/{project_id}/locations/{location_id}/services/nlp".
 func (r *ProjectsLocationsServicesNlpService) AnalyzeEntities(nlpService string, analyzeentitiesrequest *AnalyzeEntitiesRequest) *ProjectsLocationsServicesNlpAnalyzeEntitiesCall {
 	c := &ProjectsLocationsServicesNlpAnalyzeEntitiesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nlpService = nlpService
@@ -25129,17 +25585,17 @@ func (c *ProjectsLocationsServicesNlpAnalyzeEntitiesCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AnalyzeEntitiesResponse{
 		ServerResponse: googleapi.ServerResponse{

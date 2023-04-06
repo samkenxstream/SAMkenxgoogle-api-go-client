@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://firebase.google.com
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/firebase/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   firebaseService, err := firebase.NewService(ctx)
+//	import "google.golang.org/api/firebase/v1beta1"
+//	...
+//	ctx := context.Background()
+//	firebaseService, err := firebase.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   firebaseService, err := firebase.NewService(ctx, option.WithScopes(firebase.FirebaseReadonlyScope))
+//	firebaseService, err := firebase.NewService(ctx, option.WithScopes(firebase.FirebaseReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   firebaseService, err := firebase.NewService(ctx, option.WithAPIKey("AIza..."))
+//	firebaseService, err := firebase.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   firebaseService, err := firebase.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	firebaseService, err := firebase.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package firebase // import "google.golang.org/api/firebase/v1beta1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "firebase:v1beta1"
 const apiName = "firebase"
@@ -467,21 +468,45 @@ func (s *AnalyticsProperty) MarshalJSON() ([]byte, error) {
 
 // AndroidApp: Details of a Firebase App for Android.
 type AndroidApp struct {
-	// ApiKeyId: The key_id of the GCP ApiKey associated with this App. If
-	// set must have no restrictions, or only have restrictions that are
-	// valid for the associated Firebase App. Cannot be set in create
-	// requests, instead an existing valid API Key will be chosen, or if no
-	// valid API Keys exist, one will be provisioned for you. Cannot be set
-	// to an empty value in update requests.
+	// ApiKeyId: The globally unique, Google-assigned identifier (UID) for
+	// the Firebase API key associated with the `AndroidApp`. Be aware that
+	// this value is the UID of the API key, _not_ the `keyString`
+	// (https://cloud.google.com/api-keys/docs/reference/rest/v2/projects.locations.keys#Key.FIELDS.key_string)
+	// of the API key. The `keyString` is the value that can be found in the
+	// App's configuration artifact
+	// (../../rest/v1beta1/projects.androidApps/getConfig). If `api_key_id`
+	// is not set in requests to `androidApps.Create`
+	// (../../rest/v1beta1/projects.androidApps/create), then Firebase
+	// automatically associates an `api_key_id` with the `AndroidApp`. This
+	// auto-associated key may be an existing valid key or, if no valid key
+	// exists, a new one will be provisioned. In patch requests,
+	// `api_key_id` cannot be set to an empty value, and the new UID must
+	// have no restrictions or only have restrictions that are valid for the
+	// associated `AndroidApp`. We recommend using the Google Cloud Console
+	// (https://console.cloud.google.com/apis/credentials) to manage API
+	// keys.
 	ApiKeyId string `json:"apiKeyId,omitempty"`
 
-	// AppId: Immutable. The globally unique, Firebase-assigned identifier
-	// for the `AndroidApp`. This identifier should be treated as an opaque
-	// token, as the data format is not specified.
+	// AppId: Output only. Immutable. The globally unique, Firebase-assigned
+	// identifier for the `AndroidApp`. This identifier should be treated as
+	// an opaque token, as the data format is not specified.
 	AppId string `json:"appId,omitempty"`
 
 	// DisplayName: The user-assigned display name for the `AndroidApp`.
 	DisplayName string `json:"displayName,omitempty"`
+
+	// Etag: This checksum is computed by the server based on the value of
+	// other fields, and it may be sent with update requests to ensure the
+	// client has an up-to-date value before proceeding. Learn more about
+	// `etag` in Google's AIP-154 standard
+	// (https://google.aip.dev/154#declarative-friendly-resources). This
+	// etag is strongly validated.
+	Etag string `json:"etag,omitempty"`
+
+	// ExpireTime: Output only. Timestamp of when the App will be considered
+	// expired and cannot be undeleted. This value is only provided if the
+	// App is in the `DELETED` state.
+	ExpireTime string `json:"expireTime,omitempty"`
 
 	// Name: The resource name of the AndroidApp, in the format: projects/
 	// PROJECT_IDENTIFIER/androidApps/APP_ID * PROJECT_IDENTIFIER: the
@@ -500,9 +525,28 @@ type AndroidApp struct {
 	// as would appear in the Google Play Developer Console.
 	PackageName string `json:"packageName,omitempty"`
 
-	// ProjectId: Immutable. A user-assigned unique identifier of the parent
-	// FirebaseProject for the `AndroidApp`.
+	// ProjectId: Output only. Immutable. A user-assigned unique identifier
+	// of the parent FirebaseProject for the `AndroidApp`.
 	ProjectId string `json:"projectId,omitempty"`
+
+	// Sha1Hashes: The SHA1 certificate hashes for the AndroidApp.
+	Sha1Hashes []string `json:"sha1Hashes,omitempty"`
+
+	// Sha256Hashes: The SHA256 certificate hashes for the AndroidApp.
+	Sha256Hashes []string `json:"sha256Hashes,omitempty"`
+
+	// State: Output only. The lifecycle state of the App.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Unspecified state.
+	//   "ACTIVE" - The App is active.
+	//   "DELETED" - The App has been soft-deleted. After an App has been in
+	// the `DELETED` state for more than 30 days, it is considered expired
+	// and will be permanently deleted. Up until this time, you can restore
+	// the App by calling `Undelete`
+	// ([Android](projects.androidApps/undelete) |
+	// [iOS](projects.iosApps/undelete) | [web](projects.webApps/undelete)).
+	State string `json:"state,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -572,10 +616,10 @@ func (s *AndroidAppConfig) MarshalJSON() ([]byte, error) {
 
 // DefaultResources: The default resources associated with the Project.
 type DefaultResources struct {
-	// HostingSite: The default Firebase Hosting site name, in the format:
-	// PROJECT_ID Though rare, your `projectId` might already be used as the
-	// name for an existing Hosting site in another project (learn more
-	// about creating non-default, additional sites
+	// HostingSite: Output only. The default Firebase Hosting site name, in
+	// the format: PROJECT_ID Though rare, your `projectId` might already be
+	// used as the name for an existing Hosting site in another project
+	// (learn more about creating non-default, additional sites
 	// (https://firebase.google.com/docs/hosting/multisites)). In these
 	// cases, your `projectId` is appended with a hyphen then five
 	// alphanumeric characters to create your default Hosting site name. For
@@ -583,8 +627,8 @@ type DefaultResources struct {
 	// site name might be: `myproject123-a5c16`
 	HostingSite string `json:"hostingSite,omitempty"`
 
-	// LocationId: The ID of the Project's default GCP resource location.
-	// The location is one of the available GCP resource locations
+	// LocationId: Output only. The ID of the Project's default GCP resource
+	// location. The location is one of the available GCP resource locations
 	// (https://firebase.google.com/docs/projects/locations). This field is
 	// omitted if the default GCP resource location has not been finalized
 	// yet. To set a Project's default GCP resource location, call
@@ -592,8 +636,8 @@ type DefaultResources struct {
 	// after you add Firebase resources to the Project.
 	LocationId string `json:"locationId,omitempty"`
 
-	// RealtimeDatabaseInstance: The default Firebase Realtime Database
-	// instance name, in the format: PROJECT_ID Though rare, your
+	// RealtimeDatabaseInstance: Output only. The default Firebase Realtime
+	// Database instance name, in the format: PROJECT_ID Though rare, your
 	// `projectId` might already be used as the name for an existing
 	// Realtime Database instance in another project (learn more about
 	// database sharding
@@ -604,8 +648,8 @@ type DefaultResources struct {
 	// your default database instance name might be: `myproject123-a5c16`
 	RealtimeDatabaseInstance string `json:"realtimeDatabaseInstance,omitempty"`
 
-	// StorageBucket: The default Cloud Storage for Firebase storage bucket,
-	// in the format: PROJECT_ID.appspot.com
+	// StorageBucket: Output only. The default Cloud Storage for Firebase
+	// storage bucket, in the format: PROJECT_ID.appspot.com
 	StorageBucket string `json:"storageBucket,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "HostingSite") to
@@ -673,6 +717,24 @@ func (s *FinalizeDefaultLocationRequest) MarshalJSON() ([]byte, error) {
 
 // FirebaseAppInfo: A high-level summary of an App.
 type FirebaseAppInfo struct {
+	// ApiKeyId: The globally unique, Google-assigned identifier (UID) for
+	// the Firebase API key associated with the App. Be aware that this
+	// value is the UID of the API key, _not_ the `keyString`
+	// (https://cloud.google.com/api-keys/docs/reference/rest/v2/projects.locations.keys#Key.FIELDS.key_string)
+	// of the API key. The `keyString` is the value that can be found in the
+	// App's configuration artifact (`AndroidApp`
+	// (../../rest/v1beta1/projects.androidApps/getConfig) | `IosApp`
+	// (../../rest/v1beta1/projects.iosApps/getConfig) | `WebApp`
+	// (../../rest/v1beta1/projects.webApps/getConfig)). If `api_key_id` is
+	// not set in requests to create the App (`AndroidApp`
+	// (../../rest/v1beta1/projects.androidApps/create) | `IosApp`
+	// (../../rest/v1beta1/projects.iosApps/create) | `WebApp`
+	// (../../rest/v1beta1/projects.webApps/create)), then Firebase
+	// automatically associates an `api_key_id` with the App. This
+	// auto-associated key may be an existing valid key or, if no valid key
+	// exists, a new one will be provisioned.
+	ApiKeyId string `json:"apiKeyId,omitempty"`
+
 	// AppId: Output only. Immutable. The globally unique, Firebase-assigned
 	// identifier for the `WebApp`. This identifier should be treated as an
 	// opaque token, as the data format is not specified.
@@ -680,6 +742,11 @@ type FirebaseAppInfo struct {
 
 	// DisplayName: The user-assigned display name of the Firebase App.
 	DisplayName string `json:"displayName,omitempty"`
+
+	// ExpireTime: Output only. Timestamp of when the App will be considered
+	// expired and cannot be undeleted. This value is only provided if the
+	// App is in the `DELETED` state.
+	ExpireTime string `json:"expireTime,omitempty"`
 
 	// Name: The resource name of the Firebase App, in the format:
 	// projects/PROJECT_ID /iosApps/APP_ID or
@@ -708,7 +775,20 @@ type FirebaseAppInfo struct {
 	//   "WEB" - The Firebase App is associated with web.
 	Platform string `json:"platform,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "AppId") to
+	// State: Output only. The lifecycle state of the App.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Unspecified state.
+	//   "ACTIVE" - The App is active.
+	//   "DELETED" - The App has been soft-deleted. After an App has been in
+	// the `DELETED` state for more than 30 days, it is considered expired
+	// and will be permanently deleted. Up until this time, you can restore
+	// the App by calling `Undelete`
+	// ([Android](projects.androidApps/undelete) |
+	// [iOS](projects.iosApps/undelete) | [web](projects.webApps/undelete)).
+	State string `json:"state,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ApiKeyId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -716,8 +796,8 @@ type FirebaseAppInfo struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "AppId") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "ApiKeyId") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -743,8 +823,23 @@ func (s *FirebaseAppInfo) MarshalJSON() ([]byte, error) {
 // has the same underlying GCP identifiers (`projectNumber` and
 // `projectId`). This allows for easy interop with Google APIs.
 type FirebaseProject struct {
+	// Annotations: A set of user-defined annotations for the
+	// FirebaseProject. Learn more about annotations in Google's AIP-128
+	// standard (https://google.aip.dev/128#annotations). These annotations
+	// are intended solely for developers and client-side tools. Firebase
+	// services will not mutate this annotations set.
+	Annotations map[string]string `json:"annotations,omitempty"`
+
 	// DisplayName: The user-assigned display name of the Project.
 	DisplayName string `json:"displayName,omitempty"`
+
+	// Etag: This checksum is computed by the server based on the value of
+	// other fields, and it may be sent with update requests to ensure the
+	// client has an up-to-date value before proceeding. Learn more about
+	// `etag` in Google's AIP-154 standard
+	// (https://google.aip.dev/154#declarative-friendly-resources). This
+	// etag is strongly validated.
+	Etag string `json:"etag,omitempty"`
 
 	// Name: The resource name of the Project, in the format:
 	// projects/PROJECT_IDENTIFIER PROJECT_IDENTIFIER: the Project's
@@ -756,38 +851,35 @@ type FirebaseProject struct {
 	// PROJECT_IDENTIFIER in any response body will be the `ProjectId`.
 	Name string `json:"name,omitempty"`
 
-	// ProjectId: Immutable. A user-assigned unique identifier for the
-	// Project. This identifier may appear in URLs or names for some
+	// ProjectId: Output only. Immutable. A user-assigned unique identifier
+	// for the Project. This identifier may appear in URLs or names for some
 	// Firebase resources associated with the Project, but it should
 	// generally be treated as a convenience alias to reference the Project.
 	ProjectId string `json:"projectId,omitempty"`
 
-	// ProjectNumber: Immutable. The globally unique, Google-assigned
-	// canonical identifier for the Project. Use this identifier when
-	// configuring integrations and/or making API calls to Firebase or
-	// third-party services.
+	// ProjectNumber: Output only. Immutable. The globally unique,
+	// Google-assigned canonical identifier for the Project. Use this
+	// identifier when configuring integrations and/or making API calls to
+	// Firebase or third-party services.
 	ProjectNumber int64 `json:"projectNumber,omitempty,string"`
 
-	// Resources: The default Firebase resources associated with the
-	// Project.
+	// Resources: Output only. The default Firebase resources associated
+	// with the Project.
 	Resources *DefaultResources `json:"resources,omitempty"`
 
-	// State: Output only. The lifecycle state of the Project. Updates to
-	// the state must be performed via
-	// com.google.cloudresourcemanager.v1.Projects.DeleteProject and
-	// com.google.cloudresourcemanager.v1.Projects.UndeleteProject
+	// State: Output only. The lifecycle state of the Project.
 	//
 	// Possible values:
 	//   "STATE_UNSPECIFIED" - Unspecified state.
-	//   "ACTIVE" - The normal and active state.
-	//   "DELETED" - The Project has been marked for deletion by the user.
+	//   "ACTIVE" - The Project is active.
+	//   "DELETED" - The Project has been soft-deleted.
 	State string `json:"state,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "DisplayName") to
+	// ForceSendFields is a list of field names (e.g. "Annotations") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -795,7 +887,7 @@ type FirebaseProject struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// NullFields is a list of field names (e.g. "Annotations") to include
 	// in API requests with the JSON null value. By default, fields with
 	// empty values are omitted from API requests. However, any field with
 	// an empty value appearing in NullFields will be sent to the server as
@@ -812,17 +904,28 @@ func (s *FirebaseProject) MarshalJSON() ([]byte, error) {
 
 // IosApp: Details of a Firebase App for iOS.
 type IosApp struct {
-	// ApiKeyId: The key_id of the GCP ApiKey associated with this App. If
-	// set must have no restrictions, or only have restrictions that are
-	// valid for the associated Firebase App. Cannot be set in create
-	// requests, instead an existing valid API Key will be chosen, or if no
-	// valid API Keys exist, one will be provisioned for you. Cannot be set
-	// to an empty value in update requests.
+	// ApiKeyId: The globally unique, Google-assigned identifier (UID) for
+	// the Firebase API key associated with the `IosApp`. Be aware that this
+	// value is the UID of the API key, _not_ the `keyString`
+	// (https://cloud.google.com/api-keys/docs/reference/rest/v2/projects.locations.keys#Key.FIELDS.key_string)
+	// of the API key. The `keyString` is the value that can be found in the
+	// App's configuration artifact
+	// (../../rest/v1beta1/projects.iosApps/getConfig). If `api_key_id` is
+	// not set in requests to `iosApps.Create`
+	// (../../rest/v1beta1/projects.iosApps/create), then Firebase
+	// automatically associates an `api_key_id` with the `IosApp`. This
+	// auto-associated key may be an existing valid key or, if no valid key
+	// exists, a new one will be provisioned. In patch requests,
+	// `api_key_id` cannot be set to an empty value, and the new UID must
+	// have no restrictions or only have restrictions that are valid for the
+	// associated `IosApp`. We recommend using the Google Cloud Console
+	// (https://console.cloud.google.com/apis/credentials) to manage API
+	// keys.
 	ApiKeyId string `json:"apiKeyId,omitempty"`
 
-	// AppId: Immutable. The globally unique, Firebase-assigned identifier
-	// for the `IosApp`. This identifier should be treated as an opaque
-	// token, as the data format is not specified.
+	// AppId: Output only. Immutable. The globally unique, Firebase-assigned
+	// identifier for the `IosApp`. This identifier should be treated as an
+	// opaque token, as the data format is not specified.
 	AppId string `json:"appId,omitempty"`
 
 	// AppStoreId: The automatically generated Apple ID assigned to the iOS
@@ -835,6 +938,19 @@ type IosApp struct {
 
 	// DisplayName: The user-assigned display name for the `IosApp`.
 	DisplayName string `json:"displayName,omitempty"`
+
+	// Etag: This checksum is computed by the server based on the value of
+	// other fields, and it may be sent with update requests to ensure the
+	// client has an up-to-date value before proceeding. Learn more about
+	// `etag` in Google's AIP-154 standard
+	// (https://google.aip.dev/154#declarative-friendly-resources). This
+	// etag is strongly validated.
+	Etag string `json:"etag,omitempty"`
+
+	// ExpireTime: Output only. Timestamp of when the App will be considered
+	// expired and cannot be undeleted. This value is only provided if the
+	// App is in the `DELETED` state.
+	ExpireTime string `json:"expireTime,omitempty"`
 
 	// Name: The resource name of the IosApp, in the format:
 	// projects/PROJECT_IDENTIFIER /iosApps/APP_ID * PROJECT_IDENTIFIER: the
@@ -849,9 +965,22 @@ type IosApp struct {
 	// (see `appId` (../projects.iosApps#IosApp.FIELDS.app_id)).
 	Name string `json:"name,omitempty"`
 
-	// ProjectId: Immutable. A user-assigned unique identifier of the parent
-	// FirebaseProject for the `IosApp`.
+	// ProjectId: Output only. Immutable. A user-assigned unique identifier
+	// of the parent FirebaseProject for the `IosApp`.
 	ProjectId string `json:"projectId,omitempty"`
+
+	// State: Output only. The lifecycle state of the App.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Unspecified state.
+	//   "ACTIVE" - The App is active.
+	//   "DELETED" - The App has been soft-deleted. After an App has been in
+	// the `DELETED` state for more than 30 days, it is considered expired
+	// and will be permanently deleted. Up until this time, you can restore
+	// the App by calling `Undelete`
+	// ([Android](projects.androidApps/undelete) |
+	// [iOS](projects.iosApps/undelete) | [web](projects.webApps/undelete)).
+	State string `json:"state,omitempty"`
 
 	// TeamId: The Apple Developer Team ID associated with the App in the
 	// App Store.
@@ -1322,6 +1451,36 @@ func (s *Operation) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// ProductMetadata: Metadata about a long-running Product operation.
+type ProductMetadata struct {
+	// WarningMessages: List of warnings related to the associated
+	// operation.
+	WarningMessages []string `json:"warningMessages,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "WarningMessages") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "WarningMessages") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ProductMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod ProductMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ProjectInfo: A reference to a Google Cloud Platform (GCP) `Project`.
 type ProjectInfo struct {
 	// DisplayName: The user-assigned display name of the GCP `Project`, for
@@ -1398,6 +1557,139 @@ type RemoveAnalyticsRequest struct {
 
 func (s *RemoveAnalyticsRequest) MarshalJSON() ([]byte, error) {
 	type NoMethod RemoveAnalyticsRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type RemoveAndroidAppRequest struct {
+	// AllowMissing: If set to true, and the App is not found, the request
+	// will succeed but no action will be taken on the server.
+	AllowMissing bool `json:"allowMissing,omitempty"`
+
+	// Etag: Checksum provided in the AndroidApp resource. If provided, this
+	// checksum ensures that the client has an up-to-date value before
+	// proceeding.
+	Etag string `json:"etag,omitempty"`
+
+	// Immediate: Determines whether to _immediately_ delete the AndroidApp.
+	// If set to true, the App is immediately deleted from the Project and
+	// cannot be restored to the Project. If not set, defaults to false,
+	// which means the App will be set to expire in 30 days. Within the 30
+	// days, the App may be restored to the Project using
+	// UndeleteAndroidApp.
+	Immediate bool `json:"immediate,omitempty"`
+
+	// ValidateOnly: If set to true, the request is only validated. The App
+	// will _not_ be removed.
+	ValidateOnly bool `json:"validateOnly,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AllowMissing") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AllowMissing") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RemoveAndroidAppRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod RemoveAndroidAppRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type RemoveIosAppRequest struct {
+	// AllowMissing: If set to true, and the App is not found, the request
+	// will succeed but no action will be taken on the server.
+	AllowMissing bool `json:"allowMissing,omitempty"`
+
+	// Etag: Checksum provided in the IosApp resource. If provided, this
+	// checksum ensures that the client has an up-to-date value before
+	// proceeding.
+	Etag string `json:"etag,omitempty"`
+
+	// Immediate: Determines whether to _immediately_ delete the IosApp. If
+	// set to true, the App is immediately deleted from the Project and
+	// cannot be restored to the Project. If not set, defaults to false,
+	// which means the App will be set to expire in 30 days. Within the 30
+	// days, the App may be restored to the Project using UndeleteIosApp
+	Immediate bool `json:"immediate,omitempty"`
+
+	// ValidateOnly: If set to true, the request is only validated. The App
+	// will _not_ be removed.
+	ValidateOnly bool `json:"validateOnly,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AllowMissing") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AllowMissing") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RemoveIosAppRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod RemoveIosAppRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type RemoveWebAppRequest struct {
+	// AllowMissing: If set to true, and the App is not found, the request
+	// will succeed but no action will be taken on the server.
+	AllowMissing bool `json:"allowMissing,omitempty"`
+
+	// Etag: Checksum provided in the WebApp resource. If provided, this
+	// checksum ensures that the client has an up-to-date value before
+	// proceeding.
+	Etag string `json:"etag,omitempty"`
+
+	// Immediate: Determines whether to _immediately_ delete the WebApp. If
+	// set to true, the App is immediately deleted from the Project and
+	// cannot be restored to the Project. If not set, defaults to false,
+	// which means the App will be set to expire in 30 days. Within the 30
+	// days, the App may be restored to the Project using UndeleteWebApp
+	Immediate bool `json:"immediate,omitempty"`
+
+	// ValidateOnly: If set to true, the request is only validated. The App
+	// will _not_ be removed.
+	ValidateOnly bool `json:"validateOnly,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AllowMissing") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AllowMissing") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RemoveWebAppRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod RemoveWebAppRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1635,19 +1927,129 @@ func (s *StreamMapping) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+type UndeleteAndroidAppRequest struct {
+	// Etag: Checksum provided in the AndroidApp resource. If provided, this
+	// checksum ensures that the client has an up-to-date value before
+	// proceeding.
+	Etag string `json:"etag,omitempty"`
+
+	// ValidateOnly: If set to true, the request is only validated. The App
+	// will _not_ be undeleted.
+	ValidateOnly bool `json:"validateOnly,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Etag") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Etag") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UndeleteAndroidAppRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UndeleteAndroidAppRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type UndeleteIosAppRequest struct {
+	// Etag: Checksum provided in the IosApp resource. If provided, this
+	// checksum ensures that the client has an up-to-date value before
+	// proceeding.
+	Etag string `json:"etag,omitempty"`
+
+	// ValidateOnly: If set to true, the request is only validated. The App
+	// will _not_ be undeleted.
+	ValidateOnly bool `json:"validateOnly,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Etag") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Etag") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UndeleteIosAppRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UndeleteIosAppRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type UndeleteWebAppRequest struct {
+	// Etag: Checksum provided in the WebApp resource. If provided, this
+	// checksum ensures that the client has an up-to-date value before
+	// proceeding.
+	Etag string `json:"etag,omitempty"`
+
+	// ValidateOnly: If set to true, the request is only validated. The App
+	// will _not_ be undeleted.
+	ValidateOnly bool `json:"validateOnly,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Etag") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Etag") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UndeleteWebAppRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod UndeleteWebAppRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // WebApp: Details of a Firebase App for the web.
 type WebApp struct {
-	// ApiKeyId: The key_id of the GCP ApiKey associated with this App. If
-	// set must have no restrictions, or only have restrictions that are
-	// valid for the associated Firebase App. Cannot be set in create
-	// requests, instead an existing valid API Key will be chosen, or if no
-	// valid API Keys exist, one will be provisioned for you. Cannot be set
-	// to an empty value in update requests.
+	// ApiKeyId: The globally unique, Google-assigned identifier (UID) for
+	// the Firebase API key associated with the `WebApp`. Be aware that this
+	// value is the UID of the API key, _not_ the `keyString`
+	// (https://cloud.google.com/api-keys/docs/reference/rest/v2/projects.locations.keys#Key.FIELDS.key_string)
+	// of the API key. The `keyString` is the value that can be found in the
+	// App's configuration artifact
+	// (../../rest/v1beta1/projects.webApps/getConfig). If `api_key_id` is
+	// not set in requests to `webApps.Create`
+	// (../../rest/v1beta1/projects.webApps/create), then Firebase
+	// automatically associates an `api_key_id` with the `WebApp`. This
+	// auto-associated key may be an existing valid key or, if no valid key
+	// exists, a new one will be provisioned. In patch requests,
+	// `api_key_id` cannot be set to an empty value, and the new UID must
+	// have no restrictions or only have restrictions that are valid for the
+	// associated `WebApp`. We recommend using the Google Cloud Console
+	// (https://console.cloud.google.com/apis/credentials) to manage API
+	// keys.
 	ApiKeyId string `json:"apiKeyId,omitempty"`
 
-	// AppId: Immutable. The globally unique, Firebase-assigned identifier
-	// for the `WebApp`. This identifier should be treated as an opaque
-	// token, as the data format is not specified.
+	// AppId: Output only. Immutable. The globally unique, Firebase-assigned
+	// identifier for the `WebApp`. This identifier should be treated as an
+	// opaque token, as the data format is not specified.
 	AppId string `json:"appId,omitempty"`
 
 	// AppUrls: The URLs where the `WebApp` is hosted.
@@ -1655,6 +2057,19 @@ type WebApp struct {
 
 	// DisplayName: The user-assigned display name for the `WebApp`.
 	DisplayName string `json:"displayName,omitempty"`
+
+	// Etag: This checksum is computed by the server based on the value of
+	// other fields, and it may be sent with update requests to ensure the
+	// client has an up-to-date value before proceeding. Learn more about
+	// `etag` in Google's AIP-154 standard
+	// (https://google.aip.dev/154#declarative-friendly-resources). This
+	// etag is strongly validated.
+	Etag string `json:"etag,omitempty"`
+
+	// ExpireTime: Output only. Timestamp of when the App will be considered
+	// expired and cannot be undeleted. This value is only provided if the
+	// App is in the `DELETED` state.
+	ExpireTime string `json:"expireTime,omitempty"`
 
 	// Name: The resource name of the WebApp, in the format:
 	// projects/PROJECT_IDENTIFIER /webApps/APP_ID * PROJECT_IDENTIFIER: the
@@ -1669,9 +2084,22 @@ type WebApp struct {
 	// (see `appId` (../projects.webApps#WebApp.FIELDS.app_id)).
 	Name string `json:"name,omitempty"`
 
-	// ProjectId: Immutable. A user-assigned unique identifier of the parent
-	// FirebaseProject for the `WebApp`.
+	// ProjectId: Output only. Immutable. A user-assigned unique identifier
+	// of the parent FirebaseProject for the `WebApp`.
 	ProjectId string `json:"projectId,omitempty"`
+
+	// State: Output only. The lifecycle state of the App.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Unspecified state.
+	//   "ACTIVE" - The App is active.
+	//   "DELETED" - The App has been soft-deleted. After an App has been in
+	// the `DELETED` state for more than 30 days, it is considered expired
+	// and will be permanently deleted. Up until this time, you can restore
+	// the App by calling `Undelete`
+	// ([Android](projects.androidApps/undelete) |
+	// [iOS](projects.iosApps/undelete) | [web](projects.webApps/undelete)).
+	State string `json:"state,omitempty"`
 
 	// WebId: Output only. Immutable. A unique, Firebase-assigned identifier
 	// for the `WebApp`. This identifier is only used to populate the
@@ -1710,7 +2138,11 @@ func (s *WebApp) MarshalJSON() ([]byte, error) {
 // WebAppConfig: Configuration metadata of a single Firebase App for the
 // web.
 type WebAppConfig struct {
-	// ApiKey: The API key associated with the `WebApp`.
+	// ApiKey: The `keyString`
+	// (https://cloud.google.com/api-keys/docs/reference/rest/v2/projects.locations.keys#Key.FIELDS.key_string)
+	// of the API key associated with the `WebApp`. Note that this value is
+	// _not_ the `apiKeyId` (../projects.webApps#WebApp.FIELDS.api_key_id)
+	// (the UID) of the API key associated with the `WebApp`.
 	ApiKey string `json:"apiKey,omitempty"`
 
 	// AppId: Immutable. The globally unique, Firebase-assigned identifier
@@ -1901,17 +2333,17 @@ func (c *AvailableProjectsListCall) Do(opts ...googleapi.CallOption) (*ListAvail
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAvailableProjectsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2075,17 +2507,17 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2164,17 +2596,17 @@ type ProjectsAddFirebaseCall struct {
 // `resourcemanager.projects.get`, `serviceusage.services.enable`, and
 // `serviceusage.services.get`.
 //
-// - project: The resource name of the GCP `Project` to which Firebase
-//   resources will be added, in the format: projects/PROJECT_IDENTIFIER
-//   Refer to the `FirebaseProject` `name`
-//   (../projects#FirebaseProject.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values. After calling `AddFirebase`, the unique
-//   Project identifiers ( `projectNumber`
-//   (https://cloud.google.com/resource-manager/reference/rest/v1/projects#Project.FIELDS.project_number)
-//   and `projectId`
-//   (https://cloud.google.com/resource-manager/reference/rest/v1/projects#Project.FIELDS.project_id))
-//   of the underlying GCP `Project` are also the identifiers of the
-//   FirebaseProject.
+//   - project: The resource name of the GCP `Project` to which Firebase
+//     resources will be added, in the format: projects/PROJECT_IDENTIFIER
+//     Refer to the `FirebaseProject` `name`
+//     (../projects#FirebaseProject.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values. After calling `AddFirebase`, the unique
+//     Project identifiers ( `projectNumber`
+//     (https://cloud.google.com/resource-manager/reference/rest/v1/projects#Project.FIELDS.project_number)
+//     and `projectId`
+//     (https://cloud.google.com/resource-manager/reference/rest/v1/projects#Project.FIELDS.project_id))
+//     of the underlying GCP `Project` are also the identifiers of the
+//     FirebaseProject.
 func (r *ProjectsService) AddFirebase(projectid string, addfirebaserequest *AddFirebaseRequest) *ProjectsAddFirebaseCall {
 	c := &ProjectsAddFirebaseCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectid = projectid
@@ -2249,17 +2681,17 @@ func (c *ProjectsAddFirebaseCall) Do(opts ...googleapi.CallOption) (*Operation, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2355,11 +2787,11 @@ type ProjectsAddGoogleAnalyticsCall struct {
 // `regionCode` in the call to `AddFirebase`
 // (../../v1beta1/projects/addFirebase).
 //
-// - parent: The resource name of the FirebaseProject to link to an
-//   existing Google Analytics account, in the format:
-//   projects/PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
-//   (../projects#FirebaseProject.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the FirebaseProject to link to an
+//     existing Google Analytics account, in the format:
+//     projects/PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
+//     (../projects#FirebaseProject.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values.
 func (r *ProjectsService) AddGoogleAnalytics(parent string, addgoogleanalyticsrequest *AddGoogleAnalyticsRequest) *ProjectsAddGoogleAnalyticsCall {
 	c := &ProjectsAddGoogleAnalyticsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2434,17 +2866,17 @@ func (c *ProjectsAddGoogleAnalyticsCall) Do(opts ...googleapi.CallOption) (*Oper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2502,10 +2934,10 @@ type ProjectsGetCall struct {
 
 // Get: Gets the specified FirebaseProject.
 //
-// - name: The resource name of the FirebaseProject, in the format:
-//   projects/ PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
-//   (../projects#FirebaseProject.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values.
+//   - name: The resource name of the FirebaseProject, in the format:
+//     projects/ PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
+//     (../projects#FirebaseProject.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values.
 func (r *ProjectsService) Get(name string) *ProjectsGetCall {
 	c := &ProjectsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2587,17 +3019,17 @@ func (c *ProjectsGetCall) Do(opts ...googleapi.CallOption) (*FirebaseProject, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FirebaseProject{
 		ServerResponse: googleapi.ServerResponse{
@@ -2659,10 +3091,10 @@ type ProjectsGetAdminSdkConfigCall struct {
 // (https://firebase.google.com/docs/admin/setup#initialize_the_sdk)
 // command.
 //
-// - name: The resource name of the FirebaseProject, in the format:
-//   projects/ PROJECT_IDENTIFIER/adminSdkConfig Refer to the
-//   `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
-//   field for details about PROJECT_IDENTIFIER values.
+//   - name: The resource name of the FirebaseProject, in the format:
+//     projects/ PROJECT_IDENTIFIER/adminSdkConfig Refer to the
+//     `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
+//     field for details about PROJECT_IDENTIFIER values.
 func (r *ProjectsService) GetAdminSdkConfig(name string) *ProjectsGetAdminSdkConfigCall {
 	c := &ProjectsGetAdminSdkConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2744,17 +3176,17 @@ func (c *ProjectsGetAdminSdkConfigCall) Do(opts ...googleapi.CallOption) (*Admin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AdminSdkConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -2814,10 +3246,10 @@ type ProjectsGetAnalyticsDetailsCall struct {
 // `FirebaseProject` is not yet linked to Google Analytics, then the
 // response to `GetAnalyticsDetails` is `NOT_FOUND`.
 //
-// - name: The resource name of the FirebaseProject, in the format:
-//   projects/ PROJECT_IDENTIFIER/analyticsDetails Refer to the
-//   `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
-//   field for details about PROJECT_IDENTIFIER values.
+//   - name: The resource name of the FirebaseProject, in the format:
+//     projects/ PROJECT_IDENTIFIER/analyticsDetails Refer to the
+//     `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
+//     field for details about PROJECT_IDENTIFIER values.
 func (r *ProjectsService) GetAnalyticsDetails(name string) *ProjectsGetAnalyticsDetailsCall {
 	c := &ProjectsGetAnalyticsDetailsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2899,17 +3331,17 @@ func (c *ProjectsGetAnalyticsDetailsCall) Do(opts ...googleapi.CallOption) (*Ana
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AnalyticsDetails{
 		ServerResponse: googleapi.ServerResponse{
@@ -2995,6 +3427,14 @@ func (c *ProjectsListCall) PageToken(pageToken string) *ProjectsListCall {
 	return c
 }
 
+// ShowDeleted sets the optional parameter "showDeleted": Controls
+// whether Projects in the DELETED state should be returned in the
+// response. If not specified, only `ACTIVE` Projects will be returned.
+func (c *ProjectsListCall) ShowDeleted(showDeleted bool) *ProjectsListCall {
+	c.urlParams_.Set("showDeleted", fmt.Sprint(showDeleted))
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -3067,17 +3507,17 @@ func (c *ProjectsListCall) Do(opts ...googleapi.CallOption) (*ListFirebaseProjec
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFirebaseProjectsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3107,6 +3547,11 @@ func (c *ProjectsListCall) Do(opts ...googleapi.CallOption) (*ListFirebaseProjec
 	//       "description": "Token returned from a previous call to `ListFirebaseProjects` indicating where in the set of Projects to resume listing.",
 	//       "location": "query",
 	//       "type": "string"
+	//     },
+	//     "showDeleted": {
+	//       "description": "Optional. Controls whether Projects in the DELETED state should be returned in the response. If not specified, only `ACTIVE` Projects will be returned.",
+	//       "location": "query",
+	//       "type": "boolean"
 	//     }
 	//   },
 	//   "path": "v1beta1/projects",
@@ -3158,14 +3603,14 @@ type ProjectsPatchCall struct {
 // Patch: Updates the attributes of the specified FirebaseProject. All
 // query parameters (#query-parameters) are required.
 //
-// - name: The resource name of the Project, in the format:
-//   projects/PROJECT_IDENTIFIER PROJECT_IDENTIFIER: the Project's
-//   `ProjectNumber` (../projects#FirebaseProject.FIELDS.project_number)
-//   ***(recommended)*** or its `ProjectId`
-//   (../projects#FirebaseProject.FIELDS.project_id). Learn more about
-//   using project identifiers in Google's AIP 2510 standard
-//   (https://google.aip.dev/cloud/2510). Note that the value for
-//   PROJECT_IDENTIFIER in any response body will be the `ProjectId`.
+//   - name: The resource name of the Project, in the format:
+//     projects/PROJECT_IDENTIFIER PROJECT_IDENTIFIER: the Project's
+//     `ProjectNumber` (../projects#FirebaseProject.FIELDS.project_number)
+//     ***(recommended)*** or its `ProjectId`
+//     (../projects#FirebaseProject.FIELDS.project_id). Learn more about
+//     using project identifiers in Google's AIP 2510 standard
+//     (https://google.aip.dev/cloud/2510). Note that the value for
+//     PROJECT_IDENTIFIER in any response body will be the `ProjectId`.
 func (r *ProjectsService) Patch(nameid string, firebaseproject *FirebaseProject) *ProjectsPatchCall {
 	c := &ProjectsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -3174,9 +3619,13 @@ func (r *ProjectsService) Patch(nameid string, firebaseproject *FirebaseProject)
 }
 
 // UpdateMask sets the optional parameter "updateMask": Specifies which
-// fields to update. If this list is empty, then no state will be
-// updated. Note that the fields `name`, `projectId`, and
-// `projectNumber` are all immutable.
+// fields of the FirebaseProject to update. Note that the following
+// fields are immutable: `name`, `project_id`, and `project_number`. To
+// update `state`, use any of the following Google Cloud endpoints:
+// `projects.delete`
+// (https://cloud.google.com/resource-manager/reference/rest/v1/projects/delete)
+// or `projects.undelete`
+// (https://cloud.google.com/resource-manager/reference/rest/v1/projects/undelete)
 func (c *ProjectsPatchCall) UpdateMask(updateMask string) *ProjectsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -3249,17 +3698,17 @@ func (c *ProjectsPatchCall) Do(opts ...googleapi.CallOption) (*FirebaseProject, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FirebaseProject{
 		ServerResponse: googleapi.ServerResponse{
@@ -3289,7 +3738,7 @@ func (c *ProjectsPatchCall) Do(opts ...googleapi.CallOption) (*FirebaseProject, 
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Specifies which fields to update. If this list is empty, then no state will be updated. Note that the fields `name`, `projectId`, and `projectNumber` are all immutable.",
+	//       "description": "Specifies which fields of the FirebaseProject to update. Note that the following fields are immutable: `name`, `project_id`, and `project_number`. To update `state`, use any of the following Google Cloud endpoints: [`projects.delete`](https://cloud.google.com/resource-manager/reference/rest/v1/projects/delete) or [`projects.undelete`](https://cloud.google.com/resource-manager/reference/rest/v1/projects/undelete)",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -3335,11 +3784,11 @@ type ProjectsRemoveAnalyticsCall struct {
 // call `RemoveAnalytics`, a project member must be an Owner for the
 // `FirebaseProject`.
 //
-// - parent: The resource name of the FirebaseProject to unlink from its
-//   Google Analytics account, in the format:
-//   projects/PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
-//   (../projects#FirebaseProject.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the FirebaseProject to unlink from its
+//     Google Analytics account, in the format:
+//     projects/PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
+//     (../projects#FirebaseProject.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values.
 func (r *ProjectsService) RemoveAnalytics(parent string, removeanalyticsrequest *RemoveAnalyticsRequest) *ProjectsRemoveAnalyticsCall {
 	c := &ProjectsRemoveAnalyticsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3414,17 +3863,17 @@ func (c *ProjectsRemoveAnalyticsCall) Do(opts ...googleapi.CallOption) (*Empty, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3486,10 +3935,10 @@ type ProjectsSearchAppsCall struct {
 // some tool use-cases require a summary of all known Apps (such as for
 // App selector interfaces).
 //
-// - parent: The parent FirebaseProject for which to list Apps, in the
-//   format: projects/ PROJECT_IDENTIFIER Refer to the `FirebaseProject`
-//   `name` (../projects#FirebaseProject.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER values.
+//   - parent: The parent FirebaseProject for which to list Apps, in the
+//     format: projects/ PROJECT_IDENTIFIER Refer to the `FirebaseProject`
+//     `name` (../projects#FirebaseProject.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER values.
 func (r *ProjectsService) SearchApps(parent string) *ProjectsSearchAppsCall {
 	c := &ProjectsSearchAppsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3497,26 +3946,29 @@ func (r *ProjectsService) SearchApps(parent string) *ProjectsSearchAppsCall {
 }
 
 // Filter sets the optional parameter "filter": A query string
-// compatible with Google's AIP-160 (https://google.aip.dev/160)
-// standard. Use any of the following fields in a query: * `app_id`
-// (../projects.apps#FirebaseAppInfo.FIELDS.app_id) * `namespace`
-// (../projects.apps#FirebaseAppInfo.FIELDS.namespace) * `platform`
-// (../projects.apps#FirebaseAppInfo.FIELDS.platform) We also support
-// the following "virtual" fields (fields which are not actually part of
-// the returned resource object, but can be queried as if they are
-// pre-populated with specific values): * `sha1_hash`: This field is
-// considered to be a repeated `string` field, populated with the list
-// of all SHA-1 certificate fingerprints registered with the app. This
-// list is empty if the app is not an Android app. * `sha256_hash`: This
-// field is considered to be a repeated `string` field, populated with
-// the list of all SHA-256 certificate fingerprints registered with the
-// app. This list is empty if the app is not an Android app. *
-// `app_store_id`: This field is considered to be a singular `string`
-// field, populated with the Apple App Store ID registered with the app.
-// This field is empty if the app is not an iOS app. * `team_id`: This
-// field is considered to be a singular `string` field, populated with
-// the Apple team ID registered with the app. This field is empty if the
-// app is not an iOS app.
+// compatible with Google's AIP-160 standard
+// (https://google.aip.dev/160). Use any of the following fields in a
+// query: * `app_id`
+// (../projects/searchApps#FirebaseAppInfo.FIELDS.app_id) * `namespace`
+// (../projects/searchApps#FirebaseAppInfo.FIELDS.namespace) *
+// `platform` (../projects/searchApps#FirebaseAppInfo.FIELDS.platform)
+// This query also supports the following "virtual" fields. These are
+// fields which are not actually part of the returned resource object,
+// but they can be queried as if they are pre-populated with specific
+// values. * `sha1_hash` or `sha1_hashes`: This field is considered to
+// be a _repeated_ `string` field, populated with the list of all SHA-1
+// certificate fingerprints registered with the AndroidApp. This list is
+// empty if the App is not an `AndroidApp`. * `sha256_hash` or
+// `sha256_hashes`: This field is considered to be a _repeated_ `string`
+// field, populated with the list of all SHA-256 certificate
+// fingerprints registered with the AndroidApp. This list is empty if
+// the App is not an `AndroidApp`. * `app_store_id`: This field is
+// considered to be a _singular_ `string` field, populated with the
+// Apple App Store ID registered with the IosApp. This field is empty if
+// the App is not an `IosApp`. * `team_id`: This field is considered to
+// be a _singular_ `string` field, populated with the Apple team ID
+// registered with the IosApp. This field is empty if the App is not an
+// `IosApp`.
 func (c *ProjectsSearchAppsCall) Filter(filter string) *ProjectsSearchAppsCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -3537,6 +3989,14 @@ func (c *ProjectsSearchAppsCall) PageSize(pageSize int64) *ProjectsSearchAppsCal
 // set of Apps to resume listing.
 func (c *ProjectsSearchAppsCall) PageToken(pageToken string) *ProjectsSearchAppsCall {
 	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// ShowDeleted sets the optional parameter "showDeleted": Controls
+// whether Apps in the DELETED state should be returned. If not
+// specified, only `ACTIVE` Apps will be returned.
+func (c *ProjectsSearchAppsCall) ShowDeleted(showDeleted bool) *ProjectsSearchAppsCall {
+	c.urlParams_.Set("showDeleted", fmt.Sprint(showDeleted))
 	return c
 }
 
@@ -3615,17 +4075,17 @@ func (c *ProjectsSearchAppsCall) Do(opts ...googleapi.CallOption) (*SearchFireba
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchFirebaseAppsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3648,7 +4108,7 @@ func (c *ProjectsSearchAppsCall) Do(opts ...googleapi.CallOption) (*SearchFireba
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "A query string compatible with Google's [AIP-160](https://google.aip.dev/160) standard. Use any of the following fields in a query: * [`app_id`](../projects.apps#FirebaseAppInfo.FIELDS.app_id) * [`namespace`](../projects.apps#FirebaseAppInfo.FIELDS.namespace) * [`platform`](../projects.apps#FirebaseAppInfo.FIELDS.platform) We also support the following \"virtual\" fields (fields which are not actually part of the returned resource object, but can be queried as if they are pre-populated with specific values): * `sha1_hash`: This field is considered to be a repeated `string` field, populated with the list of all SHA-1 certificate fingerprints registered with the app. This list is empty if the app is not an Android app. * `sha256_hash`: This field is considered to be a repeated `string` field, populated with the list of all SHA-256 certificate fingerprints registered with the app. This list is empty if the app is not an Android app. * `app_store_id`: This field is considered to be a singular `string` field, populated with the Apple App Store ID registered with the app. This field is empty if the app is not an iOS app. * `team_id`: This field is considered to be a singular `string` field, populated with the Apple team ID registered with the app. This field is empty if the app is not an iOS app.",
+	//       "description": "A query string compatible with Google's [AIP-160 standard](https://google.aip.dev/160). Use any of the following fields in a query: * [`app_id`](../projects/searchApps#FirebaseAppInfo.FIELDS.app_id) * [`namespace`](../projects/searchApps#FirebaseAppInfo.FIELDS.namespace) * [`platform`](../projects/searchApps#FirebaseAppInfo.FIELDS.platform) This query also supports the following \"virtual\" fields. These are fields which are not actually part of the returned resource object, but they can be queried as if they are pre-populated with specific values. * `sha1_hash` or `sha1_hashes`: This field is considered to be a _repeated_ `string` field, populated with the list of all SHA-1 certificate fingerprints registered with the AndroidApp. This list is empty if the App is not an `AndroidApp`. * `sha256_hash` or `sha256_hashes`: This field is considered to be a _repeated_ `string` field, populated with the list of all SHA-256 certificate fingerprints registered with the AndroidApp. This list is empty if the App is not an `AndroidApp`. * `app_store_id`: This field is considered to be a _singular_ `string` field, populated with the Apple App Store ID registered with the IosApp. This field is empty if the App is not an `IosApp`. * `team_id`: This field is considered to be a _singular_ `string` field, populated with the Apple team ID registered with the IosApp. This field is empty if the App is not an `IosApp`.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -3669,6 +4129,11 @@ func (c *ProjectsSearchAppsCall) Do(opts ...googleapi.CallOption) (*SearchFireba
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
 	//       "type": "string"
+	//     },
+	//     "showDeleted": {
+	//       "description": "Controls whether Apps in the DELETED state should be returned. If not specified, only `ACTIVE` Apps will be returned.",
+	//       "location": "query",
+	//       "type": "boolean"
 	//     }
 	//   },
 	//   "path": "v1beta1/{+parent}:searchApps",
@@ -3723,11 +4188,11 @@ type ProjectsAndroidAppsCreateCall struct {
 // automatically deleted after completion, so there is no need to call
 // `DeleteOperation`.
 //
-// - parent: The resource name of the parent FirebaseProject in which to
-//   create an AndroidApp, in the format:
-//   projects/PROJECT_IDENTIFIER/androidApps Refer to the
-//   `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
-//   field for details about PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the parent FirebaseProject in which to
+//     create an AndroidApp, in the format:
+//     projects/PROJECT_IDENTIFIER/androidApps Refer to the
+//     `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
+//     field for details about PROJECT_IDENTIFIER values.
 func (r *ProjectsAndroidAppsService) Create(parent string, androidapp *AndroidApp) *ProjectsAndroidAppsCreateCall {
 	c := &ProjectsAndroidAppsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3802,17 +4267,17 @@ func (c *ProjectsAndroidAppsCreateCall) Do(opts ...googleapi.CallOption) (*Opera
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3870,13 +4335,13 @@ type ProjectsAndroidAppsGetCall struct {
 
 // Get: Gets the specified AndroidApp.
 //
-// - name: The resource name of the AndroidApp, in the format: projects/
-//   PROJECT_IDENTIFIER/androidApps/APP_ID Since an APP_ID is a unique
-//   identifier, the Unique Resource from Sub-Collection access pattern
-//   may be used here, in the format: projects/-/androidApps/APP_ID
-//   Refer to the `AndroidApp` `name`
-//   (../projects.androidApps#AndroidApp.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER and APP_ID values.
+//   - name: The resource name of the AndroidApp, in the format: projects/
+//     PROJECT_IDENTIFIER/androidApps/APP_ID Since an APP_ID is a unique
+//     identifier, the Unique Resource from Sub-Collection access pattern
+//     may be used here, in the format: projects/-/androidApps/APP_ID
+//     Refer to the `AndroidApp` `name`
+//     (../projects.androidApps#AndroidApp.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsAndroidAppsService) Get(nameid string) *ProjectsAndroidAppsGetCall {
 	c := &ProjectsAndroidAppsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -3958,17 +4423,17 @@ func (c *ProjectsAndroidAppsGetCall) Do(opts ...googleapi.CallOption) (*AndroidA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AndroidApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -4026,14 +4491,14 @@ type ProjectsAndroidAppsGetConfigCall struct {
 // GetConfig: Gets the configuration artifact associated with the
 // specified AndroidApp.
 //
-// - name: The resource name of the AndroidApp configuration to
-//   download, in the format:
-//   projects/PROJECT_IDENTIFIER/androidApps/APP_ID/config Since an
-//   APP_ID is a unique identifier, the Unique Resource from
-//   Sub-Collection access pattern may be used here, in the format:
-//   projects/-/androidApps/APP_ID Refer to the `AndroidApp` `name`
-//   (../projects.androidApps#AndroidApp.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER and APP_ID values.
+//   - name: The resource name of the AndroidApp configuration to
+//     download, in the format:
+//     projects/PROJECT_IDENTIFIER/androidApps/APP_ID/config Since an
+//     APP_ID is a unique identifier, the Unique Resource from
+//     Sub-Collection access pattern may be used here, in the format:
+//     projects/-/androidApps/APP_ID Refer to the `AndroidApp` `name`
+//     (../projects.androidApps#AndroidApp.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsAndroidAppsService) GetConfig(nameid string) *ProjectsAndroidAppsGetConfigCall {
 	c := &ProjectsAndroidAppsGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -4115,17 +4580,17 @@ func (c *ProjectsAndroidAppsGetConfigCall) Do(opts ...googleapi.CallOption) (*An
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AndroidAppConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -4185,11 +4650,11 @@ type ProjectsAndroidAppsListCall struct {
 // but will be a consistent view of the Apps when additional requests
 // are made with a `pageToken`.
 //
-// - parent: The resource name of the parent FirebaseProject for which
-//   to list each associated AndroidApp, in the format:
-//   projects/PROJECT_IDENTIFIER /androidApps Refer to the
-//   `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
-//   field for details about PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the parent FirebaseProject for which
+//     to list each associated AndroidApp, in the format:
+//     projects/PROJECT_IDENTIFIER /androidApps Refer to the
+//     `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
+//     field for details about PROJECT_IDENTIFIER values.
 func (r *ProjectsAndroidAppsService) List(parent string) *ProjectsAndroidAppsListCall {
 	c := &ProjectsAndroidAppsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4210,6 +4675,14 @@ func (c *ProjectsAndroidAppsListCall) PageSize(pageSize int64) *ProjectsAndroidA
 // of Apps to resume listing.
 func (c *ProjectsAndroidAppsListCall) PageToken(pageToken string) *ProjectsAndroidAppsListCall {
 	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// ShowDeleted sets the optional parameter "showDeleted": Controls
+// whether Apps in the DELETED state should be returned in the response.
+// If not specified, only `ACTIVE` Apps will be returned.
+func (c *ProjectsAndroidAppsListCall) ShowDeleted(showDeleted bool) *ProjectsAndroidAppsListCall {
+	c.urlParams_.Set("showDeleted", fmt.Sprint(showDeleted))
 	return c
 }
 
@@ -4288,17 +4761,17 @@ func (c *ProjectsAndroidAppsListCall) Do(opts ...googleapi.CallOption) (*ListAnd
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAndroidAppsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4337,6 +4810,11 @@ func (c *ProjectsAndroidAppsListCall) Do(opts ...googleapi.CallOption) (*ListAnd
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
 	//       "type": "string"
+	//     },
+	//     "showDeleted": {
+	//       "description": "Controls whether Apps in the DELETED state should be returned in the response. If not specified, only `ACTIVE` Apps will be returned.",
+	//       "location": "query",
+	//       "type": "boolean"
 	//     }
 	//   },
 	//   "path": "v1beta1/{+parent}/androidApps",
@@ -4387,18 +4865,18 @@ type ProjectsAndroidAppsPatchCall struct {
 
 // Patch: Updates the attributes of the specified AndroidApp.
 //
-// - name: The resource name of the AndroidApp, in the format: projects/
-//   PROJECT_IDENTIFIER/androidApps/APP_ID * PROJECT_IDENTIFIER: the
-//   parent Project's `ProjectNumber`
-//   (../projects#FirebaseProject.FIELDS.project_number)
-//   ***(recommended)*** or its `ProjectId`
-//   (../projects#FirebaseProject.FIELDS.project_id). Learn more about
-//   using project identifiers in Google's AIP 2510 standard
-//   (https://google.aip.dev/cloud/2510). Note that the value for
-//   PROJECT_IDENTIFIER in any response body will be the `ProjectId`. *
-//   APP_ID: the globally unique, Firebase-assigned identifier for the
-//   App (see `appId`
-//   (../projects.androidApps#AndroidApp.FIELDS.app_id)).
+//   - name: The resource name of the AndroidApp, in the format: projects/
+//     PROJECT_IDENTIFIER/androidApps/APP_ID * PROJECT_IDENTIFIER: the
+//     parent Project's `ProjectNumber`
+//     (../projects#FirebaseProject.FIELDS.project_number)
+//     ***(recommended)*** or its `ProjectId`
+//     (../projects#FirebaseProject.FIELDS.project_id). Learn more about
+//     using project identifiers in Google's AIP 2510 standard
+//     (https://google.aip.dev/cloud/2510). Note that the value for
+//     PROJECT_IDENTIFIER in any response body will be the `ProjectId`. *
+//     APP_ID: the globally unique, Firebase-assigned identifier for the
+//     App (see `appId`
+//     (../projects.androidApps#AndroidApp.FIELDS.app_id)).
 func (r *ProjectsAndroidAppsService) Patch(nameid string, androidapp *AndroidApp) *ProjectsAndroidAppsPatchCall {
 	c := &ProjectsAndroidAppsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -4407,8 +4885,10 @@ func (r *ProjectsAndroidAppsService) Patch(nameid string, androidapp *AndroidApp
 }
 
 // UpdateMask sets the optional parameter "updateMask": Specifies which
-// fields to update. Note that the fields `name`, `app_id`,
-// `project_id`, and `package_name` are all immutable.
+// fields of the AndroidApp to update. Note that the following fields
+// are immutable: `name`, `app_id`, `project_id`, and `package_name`. To
+// update `state`, use any of the following endpoints: RemoveAndroidApp
+// or UndeleteAndroidApp.
 func (c *ProjectsAndroidAppsPatchCall) UpdateMask(updateMask string) *ProjectsAndroidAppsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -4481,17 +4961,17 @@ func (c *ProjectsAndroidAppsPatchCall) Do(opts ...googleapi.CallOption) (*Androi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AndroidApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -4521,7 +5001,7 @@ func (c *ProjectsAndroidAppsPatchCall) Do(opts ...googleapi.CallOption) (*Androi
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Specifies which fields to update. Note that the fields `name`, `app_id`, `project_id`, and `package_name` are all immutable.",
+	//       "description": "Specifies which fields of the AndroidApp to update. Note that the following fields are immutable: `name`, `app_id`, `project_id`, and `package_name`. To update `state`, use any of the following endpoints: RemoveAndroidApp or UndeleteAndroidApp.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -4533,6 +5013,304 @@ func (c *ProjectsAndroidAppsPatchCall) Do(opts ...googleapi.CallOption) (*Androi
 	//   },
 	//   "response": {
 	//     "$ref": "AndroidApp"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/firebase"
+	//   ]
+	// }
+
+}
+
+// method id "firebase.projects.androidApps.remove":
+
+type ProjectsAndroidAppsRemoveCall struct {
+	s                       *Service
+	nameid                  string
+	removeandroidapprequest *RemoveAndroidAppRequest
+	urlParams_              gensupport.URLParams
+	ctx_                    context.Context
+	header_                 http.Header
+}
+
+// Remove: Removes the specified AndroidApp from the FirebaseProject.
+//
+//   - name: The resource name of the AndroidApp, in the format: projects/
+//     PROJECT_IDENTIFIER/androidApps/APP_ID Since an APP_ID is a unique
+//     identifier, the Unique Resource from Sub-Collection access pattern
+//     may be used here, in the format: projects/-/androidApps/APP_ID
+//     Refer to the AndroidApp name
+//     (../projects.androidApps#AndroidApp.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER and APP_ID values.
+func (r *ProjectsAndroidAppsService) Remove(nameid string, removeandroidapprequest *RemoveAndroidAppRequest) *ProjectsAndroidAppsRemoveCall {
+	c := &ProjectsAndroidAppsRemoveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.nameid = nameid
+	c.removeandroidapprequest = removeandroidapprequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsAndroidAppsRemoveCall) Fields(s ...googleapi.Field) *ProjectsAndroidAppsRemoveCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsAndroidAppsRemoveCall) Context(ctx context.Context) *ProjectsAndroidAppsRemoveCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsAndroidAppsRemoveCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsAndroidAppsRemoveCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.removeandroidapprequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:remove")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.nameid,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebase.projects.androidApps.remove" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsAndroidAppsRemoveCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Removes the specified AndroidApp from the FirebaseProject.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/androidApps/{androidAppsId}:remove",
+	//   "httpMethod": "POST",
+	//   "id": "firebase.projects.androidApps.remove",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the AndroidApp, in the format: projects/ PROJECT_IDENTIFIER/androidApps/APP_ID Since an APP_ID is a unique identifier, the Unique Resource from Sub-Collection access pattern may be used here, in the format: projects/-/androidApps/APP_ID Refer to the AndroidApp [name](../projects.androidApps#AndroidApp.FIELDS.name) field for details about PROJECT_IDENTIFIER and APP_ID values.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/androidApps/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:remove",
+	//   "request": {
+	//     "$ref": "RemoveAndroidAppRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/firebase"
+	//   ]
+	// }
+
+}
+
+// method id "firebase.projects.androidApps.undelete":
+
+type ProjectsAndroidAppsUndeleteCall struct {
+	s                         *Service
+	nameid                    string
+	undeleteandroidapprequest *UndeleteAndroidAppRequest
+	urlParams_                gensupport.URLParams
+	ctx_                      context.Context
+	header_                   http.Header
+}
+
+// Undelete: Restores the specified AndroidApp to the FirebaseProject.
+//
+//   - name: The resource name of the AndroidApp, in the format: projects/
+//     PROJECT_IDENTIFIER/androidApps/APP_ID Since an APP_ID is a unique
+//     identifier, the Unique Resource from Sub-Collection access pattern
+//     may be used here, in the format: projects/-/androidApps/APP_ID
+//     Refer to the AndroidApp name
+//     (../projects.androidApps#AndroidApp.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER and APP_ID values.
+func (r *ProjectsAndroidAppsService) Undelete(nameid string, undeleteandroidapprequest *UndeleteAndroidAppRequest) *ProjectsAndroidAppsUndeleteCall {
+	c := &ProjectsAndroidAppsUndeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.nameid = nameid
+	c.undeleteandroidapprequest = undeleteandroidapprequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsAndroidAppsUndeleteCall) Fields(s ...googleapi.Field) *ProjectsAndroidAppsUndeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsAndroidAppsUndeleteCall) Context(ctx context.Context) *ProjectsAndroidAppsUndeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsAndroidAppsUndeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsAndroidAppsUndeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.undeleteandroidapprequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:undelete")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.nameid,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebase.projects.androidApps.undelete" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsAndroidAppsUndeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Restores the specified AndroidApp to the FirebaseProject.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/androidApps/{androidAppsId}:undelete",
+	//   "httpMethod": "POST",
+	//   "id": "firebase.projects.androidApps.undelete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the AndroidApp, in the format: projects/ PROJECT_IDENTIFIER/androidApps/APP_ID Since an APP_ID is a unique identifier, the Unique Resource from Sub-Collection access pattern may be used here, in the format: projects/-/androidApps/APP_ID Refer to the AndroidApp [name](../projects.androidApps#AndroidApp.FIELDS.name) field for details about PROJECT_IDENTIFIER and APP_ID values.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/androidApps/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:undelete",
+	//   "request": {
+	//     "$ref": "UndeleteAndroidAppRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
@@ -4555,14 +5333,14 @@ type ProjectsAndroidAppsShaCreateCall struct {
 
 // Create: Adds a ShaCertificate to the specified AndroidApp.
 //
-// - parent: The resource name of the parent AndroidApp to which to add
-//   a ShaCertificate, in the format:
-//   projects/PROJECT_IDENTIFIER/androidApps/ APP_ID Since an APP_ID is
-//   a unique identifier, the Unique Resource from Sub-Collection access
-//   pattern may be used here, in the format:
-//   projects/-/androidApps/APP_ID Refer to the `AndroidApp` `name`
-//   (../projects.androidApps#AndroidApp.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER and APP_ID values.
+//   - parent: The resource name of the parent AndroidApp to which to add
+//     a ShaCertificate, in the format:
+//     projects/PROJECT_IDENTIFIER/androidApps/ APP_ID Since an APP_ID is
+//     a unique identifier, the Unique Resource from Sub-Collection access
+//     pattern may be used here, in the format:
+//     projects/-/androidApps/APP_ID Refer to the `AndroidApp` `name`
+//     (../projects.androidApps#AndroidApp.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsAndroidAppsShaService) Create(parentid string, shacertificate *ShaCertificate) *ProjectsAndroidAppsShaCreateCall {
 	c := &ProjectsAndroidAppsShaCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -4637,17 +5415,17 @@ func (c *ProjectsAndroidAppsShaCreateCall) Do(opts ...googleapi.CallOption) (*Sh
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ShaCertificate{
 		ServerResponse: googleapi.ServerResponse{
@@ -4704,16 +5482,16 @@ type ProjectsAndroidAppsShaDeleteCall struct {
 
 // Delete: Removes a ShaCertificate from the specified AndroidApp.
 //
-// - name: The resource name of the ShaCertificate to remove from the
-//   parent AndroidApp, in the format:
-//   projects/PROJECT_IDENTIFIER/androidApps/APP_ID /sha/SHA_HASH Refer
-//   to the `ShaCertificate` `name`
-//   (../projects.androidApps.sha#ShaCertificate.FIELDS.name) field for
-//   details about PROJECT_IDENTIFIER, APP_ID, and SHA_HASH values. You
-//   can obtain the full resource name of the `ShaCertificate` from the
-//   response of `ListShaCertificates`
-//   (../projects.androidApps.sha/list) or the original
-//   `CreateShaCertificate` (../projects.androidApps.sha/create).
+//   - name: The resource name of the ShaCertificate to remove from the
+//     parent AndroidApp, in the format:
+//     projects/PROJECT_IDENTIFIER/androidApps/APP_ID /sha/SHA_HASH Refer
+//     to the `ShaCertificate` `name`
+//     (../projects.androidApps.sha#ShaCertificate.FIELDS.name) field for
+//     details about PROJECT_IDENTIFIER, APP_ID, and SHA_HASH values. You
+//     can obtain the full resource name of the `ShaCertificate` from the
+//     response of `ListShaCertificates`
+//     (../projects.androidApps.sha/list) or the original
+//     `CreateShaCertificate` (../projects.androidApps.sha/create).
 func (r *ProjectsAndroidAppsShaService) Delete(name string) *ProjectsAndroidAppsShaDeleteCall {
 	c := &ProjectsAndroidAppsShaDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4782,17 +5560,17 @@ func (c *ProjectsAndroidAppsShaDeleteCall) Do(opts ...googleapi.CallOption) (*Em
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4848,14 +5626,14 @@ type ProjectsAndroidAppsShaListCall struct {
 // List: Lists the SHA-1 and SHA-256 certificates for the specified
 // AndroidApp.
 //
-// - parent: The resource name of the parent AndroidApp for which to
-//   list each associated ShaCertificate, in the format:
-//   projects/PROJECT_IDENTIFIER /androidApps/APP_ID Since an APP_ID is
-//   a unique identifier, the Unique Resource from Sub-Collection access
-//   pattern may be used here, in the format:
-//   projects/-/androidApps/APP_ID Refer to the `AndroidApp` `name`
-//   (../projects.androidApps#AndroidApp.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER and APP_ID values.
+//   - parent: The resource name of the parent AndroidApp for which to
+//     list each associated ShaCertificate, in the format:
+//     projects/PROJECT_IDENTIFIER /androidApps/APP_ID Since an APP_ID is
+//     a unique identifier, the Unique Resource from Sub-Collection access
+//     pattern may be used here, in the format:
+//     projects/-/androidApps/APP_ID Refer to the `AndroidApp` `name`
+//     (../projects.androidApps#AndroidApp.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsAndroidAppsShaService) List(parentid string) *ProjectsAndroidAppsShaListCall {
 	c := &ProjectsAndroidAppsShaListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -4937,17 +5715,17 @@ func (c *ProjectsAndroidAppsShaListCall) Do(opts ...googleapi.CallOption) (*List
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListShaCertificatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5021,13 +5799,13 @@ type ProjectsAvailableLocationsListCall struct {
 // at minimum a Viewer of the Project. Calls without a specified project
 // do not require any specific project permissions.
 //
-// - parent: The FirebaseProject for which to list GCP resource
-//   locations, in the format: projects/PROJECT_IDENTIFIER Refer to the
-//   `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
-//   field for details about PROJECT_IDENTIFIER values. If no unique
-//   project identifier is specified (that is, `projects/-`), the
-//   returned list does not take into account org-specific or
-//   project-specific location restrictions.
+//   - parent: The FirebaseProject for which to list GCP resource
+//     locations, in the format: projects/PROJECT_IDENTIFIER Refer to the
+//     `FirebaseProject` `name` (../projects#FirebaseProject.FIELDS.name)
+//     field for details about PROJECT_IDENTIFIER values. If no unique
+//     project identifier is specified (that is, `projects/-`), the
+//     returned list does not take into account org-specific or
+//     project-specific location restrictions.
 func (r *ProjectsAvailableLocationsService) List(parentid string) *ProjectsAvailableLocationsListCall {
 	c := &ProjectsAvailableLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -5127,17 +5905,17 @@ func (c *ProjectsAvailableLocationsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAvailableLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5254,11 +6032,11 @@ type ProjectsDefaultLocationFinalizeCall struct {
 // (#request-body) are required. To call `FinalizeDefaultLocation`, a
 // member must be an Owner of the Project.
 //
-// - parent: The resource name of the FirebaseProject for which the
-//   default GCP resource location will be set, in the format:
-//   projects/PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
-//   (../projects#FirebaseProject.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the FirebaseProject for which the
+//     default GCP resource location will be set, in the format:
+//     projects/PROJECT_IDENTIFIER Refer to the `FirebaseProject` `name`
+//     (../projects#FirebaseProject.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values.
 func (r *ProjectsDefaultLocationService) Finalize(parent string, finalizedefaultlocationrequest *FinalizeDefaultLocationRequest) *ProjectsDefaultLocationFinalizeCall {
 	c := &ProjectsDefaultLocationFinalizeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5333,17 +6111,17 @@ func (c *ProjectsDefaultLocationFinalizeCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5405,11 +6183,11 @@ type ProjectsIosAppsCreateCall struct {
 // automatically deleted after completion, so there is no need to call
 // `DeleteOperation`.
 //
-// - parent: The resource name of the parent FirebaseProject in which to
-//   create an IosApp, in the format:
-//   projects/PROJECT_IDENTIFIER/iosApps Refer to the `FirebaseProject`
-//   `name` (../projects#FirebaseProject.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the parent FirebaseProject in which to
+//     create an IosApp, in the format:
+//     projects/PROJECT_IDENTIFIER/iosApps Refer to the `FirebaseProject`
+//     `name` (../projects#FirebaseProject.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER values.
 func (r *ProjectsIosAppsService) Create(parent string, iosapp *IosApp) *ProjectsIosAppsCreateCall {
 	c := &ProjectsIosAppsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5484,17 +6262,17 @@ func (c *ProjectsIosAppsCreateCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5552,13 +6330,13 @@ type ProjectsIosAppsGetCall struct {
 
 // Get: Gets the specified IosApp.
 //
-// - name: The resource name of the IosApp, in the format:
-//   projects/PROJECT_IDENTIFIER /iosApps/APP_ID Since an APP_ID is a
-//   unique identifier, the Unique Resource from Sub-Collection access
-//   pattern may be used here, in the format: projects/-/iosApps/APP_ID
-//   Refer to the `IosApp` `name`
-//   (../projects.iosApps#IosApp.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER and APP_ID values.
+//   - name: The resource name of the IosApp, in the format:
+//     projects/PROJECT_IDENTIFIER /iosApps/APP_ID Since an APP_ID is a
+//     unique identifier, the Unique Resource from Sub-Collection access
+//     pattern may be used here, in the format: projects/-/iosApps/APP_ID
+//     Refer to the `IosApp` `name`
+//     (../projects.iosApps#IosApp.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsIosAppsService) Get(nameid string) *ProjectsIosAppsGetCall {
 	c := &ProjectsIosAppsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -5640,17 +6418,17 @@ func (c *ProjectsIosAppsGetCall) Do(opts ...googleapi.CallOption) (*IosApp, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &IosApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -5708,13 +6486,13 @@ type ProjectsIosAppsGetConfigCall struct {
 // GetConfig: Gets the configuration artifact associated with the
 // specified IosApp.
 //
-// - name: The resource name of the App configuration to download, in
-//   the format: projects/PROJECT_IDENTIFIER/iosApps/APP_ID/config Since
-//   an APP_ID is a unique identifier, the Unique Resource from
-//   Sub-Collection access pattern may be used here, in the format:
-//   projects/-/iosApps/APP_ID Refer to the `IosApp` `name`
-//   (../projects.iosApps#IosApp.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER and APP_ID values.
+//   - name: The resource name of the App configuration to download, in
+//     the format: projects/PROJECT_IDENTIFIER/iosApps/APP_ID/config Since
+//     an APP_ID is a unique identifier, the Unique Resource from
+//     Sub-Collection access pattern may be used here, in the format:
+//     projects/-/iosApps/APP_ID Refer to the `IosApp` `name`
+//     (../projects.iosApps#IosApp.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsIosAppsService) GetConfig(nameid string) *ProjectsIosAppsGetConfigCall {
 	c := &ProjectsIosAppsGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -5796,17 +6574,17 @@ func (c *ProjectsIosAppsGetConfigCall) Do(opts ...googleapi.CallOption) (*IosApp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &IosAppConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5866,11 +6644,11 @@ type ProjectsIosAppsListCall struct {
 // but will be a consistent view of the Apps when additional requests
 // are made with a `pageToken`.
 //
-// - parent: The resource name of the parent FirebaseProject for which
-//   to list each associated IosApp, in the format:
-//   projects/PROJECT_IDENTIFIER/iosApps Refer to the `FirebaseProject`
-//   `name` (../projects#FirebaseProject.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the parent FirebaseProject for which
+//     to list each associated IosApp, in the format:
+//     projects/PROJECT_IDENTIFIER/iosApps Refer to the `FirebaseProject`
+//     `name` (../projects#FirebaseProject.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER values.
 func (r *ProjectsIosAppsService) List(parent string) *ProjectsIosAppsListCall {
 	c := &ProjectsIosAppsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5891,6 +6669,14 @@ func (c *ProjectsIosAppsListCall) PageSize(pageSize int64) *ProjectsIosAppsListC
 // Apps to resume listing.
 func (c *ProjectsIosAppsListCall) PageToken(pageToken string) *ProjectsIosAppsListCall {
 	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// ShowDeleted sets the optional parameter "showDeleted": Controls
+// whether Apps in the DELETED state should be returned in the response.
+// If not specified, only `ACTIVE` Apps will be returned.
+func (c *ProjectsIosAppsListCall) ShowDeleted(showDeleted bool) *ProjectsIosAppsListCall {
+	c.urlParams_.Set("showDeleted", fmt.Sprint(showDeleted))
 	return c
 }
 
@@ -5969,17 +6755,17 @@ func (c *ProjectsIosAppsListCall) Do(opts ...googleapi.CallOption) (*ListIosApps
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListIosAppsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6018,6 +6804,11 @@ func (c *ProjectsIosAppsListCall) Do(opts ...googleapi.CallOption) (*ListIosApps
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
 	//       "type": "string"
+	//     },
+	//     "showDeleted": {
+	//       "description": "Controls whether Apps in the DELETED state should be returned in the response. If not specified, only `ACTIVE` Apps will be returned.",
+	//       "location": "query",
+	//       "type": "boolean"
 	//     }
 	//   },
 	//   "path": "v1beta1/{+parent}/iosApps",
@@ -6068,17 +6859,17 @@ type ProjectsIosAppsPatchCall struct {
 
 // Patch: Updates the attributes of the specified IosApp.
 //
-// - name: The resource name of the IosApp, in the format:
-//   projects/PROJECT_IDENTIFIER /iosApps/APP_ID * PROJECT_IDENTIFIER:
-//   the parent Project's `ProjectNumber`
-//   (../projects#FirebaseProject.FIELDS.project_number)
-//   ***(recommended)*** or its `ProjectId`
-//   (../projects#FirebaseProject.FIELDS.project_id). Learn more about
-//   using project identifiers in Google's AIP 2510 standard
-//   (https://google.aip.dev/cloud/2510). Note that the value for
-//   PROJECT_IDENTIFIER in any response body will be the `ProjectId`. *
-//   APP_ID: the globally unique, Firebase-assigned identifier for the
-//   App (see `appId` (../projects.iosApps#IosApp.FIELDS.app_id)).
+//   - name: The resource name of the IosApp, in the format:
+//     projects/PROJECT_IDENTIFIER /iosApps/APP_ID * PROJECT_IDENTIFIER:
+//     the parent Project's `ProjectNumber`
+//     (../projects#FirebaseProject.FIELDS.project_number)
+//     ***(recommended)*** or its `ProjectId`
+//     (../projects#FirebaseProject.FIELDS.project_id). Learn more about
+//     using project identifiers in Google's AIP 2510 standard
+//     (https://google.aip.dev/cloud/2510). Note that the value for
+//     PROJECT_IDENTIFIER in any response body will be the `ProjectId`. *
+//     APP_ID: the globally unique, Firebase-assigned identifier for the
+//     App (see `appId` (../projects.iosApps#IosApp.FIELDS.app_id)).
 func (r *ProjectsIosAppsService) Patch(nameid string, iosapp *IosApp) *ProjectsIosAppsPatchCall {
 	c := &ProjectsIosAppsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -6087,8 +6878,10 @@ func (r *ProjectsIosAppsService) Patch(nameid string, iosapp *IosApp) *ProjectsI
 }
 
 // UpdateMask sets the optional parameter "updateMask": Specifies which
-// fields to update. Note that the fields `name`, `appId`, `projectId`,
-// and `bundleId` are all immutable.
+// fields of the IosApp to update. Note that the following fields are
+// immutable: `name`, `app_id`, `project_id`, and `bundle_id`. To update
+// `state`, use any of the following endpoints: RemoveIosApp or
+// UndeleteIosApp.
 func (c *ProjectsIosAppsPatchCall) UpdateMask(updateMask string) *ProjectsIosAppsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -6161,17 +6954,17 @@ func (c *ProjectsIosAppsPatchCall) Do(opts ...googleapi.CallOption) (*IosApp, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &IosApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -6201,7 +6994,7 @@ func (c *ProjectsIosAppsPatchCall) Do(opts ...googleapi.CallOption) (*IosApp, er
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Specifies which fields to update. Note that the fields `name`, `appId`, `projectId`, and `bundleId` are all immutable.",
+	//       "description": "Specifies which fields of the IosApp to update. Note that the following fields are immutable: `name`, `app_id`, `project_id`, and `bundle_id`. To update `state`, use any of the following endpoints: RemoveIosApp or UndeleteIosApp.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -6213,6 +7006,302 @@ func (c *ProjectsIosAppsPatchCall) Do(opts ...googleapi.CallOption) (*IosApp, er
 	//   },
 	//   "response": {
 	//     "$ref": "IosApp"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/firebase"
+	//   ]
+	// }
+
+}
+
+// method id "firebase.projects.iosApps.remove":
+
+type ProjectsIosAppsRemoveCall struct {
+	s                   *Service
+	nameid              string
+	removeiosapprequest *RemoveIosAppRequest
+	urlParams_          gensupport.URLParams
+	ctx_                context.Context
+	header_             http.Header
+}
+
+// Remove: Removes the specified IosApp from the FirebaseProject.
+//
+//   - name: The resource name of the IosApp, in the format: projects/
+//     PROJECT_IDENTIFIER/iosApps/APP_ID Since an APP_ID is a unique
+//     identifier, the Unique Resource from Sub-Collection access pattern
+//     may be used here, in the format: projects/-/iosApps/APP_ID Refer to
+//     the IosApp name (../projects.iosApps#IosApp.FIELDS.name) field for
+//     details about PROJECT_IDENTIFIER and APP_ID values.
+func (r *ProjectsIosAppsService) Remove(nameid string, removeiosapprequest *RemoveIosAppRequest) *ProjectsIosAppsRemoveCall {
+	c := &ProjectsIosAppsRemoveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.nameid = nameid
+	c.removeiosapprequest = removeiosapprequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsIosAppsRemoveCall) Fields(s ...googleapi.Field) *ProjectsIosAppsRemoveCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsIosAppsRemoveCall) Context(ctx context.Context) *ProjectsIosAppsRemoveCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsIosAppsRemoveCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsIosAppsRemoveCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.removeiosapprequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:remove")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.nameid,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebase.projects.iosApps.remove" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsIosAppsRemoveCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Removes the specified IosApp from the FirebaseProject.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/iosApps/{iosAppsId}:remove",
+	//   "httpMethod": "POST",
+	//   "id": "firebase.projects.iosApps.remove",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the IosApp, in the format: projects/ PROJECT_IDENTIFIER/iosApps/APP_ID Since an APP_ID is a unique identifier, the Unique Resource from Sub-Collection access pattern may be used here, in the format: projects/-/iosApps/APP_ID Refer to the IosApp [name](../projects.iosApps#IosApp.FIELDS.name) field for details about PROJECT_IDENTIFIER and APP_ID values.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/iosApps/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:remove",
+	//   "request": {
+	//     "$ref": "RemoveIosAppRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/firebase"
+	//   ]
+	// }
+
+}
+
+// method id "firebase.projects.iosApps.undelete":
+
+type ProjectsIosAppsUndeleteCall struct {
+	s                     *Service
+	nameid                string
+	undeleteiosapprequest *UndeleteIosAppRequest
+	urlParams_            gensupport.URLParams
+	ctx_                  context.Context
+	header_               http.Header
+}
+
+// Undelete: Restores the specified IosApp to the FirebaseProject.
+//
+//   - name: The resource name of the IosApp, in the format: projects/
+//     PROJECT_IDENTIFIER/iosApps/APP_ID Since an APP_ID is a unique
+//     identifier, the Unique Resource from Sub-Collection access pattern
+//     may be used here, in the format: projects/-/iosApps/APP_ID Refer to
+//     the IosApp name (../projects.iosApps#IosApp.FIELDS.name) field for
+//     details about PROJECT_IDENTIFIER and APP_ID values.
+func (r *ProjectsIosAppsService) Undelete(nameid string, undeleteiosapprequest *UndeleteIosAppRequest) *ProjectsIosAppsUndeleteCall {
+	c := &ProjectsIosAppsUndeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.nameid = nameid
+	c.undeleteiosapprequest = undeleteiosapprequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsIosAppsUndeleteCall) Fields(s ...googleapi.Field) *ProjectsIosAppsUndeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsIosAppsUndeleteCall) Context(ctx context.Context) *ProjectsIosAppsUndeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsIosAppsUndeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsIosAppsUndeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.undeleteiosapprequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:undelete")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.nameid,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebase.projects.iosApps.undelete" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsIosAppsUndeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Restores the specified IosApp to the FirebaseProject.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/iosApps/{iosAppsId}:undelete",
+	//   "httpMethod": "POST",
+	//   "id": "firebase.projects.iosApps.undelete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the IosApp, in the format: projects/ PROJECT_IDENTIFIER/iosApps/APP_ID Since an APP_ID is a unique identifier, the Unique Resource from Sub-Collection access pattern may be used here, in the format: projects/-/iosApps/APP_ID Refer to the IosApp [name](../projects.iosApps#IosApp.FIELDS.name) field for details about PROJECT_IDENTIFIER and APP_ID values.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/iosApps/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:undelete",
+	//   "request": {
+	//     "$ref": "UndeleteIosAppRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
@@ -6239,11 +7328,11 @@ type ProjectsWebAppsCreateCall struct {
 // automatically deleted after completion, so there is no need to call
 // `DeleteOperation`.
 //
-// - parent: The resource name of the parent FirebaseProject in which to
-//   create a WebApp, in the format: projects/PROJECT_IDENTIFIER/webApps
-//   Refer to the `FirebaseProject` `name`
-//   (../projects#FirebaseProject.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the parent FirebaseProject in which to
+//     create a WebApp, in the format: projects/PROJECT_IDENTIFIER/webApps
+//     Refer to the `FirebaseProject` `name`
+//     (../projects#FirebaseProject.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values.
 func (r *ProjectsWebAppsService) Create(parent string, webapp *WebApp) *ProjectsWebAppsCreateCall {
 	c := &ProjectsWebAppsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6318,17 +7407,17 @@ func (c *ProjectsWebAppsCreateCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6386,13 +7475,13 @@ type ProjectsWebAppsGetCall struct {
 
 // Get: Gets the specified WebApp.
 //
-// - name: The resource name of the WebApp, in the format:
-//   projects/PROJECT_IDENTIFIER /webApps/APP_ID Since an APP_ID is a
-//   unique identifier, the Unique Resource from Sub-Collection access
-//   pattern may be used here, in the format: projects/-/webApps/APP_ID
-//   Refer to the `WebApp` `name`
-//   (../projects.webApps#WebApp.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER and APP_ID values.
+//   - name: The resource name of the WebApp, in the format:
+//     projects/PROJECT_IDENTIFIER /webApps/APP_ID Since an APP_ID is a
+//     unique identifier, the Unique Resource from Sub-Collection access
+//     pattern may be used here, in the format: projects/-/webApps/APP_ID
+//     Refer to the `WebApp` `name`
+//     (../projects.webApps#WebApp.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsWebAppsService) Get(nameid string) *ProjectsWebAppsGetCall {
 	c := &ProjectsWebAppsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -6474,17 +7563,17 @@ func (c *ProjectsWebAppsGetCall) Do(opts ...googleapi.CallOption) (*WebApp, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -6542,13 +7631,13 @@ type ProjectsWebAppsGetConfigCall struct {
 // GetConfig: Gets the configuration artifact associated with the
 // specified WebApp.
 //
-// - name: The resource name of the WebApp configuration to download, in
-//   the format: projects/PROJECT_IDENTIFIER/webApps/APP_ID/config Since
-//   an APP_ID is a unique identifier, the Unique Resource from
-//   Sub-Collection access pattern may be used here, in the format:
-//   projects/-/webApps/APP_ID Refer to the `WebApp` `name`
-//   (../projects.webApps#WebApp.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER and APP_ID values.
+//   - name: The resource name of the WebApp configuration to download, in
+//     the format: projects/PROJECT_IDENTIFIER/webApps/APP_ID/config Since
+//     an APP_ID is a unique identifier, the Unique Resource from
+//     Sub-Collection access pattern may be used here, in the format:
+//     projects/-/webApps/APP_ID Refer to the `WebApp` `name`
+//     (../projects.webApps#WebApp.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER and APP_ID values.
 func (r *ProjectsWebAppsService) GetConfig(nameid string) *ProjectsWebAppsGetConfigCall {
 	c := &ProjectsWebAppsGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -6630,17 +7719,17 @@ func (c *ProjectsWebAppsGetConfigCall) Do(opts ...googleapi.CallOption) (*WebApp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebAppConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6700,11 +7789,11 @@ type ProjectsWebAppsListCall struct {
 // but will be a consistent view of the Apps when additional requests
 // are made with a `pageToken`.
 //
-// - parent: The resource name of the parent FirebaseProject for which
-//   to list each associated WebApp, in the format:
-//   projects/PROJECT_IDENTIFIER/webApps Refer to the `FirebaseProject`
-//   `name` (../projects#FirebaseProject.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER values.
+//   - parent: The resource name of the parent FirebaseProject for which
+//     to list each associated WebApp, in the format:
+//     projects/PROJECT_IDENTIFIER/webApps Refer to the `FirebaseProject`
+//     `name` (../projects#FirebaseProject.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER values.
 func (r *ProjectsWebAppsService) List(parent string) *ProjectsWebAppsListCall {
 	c := &ProjectsWebAppsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6725,6 +7814,14 @@ func (c *ProjectsWebAppsListCall) PageSize(pageSize int64) *ProjectsWebAppsListC
 // Apps to resume listing.
 func (c *ProjectsWebAppsListCall) PageToken(pageToken string) *ProjectsWebAppsListCall {
 	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// ShowDeleted sets the optional parameter "showDeleted": Controls
+// whether Apps in the DELETED state should be returned in the response.
+// If not specified, only `ACTIVE` Apps will be returned.
+func (c *ProjectsWebAppsListCall) ShowDeleted(showDeleted bool) *ProjectsWebAppsListCall {
+	c.urlParams_.Set("showDeleted", fmt.Sprint(showDeleted))
 	return c
 }
 
@@ -6803,17 +7900,17 @@ func (c *ProjectsWebAppsListCall) Do(opts ...googleapi.CallOption) (*ListWebApps
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListWebAppsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6852,6 +7949,11 @@ func (c *ProjectsWebAppsListCall) Do(opts ...googleapi.CallOption) (*ListWebApps
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
 	//       "type": "string"
+	//     },
+	//     "showDeleted": {
+	//       "description": "Controls whether Apps in the DELETED state should be returned in the response. If not specified, only `ACTIVE` Apps will be returned.",
+	//       "location": "query",
+	//       "type": "boolean"
 	//     }
 	//   },
 	//   "path": "v1beta1/{+parent}/webApps",
@@ -6902,17 +8004,17 @@ type ProjectsWebAppsPatchCall struct {
 
 // Patch: Updates the attributes of the specified WebApp.
 //
-// - name: The resource name of the WebApp, in the format:
-//   projects/PROJECT_IDENTIFIER /webApps/APP_ID * PROJECT_IDENTIFIER:
-//   the parent Project's `ProjectNumber`
-//   (../projects#FirebaseProject.FIELDS.project_number)
-//   ***(recommended)*** or its `ProjectId`
-//   (../projects#FirebaseProject.FIELDS.project_id). Learn more about
-//   using project identifiers in Google's AIP 2510 standard
-//   (https://google.aip.dev/cloud/2510). Note that the value for
-//   PROJECT_IDENTIFIER in any response body will be the `ProjectId`. *
-//   APP_ID: the globally unique, Firebase-assigned identifier for the
-//   App (see `appId` (../projects.webApps#WebApp.FIELDS.app_id)).
+//   - name: The resource name of the WebApp, in the format:
+//     projects/PROJECT_IDENTIFIER /webApps/APP_ID * PROJECT_IDENTIFIER:
+//     the parent Project's `ProjectNumber`
+//     (../projects#FirebaseProject.FIELDS.project_number)
+//     ***(recommended)*** or its `ProjectId`
+//     (../projects#FirebaseProject.FIELDS.project_id). Learn more about
+//     using project identifiers in Google's AIP 2510 standard
+//     (https://google.aip.dev/cloud/2510). Note that the value for
+//     PROJECT_IDENTIFIER in any response body will be the `ProjectId`. *
+//     APP_ID: the globally unique, Firebase-assigned identifier for the
+//     App (see `appId` (../projects.webApps#WebApp.FIELDS.app_id)).
 func (r *ProjectsWebAppsService) Patch(nameid string, webapp *WebApp) *ProjectsWebAppsPatchCall {
 	c := &ProjectsWebAppsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -6921,8 +8023,9 @@ func (r *ProjectsWebAppsService) Patch(nameid string, webapp *WebApp) *ProjectsW
 }
 
 // UpdateMask sets the optional parameter "updateMask": Specifies which
-// fields to update. Note that the fields `name`, `appId`, and
-// `projectId` are all immutable.
+// fields of the WebApp to update. Note that the following fields are
+// immutable: `name`, `app_id`, and `project_id`. To update `state`, use
+// any of the following endpoints: RemoveWebApp or UndeleteWebApp.
 func (c *ProjectsWebAppsPatchCall) UpdateMask(updateMask string) *ProjectsWebAppsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -6995,17 +8098,17 @@ func (c *ProjectsWebAppsPatchCall) Do(opts ...googleapi.CallOption) (*WebApp, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -7035,7 +8138,7 @@ func (c *ProjectsWebAppsPatchCall) Do(opts ...googleapi.CallOption) (*WebApp, er
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Specifies which fields to update. Note that the fields `name`, `appId`, and `projectId` are all immutable.",
+	//       "description": "Specifies which fields of the WebApp to update. Note that the following fields are immutable: `name`, `app_id`, and `project_id`. To update `state`, use any of the following endpoints: RemoveWebApp or UndeleteWebApp.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -7047,6 +8150,302 @@ func (c *ProjectsWebAppsPatchCall) Do(opts ...googleapi.CallOption) (*WebApp, er
 	//   },
 	//   "response": {
 	//     "$ref": "WebApp"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/firebase"
+	//   ]
+	// }
+
+}
+
+// method id "firebase.projects.webApps.remove":
+
+type ProjectsWebAppsRemoveCall struct {
+	s                   *Service
+	nameid              string
+	removewebapprequest *RemoveWebAppRequest
+	urlParams_          gensupport.URLParams
+	ctx_                context.Context
+	header_             http.Header
+}
+
+// Remove: Removes the specified WebApp from the FirebaseProject.
+//
+//   - name: The resource name of the WebApp, in the format: projects/
+//     PROJECT_IDENTIFIER/webApps/APP_ID Since an APP_ID is a unique
+//     identifier, the Unique Resource from Sub-Collection access pattern
+//     may be used here, in the format: projects/-/webApps/APP_ID Refer to
+//     the WebApp name (../projects.webApps#WebApp.FIELDS.name) field for
+//     details about PROJECT_IDENTIFIER and APP_ID values.
+func (r *ProjectsWebAppsService) Remove(nameid string, removewebapprequest *RemoveWebAppRequest) *ProjectsWebAppsRemoveCall {
+	c := &ProjectsWebAppsRemoveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.nameid = nameid
+	c.removewebapprequest = removewebapprequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsWebAppsRemoveCall) Fields(s ...googleapi.Field) *ProjectsWebAppsRemoveCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsWebAppsRemoveCall) Context(ctx context.Context) *ProjectsWebAppsRemoveCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsWebAppsRemoveCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsWebAppsRemoveCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.removewebapprequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:remove")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.nameid,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebase.projects.webApps.remove" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsWebAppsRemoveCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Removes the specified WebApp from the FirebaseProject.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/webApps/{webAppsId}:remove",
+	//   "httpMethod": "POST",
+	//   "id": "firebase.projects.webApps.remove",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the WebApp, in the format: projects/ PROJECT_IDENTIFIER/webApps/APP_ID Since an APP_ID is a unique identifier, the Unique Resource from Sub-Collection access pattern may be used here, in the format: projects/-/webApps/APP_ID Refer to the WebApp [name](../projects.webApps#WebApp.FIELDS.name) field for details about PROJECT_IDENTIFIER and APP_ID values.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/webApps/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:remove",
+	//   "request": {
+	//     "$ref": "RemoveWebAppRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/firebase"
+	//   ]
+	// }
+
+}
+
+// method id "firebase.projects.webApps.undelete":
+
+type ProjectsWebAppsUndeleteCall struct {
+	s                     *Service
+	nameid                string
+	undeletewebapprequest *UndeleteWebAppRequest
+	urlParams_            gensupport.URLParams
+	ctx_                  context.Context
+	header_               http.Header
+}
+
+// Undelete: Restores the specified WebApp to the FirebaseProject.
+//
+//   - name: The resource name of the WebApp, in the format: projects/
+//     PROJECT_IDENTIFIER/webApps/APP_ID Since an APP_ID is a unique
+//     identifier, the Unique Resource from Sub-Collection access pattern
+//     may be used here, in the format: projects/-/webApps/APP_ID Refer to
+//     the WebApp name (../projects.webApps#WebApp.FIELDS.name) field for
+//     details about PROJECT_IDENTIFIER and APP_ID values.
+func (r *ProjectsWebAppsService) Undelete(nameid string, undeletewebapprequest *UndeleteWebAppRequest) *ProjectsWebAppsUndeleteCall {
+	c := &ProjectsWebAppsUndeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.nameid = nameid
+	c.undeletewebapprequest = undeletewebapprequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsWebAppsUndeleteCall) Fields(s ...googleapi.Field) *ProjectsWebAppsUndeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsWebAppsUndeleteCall) Context(ctx context.Context) *ProjectsWebAppsUndeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsWebAppsUndeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsWebAppsUndeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.undeletewebapprequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:undelete")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.nameid,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebase.projects.webApps.undelete" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsWebAppsUndeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Restores the specified WebApp to the FirebaseProject.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/webApps/{webAppsId}:undelete",
+	//   "httpMethod": "POST",
+	//   "id": "firebase.projects.webApps.undelete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the WebApp, in the format: projects/ PROJECT_IDENTIFIER/webApps/APP_ID Since an APP_ID is a unique identifier, the Unique Resource from Sub-Collection access pattern may be used here, in the format: projects/-/webApps/APP_ID Refer to the WebApp [name](../projects.webApps#WebApp.FIELDS.name) field for details about PROJECT_IDENTIFIER and APP_ID values.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/webApps/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:undelete",
+	//   "request": {
+	//     "$ref": "UndeleteWebAppRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",

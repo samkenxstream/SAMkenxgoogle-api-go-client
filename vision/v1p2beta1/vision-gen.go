@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/vision/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/vision/v1p2beta1"
-//   ...
-//   ctx := context.Background()
-//   visionService, err := vision.NewService(ctx)
+//	import "google.golang.org/api/vision/v1p2beta1"
+//	...
+//	ctx := context.Background()
+//	visionService, err := vision.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   visionService, err := vision.NewService(ctx, option.WithScopes(vision.CloudVisionScope))
+//	visionService, err := vision.NewService(ctx, option.WithScopes(vision.CloudVisionScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   visionService, err := vision.NewService(ctx, option.WithAPIKey("AIza..."))
+//	visionService, err := vision.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   visionService, err := vision.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	visionService, err := vision.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package vision // import "google.golang.org/api/vision/v1p2beta1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "vision:v1p2beta1"
 const apiName = "vision"
@@ -684,12 +685,12 @@ func (s *BoundingPoly) MarshalJSON() ([]byte, error) {
 // if (!('alpha' in rgb_color)) { return rgbToCssColor(red, green,
 // blue); } var alphaFrac = rgb_color.alpha.value || 0.0; var rgbParams
 // = [red, green, blue].join(','); return ['rgba(', rgbParams, ',',
-// alphaFrac, ')'].join(''); }; var rgbToCssColor = function(red, green,
+// alphaFrac, ')'].join(”); }; var rgbToCssColor = function(red, green,
 // blue) { var rgbNumber = new Number((red << 16) | (green << 8) |
 // blue); var hexString = rgbNumber.toString(16); var missingZeros = 6 -
 // hexString.length; var resultBuilder = ['#']; for (var i = 0; i <
 // missingZeros; i++) { resultBuilder.push('0'); }
-// resultBuilder.push(hexString); return resultBuilder.join(''); }; //
+// resultBuilder.push(hexString); return resultBuilder.join(”); }; //
 // ...
 type Color struct {
 	// Alpha: The fraction of this color that should be applied to the
@@ -4813,6 +4814,8 @@ type GoogleCloudVisionV1p2beta1Feature struct {
 
 	// Model: Model to use for the feature. Supported values:
 	// "builtin/stable" (the default if unset) and "builtin/latest".
+	// `DOCUMENT_TEXT_DETECTION` and `TEXT_DETECTION` also support
+	// "builtin/weekly" for the bleeding edge release updated weekly.
 	Model string `json:"model,omitempty"`
 
 	// Type: The feature type.
@@ -6279,27 +6282,30 @@ func (s *GoogleCloudVisionV1p2beta1TextAnnotationTextProperty) MarshalJSON() ([]
 // detections. This is used to control TEXT_DETECTION and
 // DOCUMENT_TEXT_DETECTION features.
 type GoogleCloudVisionV1p2beta1TextDetectionParams struct {
+	// AdvancedOcrOptions: A list of advanced OCR options to fine-tune OCR
+	// behavior.
+	AdvancedOcrOptions []string `json:"advancedOcrOptions,omitempty"`
+
 	// EnableTextDetectionConfidenceScore: By default, Cloud Vision API only
 	// includes confidence score for DOCUMENT_TEXT_DETECTION result. Set the
 	// flag to true to include confidence score for TEXT_DETECTION as well.
 	EnableTextDetectionConfidenceScore bool `json:"enableTextDetectionConfidenceScore,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g.
-	// "EnableTextDetectionConfidenceScore") to unconditionally include in
-	// API requests. By default, fields with empty or default values are
-	// omitted from API requests. However, any non-pointer, non-interface
-	// field appearing in ForceSendFields will be sent to the server
-	// regardless of whether the field is empty or not. This may be used to
-	// include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g. "AdvancedOcrOptions")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g.
-	// "EnableTextDetectionConfidenceScore") to include in API requests with
-	// the JSON null value. By default, fields with empty values are omitted
-	// from API requests. However, any field with an empty value appearing
-	// in NullFields will be sent to the server as null. It is an error if a
-	// field in this list has a non-empty value. This may be used to include
-	// null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AdvancedOcrOptions") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -13434,17 +13440,17 @@ func (c *FilesAnnotateCall) Do(opts ...googleapi.CallOption) (*GoogleCloudVision
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudVisionV1p2beta1BatchAnnotateFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13566,17 +13572,17 @@ func (c *FilesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) (*Operati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -13694,17 +13700,17 @@ func (c *ImagesAnnotateCall) Do(opts ...googleapi.CallOption) (*GoogleCloudVisio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudVisionV1p2beta1BatchAnnotateImagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13826,17 +13832,17 @@ func (c *ImagesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) (*Operat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -13889,12 +13895,12 @@ type ProjectsFilesAnnotateCall struct {
 // (gif) or pages (pdf or tiff) from each file provided and perform
 // detection and annotation for each image extracted.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsFilesService) Annotate(parent string, googlecloudvisionv1p2beta1batchannotatefilesrequest *GoogleCloudVisionV1p2beta1BatchAnnotateFilesRequest) *ProjectsFilesAnnotateCall {
 	c := &ProjectsFilesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -13971,17 +13977,17 @@ func (c *ProjectsFilesAnnotateCall) Do(opts ...googleapi.CallOption) (*GoogleClo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudVisionV1p2beta1BatchAnnotateFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14045,12 +14051,12 @@ type ProjectsFilesAsyncBatchAnnotateCall struct {
 // `Operation.response` contains `AsyncBatchAnnotateFilesResponse`
 // (results).
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsFilesService) AsyncBatchAnnotate(parent string, googlecloudvisionv1p2beta1asyncbatchannotatefilesrequest *GoogleCloudVisionV1p2beta1AsyncBatchAnnotateFilesRequest) *ProjectsFilesAsyncBatchAnnotateCall {
 	c := &ProjectsFilesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14125,17 +14131,17 @@ func (c *ProjectsFilesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14193,12 +14199,12 @@ type ProjectsImagesAnnotateCall struct {
 
 // Annotate: Run image detection and annotation for a batch of images.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsImagesService) Annotate(parent string, googlecloudvisionv1p2beta1batchannotateimagesrequest *GoogleCloudVisionV1p2beta1BatchAnnotateImagesRequest) *ProjectsImagesAnnotateCall {
 	c := &ProjectsImagesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14275,17 +14281,17 @@ func (c *ProjectsImagesAnnotateCall) Do(opts ...googleapi.CallOption) (*GoogleCl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudVisionV1p2beta1BatchAnnotateImagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14349,12 +14355,12 @@ type ProjectsImagesAsyncBatchAnnotateCall struct {
 // will write image annotation outputs to json files in customer GCS
 // bucket, each json file containing BatchAnnotateImagesResponse proto.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsImagesService) AsyncBatchAnnotate(parent string, googlecloudvisionv1p2beta1asyncbatchannotateimagesrequest *GoogleCloudVisionV1p2beta1AsyncBatchAnnotateImagesRequest) *ProjectsImagesAsyncBatchAnnotateCall {
 	c := &ProjectsImagesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14429,17 +14435,17 @@ func (c *ProjectsImagesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14502,12 +14508,12 @@ type ProjectsLocationsFilesAnnotateCall struct {
 // (gif) or pages (pdf or tiff) from each file provided and perform
 // detection and annotation for each image extracted.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsFilesService) Annotate(parent string, googlecloudvisionv1p2beta1batchannotatefilesrequest *GoogleCloudVisionV1p2beta1BatchAnnotateFilesRequest) *ProjectsLocationsFilesAnnotateCall {
 	c := &ProjectsLocationsFilesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14584,17 +14590,17 @@ func (c *ProjectsLocationsFilesAnnotateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudVisionV1p2beta1BatchAnnotateFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14658,12 +14664,12 @@ type ProjectsLocationsFilesAsyncBatchAnnotateCall struct {
 // `Operation.response` contains `AsyncBatchAnnotateFilesResponse`
 // (results).
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsFilesService) AsyncBatchAnnotate(parent string, googlecloudvisionv1p2beta1asyncbatchannotatefilesrequest *GoogleCloudVisionV1p2beta1AsyncBatchAnnotateFilesRequest) *ProjectsLocationsFilesAsyncBatchAnnotateCall {
 	c := &ProjectsLocationsFilesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14738,17 +14744,17 @@ func (c *ProjectsLocationsFilesAsyncBatchAnnotateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14806,12 +14812,12 @@ type ProjectsLocationsImagesAnnotateCall struct {
 
 // Annotate: Run image detection and annotation for a batch of images.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsImagesService) Annotate(parent string, googlecloudvisionv1p2beta1batchannotateimagesrequest *GoogleCloudVisionV1p2beta1BatchAnnotateImagesRequest) *ProjectsLocationsImagesAnnotateCall {
 	c := &ProjectsLocationsImagesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14888,17 +14894,17 @@ func (c *ProjectsLocationsImagesAnnotateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudVisionV1p2beta1BatchAnnotateImagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14962,12 +14968,12 @@ type ProjectsLocationsImagesAsyncBatchAnnotateCall struct {
 // will write image annotation outputs to json files in customer GCS
 // bucket, each json file containing BatchAnnotateImagesResponse proto.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsImagesService) AsyncBatchAnnotate(parent string, googlecloudvisionv1p2beta1asyncbatchannotateimagesrequest *GoogleCloudVisionV1p2beta1AsyncBatchAnnotateImagesRequest) *ProjectsLocationsImagesAsyncBatchAnnotateCall {
 	c := &ProjectsLocationsImagesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15042,17 +15048,17 @@ func (c *ProjectsLocationsImagesAsyncBatchAnnotateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

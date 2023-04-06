@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/security-command-center
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/securitycenter/v1beta2"
-//   ...
-//   ctx := context.Background()
-//   securitycenterService, err := securitycenter.NewService(ctx)
+//	import "google.golang.org/api/securitycenter/v1beta2"
+//	...
+//	ctx := context.Background()
+//	securitycenterService, err := securitycenter.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   securitycenterService, err := securitycenter.NewService(ctx, option.WithAPIKey("AIza..."))
+//	securitycenterService, err := securitycenter.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   securitycenterService, err := securitycenter.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	securitycenterService, err := securitycenter.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package securitycenter // import "google.golang.org/api/securitycenter/v1beta2"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "securitycenter:v1beta2"
 const apiName = "securitycenter"
@@ -147,6 +148,7 @@ func NewFoldersService(s *Service) *FoldersService {
 	rs := &FoldersService{s: s}
 	rs.ContainerThreatDetectionSettings = NewFoldersContainerThreatDetectionSettingsService(s)
 	rs.EventThreatDetectionSettings = NewFoldersEventThreatDetectionSettingsService(s)
+	rs.RapidVulnerabilityDetectionSettings = NewFoldersRapidVulnerabilityDetectionSettingsService(s)
 	rs.SecurityHealthAnalyticsSettings = NewFoldersSecurityHealthAnalyticsSettingsService(s)
 	rs.VirtualMachineThreatDetectionSettings = NewFoldersVirtualMachineThreatDetectionSettingsService(s)
 	rs.WebSecurityScannerSettings = NewFoldersWebSecurityScannerSettingsService(s)
@@ -159,6 +161,8 @@ type FoldersService struct {
 	ContainerThreatDetectionSettings *FoldersContainerThreatDetectionSettingsService
 
 	EventThreatDetectionSettings *FoldersEventThreatDetectionSettingsService
+
+	RapidVulnerabilityDetectionSettings *FoldersRapidVulnerabilityDetectionSettingsService
 
 	SecurityHealthAnalyticsSettings *FoldersSecurityHealthAnalyticsSettingsService
 
@@ -182,6 +186,15 @@ func NewFoldersEventThreatDetectionSettingsService(s *Service) *FoldersEventThre
 }
 
 type FoldersEventThreatDetectionSettingsService struct {
+	s *Service
+}
+
+func NewFoldersRapidVulnerabilityDetectionSettingsService(s *Service) *FoldersRapidVulnerabilityDetectionSettingsService {
+	rs := &FoldersRapidVulnerabilityDetectionSettingsService{s: s}
+	return rs
+}
+
+type FoldersRapidVulnerabilityDetectionSettingsService struct {
 	s *Service
 }
 
@@ -216,6 +229,7 @@ func NewOrganizationsService(s *Service) *OrganizationsService {
 	rs := &OrganizationsService{s: s}
 	rs.ContainerThreatDetectionSettings = NewOrganizationsContainerThreatDetectionSettingsService(s)
 	rs.EventThreatDetectionSettings = NewOrganizationsEventThreatDetectionSettingsService(s)
+	rs.RapidVulnerabilityDetectionSettings = NewOrganizationsRapidVulnerabilityDetectionSettingsService(s)
 	rs.SecurityHealthAnalyticsSettings = NewOrganizationsSecurityHealthAnalyticsSettingsService(s)
 	rs.VirtualMachineThreatDetectionSettings = NewOrganizationsVirtualMachineThreatDetectionSettingsService(s)
 	rs.WebSecurityScannerSettings = NewOrganizationsWebSecurityScannerSettingsService(s)
@@ -228,6 +242,8 @@ type OrganizationsService struct {
 	ContainerThreatDetectionSettings *OrganizationsContainerThreatDetectionSettingsService
 
 	EventThreatDetectionSettings *OrganizationsEventThreatDetectionSettingsService
+
+	RapidVulnerabilityDetectionSettings *OrganizationsRapidVulnerabilityDetectionSettingsService
 
 	SecurityHealthAnalyticsSettings *OrganizationsSecurityHealthAnalyticsSettingsService
 
@@ -251,6 +267,15 @@ func NewOrganizationsEventThreatDetectionSettingsService(s *Service) *Organizati
 }
 
 type OrganizationsEventThreatDetectionSettingsService struct {
+	s *Service
+}
+
+func NewOrganizationsRapidVulnerabilityDetectionSettingsService(s *Service) *OrganizationsRapidVulnerabilityDetectionSettingsService {
+	rs := &OrganizationsRapidVulnerabilityDetectionSettingsService{s: s}
+	return rs
+}
+
+type OrganizationsRapidVulnerabilityDetectionSettingsService struct {
 	s *Service
 }
 
@@ -286,6 +311,7 @@ func NewProjectsService(s *Service) *ProjectsService {
 	rs.ContainerThreatDetectionSettings = NewProjectsContainerThreatDetectionSettingsService(s)
 	rs.EventThreatDetectionSettings = NewProjectsEventThreatDetectionSettingsService(s)
 	rs.Locations = NewProjectsLocationsService(s)
+	rs.RapidVulnerabilityDetectionSettings = NewProjectsRapidVulnerabilityDetectionSettingsService(s)
 	rs.SecurityHealthAnalyticsSettings = NewProjectsSecurityHealthAnalyticsSettingsService(s)
 	rs.VirtualMachineThreatDetectionSettings = NewProjectsVirtualMachineThreatDetectionSettingsService(s)
 	rs.WebSecurityScannerSettings = NewProjectsWebSecurityScannerSettingsService(s)
@@ -300,6 +326,8 @@ type ProjectsService struct {
 	EventThreatDetectionSettings *ProjectsEventThreatDetectionSettingsService
 
 	Locations *ProjectsLocationsService
+
+	RapidVulnerabilityDetectionSettings *ProjectsRapidVulnerabilityDetectionSettingsService
 
 	SecurityHealthAnalyticsSettings *ProjectsSecurityHealthAnalyticsSettingsService
 
@@ -359,6 +387,15 @@ type ProjectsLocationsClustersContainerThreatDetectionSettingsService struct {
 	s *Service
 }
 
+func NewProjectsRapidVulnerabilityDetectionSettingsService(s *Service) *ProjectsRapidVulnerabilityDetectionSettingsService {
+	rs := &ProjectsRapidVulnerabilityDetectionSettingsService{s: s}
+	return rs
+}
+
+type ProjectsRapidVulnerabilityDetectionSettingsService struct {
+	s *Service
+}
+
 func NewProjectsSecurityHealthAnalyticsSettingsService(s *Service) *ProjectsSecurityHealthAnalyticsSettingsService {
 	rs := &ProjectsSecurityHealthAnalyticsSettingsService{s: s}
 	return rs
@@ -399,16 +436,57 @@ type Access struct {
 	// "SetIamPolicy".
 	MethodName string `json:"methodName,omitempty"`
 
-	// PrincipalEmail: Associated email, such as "foo@google.com".
+	// PrincipalEmail: Associated email, such as "foo@google.com". The email
+	// address of the authenticated user (or service account on behalf of
+	// third party principal) making the request. For third party identity
+	// callers, the `principal_subject` field is populated instead of this
+	// field. For privacy reasons, the principal email address is sometimes
+	// redacted. For more information, see Caller identities in audit logs
+	// (https://cloud.google.com/logging/docs/audit#user-id).
 	PrincipalEmail string `json:"principalEmail,omitempty"`
+
+	// PrincipalSubject: A string representing the principal_subject
+	// associated with the identity. As compared to `principal_email`,
+	// supports principals that aren't associated with email addresses, such
+	// as third party principals. For most identities, the format will be
+	// `principal://iam.googleapis.com/{identity pool
+	// name}/subjects/{subject}` except for some GKE identities
+	// (GKE_WORKLOAD, FREEFORM, GKE_HUB_WORKLOAD) that are still in the
+	// legacy format `serviceAccount:{identity pool name}[{subject}]`
+	PrincipalSubject string `json:"principalSubject,omitempty"`
+
+	// ServiceAccountDelegationInfo: Identity delegation history of an
+	// authenticated service account that makes the request. It contains
+	// information on the real authorities that try to access GCP resources
+	// by delegating on a service account. When multiple authorities are
+	// present, they are guaranteed to be sorted based on the original
+	// ordering of the identity delegation events.
+	ServiceAccountDelegationInfo []*ServiceAccountDelegationInfo `json:"serviceAccountDelegationInfo,omitempty"`
+
+	// ServiceAccountKeyName: The name of the service account key used to
+	// create or exchange credentials for authenticating the service account
+	// making the request. This is a scheme-less URI full resource name. For
+	// example:
+	// "//iam.googleapis.com/projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/
+	// keys/{key}"
+	ServiceAccountKeyName string `json:"serviceAccountKeyName,omitempty"`
 
 	// ServiceName: This is the API service that the service account made a
 	// call to, e.g. "iam.googleapis.com"
 	ServiceName string `json:"serviceName,omitempty"`
 
-	// UserAgentFamily: What kind of user agent is associated, e.g.
+	// UserAgentFamily: What kind of user agent is associated, for example
 	// operating system shells, embedded or stand-alone applications, etc.
 	UserAgentFamily string `json:"userAgentFamily,omitempty"`
+
+	// UserName: A string that represents the username of a user, user
+	// account, or other entity involved in the access event. What the
+	// entity is and what its role in the access event is depends on the
+	// finding that this field appears in. The entity is likely not an IAM
+	// principal, but could be a user that is logged into an operating
+	// system, if the finding is VM-related, or a user that is logged into
+	// some type of application that is involved in the access event.
+	UserName string `json:"userName,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CallerIp") to
 	// unconditionally include in API requests. By default, fields with
@@ -429,6 +507,170 @@ type Access struct {
 
 func (s *Access) MarshalJSON() ([]byte, error) {
 	type NoMethod Access
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AccessReview: Conveys information about a Kubernetes access review
+// (e.g. kubectl auth can-i ...) that was involved in a finding.
+type AccessReview struct {
+	// Group: Group is the API Group of the Resource. "*" means all.
+	Group string `json:"group,omitempty"`
+
+	// Name: Name is the name of the resource being requested. Empty means
+	// all.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace of the action being requested. Currently, there is no
+	// distinction between no namespace and all namespaces. Both are
+	// represented by "" (empty).
+	Ns string `json:"ns,omitempty"`
+
+	// Resource: Resource is the optional resource type requested. "*" means
+	// all.
+	Resource string `json:"resource,omitempty"`
+
+	// Subresource: Subresource is the optional subresource type.
+	Subresource string `json:"subresource,omitempty"`
+
+	// Verb: Verb is a Kubernetes resource API verb, like: get, list, watch,
+	// create, update, delete, proxy. "*" means all.
+	Verb string `json:"verb,omitempty"`
+
+	// Version: Version is the API Version of the Resource. "*" means all.
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Group") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Group") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AccessReview) MarshalJSON() ([]byte, error) {
+	type NoMethod AccessReview
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CloudDlpDataProfile: The data profile
+// (https://cloud.google.com/dlp/docs/data-profiles) associated with the
+// finding.
+type CloudDlpDataProfile struct {
+	// DataProfile: Name of the data profile, for example,
+	// `projects/123/locations/europe/tableProfiles/8383929`.
+	DataProfile string `json:"dataProfile,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DataProfile") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DataProfile") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudDlpDataProfile) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudDlpDataProfile
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CloudDlpInspection: Details about the Cloud Data Loss Prevention
+// (Cloud DLP) inspection job
+// (https://cloud.google.com/dlp/docs/concepts-job-triggers) that
+// produced the finding.
+type CloudDlpInspection struct {
+	// FullScan: Whether Cloud DLP scanned the complete resource or a
+	// sampled subset.
+	FullScan bool `json:"fullScan,omitempty"`
+
+	// InfoType: The type of information
+	// (https://cloud.google.com/dlp/docs/infotypes-reference) found, for
+	// example, `EMAIL_ADDRESS` or `STREET_ADDRESS`.
+	InfoType string `json:"infoType,omitempty"`
+
+	// InfoTypeCount: The number of times Cloud DLP found this infoType
+	// within this job and resource.
+	InfoTypeCount int64 `json:"infoTypeCount,omitempty,string"`
+
+	// InspectJob: Name of the inspection job, for example,
+	// `projects/123/locations/europe/dlpJobs/i-8383929`.
+	InspectJob string `json:"inspectJob,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FullScan") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FullScan") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudDlpInspection) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudDlpInspection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Compliance: Contains compliance information about a security standard
+// indicating unmet recommendations.
+type Compliance struct {
+	// Ids: Policies within the standard/benchmark e.g. A.12.4.1
+	Ids []string `json:"ids,omitempty"`
+
+	// Standard: Refers to industry wide standards or benchmarks e.g. "cis",
+	// "pci", "owasp", etc.
+	Standard string `json:"standard,omitempty"`
+
+	// Version: Version of the standard/benchmark e.g. 1.1
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Ids") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Ids") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Compliance) MarshalJSON() ([]byte, error) {
+	type NoMethod Compliance
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -522,6 +764,102 @@ type Connection struct {
 
 func (s *Connection) MarshalJSON() ([]byte, error) {
 	type NoMethod Connection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Contact: The email address of a contact.
+type Contact struct {
+	// Email: An email address. For example, "person123@company.com".
+	Email string `json:"email,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Email") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Email") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Contact) MarshalJSON() ([]byte, error) {
+	type NoMethod Contact
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ContactDetails: The details pertaining to specific contacts
+type ContactDetails struct {
+	// Contacts: A list of contacts
+	Contacts []*Contact `json:"contacts,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Contacts") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Contacts") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ContactDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod ContactDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Container: Container associated with the finding.
+type Container struct {
+	// ImageId: Optional container image id, when provided by the container
+	// runtime. Uniquely identifies the container image launched using a
+	// container image digest.
+	ImageId string `json:"imageId,omitempty"`
+
+	// Labels: Container labels, as provided by the container runtime.
+	Labels []*Label `json:"labels,omitempty"`
+
+	// Name: Container name.
+	Name string `json:"name,omitempty"`
+
+	// Uri: Container image URI provided when configuring a pod/container.
+	// May identify a container image version using mutable tags.
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ImageId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ImageId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Container) MarshalJSON() ([]byte, error) {
+	type NoMethod Container
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -789,6 +1127,57 @@ func (s *Cvssv3) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Database: Represents database access information, such as queries. A
+// database may be a sub-resource of an instance (as in the case of
+// CloudSQL instances or Cloud Spanner instances), or the database
+// instance itself. Some database resources may not have the full
+// resource name populated because these resource types are not yet
+// supported by Cloud Asset Inventory (e.g. CloudSQL databases). In
+// these cases only the display name will be provided.
+type Database struct {
+	// DisplayName: The human readable name of the database the user
+	// connected to.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// Grantees: The target usernames/roles/groups of a SQL privilege grant
+	// (not an IAM policy change).
+	Grantees []string `json:"grantees,omitempty"`
+
+	// Name: The full resource name of the database the user connected to,
+	// if it is supported by CAI.
+	// (https://google.aip.dev/122#full-resource-names)
+	Name string `json:"name,omitempty"`
+
+	// Query: The SQL statement associated with the relevant access.
+	Query string `json:"query,omitempty"`
+
+	// UserName: The username used to connect to the DB. This may not
+	// necessarily be an IAM principal, and has no required format.
+	UserName string `json:"userName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DisplayName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Database) MarshalJSON() ([]byte, error) {
+	type NoMethod Database
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Details: Details of a subscription.
 type Details struct {
 	// EndTime: The time the subscription has or will end.
@@ -805,6 +1194,7 @@ type Details struct {
 	//   "TRIAL" - The trial subscription.
 	//   "ALPHA" - The alpha subscription.
 	//   "DEMO" - The demo subscription for channel partners.
+	//   "PAY_AS_YOU_GO" - Pay-as-you-go subscription.
 	Type string `json:"type,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "EndTime") to
@@ -826,6 +1216,86 @@ type Details struct {
 
 func (s *Details) MarshalJSON() ([]byte, error) {
 	type NoMethod Details
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Detection: Memory hash detection contributing to the binary family
+// match.
+type Detection struct {
+	// Binary: The name of the binary associated with the memory hash
+	// signature detection.
+	Binary string `json:"binary,omitempty"`
+
+	// PercentPagesMatched: The percentage of memory page hashes in the
+	// signature that were matched.
+	PercentPagesMatched float64 `json:"percentPagesMatched,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Binary") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Binary") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Detection) MarshalJSON() ([]byte, error) {
+	type NoMethod Detection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+func (s *Detection) UnmarshalJSON(data []byte) error {
+	type NoMethod Detection
+	var s1 struct {
+		PercentPagesMatched gensupport.JSONFloat64 `json:"percentPagesMatched"`
+		*NoMethod
+	}
+	s1.NoMethod = (*NoMethod)(s)
+	if err := json.Unmarshal(data, &s1); err != nil {
+		return err
+	}
+	s.PercentPagesMatched = float64(s1.PercentPagesMatched)
+	return nil
+}
+
+// EnvironmentVariable: EnvironmentVariable is a name-value pair to
+// store environment variables for Process.
+type EnvironmentVariable struct {
+	// Name: Environment variable name as a JSON encoded string.
+	Name string `json:"name,omitempty"`
+
+	// Val: Environment variable value as a JSON encoded string.
+	Val string `json:"val,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EnvironmentVariable) MarshalJSON() ([]byte, error) {
+	type NoMethod EnvironmentVariable
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -886,6 +1356,127 @@ func (s *EventThreatDetectionSettings) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// ExfilResource: Resource that has been exfiltrated or exfiltrated_to.
+type ExfilResource struct {
+	// Components: Subcomponents of the asset that is exfiltrated - these
+	// could be URIs used during exfiltration, table names, databases,
+	// filenames, etc. For example, multiple tables may be exfiltrated from
+	// the same CloudSQL instance, or multiple files from the same Cloud
+	// Storage bucket.
+	Components []string `json:"components,omitempty"`
+
+	// Name: Resource's URI (https://google.aip.dev/122#full-resource-names)
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Components") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Components") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ExfilResource) MarshalJSON() ([]byte, error) {
+	type NoMethod ExfilResource
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Exfiltration: Exfiltration represents a data exfiltration attempt of
+// one or more sources to one or more targets. Sources represent the
+// source of data that is exfiltrated, and Targets represents the
+// destination the data was copied to.
+type Exfiltration struct {
+	// Sources: If there are multiple sources, then the data is considered
+	// "joined" between them. For instance, BigQuery can join multiple
+	// tables, and each table would be considered a source.
+	Sources []*ExfilResource `json:"sources,omitempty"`
+
+	// Targets: If there are multiple targets, each target would get a
+	// complete copy of the "joined" source data.
+	Targets []*ExfilResource `json:"targets,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Sources") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Sources") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Exfiltration) MarshalJSON() ([]byte, error) {
+	type NoMethod Exfiltration
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// File: File information about the related binary/library used by an
+// executable, or the script used by a script interpreter
+type File struct {
+	// Contents: Prefix of the file contents as a JSON encoded string.
+	// (Currently only populated for Malicious Script Executed findings.)
+	Contents string `json:"contents,omitempty"`
+
+	// HashedSize: The length in bytes of the file prefix that was hashed.
+	// If hashed_size == size, any hashes reported represent the entire
+	// file.
+	HashedSize int64 `json:"hashedSize,omitempty,string"`
+
+	// PartiallyHashed: True when the hash covers only a prefix of the file.
+	PartiallyHashed bool `json:"partiallyHashed,omitempty"`
+
+	// Path: Absolute path of the file as a JSON encoded string.
+	Path string `json:"path,omitempty"`
+
+	// Sha256: SHA256 hash of the first hashed_size bytes of the file
+	// encoded as a hex string. If hashed_size == size, sha256 represents
+	// the SHA256 hash of the entire file.
+	Sha256 string `json:"sha256,omitempty"`
+
+	// Size: Size of the file in bytes.
+	Size int64 `json:"size,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Contents") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Contents") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *File) MarshalJSON() ([]byte, error) {
+	type NoMethod File
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Finding: Security Command Center finding. A finding is a record of
 // assessment data like security, risk, health, or privacy, that is
 // ingested into Security Command Center for presentation, notification,
@@ -912,13 +1503,41 @@ type Finding struct {
 	// "XSS_FLASH_INJECTION"
 	Category string `json:"category,omitempty"`
 
+	// CloudDlpDataProfile: Cloud DLP data profile associated with the
+	// finding.
+	CloudDlpDataProfile *CloudDlpDataProfile `json:"cloudDlpDataProfile,omitempty"`
+
+	// CloudDlpInspection: Cloud DLP inspection associated with the finding.
+	CloudDlpInspection *CloudDlpInspection `json:"cloudDlpInspection,omitempty"`
+
+	// Compliances: Contains compliance information for security standards
+	// associated to the finding.
+	Compliances []*Compliance `json:"compliances,omitempty"`
+
 	// Connections: Contains information about the IP connection associated
 	// with the finding.
 	Connections []*Connection `json:"connections,omitempty"`
 
+	// Contacts: Output only. Map containing the points of contact for the
+	// given finding. The key represents the type of contact, while the
+	// value contains a list of all the contacts that pertain. Please refer
+	// to:
+	// https://cloud.google.com/resource-manager/docs/managing-notification-contacts#notification-categories
+	// { "security": { "contacts": [ { "email": "person1@company.com" }, {
+	// "email": "person2@company.com" } ] } }
+	Contacts map[string]ContactDetails `json:"contacts,omitempty"`
+
+	// Containers: Containers associated with the finding. containers
+	// provides information for both Kubernetes and non-Kubernetes
+	// containers.
+	Containers []*Container `json:"containers,omitempty"`
+
 	// CreateTime: The time at which the finding was created in Security
 	// Command Center.
 	CreateTime string `json:"createTime,omitempty"`
+
+	// Database: Database associated with the finding.
+	Database *Database `json:"database,omitempty"`
 
 	// Description: Contains more detail about the finding.
 	Description string `json:"description,omitempty"`
@@ -932,6 +1551,9 @@ type Finding struct {
 	// must not be set to a value greater than the current timestamp.
 	EventTime string `json:"eventTime,omitempty"`
 
+	// Exfiltration: Represents exfiltration associated with the Finding.
+	Exfiltration *Exfiltration `json:"exfiltration,omitempty"`
+
 	// ExternalSystems: Output only. Third party SIEM/SOAR fields within
 	// SCC, contains external system information and external system finding
 	// fields.
@@ -942,6 +1564,9 @@ type Finding struct {
 	// finding can be found. This field is guaranteed to be either empty or
 	// a well formed URL.
 	ExternalUri string `json:"externalUri,omitempty"`
+
+	// Files: File associated with the finding.
+	Files []*File `json:"files,omitempty"`
 
 	// FindingClass: The class of the finding.
 	//
@@ -968,9 +1593,21 @@ type Finding struct {
 	// https://en.wikipedia.org/wiki/Indicator_of_compromise
 	Indicator *Indicator `json:"indicator,omitempty"`
 
+	// KernelRootkit: Kernel Rootkit signature.
+	KernelRootkit *KernelRootkit `json:"kernelRootkit,omitempty"`
+
+	// Kubernetes: Kubernetes resources associated with the finding.
+	Kubernetes *Kubernetes `json:"kubernetes,omitempty"`
+
 	// MitreAttack: MITRE ATT&CK tactics and techniques related to this
 	// finding. See: https://attack.mitre.org
 	MitreAttack *MitreAttack `json:"mitreAttack,omitempty"`
+
+	// ModuleName: Unique identifier of the module which generated the
+	// finding. Example:
+	// folders/598186756061/securityHealthAnalyticsSettings/customModules/567
+	// 99441161885
+	ModuleName string `json:"moduleName,omitempty"`
 
 	// Mute: Indicates the mute state of a finding (either muted, unmuted or
 	// undefined). Unlike other attributes of a finding, a finding provider
@@ -1009,6 +1646,15 @@ type Finding struct {
 	// This field is immutable after creation time. For example:
 	// "organizations/{organization_id}/sources/{source_id}"
 	Parent string `json:"parent,omitempty"`
+
+	// ParentDisplayName: Output only. The human readable display name of
+	// the finding source such as "Event Threat Detection" or "Security
+	// Health Analytics".
+	ParentDisplayName string `json:"parentDisplayName,omitempty"`
+
+	// Processes: Represents operating system processes associated with the
+	// Finding.
+	Processes []*Process `json:"processes,omitempty"`
 
 	// ResourceName: For findings on Google Cloud resources, the full
 	// resource name of the Google Cloud resource this finding is for. See:
@@ -1083,8 +1729,8 @@ type Finding struct {
 	// otherwise addressed and is no longer active.
 	State string `json:"state,omitempty"`
 
-	// Vulnerability: Represents vulnerability specific fields like cve,
-	// cvss scores etc. CVE stands for Common Vulnerabilities and Exposures
+	// Vulnerability: Represents vulnerability-specific fields like CVE and
+	// CVSS scores. CVE stands for Common Vulnerabilities and Exposures
 	// (https://cve.mitre.org/about/)
 	Vulnerability *Vulnerability `json:"vulnerability,omitempty"`
 
@@ -1177,7 +1823,7 @@ func (s *Geolocation) MarshalJSON() ([]byte, error) {
 // GoogleCloudSecuritycenterV1BigQueryExport: Configures how to deliver
 // Findings to BigQuery Instance.
 type GoogleCloudSecuritycenterV1BigQueryExport struct {
-	// CreateTime: Output only. The time at which the big query export was
+	// CreateTime: Output only. The time at which the BigQuery export was
 	// created. This field is set by the server and will be ignored if
 	// provided on export on creation.
 	CreateTime string `json:"createTime,omitempty"`
@@ -1205,7 +1851,7 @@ type GoogleCloudSecuritycenterV1BigQueryExport struct {
 	Filter string `json:"filter,omitempty"`
 
 	// MostRecentEditor: Output only. Email address of the user who last
-	// edited the big query export. This field is set by the server and will
+	// edited the BigQuery export. This field is set by the server and will
 	// be ignored if provided on export creation or update.
 	MostRecentEditor string `json:"mostRecentEditor,omitempty"`
 
@@ -1220,12 +1866,12 @@ type GoogleCloudSecuritycenterV1BigQueryExport struct {
 	Name string `json:"name,omitempty"`
 
 	// Principal: Output only. The service account that needs permission to
-	// create table, upload data to the big query dataset.
+	// create table and upload data to the BigQuery dataset.
 	Principal string `json:"principal,omitempty"`
 
-	// UpdateTime: Output only. The most recent time at which the big export
-	// was updated. This field is set by the server and will be ignored if
-	// provided on export creation or update.
+	// UpdateTime: Output only. The most recent time at which the BigQuery
+	// export was updated. This field is set by the server and will be
+	// ignored if provided on export creation or update.
 	UpdateTime string `json:"updateTime,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CreateTime") to
@@ -1251,6 +1897,45 @@ func (s *GoogleCloudSecuritycenterV1BigQueryExport) MarshalJSON() ([]byte, error
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudSecuritycenterV1Binding: Represents a Kubernetes
+// RoleBinding or ClusterRoleBinding.
+type GoogleCloudSecuritycenterV1Binding struct {
+	// Name: Name for binding.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace for binding.
+	Ns string `json:"ns,omitempty"`
+
+	// Role: The Role or ClusterRole referenced by the binding.
+	Role *Role `json:"role,omitempty"`
+
+	// Subjects: Represents one or more subjects that are bound to the role.
+	// Not always available for PATCH requests.
+	Subjects []*Subject `json:"subjects,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudSecuritycenterV1Binding) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudSecuritycenterV1Binding
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudSecuritycenterV1BulkMuteFindingsResponse: The response to
 // a BulkMute request. Contains the LRO information.
 type GoogleCloudSecuritycenterV1BulkMuteFindingsResponse struct {
@@ -1271,10 +1956,10 @@ type GoogleCloudSecuritycenterV1ExternalSystem struct {
 	// external system.
 	ExternalUid string `json:"externalUid,omitempty"`
 
-	// Name: External System Name e.g. jira, demisto, etc. e.g.:
-	// `organizations/1234/sources/5678/findings/123456/externalSystems/jira`
-	//  `folders/1234/sources/5678/findings/123456/externalSystems/jira`
-	// `projects/1234/sources/5678/findings/123456/externalSystems/jira`
+	// Name: Full resource name of the external system, for example:
+	// "organizations/1234/sources/5678/findings/123456/externalSystems/jira"
+	// , "folders/1234/sources/5678/findings/123456/externalSystems/jira",
+	// "projects/1234/sources/5678/findings/123456/externalSystems/jira"
 	Name string `json:"name,omitempty"`
 
 	// Status: Most recent status of the corresponding finding's
@@ -1921,17 +2606,26 @@ func (s *IamBinding) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Indicator: Represents what's commonly known as an Indicator of
-// compromise (IoC) in computer forensics. This is an artifact observed
+// Indicator: Represents what's commonly known as an _indicator of
+// compromise_ (IoC) in computer forensics. This is an artifact observed
 // on a network or in an operating system that, with high confidence,
-// indicates a computer intrusion. Reference:
-// https://en.wikipedia.org/wiki/Indicator_of_compromise
+// indicates a computer intrusion. For more information, see Indicator
+// of compromise
+// (https://en.wikipedia.org/wiki/Indicator_of_compromise).
 type Indicator struct {
 	// Domains: List of domains associated to the Finding.
 	Domains []string `json:"domains,omitempty"`
 
-	// IpAddresses: List of ip addresses associated to the Finding.
+	// IpAddresses: The list of IP addresses that are associated with the
+	// finding.
 	IpAddresses []string `json:"ipAddresses,omitempty"`
+
+	// Signatures: The list of matched signatures indicating that the given
+	// process is present in the environment.
+	Signatures []*ProcessSignature `json:"signatures,omitempty"`
+
+	// Uris: The list of URIs associated to the Findings.
+	Uris []string `json:"uris,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Domains") to
 	// unconditionally include in API requests. By default, fields with
@@ -1952,6 +2646,182 @@ type Indicator struct {
 
 func (s *Indicator) MarshalJSON() ([]byte, error) {
 	type NoMethod Indicator
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// KernelRootkit: Kernel mode rootkit signatures.
+type KernelRootkit struct {
+	// Name: Rootkit name when available.
+	Name string `json:"name,omitempty"`
+
+	// UnexpectedCodeModification: True when unexpected modifications of
+	// kernel code memory are present.
+	UnexpectedCodeModification bool `json:"unexpectedCodeModification,omitempty"`
+
+	// UnexpectedFtraceHandler: True when `ftrace` points are present with
+	// callbacks pointing to regions that are not in the expected kernel or
+	// module code range.
+	UnexpectedFtraceHandler bool `json:"unexpectedFtraceHandler,omitempty"`
+
+	// UnexpectedInterruptHandler: True when interrupt handlers that are are
+	// not in the expected kernel or module code regions are present.
+	UnexpectedInterruptHandler bool `json:"unexpectedInterruptHandler,omitempty"`
+
+	// UnexpectedKernelCodePages: True when kernel code pages that are not
+	// in the expected kernel or module code regions are present.
+	UnexpectedKernelCodePages bool `json:"unexpectedKernelCodePages,omitempty"`
+
+	// UnexpectedKprobeHandler: True when `kprobe` points are present with
+	// callbacks pointing to regions that are not in the expected kernel or
+	// module code range.
+	UnexpectedKprobeHandler bool `json:"unexpectedKprobeHandler,omitempty"`
+
+	// UnexpectedProcessesInRunqueue: True when unexpected processes in the
+	// scheduler run queue are present. Such processes are in the run queue,
+	// but not in the process task list.
+	UnexpectedProcessesInRunqueue bool `json:"unexpectedProcessesInRunqueue,omitempty"`
+
+	// UnexpectedReadOnlyDataModification: True when unexpected
+	// modifications of kernel read-only data memory are present.
+	UnexpectedReadOnlyDataModification bool `json:"unexpectedReadOnlyDataModification,omitempty"`
+
+	// UnexpectedSystemCallHandler: True when system call handlers that are
+	// are not in the expected kernel or module code regions are present.
+	UnexpectedSystemCallHandler bool `json:"unexpectedSystemCallHandler,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *KernelRootkit) MarshalJSON() ([]byte, error) {
+	type NoMethod KernelRootkit
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Kubernetes: Kubernetes-related attributes.
+type Kubernetes struct {
+	// AccessReviews: Provides information on any Kubernetes access reviews
+	// (i.e. privilege checks) relevant to the finding.
+	AccessReviews []*AccessReview `json:"accessReviews,omitempty"`
+
+	// Bindings: Provides Kubernetes role binding information for findings
+	// that involve RoleBindings or ClusterRoleBindings.
+	Bindings []*GoogleCloudSecuritycenterV1Binding `json:"bindings,omitempty"`
+
+	// NodePools: GKE Node Pools associated with the finding. This field
+	// will contain NodePool information for each Node, when it is
+	// available.
+	NodePools []*NodePool `json:"nodePools,omitempty"`
+
+	// Nodes: Provides Kubernetes Node information.
+	Nodes []*Node `json:"nodes,omitempty"`
+
+	// Pods: Kubernetes Pods associated with the finding. This field will
+	// contain Pod records for each container that is owned by a Pod.
+	Pods []*Pod `json:"pods,omitempty"`
+
+	// Roles: Provides Kubernetes role information for findings that involve
+	// Roles or ClusterRoles.
+	Roles []*Role `json:"roles,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AccessReviews") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AccessReviews") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Kubernetes) MarshalJSON() ([]byte, error) {
+	type NoMethod Kubernetes
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Label: Label represents a generic name=value label. Label has
+// separate name and value fields to support filtering with contains().
+type Label struct {
+	// Name: Label name.
+	Name string `json:"name,omitempty"`
+
+	// Value: Label value.
+	Value string `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Label) MarshalJSON() ([]byte, error) {
+	type NoMethod Label
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// MemoryHashSignature: A signature corresponding to memory page hashes.
+type MemoryHashSignature struct {
+	// BinaryFamily: The binary family.
+	BinaryFamily string `json:"binaryFamily,omitempty"`
+
+	// Detections: The list of memory hash detections contributing to the
+	// binary family match.
+	Detections []*Detection `json:"detections,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "BinaryFamily") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "BinaryFamily") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MemoryHashSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod MemoryHashSignature
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2017,6 +2887,10 @@ type MitreAttack struct {
 	//   "DATA_DESTRUCTION" - T1485
 	//   "DOMAIN_POLICY_MODIFICATION" - T1484
 	//   "IMPAIR_DEFENSES" - T1562
+	//   "NETWORK_SERVICE_DISCOVERY" - T1046
+	//   "ACCESS_TOKEN_MANIPULATION" - T1134
+	//   "ABUSE_ELEVATION_CONTROL_MECHANISM" - T1548
+	//   "DEFAULT_ACCOUNTS" - T1078.001
 	AdditionalTechniques []string `json:"additionalTechniques,omitempty"`
 
 	// PrimaryTactic: The MITRE ATT&CK tactic most closely represented by
@@ -2081,6 +2955,10 @@ type MitreAttack struct {
 	//   "DATA_DESTRUCTION" - T1485
 	//   "DOMAIN_POLICY_MODIFICATION" - T1484
 	//   "IMPAIR_DEFENSES" - T1562
+	//   "NETWORK_SERVICE_DISCOVERY" - T1046
+	//   "ACCESS_TOKEN_MANIPULATION" - T1134
+	//   "ABUSE_ELEVATION_CONTROL_MECHANISM" - T1548
+	//   "DEFAULT_ACCOUNTS" - T1078.001
 	PrimaryTechniques []string `json:"primaryTechniques,omitempty"`
 
 	// Version: The MITRE ATT&CK version referenced by the above fields.
@@ -2107,6 +2985,66 @@ type MitreAttack struct {
 
 func (s *MitreAttack) MarshalJSON() ([]byte, error) {
 	type NoMethod MitreAttack
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Node: Kubernetes Nodes associated with the finding.
+type Node struct {
+	// Name: Full Resource name of the Compute Engine VM running the cluster
+	// node.
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Node) MarshalJSON() ([]byte, error) {
+	type NoMethod Node
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// NodePool: Provides GKE Node Pool information.
+type NodePool struct {
+	// Name: Kubernetes Node pool name.
+	Name string `json:"name,omitempty"`
+
+	// Nodes: Nodes associated with the finding.
+	Nodes []*Node `json:"nodes,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *NodePool) MarshalJSON() ([]byte, error) {
+	type NoMethod NodePool
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2160,6 +3098,194 @@ func (s *OnboardingState) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Pod: Kubernetes Pod.
+type Pod struct {
+	// Containers: Pod containers associated with this finding, if any.
+	Containers []*Container `json:"containers,omitempty"`
+
+	// Labels: Pod labels. For Kubernetes containers, these are applied to
+	// the container.
+	Labels []*Label `json:"labels,omitempty"`
+
+	// Name: Kubernetes Pod name.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Kubernetes Pod namespace.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Containers") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Containers") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Pod) MarshalJSON() ([]byte, error) {
+	type NoMethod Pod
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Process: Represents an operating system process.
+type Process struct {
+	// Args: Process arguments as JSON encoded strings.
+	Args []string `json:"args,omitempty"`
+
+	// ArgumentsTruncated: True if `args` is incomplete.
+	ArgumentsTruncated bool `json:"argumentsTruncated,omitempty"`
+
+	// Binary: File information for the process executable.
+	Binary *File `json:"binary,omitempty"`
+
+	// EnvVariables: Process environment variables.
+	EnvVariables []*EnvironmentVariable `json:"envVariables,omitempty"`
+
+	// EnvVariablesTruncated: True if `env_variables` is incomplete.
+	EnvVariablesTruncated bool `json:"envVariablesTruncated,omitempty"`
+
+	// Libraries: File information for libraries loaded by the process.
+	Libraries []*File `json:"libraries,omitempty"`
+
+	// Name: The process name visible in utilities like `top` and `ps`; it
+	// can be accessed via `/proc/[pid]/comm` and changed with
+	// `prctl(PR_SET_NAME)`.
+	Name string `json:"name,omitempty"`
+
+	// ParentPid: The parent process id.
+	ParentPid int64 `json:"parentPid,omitempty,string"`
+
+	// Pid: The process id.
+	Pid int64 `json:"pid,omitempty,string"`
+
+	// Script: When the process represents the invocation of a script,
+	// `binary` provides information about the interpreter while `script`
+	// provides information about the script file provided to the
+	// interpreter.
+	Script *File `json:"script,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Args") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Args") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Process) MarshalJSON() ([]byte, error) {
+	type NoMethod Process
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ProcessSignature: Indicates what signature matched this process.
+type ProcessSignature struct {
+	// MemoryHashSignature: Signature indicating that a binary family was
+	// matched.
+	MemoryHashSignature *MemoryHashSignature `json:"memoryHashSignature,omitempty"`
+
+	// YaraRuleSignature: Signature indicating that a YARA rule was matched.
+	YaraRuleSignature *YaraRuleSignature `json:"yaraRuleSignature,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "MemoryHashSignature")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "MemoryHashSignature") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ProcessSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod ProcessSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// RapidVulnerabilityDetectionSettings: Resource capturing the settings
+// for the Rapid Vulnerability Detection service.
+type RapidVulnerabilityDetectionSettings struct {
+	// Modules: The configurations including the state of enablement for the
+	// service's different modules. The absence of a module in the map
+	// implies its configuration is inherited from its parent's.
+	Modules map[string]Config `json:"modules,omitempty"`
+
+	// Name: The resource name of the RapidVulnerabilityDetectionSettings.
+	// Formats: *
+	// organizations/{organization}/rapidVulnerabilityDetectionSettings *
+	// folders/{folder}/rapidVulnerabilityDetectionSettings *
+	// projects/{project}/rapidVulnerabilityDetectionSettings
+	Name string `json:"name,omitempty"`
+
+	// ServiceEnablementState: The state of enablement for the service at
+	// its level of the resource hierarchy. A DISABLED state will override
+	// all module enablement_states to DISABLED.
+	//
+	// Possible values:
+	//   "ENABLEMENT_STATE_UNSPECIFIED" - Default value. This value is
+	// unused.
+	//   "INHERITED" - State is inherited from the parent resource.
+	//   "ENABLED" - State is enabled.
+	//   "DISABLED" - State is disabled.
+	ServiceEnablementState string `json:"serviceEnablementState,omitempty"`
+
+	// UpdateTime: Output only. The time the settings were last updated.
+	UpdateTime string `json:"updateTime,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Modules") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Modules") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RapidVulnerabilityDetectionSettings) MarshalJSON() ([]byte, error) {
+	type NoMethod RapidVulnerabilityDetectionSettings
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Reference: Additional Links
 type Reference struct {
 	// Source: Source of the reference e.g. NVD
@@ -2192,6 +3318,45 @@ func (s *Reference) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Role: Kubernetes Role or ClusterRole.
+type Role struct {
+	// Kind: Role type.
+	//
+	// Possible values:
+	//   "KIND_UNSPECIFIED" - Role type is not specified.
+	//   "ROLE" - Kubernetes Role.
+	//   "CLUSTER_ROLE" - Kubernetes ClusterRole.
+	Kind string `json:"kind,omitempty"`
+
+	// Name: Role name.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Role namespace.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Role) MarshalJSON() ([]byte, error) {
+	type NoMethod Role
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SecurityCenterSettings: Resource capturing the settings for Security
 // Center.
 type SecurityCenterSettings struct {
@@ -2200,7 +3365,8 @@ type SecurityCenterSettings struct {
 	// in. The format is `projects/{project_id}`. An empty value disables
 	// logging. This value is only referenced by services that support log
 	// sink. Please refer to the documentation for an updated list of
-	// compatible services.
+	// compatible services. This may only be specified for organization
+	// level onboarding.
 	LogSinkProject string `json:"logSinkProject,omitempty"`
 
 	// Name: The resource name of the SecurityCenterSettings. Format:
@@ -2209,8 +3375,12 @@ type SecurityCenterSettings struct {
 	// projects/{project}/securityCenterSettings
 	Name string `json:"name,omitempty"`
 
-	// OrgServiceAccount: The organization level service account to be used
-	// for security center components.
+	// OnboardingTime: Output only. Timestamp of when the customer
+	// organization was onboarded to SCC.
+	OnboardingTime string `json:"onboardingTime,omitempty"`
+
+	// OrgServiceAccount: Output only. The organization level service
+	// account to be used for security center components.
 	OrgServiceAccount string `json:"orgServiceAccount,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -2355,6 +3525,87 @@ type SecurityMarks struct {
 
 func (s *SecurityMarks) MarshalJSON() ([]byte, error) {
 	type NoMethod SecurityMarks
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ServiceAccountDelegationInfo: Identity delegation history of an
+// authenticated service account.
+type ServiceAccountDelegationInfo struct {
+	// PrincipalEmail: The email address of a Google account.
+	PrincipalEmail string `json:"principalEmail,omitempty"`
+
+	// PrincipalSubject: A string representing the principal_subject
+	// associated with the identity. As compared to `principal_email`,
+	// supports principals that aren't associated with email addresses, such
+	// as third party principals. For most identities, the format will be
+	// `principal://iam.googleapis.com/{identity pool
+	// name}/subjects/{subject}` except for some GKE identities
+	// (GKE_WORKLOAD, FREEFORM, GKE_HUB_WORKLOAD) that are still in the
+	// legacy format `serviceAccount:{identity pool name}[{subject}]`
+	PrincipalSubject string `json:"principalSubject,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PrincipalEmail") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PrincipalEmail") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ServiceAccountDelegationInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod ServiceAccountDelegationInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Subject: Represents a Kubernetes Subject.
+type Subject struct {
+	// Kind: Authentication type for subject.
+	//
+	// Possible values:
+	//   "AUTH_TYPE_UNSPECIFIED" - Authentication is not specified.
+	//   "USER" - User with valid certificate.
+	//   "SERVICEACCOUNT" - Users managed by Kubernetes API with credentials
+	// stored as Secrets.
+	//   "GROUP" - Collection of users.
+	Kind string `json:"kind,omitempty"`
+
+	// Name: Name for subject.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace for subject.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Subject) MarshalJSON() ([]byte, error) {
+	type NoMethod Subject
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2553,6 +3804,34 @@ func (s *WebSecurityScannerSettings) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// YaraRuleSignature: A signature corresponding to a YARA rule.
+type YaraRuleSignature struct {
+	// YaraRule: The name of the YARA rule.
+	YaraRule string `json:"yaraRule,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "YaraRule") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "YaraRule") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *YaraRuleSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod YaraRuleSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // method id "securitycenter.folders.getContainerThreatDetectionSettings":
 
 type FoldersGetContainerThreatDetectionSettingsCall struct {
@@ -2565,15 +3844,21 @@ type FoldersGetContainerThreatDetectionSettingsCall struct {
 }
 
 // GetContainerThreatDetectionSettings: Get the
-// ContainerThreatDetectionSettings resource.
+// ContainerThreatDetectionSettings resource. In the returned settings
+// response, a missing field only indicates that it was not explicitly
+// set, so no assumption should be made about these fields. In other
+// words, GetContainerThreatDetectionSettings does not calculate the
+// effective service settings for the resource, which accounts for
+// inherited settings and defaults. Instead, use
+// CalculateContainerThreatDetectionSettings for this purpose.
 //
-// - name: The name of the ContainerThreatDetectionSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *FoldersService) GetContainerThreatDetectionSettings(name string) *FoldersGetContainerThreatDetectionSettingsCall {
 	c := &FoldersGetContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2655,17 +3940,17 @@ func (c *FoldersGetContainerThreatDetectionSettingsCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -2679,7 +3964,7 @@ func (c *FoldersGetContainerThreatDetectionSettingsCall) Do(opts ...googleapi.Ca
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the ContainerThreatDetectionSettings resource.",
+	//   "description": "Get the ContainerThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetContainerThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateContainerThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/containerThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.getContainerThreatDetectionSettings",
@@ -2718,13 +4003,19 @@ type FoldersGetEventThreatDetectionSettingsCall struct {
 }
 
 // GetEventThreatDetectionSettings: Get the EventThreatDetectionSettings
-// resource.
+// resource. In the returned settings response, a missing field only
+// indicates that it was not explicitly set, so no assumption should be
+// made about these fields. In other words,
+// GetEventThreatDetectionSettings does not calculate the effective
+// service settings for the resource, which accounts for inherited
+// settings and defaults. Instead, use
+// CalculateEventThreatDetectionSettings for this purpose.
 //
-// - name: The name of the EventThreatDetectionSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The name of the EventThreatDetectionSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *FoldersService) GetEventThreatDetectionSettings(name string) *FoldersGetEventThreatDetectionSettingsCall {
 	c := &FoldersGetEventThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2806,17 +4097,17 @@ func (c *FoldersGetEventThreatDetectionSettingsCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -2830,7 +4121,7 @@ func (c *FoldersGetEventThreatDetectionSettingsCall) Do(opts ...googleapi.CallOp
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the EventThreatDetectionSettings resource.",
+	//   "description": "Get the EventThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetEventThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateEventThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/eventThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.getEventThreatDetectionSettings",
@@ -2870,10 +4161,10 @@ type FoldersGetOnboardingStateCall struct {
 
 // GetOnboardingState: Retrieve the OnboardingState of a resource.
 //
-// - name: The name of the OnboardingState to retrieve. Formats: *
-//   organizations/{organization}/onboardingState *
-//   folders/{folder}/onboardingState *
-//   projects/{project}/onboardingState.
+//   - name: The name of the OnboardingState to retrieve. Formats: *
+//     organizations/{organization}/onboardingState *
+//     folders/{folder}/onboardingState *
+//     projects/{project}/onboardingState.
 func (r *FoldersService) GetOnboardingState(name string) *FoldersGetOnboardingStateCall {
 	c := &FoldersGetOnboardingStateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2955,17 +4246,17 @@ func (c *FoldersGetOnboardingStateCall) Do(opts ...googleapi.CallOption) (*Onboa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OnboardingState{
 		ServerResponse: googleapi.ServerResponse{
@@ -3006,6 +4297,164 @@ func (c *FoldersGetOnboardingStateCall) Do(opts ...googleapi.CallOption) (*Onboa
 
 }
 
+// method id "securitycenter.folders.getRapidVulnerabilityDetectionSettings":
+
+type FoldersGetRapidVulnerabilityDetectionSettingsCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetRapidVulnerabilityDetectionSettings: Get the
+// RapidVulnerabilityDetectionSettings resource. In the returned
+// settings response, a missing field only indicates that it was not
+// explicitly set, so no assumption should be made about these fields.
+// In other words, GetRapidVulnerabilityDetectionSettings does not
+// calculate the effective service settings for the resource, which
+// accounts for inherited settings and defaults. Instead, use
+// CalculateRapidVulnerabilityDetectionSettings for this purpose.
+//
+//   - name: The name of the RapidVulnerabilityDetectionSettings to
+//     retrieve. Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *FoldersService) GetRapidVulnerabilityDetectionSettings(name string) *FoldersGetRapidVulnerabilityDetectionSettingsCall {
+	c := &FoldersGetRapidVulnerabilityDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersGetRapidVulnerabilityDetectionSettingsCall) Fields(s ...googleapi.Field) *FoldersGetRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *FoldersGetRapidVulnerabilityDetectionSettingsCall) IfNoneMatch(entityTag string) *FoldersGetRapidVulnerabilityDetectionSettingsCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersGetRapidVulnerabilityDetectionSettingsCall) Context(ctx context.Context) *FoldersGetRapidVulnerabilityDetectionSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersGetRapidVulnerabilityDetectionSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersGetRapidVulnerabilityDetectionSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.getRapidVulnerabilityDetectionSettings" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *FoldersGetRapidVulnerabilityDetectionSettingsCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get the RapidVulnerabilityDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetRapidVulnerabilityDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateRapidVulnerabilityDetectionSettings for this purpose.",
+	//   "flatPath": "v1beta2/folders/{foldersId}/rapidVulnerabilityDetectionSettings",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.folders.getRapidVulnerabilityDetectionSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the RapidVulnerabilityDetectionSettings to retrieve. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}",
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.folders.getSecurityCenterSettings":
 
 type FoldersGetSecurityCenterSettingsCall struct {
@@ -3019,10 +4468,10 @@ type FoldersGetSecurityCenterSettingsCall struct {
 
 // GetSecurityCenterSettings: Get the SecurityCenterSettings resource.
 //
-// - name: The name of the SecurityCenterSettings to retrieve. Format:
-//   organizations/{organization}/securityCenterSettings Format:
-//   folders/{folder}/securityCenterSettings Format:
-//   projects/{project}/securityCenterSettings.
+//   - name: The name of the SecurityCenterSettings to retrieve. Format:
+//     organizations/{organization}/securityCenterSettings Format:
+//     folders/{folder}/securityCenterSettings Format:
+//     projects/{project}/securityCenterSettings.
 func (r *FoldersService) GetSecurityCenterSettings(name string) *FoldersGetSecurityCenterSettingsCall {
 	c := &FoldersGetSecurityCenterSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3104,17 +4553,17 @@ func (c *FoldersGetSecurityCenterSettingsCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityCenterSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3167,13 +4616,19 @@ type FoldersGetSecurityHealthAnalyticsSettingsCall struct {
 }
 
 // GetSecurityHealthAnalyticsSettings: Get the
-// SecurityHealthAnalyticsSettings resource.
+// SecurityHealthAnalyticsSettings resource. In the returned settings
+// response, a missing field only indicates that it was not explicitly
+// set, so no assumption should be made about these fields. In other
+// words, GetSecurityHealthAnalyticsSettings does not calculate the
+// effective service settings for the resource, which accounts for
+// inherited settings and defaults. Instead, use
+// CalculateSecurityHealthAnalyticsSettings for this purpose.
 //
-// - name: The name of the SecurityHealthAnalyticsSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The name of the SecurityHealthAnalyticsSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *FoldersService) GetSecurityHealthAnalyticsSettings(name string) *FoldersGetSecurityHealthAnalyticsSettingsCall {
 	c := &FoldersGetSecurityHealthAnalyticsSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3255,17 +4710,17 @@ func (c *FoldersGetSecurityHealthAnalyticsSettingsCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3279,7 +4734,7 @@ func (c *FoldersGetSecurityHealthAnalyticsSettingsCall) Do(opts ...googleapi.Cal
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the SecurityHealthAnalyticsSettings resource.",
+	//   "description": "Get the SecurityHealthAnalyticsSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetSecurityHealthAnalyticsSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateSecurityHealthAnalyticsSettings for this purpose.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/securityHealthAnalyticsSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.getSecurityHealthAnalyticsSettings",
@@ -3318,13 +4773,19 @@ type FoldersGetVirtualMachineThreatDetectionSettingsCall struct {
 }
 
 // GetVirtualMachineThreatDetectionSettings: Get the
-// VirtualMachineThreatDetectionSettings resource.
+// VirtualMachineThreatDetectionSettings resource. In the returned
+// settings response, a missing field only indicates that it was not
+// explicitly set, so no assumption should be made about these fields.
+// In other words, GetVirtualMachineThreatDetectionSettings does not
+// calculate the effective service settings for the resource, which
+// accounts for inherited settings and defaults. Instead, use
+// CalculateVirtualMachineThreatDetectionSettings for this purpose.
 //
-// - name: The name of the VirtualMachineThreatDetectionSettings to
-//   retrieve. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The name of the VirtualMachineThreatDetectionSettings to
+//     retrieve. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *FoldersService) GetVirtualMachineThreatDetectionSettings(name string) *FoldersGetVirtualMachineThreatDetectionSettingsCall {
 	c := &FoldersGetVirtualMachineThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3407,17 +4868,17 @@ func (c *FoldersGetVirtualMachineThreatDetectionSettingsCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3431,7 +4892,7 @@ func (c *FoldersGetVirtualMachineThreatDetectionSettingsCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the VirtualMachineThreatDetectionSettings resource.",
+	//   "description": "Get the VirtualMachineThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetVirtualMachineThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateVirtualMachineThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/virtualMachineThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.getVirtualMachineThreatDetectionSettings",
@@ -3470,12 +4931,18 @@ type FoldersGetWebSecurityScannerSettingsCall struct {
 }
 
 // GetWebSecurityScannerSettings: Get the WebSecurityScannerSettings
-// resource.
+// resource. In the returned settings response, a missing field only
+// indicates that it was not explicitly set, so no assumption should be
+// made about these fields. In other words,
+// GetWebSecurityScannerSettings does not calculate the effective
+// service settings for the resource, which accounts for inherited
+// settings and defaults. Instead, use
+// CalculateWebSecurityScannerSettings for this purpose.
 //
-// - name: The name of the WebSecurityScannerSettings to retrieve.
-//   Formats: * organizations/{organization}/webSecurityScannerSettings
-//   * folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - name: The name of the WebSecurityScannerSettings to retrieve.
+//     Formats: * organizations/{organization}/webSecurityScannerSettings
+//   - folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *FoldersService) GetWebSecurityScannerSettings(name string) *FoldersGetWebSecurityScannerSettingsCall {
 	c := &FoldersGetWebSecurityScannerSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3557,17 +5024,17 @@ func (c *FoldersGetWebSecurityScannerSettingsCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3581,7 +5048,7 @@ func (c *FoldersGetWebSecurityScannerSettingsCall) Do(opts ...googleapi.CallOpti
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the WebSecurityScannerSettings resource.",
+	//   "description": "Get the WebSecurityScannerSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetWebSecurityScannerSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateWebSecurityScannerSettings for this purpose.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/webSecurityScannerSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.getWebSecurityScannerSettings",
@@ -3622,13 +5089,13 @@ type FoldersUpdateContainerThreatDetectionSettingsCall struct {
 // UpdateContainerThreatDetectionSettings: Update the
 // ContainerThreatDetectionSettings resource.
 //
-// - name: The resource name of the ContainerThreatDetectionSettings.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The resource name of the ContainerThreatDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *FoldersService) UpdateContainerThreatDetectionSettings(name string, containerthreatdetectionsettings *ContainerThreatDetectionSettings) *FoldersUpdateContainerThreatDetectionSettingsCall {
 	c := &FoldersUpdateContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3710,17 +5177,17 @@ func (c *FoldersUpdateContainerThreatDetectionSettingsCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3784,11 +5251,11 @@ type FoldersUpdateEventThreatDetectionSettingsCall struct {
 // UpdateEventThreatDetectionSettings: Update the
 // EventThreatDetectionSettings resource.
 //
-// - name: The resource name of the EventThreatDetectionSettings.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The resource name of the EventThreatDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *FoldersService) UpdateEventThreatDetectionSettings(name string, eventthreatdetectionsettings *EventThreatDetectionSettings) *FoldersUpdateEventThreatDetectionSettingsCall {
 	c := &FoldersUpdateEventThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3870,17 +5337,17 @@ func (c *FoldersUpdateEventThreatDetectionSettingsCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -3930,6 +5397,167 @@ func (c *FoldersUpdateEventThreatDetectionSettingsCall) Do(opts ...googleapi.Cal
 
 }
 
+// method id "securitycenter.folders.updateRapidVulnerabilityDetectionSettings":
+
+type FoldersUpdateRapidVulnerabilityDetectionSettingsCall struct {
+	s                                   *Service
+	name                                string
+	rapidvulnerabilitydetectionsettings *RapidVulnerabilityDetectionSettings
+	urlParams_                          gensupport.URLParams
+	ctx_                                context.Context
+	header_                             http.Header
+}
+
+// UpdateRapidVulnerabilityDetectionSettings: Update the
+// RapidVulnerabilityDetectionSettings resource.
+//
+//   - name: The resource name of the RapidVulnerabilityDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *FoldersService) UpdateRapidVulnerabilityDetectionSettings(name string, rapidvulnerabilitydetectionsettings *RapidVulnerabilityDetectionSettings) *FoldersUpdateRapidVulnerabilityDetectionSettingsCall {
+	c := &FoldersUpdateRapidVulnerabilityDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.rapidvulnerabilitydetectionsettings = rapidvulnerabilitydetectionsettings
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The list of
+// fields to be updated.
+func (c *FoldersUpdateRapidVulnerabilityDetectionSettingsCall) UpdateMask(updateMask string) *FoldersUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersUpdateRapidVulnerabilityDetectionSettingsCall) Fields(s ...googleapi.Field) *FoldersUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersUpdateRapidVulnerabilityDetectionSettingsCall) Context(ctx context.Context) *FoldersUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersUpdateRapidVulnerabilityDetectionSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersUpdateRapidVulnerabilityDetectionSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.rapidvulnerabilitydetectionsettings)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.updateRapidVulnerabilityDetectionSettings" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *FoldersUpdateRapidVulnerabilityDetectionSettingsCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Update the RapidVulnerabilityDetectionSettings resource.",
+	//   "flatPath": "v1beta2/folders/{foldersId}/rapidVulnerabilityDetectionSettings",
+	//   "httpMethod": "PATCH",
+	//   "id": "securitycenter.folders.updateRapidVulnerabilityDetectionSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The resource name of the RapidVulnerabilityDetectionSettings. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The list of fields to be updated.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}",
+	//   "request": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.folders.updateSecurityHealthAnalyticsSettings":
 
 type FoldersUpdateSecurityHealthAnalyticsSettingsCall struct {
@@ -3944,11 +5572,11 @@ type FoldersUpdateSecurityHealthAnalyticsSettingsCall struct {
 // UpdateSecurityHealthAnalyticsSettings: Update the
 // SecurityHealthAnalyticsSettings resource.
 //
-// - name: The resource name of the SecurityHealthAnalyticsSettings.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The resource name of the SecurityHealthAnalyticsSettings.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *FoldersService) UpdateSecurityHealthAnalyticsSettings(name string, securityhealthanalyticssettings *SecurityHealthAnalyticsSettings) *FoldersUpdateSecurityHealthAnalyticsSettingsCall {
 	c := &FoldersUpdateSecurityHealthAnalyticsSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4030,17 +5658,17 @@ func (c *FoldersUpdateSecurityHealthAnalyticsSettingsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -4104,11 +5732,11 @@ type FoldersUpdateVirtualMachineThreatDetectionSettingsCall struct {
 // UpdateVirtualMachineThreatDetectionSettings: Update the
 // VirtualMachineThreatDetectionSettings resource.
 //
-// - name: The resource name of the
-//   VirtualMachineThreatDetectionSettings. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The resource name of the
+//     VirtualMachineThreatDetectionSettings. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *FoldersService) UpdateVirtualMachineThreatDetectionSettings(name string, virtualmachinethreatdetectionsettings *VirtualMachineThreatDetectionSettings) *FoldersUpdateVirtualMachineThreatDetectionSettingsCall {
 	c := &FoldersUpdateVirtualMachineThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4191,17 +5819,17 @@ func (c *FoldersUpdateVirtualMachineThreatDetectionSettingsCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -4266,9 +5894,9 @@ type FoldersUpdateWebSecurityScannerSettingsCall struct {
 // WebSecurityScannerSettings resource.
 //
 // - name: The resource name of the WebSecurityScannerSettings. Formats:
-//   * organizations/{organization}/webSecurityScannerSettings *
-//   folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - organizations/{organization}/webSecurityScannerSettings *
+//     folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *FoldersService) UpdateWebSecurityScannerSettings(name string, websecurityscannersettings *WebSecurityScannerSettings) *FoldersUpdateWebSecurityScannerSettingsCall {
 	c := &FoldersUpdateWebSecurityScannerSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4350,17 +5978,17 @@ func (c *FoldersUpdateWebSecurityScannerSettingsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -4423,14 +6051,20 @@ type FoldersContainerThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective ContainerThreatDetectionSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the ContainerThreatDetectionSettings to
-//   calculate. Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *FoldersContainerThreatDetectionSettingsService) Calculate(name string) *FoldersContainerThreatDetectionSettingsCalculateCall {
 	c := &FoldersContainerThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4512,17 +6146,17 @@ func (c *FoldersContainerThreatDetectionSettingsCalculateCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -4536,7 +6170,7 @@ func (c *FoldersContainerThreatDetectionSettingsCalculateCall) Do(opts ...google
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/containerThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.containerThreatDetectionSettings.calculate",
@@ -4576,12 +6210,18 @@ type FoldersEventThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective EventThreatDetectionSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the EventThreatDetectionSettings to calculate.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The name of the EventThreatDetectionSettings to calculate.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *FoldersEventThreatDetectionSettingsService) Calculate(name string) *FoldersEventThreatDetectionSettingsCalculateCall {
 	c := &FoldersEventThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4663,17 +6303,17 @@ func (c *FoldersEventThreatDetectionSettingsCalculateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -4687,7 +6327,7 @@ func (c *FoldersEventThreatDetectionSettingsCalculateCall) Do(opts ...googleapi.
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective EventThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective EventThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/eventThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.eventThreatDetectionSettings.calculate",
@@ -4714,6 +6354,164 @@ func (c *FoldersEventThreatDetectionSettingsCalculateCall) Do(opts ...googleapi.
 
 }
 
+// method id "securitycenter.folders.rapidVulnerabilityDetectionSettings.calculate":
+
+type FoldersRapidVulnerabilityDetectionSettingsCalculateCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Calculate: Calculates the effective
+// RapidVulnerabilityDetectionSettings based on its level in the
+// resource hierarchy and its settings. Settings provided closer to the
+// target resource take precedence over those further away (e.g. folder
+// will override organization level settings). The default SCC setting
+// for the detector service defaults can be overridden at organization,
+// folder and project levels. No assumptions should be made about the
+// SCC defaults as it is considered an internal implementation detail.
+//
+//   - name: The name of the RapidVulnerabilityDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *FoldersRapidVulnerabilityDetectionSettingsService) Calculate(name string) *FoldersRapidVulnerabilityDetectionSettingsCalculateCall {
+	c := &FoldersRapidVulnerabilityDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersRapidVulnerabilityDetectionSettingsCalculateCall) Fields(s ...googleapi.Field) *FoldersRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *FoldersRapidVulnerabilityDetectionSettingsCalculateCall) IfNoneMatch(entityTag string) *FoldersRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersRapidVulnerabilityDetectionSettingsCalculateCall) Context(ctx context.Context) *FoldersRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersRapidVulnerabilityDetectionSettingsCalculateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersRapidVulnerabilityDetectionSettingsCalculateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}:calculate")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.rapidVulnerabilityDetectionSettings.calculate" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *FoldersRapidVulnerabilityDetectionSettingsCalculateCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Calculates the effective RapidVulnerabilityDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
+	//   "flatPath": "v1beta2/folders/{foldersId}/rapidVulnerabilityDetectionSettings:calculate",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.folders.rapidVulnerabilityDetectionSettings.calculate",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the RapidVulnerabilityDetectionSettings to calculate. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}:calculate",
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.folders.securityHealthAnalyticsSettings.calculate":
 
 type FoldersSecurityHealthAnalyticsSettingsCalculateCall struct {
@@ -4727,12 +6525,18 @@ type FoldersSecurityHealthAnalyticsSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective SecurityHealthAnalyticsSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the SecurityHealthAnalyticsSettings to calculate.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The name of the SecurityHealthAnalyticsSettings to calculate.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *FoldersSecurityHealthAnalyticsSettingsService) Calculate(name string) *FoldersSecurityHealthAnalyticsSettingsCalculateCall {
 	c := &FoldersSecurityHealthAnalyticsSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4814,17 +6618,17 @@ func (c *FoldersSecurityHealthAnalyticsSettingsCalculateCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -4838,7 +6642,7 @@ func (c *FoldersSecurityHealthAnalyticsSettingsCalculateCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective SecurityHealthAnalyticsSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective SecurityHealthAnalyticsSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/securityHealthAnalyticsSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.securityHealthAnalyticsSettings.calculate",
@@ -4878,13 +6682,18 @@ type FoldersVirtualMachineThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective
 // VirtualMachineThreatDetectionSettings based on its level in the
-// resource hierarchy and its settings.
+// resource hierarchy and its settings. Settings provided closer to the
+// target resource take precedence over those further away (e.g. folder
+// will override organization level settings). The default SCC setting
+// for the detector service defaults can be overridden at organization,
+// folder and project levels. No assumptions should be made about the
+// SCC defaults as it is considered an internal implementation detail.
 //
-// - name: The name of the VirtualMachineThreatDetectionSettings to
-//   calculate. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The name of the VirtualMachineThreatDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *FoldersVirtualMachineThreatDetectionSettingsService) Calculate(name string) *FoldersVirtualMachineThreatDetectionSettingsCalculateCall {
 	c := &FoldersVirtualMachineThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4967,17 +6776,17 @@ func (c *FoldersVirtualMachineThreatDetectionSettingsCalculateCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -4991,7 +6800,7 @@ func (c *FoldersVirtualMachineThreatDetectionSettingsCalculateCall) Do(opts ...g
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective VirtualMachineThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective VirtualMachineThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/virtualMachineThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.virtualMachineThreatDetectionSettings.calculate",
@@ -5030,12 +6839,18 @@ type FoldersWebSecurityScannerSettingsCalculateCall struct {
 }
 
 // Calculate: Calculates the effective WebSecurityScannerSettings based
-// on its level in the resource hierarchy and its settings.
+// on its level in the resource hierarchy and its settings. Settings
+// provided closer to the target resource take precedence over those
+// further away (e.g. folder will override organization level settings).
+// The default SCC setting for the detector service defaults can be
+// overridden at organization, folder and project levels. No assumptions
+// should be made about the SCC defaults as it is considered an internal
+// implementation detail.
 //
-// - name: The name of the WebSecurityScannerSettings to calculate.
-//   Formats: * organizations/{organization}/webSecurityScannerSettings
-//   * folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - name: The name of the WebSecurityScannerSettings to calculate.
+//     Formats: * organizations/{organization}/webSecurityScannerSettings
+//   - folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *FoldersWebSecurityScannerSettingsService) Calculate(name string) *FoldersWebSecurityScannerSettingsCalculateCall {
 	c := &FoldersWebSecurityScannerSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5117,17 +6932,17 @@ func (c *FoldersWebSecurityScannerSettingsCalculateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -5141,7 +6956,7 @@ func (c *FoldersWebSecurityScannerSettingsCalculateCall) Do(opts ...googleapi.Ca
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective WebSecurityScannerSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective WebSecurityScannerSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/folders/{foldersId}/webSecurityScannerSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.webSecurityScannerSettings.calculate",
@@ -5180,15 +6995,21 @@ type OrganizationsGetContainerThreatDetectionSettingsCall struct {
 }
 
 // GetContainerThreatDetectionSettings: Get the
-// ContainerThreatDetectionSettings resource.
+// ContainerThreatDetectionSettings resource. In the returned settings
+// response, a missing field only indicates that it was not explicitly
+// set, so no assumption should be made about these fields. In other
+// words, GetContainerThreatDetectionSettings does not calculate the
+// effective service settings for the resource, which accounts for
+// inherited settings and defaults. Instead, use
+// CalculateContainerThreatDetectionSettings for this purpose.
 //
-// - name: The name of the ContainerThreatDetectionSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *OrganizationsService) GetContainerThreatDetectionSettings(name string) *OrganizationsGetContainerThreatDetectionSettingsCall {
 	c := &OrganizationsGetContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5270,17 +7091,17 @@ func (c *OrganizationsGetContainerThreatDetectionSettingsCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -5294,7 +7115,7 @@ func (c *OrganizationsGetContainerThreatDetectionSettingsCall) Do(opts ...google
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the ContainerThreatDetectionSettings resource.",
+	//   "description": "Get the ContainerThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetContainerThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateContainerThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/containerThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.getContainerThreatDetectionSettings",
@@ -5333,13 +7154,19 @@ type OrganizationsGetEventThreatDetectionSettingsCall struct {
 }
 
 // GetEventThreatDetectionSettings: Get the EventThreatDetectionSettings
-// resource.
+// resource. In the returned settings response, a missing field only
+// indicates that it was not explicitly set, so no assumption should be
+// made about these fields. In other words,
+// GetEventThreatDetectionSettings does not calculate the effective
+// service settings for the resource, which accounts for inherited
+// settings and defaults. Instead, use
+// CalculateEventThreatDetectionSettings for this purpose.
 //
-// - name: The name of the EventThreatDetectionSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The name of the EventThreatDetectionSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *OrganizationsService) GetEventThreatDetectionSettings(name string) *OrganizationsGetEventThreatDetectionSettingsCall {
 	c := &OrganizationsGetEventThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5421,17 +7248,17 @@ func (c *OrganizationsGetEventThreatDetectionSettingsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -5445,7 +7272,7 @@ func (c *OrganizationsGetEventThreatDetectionSettingsCall) Do(opts ...googleapi.
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the EventThreatDetectionSettings resource.",
+	//   "description": "Get the EventThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetEventThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateEventThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/eventThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.getEventThreatDetectionSettings",
@@ -5485,10 +7312,10 @@ type OrganizationsGetOnboardingStateCall struct {
 
 // GetOnboardingState: Retrieve the OnboardingState of a resource.
 //
-// - name: The name of the OnboardingState to retrieve. Formats: *
-//   organizations/{organization}/onboardingState *
-//   folders/{folder}/onboardingState *
-//   projects/{project}/onboardingState.
+//   - name: The name of the OnboardingState to retrieve. Formats: *
+//     organizations/{organization}/onboardingState *
+//     folders/{folder}/onboardingState *
+//     projects/{project}/onboardingState.
 func (r *OrganizationsService) GetOnboardingState(name string) *OrganizationsGetOnboardingStateCall {
 	c := &OrganizationsGetOnboardingStateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5570,17 +7397,17 @@ func (c *OrganizationsGetOnboardingStateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OnboardingState{
 		ServerResponse: googleapi.ServerResponse{
@@ -5621,6 +7448,164 @@ func (c *OrganizationsGetOnboardingStateCall) Do(opts ...googleapi.CallOption) (
 
 }
 
+// method id "securitycenter.organizations.getRapidVulnerabilityDetectionSettings":
+
+type OrganizationsGetRapidVulnerabilityDetectionSettingsCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetRapidVulnerabilityDetectionSettings: Get the
+// RapidVulnerabilityDetectionSettings resource. In the returned
+// settings response, a missing field only indicates that it was not
+// explicitly set, so no assumption should be made about these fields.
+// In other words, GetRapidVulnerabilityDetectionSettings does not
+// calculate the effective service settings for the resource, which
+// accounts for inherited settings and defaults. Instead, use
+// CalculateRapidVulnerabilityDetectionSettings for this purpose.
+//
+//   - name: The name of the RapidVulnerabilityDetectionSettings to
+//     retrieve. Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *OrganizationsService) GetRapidVulnerabilityDetectionSettings(name string) *OrganizationsGetRapidVulnerabilityDetectionSettingsCall {
+	c := &OrganizationsGetRapidVulnerabilityDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsGetRapidVulnerabilityDetectionSettingsCall) Fields(s ...googleapi.Field) *OrganizationsGetRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsGetRapidVulnerabilityDetectionSettingsCall) IfNoneMatch(entityTag string) *OrganizationsGetRapidVulnerabilityDetectionSettingsCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsGetRapidVulnerabilityDetectionSettingsCall) Context(ctx context.Context) *OrganizationsGetRapidVulnerabilityDetectionSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsGetRapidVulnerabilityDetectionSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsGetRapidVulnerabilityDetectionSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.organizations.getRapidVulnerabilityDetectionSettings" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsGetRapidVulnerabilityDetectionSettingsCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get the RapidVulnerabilityDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetRapidVulnerabilityDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateRapidVulnerabilityDetectionSettings for this purpose.",
+	//   "flatPath": "v1beta2/organizations/{organizationsId}/rapidVulnerabilityDetectionSettings",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.organizations.getRapidVulnerabilityDetectionSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the RapidVulnerabilityDetectionSettings to retrieve. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}",
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.organizations.getSecurityCenterSettings":
 
 type OrganizationsGetSecurityCenterSettingsCall struct {
@@ -5634,10 +7619,10 @@ type OrganizationsGetSecurityCenterSettingsCall struct {
 
 // GetSecurityCenterSettings: Get the SecurityCenterSettings resource.
 //
-// - name: The name of the SecurityCenterSettings to retrieve. Format:
-//   organizations/{organization}/securityCenterSettings Format:
-//   folders/{folder}/securityCenterSettings Format:
-//   projects/{project}/securityCenterSettings.
+//   - name: The name of the SecurityCenterSettings to retrieve. Format:
+//     organizations/{organization}/securityCenterSettings Format:
+//     folders/{folder}/securityCenterSettings Format:
+//     projects/{project}/securityCenterSettings.
 func (r *OrganizationsService) GetSecurityCenterSettings(name string) *OrganizationsGetSecurityCenterSettingsCall {
 	c := &OrganizationsGetSecurityCenterSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5719,17 +7704,17 @@ func (c *OrganizationsGetSecurityCenterSettingsCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityCenterSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -5782,13 +7767,19 @@ type OrganizationsGetSecurityHealthAnalyticsSettingsCall struct {
 }
 
 // GetSecurityHealthAnalyticsSettings: Get the
-// SecurityHealthAnalyticsSettings resource.
+// SecurityHealthAnalyticsSettings resource. In the returned settings
+// response, a missing field only indicates that it was not explicitly
+// set, so no assumption should be made about these fields. In other
+// words, GetSecurityHealthAnalyticsSettings does not calculate the
+// effective service settings for the resource, which accounts for
+// inherited settings and defaults. Instead, use
+// CalculateSecurityHealthAnalyticsSettings for this purpose.
 //
-// - name: The name of the SecurityHealthAnalyticsSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The name of the SecurityHealthAnalyticsSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *OrganizationsService) GetSecurityHealthAnalyticsSettings(name string) *OrganizationsGetSecurityHealthAnalyticsSettingsCall {
 	c := &OrganizationsGetSecurityHealthAnalyticsSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5870,17 +7861,17 @@ func (c *OrganizationsGetSecurityHealthAnalyticsSettingsCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -5894,7 +7885,7 @@ func (c *OrganizationsGetSecurityHealthAnalyticsSettingsCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the SecurityHealthAnalyticsSettings resource.",
+	//   "description": "Get the SecurityHealthAnalyticsSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetSecurityHealthAnalyticsSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateSecurityHealthAnalyticsSettings for this purpose.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/securityHealthAnalyticsSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.getSecurityHealthAnalyticsSettings",
@@ -5934,8 +7925,8 @@ type OrganizationsGetSubscriptionCall struct {
 
 // GetSubscription: Get the Subscription resource.
 //
-// - name: The name of the subscription to retrieve. Format:
-//   organizations/{organization}/subscription.
+//   - name: The name of the subscription to retrieve. Format:
+//     organizations/{organization}/subscription.
 func (r *OrganizationsService) GetSubscription(name string) *OrganizationsGetSubscriptionCall {
 	c := &OrganizationsGetSubscriptionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6017,17 +8008,17 @@ func (c *OrganizationsGetSubscriptionCall) Do(opts ...googleapi.CallOption) (*Su
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -6080,13 +8071,19 @@ type OrganizationsGetVirtualMachineThreatDetectionSettingsCall struct {
 }
 
 // GetVirtualMachineThreatDetectionSettings: Get the
-// VirtualMachineThreatDetectionSettings resource.
+// VirtualMachineThreatDetectionSettings resource. In the returned
+// settings response, a missing field only indicates that it was not
+// explicitly set, so no assumption should be made about these fields.
+// In other words, GetVirtualMachineThreatDetectionSettings does not
+// calculate the effective service settings for the resource, which
+// accounts for inherited settings and defaults. Instead, use
+// CalculateVirtualMachineThreatDetectionSettings for this purpose.
 //
-// - name: The name of the VirtualMachineThreatDetectionSettings to
-//   retrieve. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The name of the VirtualMachineThreatDetectionSettings to
+//     retrieve. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *OrganizationsService) GetVirtualMachineThreatDetectionSettings(name string) *OrganizationsGetVirtualMachineThreatDetectionSettingsCall {
 	c := &OrganizationsGetVirtualMachineThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6169,17 +8166,17 @@ func (c *OrganizationsGetVirtualMachineThreatDetectionSettingsCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -6193,7 +8190,7 @@ func (c *OrganizationsGetVirtualMachineThreatDetectionSettingsCall) Do(opts ...g
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the VirtualMachineThreatDetectionSettings resource.",
+	//   "description": "Get the VirtualMachineThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetVirtualMachineThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateVirtualMachineThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/virtualMachineThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.getVirtualMachineThreatDetectionSettings",
@@ -6232,12 +8229,18 @@ type OrganizationsGetWebSecurityScannerSettingsCall struct {
 }
 
 // GetWebSecurityScannerSettings: Get the WebSecurityScannerSettings
-// resource.
+// resource. In the returned settings response, a missing field only
+// indicates that it was not explicitly set, so no assumption should be
+// made about these fields. In other words,
+// GetWebSecurityScannerSettings does not calculate the effective
+// service settings for the resource, which accounts for inherited
+// settings and defaults. Instead, use
+// CalculateWebSecurityScannerSettings for this purpose.
 //
-// - name: The name of the WebSecurityScannerSettings to retrieve.
-//   Formats: * organizations/{organization}/webSecurityScannerSettings
-//   * folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - name: The name of the WebSecurityScannerSettings to retrieve.
+//     Formats: * organizations/{organization}/webSecurityScannerSettings
+//   - folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *OrganizationsService) GetWebSecurityScannerSettings(name string) *OrganizationsGetWebSecurityScannerSettingsCall {
 	c := &OrganizationsGetWebSecurityScannerSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6319,17 +8322,17 @@ func (c *OrganizationsGetWebSecurityScannerSettingsCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -6343,7 +8346,7 @@ func (c *OrganizationsGetWebSecurityScannerSettingsCall) Do(opts ...googleapi.Ca
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the WebSecurityScannerSettings resource.",
+	//   "description": "Get the WebSecurityScannerSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetWebSecurityScannerSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateWebSecurityScannerSettings for this purpose.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/webSecurityScannerSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.getWebSecurityScannerSettings",
@@ -6384,13 +8387,13 @@ type OrganizationsUpdateContainerThreatDetectionSettingsCall struct {
 // UpdateContainerThreatDetectionSettings: Update the
 // ContainerThreatDetectionSettings resource.
 //
-// - name: The resource name of the ContainerThreatDetectionSettings.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The resource name of the ContainerThreatDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *OrganizationsService) UpdateContainerThreatDetectionSettings(name string, containerthreatdetectionsettings *ContainerThreatDetectionSettings) *OrganizationsUpdateContainerThreatDetectionSettingsCall {
 	c := &OrganizationsUpdateContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6472,17 +8475,17 @@ func (c *OrganizationsUpdateContainerThreatDetectionSettingsCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -6546,11 +8549,11 @@ type OrganizationsUpdateEventThreatDetectionSettingsCall struct {
 // UpdateEventThreatDetectionSettings: Update the
 // EventThreatDetectionSettings resource.
 //
-// - name: The resource name of the EventThreatDetectionSettings.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The resource name of the EventThreatDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *OrganizationsService) UpdateEventThreatDetectionSettings(name string, eventthreatdetectionsettings *EventThreatDetectionSettings) *OrganizationsUpdateEventThreatDetectionSettingsCall {
 	c := &OrganizationsUpdateEventThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6632,17 +8635,17 @@ func (c *OrganizationsUpdateEventThreatDetectionSettingsCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -6692,6 +8695,167 @@ func (c *OrganizationsUpdateEventThreatDetectionSettingsCall) Do(opts ...googlea
 
 }
 
+// method id "securitycenter.organizations.updateRapidVulnerabilityDetectionSettings":
+
+type OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall struct {
+	s                                   *Service
+	name                                string
+	rapidvulnerabilitydetectionsettings *RapidVulnerabilityDetectionSettings
+	urlParams_                          gensupport.URLParams
+	ctx_                                context.Context
+	header_                             http.Header
+}
+
+// UpdateRapidVulnerabilityDetectionSettings: Update the
+// RapidVulnerabilityDetectionSettings resource.
+//
+//   - name: The resource name of the RapidVulnerabilityDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *OrganizationsService) UpdateRapidVulnerabilityDetectionSettings(name string, rapidvulnerabilitydetectionsettings *RapidVulnerabilityDetectionSettings) *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c := &OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.rapidvulnerabilitydetectionsettings = rapidvulnerabilitydetectionsettings
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The list of
+// fields to be updated.
+func (c *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall) UpdateMask(updateMask string) *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall) Fields(s ...googleapi.Field) *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall) Context(ctx context.Context) *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.rapidvulnerabilitydetectionsettings)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.organizations.updateRapidVulnerabilityDetectionSettings" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsUpdateRapidVulnerabilityDetectionSettingsCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Update the RapidVulnerabilityDetectionSettings resource.",
+	//   "flatPath": "v1beta2/organizations/{organizationsId}/rapidVulnerabilityDetectionSettings",
+	//   "httpMethod": "PATCH",
+	//   "id": "securitycenter.organizations.updateRapidVulnerabilityDetectionSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The resource name of the RapidVulnerabilityDetectionSettings. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The list of fields to be updated.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}",
+	//   "request": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.organizations.updateSecurityHealthAnalyticsSettings":
 
 type OrganizationsUpdateSecurityHealthAnalyticsSettingsCall struct {
@@ -6706,11 +8870,11 @@ type OrganizationsUpdateSecurityHealthAnalyticsSettingsCall struct {
 // UpdateSecurityHealthAnalyticsSettings: Update the
 // SecurityHealthAnalyticsSettings resource.
 //
-// - name: The resource name of the SecurityHealthAnalyticsSettings.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The resource name of the SecurityHealthAnalyticsSettings.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *OrganizationsService) UpdateSecurityHealthAnalyticsSettings(name string, securityhealthanalyticssettings *SecurityHealthAnalyticsSettings) *OrganizationsUpdateSecurityHealthAnalyticsSettingsCall {
 	c := &OrganizationsUpdateSecurityHealthAnalyticsSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6792,17 +8956,17 @@ func (c *OrganizationsUpdateSecurityHealthAnalyticsSettingsCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -6866,11 +9030,11 @@ type OrganizationsUpdateVirtualMachineThreatDetectionSettingsCall struct {
 // UpdateVirtualMachineThreatDetectionSettings: Update the
 // VirtualMachineThreatDetectionSettings resource.
 //
-// - name: The resource name of the
-//   VirtualMachineThreatDetectionSettings. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The resource name of the
+//     VirtualMachineThreatDetectionSettings. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *OrganizationsService) UpdateVirtualMachineThreatDetectionSettings(name string, virtualmachinethreatdetectionsettings *VirtualMachineThreatDetectionSettings) *OrganizationsUpdateVirtualMachineThreatDetectionSettingsCall {
 	c := &OrganizationsUpdateVirtualMachineThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6953,17 +9117,17 @@ func (c *OrganizationsUpdateVirtualMachineThreatDetectionSettingsCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -7028,9 +9192,9 @@ type OrganizationsUpdateWebSecurityScannerSettingsCall struct {
 // WebSecurityScannerSettings resource.
 //
 // - name: The resource name of the WebSecurityScannerSettings. Formats:
-//   * organizations/{organization}/webSecurityScannerSettings *
-//   folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - organizations/{organization}/webSecurityScannerSettings *
+//     folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *OrganizationsService) UpdateWebSecurityScannerSettings(name string, websecurityscannersettings *WebSecurityScannerSettings) *OrganizationsUpdateWebSecurityScannerSettingsCall {
 	c := &OrganizationsUpdateWebSecurityScannerSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7112,17 +9276,17 @@ func (c *OrganizationsUpdateWebSecurityScannerSettingsCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -7185,14 +9349,20 @@ type OrganizationsContainerThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective ContainerThreatDetectionSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the ContainerThreatDetectionSettings to
-//   calculate. Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *OrganizationsContainerThreatDetectionSettingsService) Calculate(name string) *OrganizationsContainerThreatDetectionSettingsCalculateCall {
 	c := &OrganizationsContainerThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7274,17 +9444,17 @@ func (c *OrganizationsContainerThreatDetectionSettingsCalculateCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -7298,7 +9468,7 @@ func (c *OrganizationsContainerThreatDetectionSettingsCalculateCall) Do(opts ...
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/containerThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.containerThreatDetectionSettings.calculate",
@@ -7338,12 +9508,18 @@ type OrganizationsEventThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective EventThreatDetectionSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the EventThreatDetectionSettings to calculate.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The name of the EventThreatDetectionSettings to calculate.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *OrganizationsEventThreatDetectionSettingsService) Calculate(name string) *OrganizationsEventThreatDetectionSettingsCalculateCall {
 	c := &OrganizationsEventThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7425,17 +9601,17 @@ func (c *OrganizationsEventThreatDetectionSettingsCalculateCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -7449,7 +9625,7 @@ func (c *OrganizationsEventThreatDetectionSettingsCalculateCall) Do(opts ...goog
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective EventThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective EventThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/eventThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.eventThreatDetectionSettings.calculate",
@@ -7476,6 +9652,164 @@ func (c *OrganizationsEventThreatDetectionSettingsCalculateCall) Do(opts ...goog
 
 }
 
+// method id "securitycenter.organizations.rapidVulnerabilityDetectionSettings.calculate":
+
+type OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Calculate: Calculates the effective
+// RapidVulnerabilityDetectionSettings based on its level in the
+// resource hierarchy and its settings. Settings provided closer to the
+// target resource take precedence over those further away (e.g. folder
+// will override organization level settings). The default SCC setting
+// for the detector service defaults can be overridden at organization,
+// folder and project levels. No assumptions should be made about the
+// SCC defaults as it is considered an internal implementation detail.
+//
+//   - name: The name of the RapidVulnerabilityDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *OrganizationsRapidVulnerabilityDetectionSettingsService) Calculate(name string) *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c := &OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall) Fields(s ...googleapi.Field) *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall) IfNoneMatch(entityTag string) *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall) Context(ctx context.Context) *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}:calculate")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.organizations.rapidVulnerabilityDetectionSettings.calculate" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsRapidVulnerabilityDetectionSettingsCalculateCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Calculates the effective RapidVulnerabilityDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
+	//   "flatPath": "v1beta2/organizations/{organizationsId}/rapidVulnerabilityDetectionSettings:calculate",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.organizations.rapidVulnerabilityDetectionSettings.calculate",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the RapidVulnerabilityDetectionSettings to calculate. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}:calculate",
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.organizations.securityHealthAnalyticsSettings.calculate":
 
 type OrganizationsSecurityHealthAnalyticsSettingsCalculateCall struct {
@@ -7489,12 +9823,18 @@ type OrganizationsSecurityHealthAnalyticsSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective SecurityHealthAnalyticsSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the SecurityHealthAnalyticsSettings to calculate.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The name of the SecurityHealthAnalyticsSettings to calculate.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *OrganizationsSecurityHealthAnalyticsSettingsService) Calculate(name string) *OrganizationsSecurityHealthAnalyticsSettingsCalculateCall {
 	c := &OrganizationsSecurityHealthAnalyticsSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7576,17 +9916,17 @@ func (c *OrganizationsSecurityHealthAnalyticsSettingsCalculateCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -7600,7 +9940,7 @@ func (c *OrganizationsSecurityHealthAnalyticsSettingsCalculateCall) Do(opts ...g
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective SecurityHealthAnalyticsSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective SecurityHealthAnalyticsSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/securityHealthAnalyticsSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.securityHealthAnalyticsSettings.calculate",
@@ -7640,13 +9980,18 @@ type OrganizationsVirtualMachineThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective
 // VirtualMachineThreatDetectionSettings based on its level in the
-// resource hierarchy and its settings.
+// resource hierarchy and its settings. Settings provided closer to the
+// target resource take precedence over those further away (e.g. folder
+// will override organization level settings). The default SCC setting
+// for the detector service defaults can be overridden at organization,
+// folder and project levels. No assumptions should be made about the
+// SCC defaults as it is considered an internal implementation detail.
 //
-// - name: The name of the VirtualMachineThreatDetectionSettings to
-//   calculate. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The name of the VirtualMachineThreatDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *OrganizationsVirtualMachineThreatDetectionSettingsService) Calculate(name string) *OrganizationsVirtualMachineThreatDetectionSettingsCalculateCall {
 	c := &OrganizationsVirtualMachineThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7729,17 +10074,17 @@ func (c *OrganizationsVirtualMachineThreatDetectionSettingsCalculateCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -7753,7 +10098,7 @@ func (c *OrganizationsVirtualMachineThreatDetectionSettingsCalculateCall) Do(opt
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective VirtualMachineThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective VirtualMachineThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/virtualMachineThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.virtualMachineThreatDetectionSettings.calculate",
@@ -7792,12 +10137,18 @@ type OrganizationsWebSecurityScannerSettingsCalculateCall struct {
 }
 
 // Calculate: Calculates the effective WebSecurityScannerSettings based
-// on its level in the resource hierarchy and its settings.
+// on its level in the resource hierarchy and its settings. Settings
+// provided closer to the target resource take precedence over those
+// further away (e.g. folder will override organization level settings).
+// The default SCC setting for the detector service defaults can be
+// overridden at organization, folder and project levels. No assumptions
+// should be made about the SCC defaults as it is considered an internal
+// implementation detail.
 //
-// - name: The name of the WebSecurityScannerSettings to calculate.
-//   Formats: * organizations/{organization}/webSecurityScannerSettings
-//   * folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - name: The name of the WebSecurityScannerSettings to calculate.
+//     Formats: * organizations/{organization}/webSecurityScannerSettings
+//   - folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *OrganizationsWebSecurityScannerSettingsService) Calculate(name string) *OrganizationsWebSecurityScannerSettingsCalculateCall {
 	c := &OrganizationsWebSecurityScannerSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7879,17 +10230,17 @@ func (c *OrganizationsWebSecurityScannerSettingsCalculateCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -7903,7 +10254,7 @@ func (c *OrganizationsWebSecurityScannerSettingsCalculateCall) Do(opts ...google
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective WebSecurityScannerSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective WebSecurityScannerSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/organizations/{organizationsId}/webSecurityScannerSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.webSecurityScannerSettings.calculate",
@@ -7942,15 +10293,21 @@ type ProjectsGetContainerThreatDetectionSettingsCall struct {
 }
 
 // GetContainerThreatDetectionSettings: Get the
-// ContainerThreatDetectionSettings resource.
+// ContainerThreatDetectionSettings resource. In the returned settings
+// response, a missing field only indicates that it was not explicitly
+// set, so no assumption should be made about these fields. In other
+// words, GetContainerThreatDetectionSettings does not calculate the
+// effective service settings for the resource, which accounts for
+// inherited settings and defaults. Instead, use
+// CalculateContainerThreatDetectionSettings for this purpose.
 //
-// - name: The name of the ContainerThreatDetectionSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *ProjectsService) GetContainerThreatDetectionSettings(name string) *ProjectsGetContainerThreatDetectionSettingsCall {
 	c := &ProjectsGetContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8032,17 +10389,17 @@ func (c *ProjectsGetContainerThreatDetectionSettingsCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8056,7 +10413,7 @@ func (c *ProjectsGetContainerThreatDetectionSettingsCall) Do(opts ...googleapi.C
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the ContainerThreatDetectionSettings resource.",
+	//   "description": "Get the ContainerThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetContainerThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateContainerThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/containerThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.getContainerThreatDetectionSettings",
@@ -8095,13 +10452,19 @@ type ProjectsGetEventThreatDetectionSettingsCall struct {
 }
 
 // GetEventThreatDetectionSettings: Get the EventThreatDetectionSettings
-// resource.
+// resource. In the returned settings response, a missing field only
+// indicates that it was not explicitly set, so no assumption should be
+// made about these fields. In other words,
+// GetEventThreatDetectionSettings does not calculate the effective
+// service settings for the resource, which accounts for inherited
+// settings and defaults. Instead, use
+// CalculateEventThreatDetectionSettings for this purpose.
 //
-// - name: The name of the EventThreatDetectionSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The name of the EventThreatDetectionSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *ProjectsService) GetEventThreatDetectionSettings(name string) *ProjectsGetEventThreatDetectionSettingsCall {
 	c := &ProjectsGetEventThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8183,17 +10546,17 @@ func (c *ProjectsGetEventThreatDetectionSettingsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8207,7 +10570,7 @@ func (c *ProjectsGetEventThreatDetectionSettingsCall) Do(opts ...googleapi.CallO
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the EventThreatDetectionSettings resource.",
+	//   "description": "Get the EventThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetEventThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateEventThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/eventThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.getEventThreatDetectionSettings",
@@ -8247,10 +10610,10 @@ type ProjectsGetOnboardingStateCall struct {
 
 // GetOnboardingState: Retrieve the OnboardingState of a resource.
 //
-// - name: The name of the OnboardingState to retrieve. Formats: *
-//   organizations/{organization}/onboardingState *
-//   folders/{folder}/onboardingState *
-//   projects/{project}/onboardingState.
+//   - name: The name of the OnboardingState to retrieve. Formats: *
+//     organizations/{organization}/onboardingState *
+//     folders/{folder}/onboardingState *
+//     projects/{project}/onboardingState.
 func (r *ProjectsService) GetOnboardingState(name string) *ProjectsGetOnboardingStateCall {
 	c := &ProjectsGetOnboardingStateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8332,17 +10695,17 @@ func (c *ProjectsGetOnboardingStateCall) Do(opts ...googleapi.CallOption) (*Onbo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OnboardingState{
 		ServerResponse: googleapi.ServerResponse{
@@ -8383,6 +10746,164 @@ func (c *ProjectsGetOnboardingStateCall) Do(opts ...googleapi.CallOption) (*Onbo
 
 }
 
+// method id "securitycenter.projects.getRapidVulnerabilityDetectionSettings":
+
+type ProjectsGetRapidVulnerabilityDetectionSettingsCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetRapidVulnerabilityDetectionSettings: Get the
+// RapidVulnerabilityDetectionSettings resource. In the returned
+// settings response, a missing field only indicates that it was not
+// explicitly set, so no assumption should be made about these fields.
+// In other words, GetRapidVulnerabilityDetectionSettings does not
+// calculate the effective service settings for the resource, which
+// accounts for inherited settings and defaults. Instead, use
+// CalculateRapidVulnerabilityDetectionSettings for this purpose.
+//
+//   - name: The name of the RapidVulnerabilityDetectionSettings to
+//     retrieve. Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *ProjectsService) GetRapidVulnerabilityDetectionSettings(name string) *ProjectsGetRapidVulnerabilityDetectionSettingsCall {
+	c := &ProjectsGetRapidVulnerabilityDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsGetRapidVulnerabilityDetectionSettingsCall) Fields(s ...googleapi.Field) *ProjectsGetRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsGetRapidVulnerabilityDetectionSettingsCall) IfNoneMatch(entityTag string) *ProjectsGetRapidVulnerabilityDetectionSettingsCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsGetRapidVulnerabilityDetectionSettingsCall) Context(ctx context.Context) *ProjectsGetRapidVulnerabilityDetectionSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsGetRapidVulnerabilityDetectionSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsGetRapidVulnerabilityDetectionSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.getRapidVulnerabilityDetectionSettings" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsGetRapidVulnerabilityDetectionSettingsCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get the RapidVulnerabilityDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetRapidVulnerabilityDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateRapidVulnerabilityDetectionSettings for this purpose.",
+	//   "flatPath": "v1beta2/projects/{projectsId}/rapidVulnerabilityDetectionSettings",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.projects.getRapidVulnerabilityDetectionSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the RapidVulnerabilityDetectionSettings to retrieve. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}",
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.projects.getSecurityCenterSettings":
 
 type ProjectsGetSecurityCenterSettingsCall struct {
@@ -8396,10 +10917,10 @@ type ProjectsGetSecurityCenterSettingsCall struct {
 
 // GetSecurityCenterSettings: Get the SecurityCenterSettings resource.
 //
-// - name: The name of the SecurityCenterSettings to retrieve. Format:
-//   organizations/{organization}/securityCenterSettings Format:
-//   folders/{folder}/securityCenterSettings Format:
-//   projects/{project}/securityCenterSettings.
+//   - name: The name of the SecurityCenterSettings to retrieve. Format:
+//     organizations/{organization}/securityCenterSettings Format:
+//     folders/{folder}/securityCenterSettings Format:
+//     projects/{project}/securityCenterSettings.
 func (r *ProjectsService) GetSecurityCenterSettings(name string) *ProjectsGetSecurityCenterSettingsCall {
 	c := &ProjectsGetSecurityCenterSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8481,17 +11002,17 @@ func (c *ProjectsGetSecurityCenterSettingsCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityCenterSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8544,13 +11065,19 @@ type ProjectsGetSecurityHealthAnalyticsSettingsCall struct {
 }
 
 // GetSecurityHealthAnalyticsSettings: Get the
-// SecurityHealthAnalyticsSettings resource.
+// SecurityHealthAnalyticsSettings resource. In the returned settings
+// response, a missing field only indicates that it was not explicitly
+// set, so no assumption should be made about these fields. In other
+// words, GetSecurityHealthAnalyticsSettings does not calculate the
+// effective service settings for the resource, which accounts for
+// inherited settings and defaults. Instead, use
+// CalculateSecurityHealthAnalyticsSettings for this purpose.
 //
-// - name: The name of the SecurityHealthAnalyticsSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The name of the SecurityHealthAnalyticsSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *ProjectsService) GetSecurityHealthAnalyticsSettings(name string) *ProjectsGetSecurityHealthAnalyticsSettingsCall {
 	c := &ProjectsGetSecurityHealthAnalyticsSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8632,17 +11159,17 @@ func (c *ProjectsGetSecurityHealthAnalyticsSettingsCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8656,7 +11183,7 @@ func (c *ProjectsGetSecurityHealthAnalyticsSettingsCall) Do(opts ...googleapi.Ca
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the SecurityHealthAnalyticsSettings resource.",
+	//   "description": "Get the SecurityHealthAnalyticsSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetSecurityHealthAnalyticsSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateSecurityHealthAnalyticsSettings for this purpose.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/securityHealthAnalyticsSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.getSecurityHealthAnalyticsSettings",
@@ -8695,13 +11222,19 @@ type ProjectsGetVirtualMachineThreatDetectionSettingsCall struct {
 }
 
 // GetVirtualMachineThreatDetectionSettings: Get the
-// VirtualMachineThreatDetectionSettings resource.
+// VirtualMachineThreatDetectionSettings resource. In the returned
+// settings response, a missing field only indicates that it was not
+// explicitly set, so no assumption should be made about these fields.
+// In other words, GetVirtualMachineThreatDetectionSettings does not
+// calculate the effective service settings for the resource, which
+// accounts for inherited settings and defaults. Instead, use
+// CalculateVirtualMachineThreatDetectionSettings for this purpose.
 //
-// - name: The name of the VirtualMachineThreatDetectionSettings to
-//   retrieve. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The name of the VirtualMachineThreatDetectionSettings to
+//     retrieve. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *ProjectsService) GetVirtualMachineThreatDetectionSettings(name string) *ProjectsGetVirtualMachineThreatDetectionSettingsCall {
 	c := &ProjectsGetVirtualMachineThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8784,17 +11317,17 @@ func (c *ProjectsGetVirtualMachineThreatDetectionSettingsCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8808,7 +11341,7 @@ func (c *ProjectsGetVirtualMachineThreatDetectionSettingsCall) Do(opts ...google
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the VirtualMachineThreatDetectionSettings resource.",
+	//   "description": "Get the VirtualMachineThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetVirtualMachineThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateVirtualMachineThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/virtualMachineThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.getVirtualMachineThreatDetectionSettings",
@@ -8847,12 +11380,18 @@ type ProjectsGetWebSecurityScannerSettingsCall struct {
 }
 
 // GetWebSecurityScannerSettings: Get the WebSecurityScannerSettings
-// resource.
+// resource. In the returned settings response, a missing field only
+// indicates that it was not explicitly set, so no assumption should be
+// made about these fields. In other words,
+// GetWebSecurityScannerSettings does not calculate the effective
+// service settings for the resource, which accounts for inherited
+// settings and defaults. Instead, use
+// CalculateWebSecurityScannerSettings for this purpose.
 //
-// - name: The name of the WebSecurityScannerSettings to retrieve.
-//   Formats: * organizations/{organization}/webSecurityScannerSettings
-//   * folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - name: The name of the WebSecurityScannerSettings to retrieve.
+//     Formats: * organizations/{organization}/webSecurityScannerSettings
+//   - folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *ProjectsService) GetWebSecurityScannerSettings(name string) *ProjectsGetWebSecurityScannerSettingsCall {
 	c := &ProjectsGetWebSecurityScannerSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8934,17 +11473,17 @@ func (c *ProjectsGetWebSecurityScannerSettingsCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8958,7 +11497,7 @@ func (c *ProjectsGetWebSecurityScannerSettingsCall) Do(opts ...googleapi.CallOpt
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the WebSecurityScannerSettings resource.",
+	//   "description": "Get the WebSecurityScannerSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetWebSecurityScannerSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateWebSecurityScannerSettings for this purpose.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/webSecurityScannerSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.getWebSecurityScannerSettings",
@@ -8999,13 +11538,13 @@ type ProjectsUpdateContainerThreatDetectionSettingsCall struct {
 // UpdateContainerThreatDetectionSettings: Update the
 // ContainerThreatDetectionSettings resource.
 //
-// - name: The resource name of the ContainerThreatDetectionSettings.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The resource name of the ContainerThreatDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *ProjectsService) UpdateContainerThreatDetectionSettings(name string, containerthreatdetectionsettings *ContainerThreatDetectionSettings) *ProjectsUpdateContainerThreatDetectionSettingsCall {
 	c := &ProjectsUpdateContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9087,17 +11626,17 @@ func (c *ProjectsUpdateContainerThreatDetectionSettingsCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -9161,11 +11700,11 @@ type ProjectsUpdateEventThreatDetectionSettingsCall struct {
 // UpdateEventThreatDetectionSettings: Update the
 // EventThreatDetectionSettings resource.
 //
-// - name: The resource name of the EventThreatDetectionSettings.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The resource name of the EventThreatDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *ProjectsService) UpdateEventThreatDetectionSettings(name string, eventthreatdetectionsettings *EventThreatDetectionSettings) *ProjectsUpdateEventThreatDetectionSettingsCall {
 	c := &ProjectsUpdateEventThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9247,17 +11786,17 @@ func (c *ProjectsUpdateEventThreatDetectionSettingsCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -9307,6 +11846,167 @@ func (c *ProjectsUpdateEventThreatDetectionSettingsCall) Do(opts ...googleapi.Ca
 
 }
 
+// method id "securitycenter.projects.updateRapidVulnerabilityDetectionSettings":
+
+type ProjectsUpdateRapidVulnerabilityDetectionSettingsCall struct {
+	s                                   *Service
+	name                                string
+	rapidvulnerabilitydetectionsettings *RapidVulnerabilityDetectionSettings
+	urlParams_                          gensupport.URLParams
+	ctx_                                context.Context
+	header_                             http.Header
+}
+
+// UpdateRapidVulnerabilityDetectionSettings: Update the
+// RapidVulnerabilityDetectionSettings resource.
+//
+//   - name: The resource name of the RapidVulnerabilityDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *ProjectsService) UpdateRapidVulnerabilityDetectionSettings(name string, rapidvulnerabilitydetectionsettings *RapidVulnerabilityDetectionSettings) *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c := &ProjectsUpdateRapidVulnerabilityDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.rapidvulnerabilitydetectionsettings = rapidvulnerabilitydetectionsettings
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The list of
+// fields to be updated.
+func (c *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall) UpdateMask(updateMask string) *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall) Fields(s ...googleapi.Field) *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall) Context(ctx context.Context) *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.rapidvulnerabilitydetectionsettings)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.updateRapidVulnerabilityDetectionSettings" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsUpdateRapidVulnerabilityDetectionSettingsCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Update the RapidVulnerabilityDetectionSettings resource.",
+	//   "flatPath": "v1beta2/projects/{projectsId}/rapidVulnerabilityDetectionSettings",
+	//   "httpMethod": "PATCH",
+	//   "id": "securitycenter.projects.updateRapidVulnerabilityDetectionSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The resource name of the RapidVulnerabilityDetectionSettings. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The list of fields to be updated.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}",
+	//   "request": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.projects.updateSecurityHealthAnalyticsSettings":
 
 type ProjectsUpdateSecurityHealthAnalyticsSettingsCall struct {
@@ -9321,11 +12021,11 @@ type ProjectsUpdateSecurityHealthAnalyticsSettingsCall struct {
 // UpdateSecurityHealthAnalyticsSettings: Update the
 // SecurityHealthAnalyticsSettings resource.
 //
-// - name: The resource name of the SecurityHealthAnalyticsSettings.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The resource name of the SecurityHealthAnalyticsSettings.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *ProjectsService) UpdateSecurityHealthAnalyticsSettings(name string, securityhealthanalyticssettings *SecurityHealthAnalyticsSettings) *ProjectsUpdateSecurityHealthAnalyticsSettingsCall {
 	c := &ProjectsUpdateSecurityHealthAnalyticsSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9407,17 +12107,17 @@ func (c *ProjectsUpdateSecurityHealthAnalyticsSettingsCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -9481,11 +12181,11 @@ type ProjectsUpdateVirtualMachineThreatDetectionSettingsCall struct {
 // UpdateVirtualMachineThreatDetectionSettings: Update the
 // VirtualMachineThreatDetectionSettings resource.
 //
-// - name: The resource name of the
-//   VirtualMachineThreatDetectionSettings. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The resource name of the
+//     VirtualMachineThreatDetectionSettings. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *ProjectsService) UpdateVirtualMachineThreatDetectionSettings(name string, virtualmachinethreatdetectionsettings *VirtualMachineThreatDetectionSettings) *ProjectsUpdateVirtualMachineThreatDetectionSettingsCall {
 	c := &ProjectsUpdateVirtualMachineThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9568,17 +12268,17 @@ func (c *ProjectsUpdateVirtualMachineThreatDetectionSettingsCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -9643,9 +12343,9 @@ type ProjectsUpdateWebSecurityScannerSettingsCall struct {
 // WebSecurityScannerSettings resource.
 //
 // - name: The resource name of the WebSecurityScannerSettings. Formats:
-//   * organizations/{organization}/webSecurityScannerSettings *
-//   folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - organizations/{organization}/webSecurityScannerSettings *
+//     folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *ProjectsService) UpdateWebSecurityScannerSettings(name string, websecurityscannersettings *WebSecurityScannerSettings) *ProjectsUpdateWebSecurityScannerSettingsCall {
 	c := &ProjectsUpdateWebSecurityScannerSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9727,17 +12427,17 @@ func (c *ProjectsUpdateWebSecurityScannerSettingsCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -9800,14 +12500,20 @@ type ProjectsContainerThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective ContainerThreatDetectionSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the ContainerThreatDetectionSettings to
-//   calculate. Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *ProjectsContainerThreatDetectionSettingsService) Calculate(name string) *ProjectsContainerThreatDetectionSettingsCalculateCall {
 	c := &ProjectsContainerThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9889,17 +12595,17 @@ func (c *ProjectsContainerThreatDetectionSettingsCalculateCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -9913,7 +12619,7 @@ func (c *ProjectsContainerThreatDetectionSettingsCalculateCall) Do(opts ...googl
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/containerThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.containerThreatDetectionSettings.calculate",
@@ -9953,12 +12659,18 @@ type ProjectsEventThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective EventThreatDetectionSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the EventThreatDetectionSettings to calculate.
-//   Formats: *
-//   organizations/{organization}/eventThreatDetectionSettings *
-//   folders/{folder}/eventThreatDetectionSettings *
-//   projects/{project}/eventThreatDetectionSettings.
+//   - name: The name of the EventThreatDetectionSettings to calculate.
+//     Formats: *
+//     organizations/{organization}/eventThreatDetectionSettings *
+//     folders/{folder}/eventThreatDetectionSettings *
+//     projects/{project}/eventThreatDetectionSettings.
 func (r *ProjectsEventThreatDetectionSettingsService) Calculate(name string) *ProjectsEventThreatDetectionSettingsCalculateCall {
 	c := &ProjectsEventThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10040,17 +12752,17 @@ func (c *ProjectsEventThreatDetectionSettingsCalculateCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EventThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -10064,7 +12776,7 @@ func (c *ProjectsEventThreatDetectionSettingsCalculateCall) Do(opts ...googleapi
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective EventThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective EventThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/eventThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.eventThreatDetectionSettings.calculate",
@@ -10103,15 +12815,21 @@ type ProjectsLocationsClustersGetContainerThreatDetectionSettingsCall struct {
 }
 
 // GetContainerThreatDetectionSettings: Get the
-// ContainerThreatDetectionSettings resource.
+// ContainerThreatDetectionSettings resource. In the returned settings
+// response, a missing field only indicates that it was not explicitly
+// set, so no assumption should be made about these fields. In other
+// words, GetContainerThreatDetectionSettings does not calculate the
+// effective service settings for the resource, which accounts for
+// inherited settings and defaults. Instead, use
+// CalculateContainerThreatDetectionSettings for this purpose.
 //
-// - name: The name of the ContainerThreatDetectionSettings to retrieve.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to retrieve.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *ProjectsLocationsClustersService) GetContainerThreatDetectionSettings(name string) *ProjectsLocationsClustersGetContainerThreatDetectionSettingsCall {
 	c := &ProjectsLocationsClustersGetContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10193,17 +12911,17 @@ func (c *ProjectsLocationsClustersGetContainerThreatDetectionSettingsCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -10217,7 +12935,7 @@ func (c *ProjectsLocationsClustersGetContainerThreatDetectionSettingsCall) Do(op
 	}
 	return ret, nil
 	// {
-	//   "description": "Get the ContainerThreatDetectionSettings resource.",
+	//   "description": "Get the ContainerThreatDetectionSettings resource. In the returned settings response, a missing field only indicates that it was not explicitly set, so no assumption should be made about these fields. In other words, GetContainerThreatDetectionSettings does not calculate the effective service settings for the resource, which accounts for inherited settings and defaults. Instead, use CalculateContainerThreatDetectionSettings for this purpose.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/locations/{locationsId}/clusters/{clustersId}/containerThreatDetectionSettings",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.locations.clusters.getContainerThreatDetectionSettings",
@@ -10258,13 +12976,13 @@ type ProjectsLocationsClustersUpdateContainerThreatDetectionSettingsCall struct 
 // UpdateContainerThreatDetectionSettings: Update the
 // ContainerThreatDetectionSettings resource.
 //
-// - name: The resource name of the ContainerThreatDetectionSettings.
-//   Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The resource name of the ContainerThreatDetectionSettings.
+//     Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *ProjectsLocationsClustersService) UpdateContainerThreatDetectionSettings(name string, containerthreatdetectionsettings *ContainerThreatDetectionSettings) *ProjectsLocationsClustersUpdateContainerThreatDetectionSettingsCall {
 	c := &ProjectsLocationsClustersUpdateContainerThreatDetectionSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10346,17 +13064,17 @@ func (c *ProjectsLocationsClustersUpdateContainerThreatDetectionSettingsCall) Do
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -10419,14 +13137,20 @@ type ProjectsLocationsClustersContainerThreatDetectionSettingsCalculateCall stru
 
 // Calculate: Calculates the effective ContainerThreatDetectionSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the ContainerThreatDetectionSettings to
-//   calculate. Formats: *
-//   organizations/{organization}/containerThreatDetectionSettings *
-//   folders/{folder}/containerThreatDetectionSettings *
-//   projects/{project}/containerThreatDetectionSettings *
-//   projects/{project}/locations/{location}/clusters/{cluster}/container
-//   ThreatDetectionSettings.
+//   - name: The name of the ContainerThreatDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/containerThreatDetectionSettings *
+//     folders/{folder}/containerThreatDetectionSettings *
+//     projects/{project}/containerThreatDetectionSettings *
+//     projects/{project}/locations/{location}/clusters/{cluster}/container
+//     ThreatDetectionSettings.
 func (r *ProjectsLocationsClustersContainerThreatDetectionSettingsService) Calculate(name string) *ProjectsLocationsClustersContainerThreatDetectionSettingsCalculateCall {
 	c := &ProjectsLocationsClustersContainerThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10508,17 +13232,17 @@ func (c *ProjectsLocationsClustersContainerThreatDetectionSettingsCalculateCall)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContainerThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -10532,7 +13256,7 @@ func (c *ProjectsLocationsClustersContainerThreatDetectionSettingsCalculateCall)
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective ContainerThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/locations/{locationsId}/clusters/{clustersId}/containerThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.locations.clusters.containerThreatDetectionSettings.calculate",
@@ -10559,6 +13283,164 @@ func (c *ProjectsLocationsClustersContainerThreatDetectionSettingsCalculateCall)
 
 }
 
+// method id "securitycenter.projects.rapidVulnerabilityDetectionSettings.calculate":
+
+type ProjectsRapidVulnerabilityDetectionSettingsCalculateCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Calculate: Calculates the effective
+// RapidVulnerabilityDetectionSettings based on its level in the
+// resource hierarchy and its settings. Settings provided closer to the
+// target resource take precedence over those further away (e.g. folder
+// will override organization level settings). The default SCC setting
+// for the detector service defaults can be overridden at organization,
+// folder and project levels. No assumptions should be made about the
+// SCC defaults as it is considered an internal implementation detail.
+//
+//   - name: The name of the RapidVulnerabilityDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/rapidVulnerabilityDetectionSettings *
+//     folders/{folder}/rapidVulnerabilityDetectionSettings *
+//     projects/{project}/rapidVulnerabilityDetectionSettings.
+func (r *ProjectsRapidVulnerabilityDetectionSettingsService) Calculate(name string) *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c := &ProjectsRapidVulnerabilityDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall) Fields(s ...googleapi.Field) *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall) IfNoneMatch(entityTag string) *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall) Context(ctx context.Context) *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta2/{+name}:calculate")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.rapidVulnerabilityDetectionSettings.calculate" call.
+// Exactly one of *RapidVulnerabilityDetectionSettings or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *RapidVulnerabilityDetectionSettings.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsRapidVulnerabilityDetectionSettingsCalculateCall) Do(opts ...googleapi.CallOption) (*RapidVulnerabilityDetectionSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RapidVulnerabilityDetectionSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Calculates the effective RapidVulnerabilityDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
+	//   "flatPath": "v1beta2/projects/{projectsId}/rapidVulnerabilityDetectionSettings:calculate",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.projects.rapidVulnerabilityDetectionSettings.calculate",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the RapidVulnerabilityDetectionSettings to calculate. Formats: * organizations/{organization}/rapidVulnerabilityDetectionSettings * folders/{folder}/rapidVulnerabilityDetectionSettings * projects/{project}/rapidVulnerabilityDetectionSettings",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/rapidVulnerabilityDetectionSettings$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta2/{+name}:calculate",
+	//   "response": {
+	//     "$ref": "RapidVulnerabilityDetectionSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.projects.securityHealthAnalyticsSettings.calculate":
 
 type ProjectsSecurityHealthAnalyticsSettingsCalculateCall struct {
@@ -10572,12 +13454,18 @@ type ProjectsSecurityHealthAnalyticsSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective SecurityHealthAnalyticsSettings
 // based on its level in the resource hierarchy and its settings.
+// Settings provided closer to the target resource take precedence over
+// those further away (e.g. folder will override organization level
+// settings). The default SCC setting for the detector service defaults
+// can be overridden at organization, folder and project levels. No
+// assumptions should be made about the SCC defaults as it is considered
+// an internal implementation detail.
 //
-// - name: The name of the SecurityHealthAnalyticsSettings to calculate.
-//   Formats: *
-//   organizations/{organization}/securityHealthAnalyticsSettings *
-//   folders/{folder}/securityHealthAnalyticsSettings *
-//   projects/{project}/securityHealthAnalyticsSettings.
+//   - name: The name of the SecurityHealthAnalyticsSettings to calculate.
+//     Formats: *
+//     organizations/{organization}/securityHealthAnalyticsSettings *
+//     folders/{folder}/securityHealthAnalyticsSettings *
+//     projects/{project}/securityHealthAnalyticsSettings.
 func (r *ProjectsSecurityHealthAnalyticsSettingsService) Calculate(name string) *ProjectsSecurityHealthAnalyticsSettingsCalculateCall {
 	c := &ProjectsSecurityHealthAnalyticsSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10659,17 +13547,17 @@ func (c *ProjectsSecurityHealthAnalyticsSettingsCalculateCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityHealthAnalyticsSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -10683,7 +13571,7 @@ func (c *ProjectsSecurityHealthAnalyticsSettingsCalculateCall) Do(opts ...google
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective SecurityHealthAnalyticsSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective SecurityHealthAnalyticsSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/securityHealthAnalyticsSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.securityHealthAnalyticsSettings.calculate",
@@ -10723,13 +13611,18 @@ type ProjectsVirtualMachineThreatDetectionSettingsCalculateCall struct {
 
 // Calculate: Calculates the effective
 // VirtualMachineThreatDetectionSettings based on its level in the
-// resource hierarchy and its settings.
+// resource hierarchy and its settings. Settings provided closer to the
+// target resource take precedence over those further away (e.g. folder
+// will override organization level settings). The default SCC setting
+// for the detector service defaults can be overridden at organization,
+// folder and project levels. No assumptions should be made about the
+// SCC defaults as it is considered an internal implementation detail.
 //
-// - name: The name of the VirtualMachineThreatDetectionSettings to
-//   calculate. Formats: *
-//   organizations/{organization}/virtualMachineThreatDetectionSettings
-//   * folders/{folder}/virtualMachineThreatDetectionSettings *
-//   projects/{project}/virtualMachineThreatDetectionSettings.
+//   - name: The name of the VirtualMachineThreatDetectionSettings to
+//     calculate. Formats: *
+//     organizations/{organization}/virtualMachineThreatDetectionSettings
+//   - folders/{folder}/virtualMachineThreatDetectionSettings *
+//     projects/{project}/virtualMachineThreatDetectionSettings.
 func (r *ProjectsVirtualMachineThreatDetectionSettingsService) Calculate(name string) *ProjectsVirtualMachineThreatDetectionSettingsCalculateCall {
 	c := &ProjectsVirtualMachineThreatDetectionSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10812,17 +13705,17 @@ func (c *ProjectsVirtualMachineThreatDetectionSettingsCalculateCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VirtualMachineThreatDetectionSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -10836,7 +13729,7 @@ func (c *ProjectsVirtualMachineThreatDetectionSettingsCalculateCall) Do(opts ...
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective VirtualMachineThreatDetectionSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective VirtualMachineThreatDetectionSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/virtualMachineThreatDetectionSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.virtualMachineThreatDetectionSettings.calculate",
@@ -10875,12 +13768,18 @@ type ProjectsWebSecurityScannerSettingsCalculateCall struct {
 }
 
 // Calculate: Calculates the effective WebSecurityScannerSettings based
-// on its level in the resource hierarchy and its settings.
+// on its level in the resource hierarchy and its settings. Settings
+// provided closer to the target resource take precedence over those
+// further away (e.g. folder will override organization level settings).
+// The default SCC setting for the detector service defaults can be
+// overridden at organization, folder and project levels. No assumptions
+// should be made about the SCC defaults as it is considered an internal
+// implementation detail.
 //
-// - name: The name of the WebSecurityScannerSettings to calculate.
-//   Formats: * organizations/{organization}/webSecurityScannerSettings
-//   * folders/{folder}/webSecurityScannerSettings *
-//   projects/{project}/webSecurityScannerSettings.
+//   - name: The name of the WebSecurityScannerSettings to calculate.
+//     Formats: * organizations/{organization}/webSecurityScannerSettings
+//   - folders/{folder}/webSecurityScannerSettings *
+//     projects/{project}/webSecurityScannerSettings.
 func (r *ProjectsWebSecurityScannerSettingsService) Calculate(name string) *ProjectsWebSecurityScannerSettingsCalculateCall {
 	c := &ProjectsWebSecurityScannerSettingsCalculateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10962,17 +13861,17 @@ func (c *ProjectsWebSecurityScannerSettingsCalculateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebSecurityScannerSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -10986,7 +13885,7 @@ func (c *ProjectsWebSecurityScannerSettingsCalculateCall) Do(opts ...googleapi.C
 	}
 	return ret, nil
 	// {
-	//   "description": "Calculates the effective WebSecurityScannerSettings based on its level in the resource hierarchy and its settings.",
+	//   "description": "Calculates the effective WebSecurityScannerSettings based on its level in the resource hierarchy and its settings. Settings provided closer to the target resource take precedence over those further away (e.g. folder will override organization level settings). The default SCC setting for the detector service defaults can be overridden at organization, folder and project levels. No assumptions should be made about the SCC defaults as it is considered an internal implementation detail.",
 	//   "flatPath": "v1beta2/projects/{projectsId}/webSecurityScannerSettings:calculate",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.webSecurityScannerSettings.calculate",

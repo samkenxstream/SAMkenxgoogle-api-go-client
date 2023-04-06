@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/compute/docs/oslogin/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/oslogin/v1"
-//   ...
-//   ctx := context.Background()
-//   osloginService, err := oslogin.NewService(ctx)
+//	import "google.golang.org/api/oslogin/v1"
+//	...
+//	ctx := context.Background()
+//	osloginService, err := oslogin.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   osloginService, err := oslogin.NewService(ctx, option.WithScopes(oslogin.ComputeReadonlyScope))
+//	osloginService, err := oslogin.NewService(ctx, option.WithScopes(oslogin.ComputeReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   osloginService, err := oslogin.NewService(ctx, option.WithAPIKey("AIza..."))
+//	osloginService, err := oslogin.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   osloginService, err := oslogin.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	osloginService, err := oslogin.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package oslogin // import "google.golang.org/api/oslogin/v1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "oslogin:v1"
 const apiName = "oslogin"
@@ -497,17 +498,17 @@ func (c *UsersGetLoginProfileCall) Do(opts ...googleapi.CallOption) (*LoginProfi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LoginProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -658,17 +659,17 @@ func (c *UsersImportSshPublicKeyCall) Do(opts ...googleapi.CallOption) (*ImportS
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ImportSshPublicKeyResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -730,10 +731,10 @@ type UsersProjectsDeleteCall struct {
 
 // Delete: Deletes a POSIX account.
 //
-// - name: A reference to the POSIX account to update. POSIX accounts
-//   are identified by the project ID they are associated with. A
-//   reference to the POSIX account is in format
-//   `users/{user}/projects/{project}`.
+//   - name: A reference to the POSIX account to update. POSIX accounts
+//     are identified by the project ID they are associated with. A
+//     reference to the POSIX account is in format
+//     `users/{user}/projects/{project}`.
 func (r *UsersProjectsService) Delete(name string) *UsersProjectsDeleteCall {
 	c := &UsersProjectsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -802,17 +803,17 @@ func (c *UsersProjectsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -942,17 +943,17 @@ func (c *UsersSshPublicKeysCreateCall) Do(opts ...googleapi.CallOption) (*SshPub
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SshPublicKey{
 		ServerResponse: googleapi.ServerResponse{
@@ -1009,9 +1010,9 @@ type UsersSshPublicKeysDeleteCall struct {
 
 // Delete: Deletes an SSH public key.
 //
-// - name: The fingerprint of the public key to update. Public keys are
-//   identified by their SHA-256 fingerprint. The fingerprint of the
-//   public key is in format `users/{user}/sshPublicKeys/{fingerprint}`.
+//   - name: The fingerprint of the public key to update. Public keys are
+//     identified by their SHA-256 fingerprint. The fingerprint of the
+//     public key is in format `users/{user}/sshPublicKeys/{fingerprint}`.
 func (r *UsersSshPublicKeysService) Delete(name string) *UsersSshPublicKeysDeleteCall {
 	c := &UsersSshPublicKeysDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1080,17 +1081,17 @@ func (c *UsersSshPublicKeysDeleteCall) Do(opts ...googleapi.CallOption) (*Empty,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1145,9 +1146,9 @@ type UsersSshPublicKeysGetCall struct {
 
 // Get: Retrieves an SSH public key.
 //
-// - name: The fingerprint of the public key to retrieve. Public keys
-//   are identified by their SHA-256 fingerprint. The fingerprint of the
-//   public key is in format `users/{user}/sshPublicKeys/{fingerprint}`.
+//   - name: The fingerprint of the public key to retrieve. Public keys
+//     are identified by their SHA-256 fingerprint. The fingerprint of the
+//     public key is in format `users/{user}/sshPublicKeys/{fingerprint}`.
 func (r *UsersSshPublicKeysService) Get(name string) *UsersSshPublicKeysGetCall {
 	c := &UsersSshPublicKeysGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1229,17 +1230,17 @@ func (c *UsersSshPublicKeysGetCall) Do(opts ...googleapi.CallOption) (*SshPublic
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SshPublicKey{
 		ServerResponse: googleapi.ServerResponse{
@@ -1295,9 +1296,9 @@ type UsersSshPublicKeysPatchCall struct {
 // Patch: Updates an SSH public key and returns the profile information.
 // This method supports patch semantics.
 //
-// - name: The fingerprint of the public key to update. Public keys are
-//   identified by their SHA-256 fingerprint. The fingerprint of the
-//   public key is in format `users/{user}/sshPublicKeys/{fingerprint}`.
+//   - name: The fingerprint of the public key to update. Public keys are
+//     identified by their SHA-256 fingerprint. The fingerprint of the
+//     public key is in format `users/{user}/sshPublicKeys/{fingerprint}`.
 func (r *UsersSshPublicKeysService) Patch(name string, sshpublickey *SshPublicKey) *UsersSshPublicKeysPatchCall {
 	c := &UsersSshPublicKeysPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1379,17 +1380,17 @@ func (c *UsersSshPublicKeysPatchCall) Do(opts ...googleapi.CallOption) (*SshPubl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SshPublicKey{
 		ServerResponse: googleapi.ServerResponse{

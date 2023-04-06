@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/pubsub/docs
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/pubsub/v1"
-//   ...
-//   ctx := context.Background()
-//   pubsubService, err := pubsub.NewService(ctx)
+//	import "google.golang.org/api/pubsub/v1"
+//	...
+//	ctx := context.Background()
+//	pubsubService, err := pubsub.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   pubsubService, err := pubsub.NewService(ctx, option.WithScopes(pubsub.PubsubScope))
+//	pubsubService, err := pubsub.NewService(ctx, option.WithScopes(pubsub.PubsubScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   pubsubService, err := pubsub.NewService(ctx, option.WithAPIKey("AIza..."))
+//	pubsubService, err := pubsub.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   pubsubService, err := pubsub.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	pubsubService, err := pubsub.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package pubsub // import "google.golang.org/api/pubsub/v1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "pubsub:v1"
 const apiName = "pubsub"
@@ -258,6 +259,75 @@ func (s *AcknowledgeRequest) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// BigQueryConfig: Configuration for a BigQuery subscription.
+type BigQueryConfig struct {
+	// DropUnknownFields: When true and use_topic_schema is true, any fields
+	// that are a part of the topic schema that are not part of the BigQuery
+	// table schema are dropped when writing to BigQuery. Otherwise, the
+	// schemas must be kept in sync and any messages with extra fields are
+	// not written and remain in the subscription's backlog.
+	DropUnknownFields bool `json:"dropUnknownFields,omitempty"`
+
+	// State: Output only. An output-only field that indicates whether or
+	// not the subscription can receive messages.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Default value. This value is unused.
+	//   "ACTIVE" - The subscription can actively send messages to BigQuery
+	//   "PERMISSION_DENIED" - Cannot write to the BigQuery table because of
+	// permission denied errors. This can happen if - Pub/Sub SA has not
+	// been granted the [appropriate BigQuery IAM
+	// permissions](https://cloud.google.com/pubsub/docs/create-subscription#
+	// assign_bigquery_service_account) - bigquery.googleapis.com API is not
+	// enabled for the project
+	// ([instructions](https://cloud.google.com/service-usage/docs/enable-dis
+	// able))
+	//   "NOT_FOUND" - Cannot write to the BigQuery table because it does
+	// not exist.
+	//   "SCHEMA_MISMATCH" - Cannot write to the BigQuery table due to a
+	// schema mismatch.
+	State string `json:"state,omitempty"`
+
+	// Table: The name of the table to which to write data, of the form
+	// {projectId}.{datasetId}.{tableId}
+	Table string `json:"table,omitempty"`
+
+	// UseTopicSchema: When true, use the topic's schema as the columns to
+	// write to in BigQuery, if it exists.
+	UseTopicSchema bool `json:"useTopicSchema,omitempty"`
+
+	// WriteMetadata: When true, write the subscription name, message_id,
+	// publish_time, attributes, and ordering_key to additional columns in
+	// the table. The subscription name, message_id, and publish_time fields
+	// are put in their own columns while all other message properties
+	// (other than data) are written to a JSON object in the attributes
+	// column.
+	WriteMetadata bool `json:"writeMetadata,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DropUnknownFields")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DropUnknownFields") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BigQueryConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod BigQueryConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Binding: Associates `members`, or principals, with a `role`.
 type Binding struct {
 	// Condition: The condition that is associated with this binding. If the
@@ -275,19 +345,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -299,9 +376,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -331,9 +406,38 @@ func (s *Binding) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// CommitSchemaRequest: Request for CommitSchema method.
+type CommitSchemaRequest struct {
+	// Schema: Required. The schema revision to commit.
+	Schema *Schema `json:"schema,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Schema") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Schema") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CommitSchemaRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod CommitSchemaRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // CreateSnapshotRequest: Request for the `CreateSnapshot` method.
 type CreateSnapshotRequest struct {
-	// Labels: See Creating and managing labels.
+	// Labels: See Creating and managing labels
+	// (https://cloud.google.com/pubsub/docs/labels).
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Subscription: Required. The subscription whose backlog the snapshot
@@ -528,6 +632,43 @@ type Expr struct {
 
 func (s *Expr) MarshalJSON() ([]byte, error) {
 	type NoMethod Expr
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ListSchemaRevisionsResponse: Response for the `ListSchemaRevisions`
+// method.
+type ListSchemaRevisionsResponse struct {
+	// NextPageToken: A token that can be sent as `page_token` to retrieve
+	// the next page. If this field is empty, there are no subsequent pages.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// Schemas: The revisions of the schema.
+	Schemas []*Schema `json:"schemas,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NextPageToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NextPageToken") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ListSchemaRevisionsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod ListSchemaRevisionsResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1183,7 +1324,8 @@ func (s *PullRequest) MarshalJSON() ([]byte, error) {
 // PullResponse: Response for the `Pull` method.
 type PullResponse struct {
 	// ReceivedMessages: Received Pub/Sub messages. The list will be empty
-	// if there are no more messages available in the backlog. For JSON, the
+	// if there are no more messages available in the backlog, or if no
+	// messages could be returned before the request timeout. For JSON, the
 	// response can be entirely empty. The Pub/Sub system may return fewer
 	// than the `maxMessages` requested even if there are more messages
 	// available in the backlog.
@@ -1233,7 +1375,7 @@ type PushConfig struct {
 	// supported values for the `x-goog-version` attribute are: * `v1beta1`:
 	// uses the push format defined in the v1beta1 Pub/Sub API. * `v1` or
 	// `v1beta2`: uses the push format defined in the v1 Pub/Sub API. For
-	// example: attributes { "x-goog-version": "v1" }
+	// example: `attributes { "x-goog-version": "v1" }`
 	Attributes map[string]string `json:"attributes,omitempty"`
 
 	// OidcToken: If specified, Pub/Sub will generate and attach an OIDC JWT
@@ -1357,6 +1499,35 @@ func (s *RetryPolicy) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// RollbackSchemaRequest: Request for the `RollbackSchema` method.
+type RollbackSchemaRequest struct {
+	// RevisionId: Required. The revision ID to roll back to. It must be a
+	// revision of the same schema. Example: c7cfa2a8
+	RevisionId string `json:"revisionId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "RevisionId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "RevisionId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RollbackSchemaRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod RollbackSchemaRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Schema: A schema resource.
 type Schema struct {
 	// Definition: The definition of the schema. This should contain a
@@ -1421,6 +1592,16 @@ type SchemaSettings struct {
 	//   "BINARY" - Binary encoding, as defined by the schema type. For some
 	// schema types, binary encoding may not be available.
 	Encoding string `json:"encoding,omitempty"`
+
+	// FirstRevisionId: The minimum (inclusive) revision allowed for
+	// validating messages. If empty or not present, allow any revision to
+	// be validated against last_revision or any revision created before.
+	FirstRevisionId string `json:"firstRevisionId,omitempty"`
+
+	// LastRevisionId: The maximum (inclusive) revision allowed for
+	// validating messages. If empty or not present, allow any revision to
+	// be validated against first_revision or any revision created after.
+	LastRevisionId string `json:"lastRevisionId,omitempty"`
 
 	// Schema: Required. The name of the schema that messages published
 	// should be validated against. Format is
@@ -1590,12 +1771,14 @@ func (s *Snapshot) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Subscription: A subscription resource.
+// Subscription: A subscription resource. If none of `push_config` or
+// `bigquery_config` is set, then the subscriber will pull and ack
+// messages using API methods. At most one of these fields may be set.
 type Subscription struct {
 	// AckDeadlineSeconds: The approximate amount of time (on a best-effort
 	// basis) Pub/Sub waits for the subscriber to acknowledge receipt before
 	// resending the message. In the interval after the message is delivered
-	// and before it is acknowledged, it is considered to be *outstanding*.
+	// and before it is acknowledged, it is considered to be _outstanding_.
 	// During that time period, the message will not be redelivered (on a
 	// best-effort basis). For pull subscriptions, this value is used as the
 	// initial value for the ack deadline. To override this value for a
@@ -1609,6 +1792,10 @@ type Subscription struct {
 	// call to the push endpoint. If the subscriber never acknowledges the
 	// message, the Pub/Sub system will eventually redeliver the message.
 	AckDeadlineSeconds int64 `json:"ackDeadlineSeconds,omitempty"`
+
+	// BigqueryConfig: If delivery to BigQuery is used with this
+	// subscription, this field is used to configure it.
+	BigqueryConfig *BigQueryConfig `json:"bigqueryConfig,omitempty"`
 
 	// DeadLetterPolicy: A policy that specifies the conditions for dead
 	// lettering messages in this subscription. If dead_letter_policy is not
@@ -1660,7 +1847,8 @@ type Subscription struct {
 	// filtered out.
 	Filter string `json:"filter,omitempty"`
 
-	// Labels: See Creating and managing labels.
+	// Labels: See Creating and managing labels
+	// (https://cloud.google.com/pubsub/docs/labels).
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// MessageRetentionDuration: How long to retain unacknowledged messages
@@ -1680,9 +1868,7 @@ type Subscription struct {
 	Name string `json:"name,omitempty"`
 
 	// PushConfig: If push delivery is used with this subscription, this
-	// field is used to configure it. At most one of `pushConfig` and
-	// `bigQueryConfig` can be set. If both are empty, then the subscriber
-	// will pull and ack messages using API methods.
+	// field is used to configure it.
 	PushConfig *PushConfig `json:"pushConfig,omitempty"`
 
 	// RetainAckedMessages: Indicates whether to retain acknowledged
@@ -2082,6 +2268,150 @@ type ValidateSchemaResponse struct {
 	googleapi.ServerResponse `json:"-"`
 }
 
+// method id "pubsub.projects.schemas.commit":
+
+type ProjectsSchemasCommitCall struct {
+	s                   *Service
+	name                string
+	commitschemarequest *CommitSchemaRequest
+	urlParams_          gensupport.URLParams
+	ctx_                context.Context
+	header_             http.Header
+}
+
+// Commit: Commits a new schema revision to an existing schema.
+//
+//   - name: The name of the schema we are revising. Format is
+//     `projects/{project}/schemas/{schema}`.
+func (r *ProjectsSchemasService) Commit(name string, commitschemarequest *CommitSchemaRequest) *ProjectsSchemasCommitCall {
+	c := &ProjectsSchemasCommitCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.commitschemarequest = commitschemarequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsSchemasCommitCall) Fields(s ...googleapi.Field) *ProjectsSchemasCommitCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsSchemasCommitCall) Context(ctx context.Context) *ProjectsSchemasCommitCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsSchemasCommitCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsSchemasCommitCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.commitschemarequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:commit")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "pubsub.projects.schemas.commit" call.
+// Exactly one of *Schema or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Schema.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsSchemasCommitCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Schema{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Commits a new schema revision to an existing schema.",
+	//   "flatPath": "v1/projects/{projectsId}/schemas/{schemasId}:commit",
+	//   "httpMethod": "POST",
+	//   "id": "pubsub.projects.schemas.commit",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the schema we are revising. Format is `projects/{project}/schemas/{schema}`.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/schemas/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:commit",
+	//   "request": {
+	//     "$ref": "CommitSchemaRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Schema"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/pubsub"
+	//   ]
+	// }
+
+}
+
 // method id "pubsub.projects.schemas.create":
 
 type ProjectsSchemasCreateCall struct {
@@ -2095,8 +2425,8 @@ type ProjectsSchemasCreateCall struct {
 
 // Create: Creates a schema.
 //
-// - parent: The name of the project in which to create the schema.
-//   Format is `projects/{project-id}`.
+//   - parent: The name of the project in which to create the schema.
+//     Format is `projects/{project-id}`.
 func (r *ProjectsSchemasService) Create(parent string, schema *Schema) *ProjectsSchemasCreateCall {
 	c := &ProjectsSchemasCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2181,17 +2511,17 @@ func (c *ProjectsSchemasCreateCall) Do(opts ...googleapi.CallOption) (*Schema, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Schema{
 		ServerResponse: googleapi.ServerResponse{
@@ -2253,8 +2583,8 @@ type ProjectsSchemasDeleteCall struct {
 
 // Delete: Deletes a schema.
 //
-// - name: Name of the schema to delete. Format is
-//   `projects/{project}/schemas/{schema}`.
+//   - name: Name of the schema to delete. Format is
+//     `projects/{project}/schemas/{schema}`.
 func (r *ProjectsSchemasService) Delete(name string) *ProjectsSchemasDeleteCall {
 	c := &ProjectsSchemasDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2323,17 +2653,17 @@ func (c *ProjectsSchemasDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2375,6 +2705,154 @@ func (c *ProjectsSchemasDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, er
 
 }
 
+// method id "pubsub.projects.schemas.deleteRevision":
+
+type ProjectsSchemasDeleteRevisionCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// DeleteRevision: Deletes a specific schema revision.
+//
+//   - name: The name of the schema revision to be deleted, with a
+//     revision ID explicitly included. Example:
+//     `projects/123/schemas/my-schema@c7cfa2a8`.
+func (r *ProjectsSchemasService) DeleteRevision(name string) *ProjectsSchemasDeleteRevisionCall {
+	c := &ProjectsSchemasDeleteRevisionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// RevisionId sets the optional parameter "revisionId": This field is
+// deprecated and should not be used for specifying the revision ID. The
+// revision ID should be specified via the `name` parameter.
+func (c *ProjectsSchemasDeleteRevisionCall) RevisionId(revisionId string) *ProjectsSchemasDeleteRevisionCall {
+	c.urlParams_.Set("revisionId", revisionId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsSchemasDeleteRevisionCall) Fields(s ...googleapi.Field) *ProjectsSchemasDeleteRevisionCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsSchemasDeleteRevisionCall) Context(ctx context.Context) *ProjectsSchemasDeleteRevisionCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsSchemasDeleteRevisionCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsSchemasDeleteRevisionCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:deleteRevision")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "pubsub.projects.schemas.deleteRevision" call.
+// Exactly one of *Schema or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Schema.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsSchemasDeleteRevisionCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Schema{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes a specific schema revision.",
+	//   "flatPath": "v1/projects/{projectsId}/schemas/{schemasId}:deleteRevision",
+	//   "httpMethod": "DELETE",
+	//   "id": "pubsub.projects.schemas.deleteRevision",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the schema revision to be deleted, with a revision ID explicitly included. Example: `projects/123/schemas/my-schema@c7cfa2a8`",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/schemas/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "revisionId": {
+	//       "description": "Optional. This field is deprecated and should not be used for specifying the revision ID. The revision ID should be specified via the `name` parameter.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:deleteRevision",
+	//   "response": {
+	//     "$ref": "Schema"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/pubsub"
+	//   ]
+	// }
+
+}
+
 // method id "pubsub.projects.schemas.get":
 
 type ProjectsSchemasGetCall struct {
@@ -2388,8 +2866,8 @@ type ProjectsSchemasGetCall struct {
 
 // Get: Gets a schema.
 //
-// - name: The name of the schema to get. Format is
-//   `projects/{project}/schemas/{schema}`.
+//   - name: The name of the schema to get. Format is
+//     `projects/{project}/schemas/{schema}`.
 func (r *ProjectsSchemasService) Get(name string) *ProjectsSchemasGetCall {
 	c := &ProjectsSchemasGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2401,11 +2879,16 @@ func (r *ProjectsSchemasService) Get(name string) *ProjectsSchemasGetCall {
 // out. Set to `BASIC` to omit the `definition`.
 //
 // Possible values:
-//   "SCHEMA_VIEW_UNSPECIFIED" - The default / unset value. The API will
+//
+//	"SCHEMA_VIEW_UNSPECIFIED" - The default / unset value. The API will
+//
 // default to the BASIC view.
-//   "BASIC" - Include the name and type of the schema, but not the
+//
+//	"BASIC" - Include the name and type of the schema, but not the
+//
 // definition.
-//   "FULL" - Include all Schema object fields.
+//
+//	"FULL" - Include all Schema object fields.
 func (c *ProjectsSchemasGetCall) View(view string) *ProjectsSchemasGetCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -2486,17 +2969,17 @@ func (c *ProjectsSchemasGetCall) Do(opts ...googleapi.CallOption) (*Schema, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Schema{
 		ServerResponse: googleapi.ServerResponse{
@@ -2568,9 +3051,10 @@ type ProjectsSchemasGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSchemasService) GetIamPolicy(resource string) *ProjectsSchemasGetIamPolicyCall {
 	c := &ProjectsSchemasGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2670,17 +3154,17 @@ func (c *ProjectsSchemasGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2709,7 +3193,7 @@ func (c *ProjectsSchemasGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/schemas/[^/]+$",
 	//       "required": true,
@@ -2741,8 +3225,8 @@ type ProjectsSchemasListCall struct {
 
 // List: Lists schemas in a project.
 //
-// - parent: The name of the project in which to list schemas. Format is
-//   `projects/{project-id}`.
+//   - parent: The name of the project in which to list schemas. Format is
+//     `projects/{project-id}`.
 func (r *ProjectsSchemasService) List(parent string) *ProjectsSchemasListCall {
 	c := &ProjectsSchemasListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2770,11 +3254,16 @@ func (c *ProjectsSchemasListCall) PageToken(pageToken string) *ProjectsSchemasLi
 // `type`, but not `definition`. Set to `FULL` to retrieve all fields.
 //
 // Possible values:
-//   "SCHEMA_VIEW_UNSPECIFIED" - The default / unset value. The API will
+//
+//	"SCHEMA_VIEW_UNSPECIFIED" - The default / unset value. The API will
+//
 // default to the BASIC view.
-//   "BASIC" - Include the name and type of the schema, but not the
+//
+//	"BASIC" - Include the name and type of the schema, but not the
+//
 // definition.
-//   "FULL" - Include all Schema object fields.
+//
+//	"FULL" - Include all Schema object fields.
 func (c *ProjectsSchemasListCall) View(view string) *ProjectsSchemasListCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -2855,17 +3344,17 @@ func (c *ProjectsSchemasListCall) Do(opts ...googleapi.CallOption) (*ListSchemas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSchemasResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2954,6 +3443,379 @@ func (c *ProjectsSchemasListCall) Pages(ctx context.Context, f func(*ListSchemas
 	}
 }
 
+// method id "pubsub.projects.schemas.listRevisions":
+
+type ProjectsSchemasListRevisionsCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// ListRevisions: Lists all schema revisions for the named schema.
+//
+// - name: The name of the schema to list revisions for.
+func (r *ProjectsSchemasService) ListRevisions(name string) *ProjectsSchemasListRevisionsCall {
+	c := &ProjectsSchemasListRevisionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": The maximum number
+// of revisions to return per page.
+func (c *ProjectsSchemasListRevisionsCall) PageSize(pageSize int64) *ProjectsSchemasListRevisionsCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": The page token,
+// received from a previous ListSchemaRevisions call. Provide this to
+// retrieve the subsequent page.
+func (c *ProjectsSchemasListRevisionsCall) PageToken(pageToken string) *ProjectsSchemasListRevisionsCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// View sets the optional parameter "view": The set of Schema fields to
+// return in the response. If not set, returns Schemas with `name` and
+// `type`, but not `definition`. Set to `FULL` to retrieve all fields.
+//
+// Possible values:
+//
+//	"SCHEMA_VIEW_UNSPECIFIED" - The default / unset value. The API will
+//
+// default to the BASIC view.
+//
+//	"BASIC" - Include the name and type of the schema, but not the
+//
+// definition.
+//
+//	"FULL" - Include all Schema object fields.
+func (c *ProjectsSchemasListRevisionsCall) View(view string) *ProjectsSchemasListRevisionsCall {
+	c.urlParams_.Set("view", view)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsSchemasListRevisionsCall) Fields(s ...googleapi.Field) *ProjectsSchemasListRevisionsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsSchemasListRevisionsCall) IfNoneMatch(entityTag string) *ProjectsSchemasListRevisionsCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsSchemasListRevisionsCall) Context(ctx context.Context) *ProjectsSchemasListRevisionsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsSchemasListRevisionsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsSchemasListRevisionsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:listRevisions")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "pubsub.projects.schemas.listRevisions" call.
+// Exactly one of *ListSchemaRevisionsResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *ListSchemaRevisionsResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsSchemasListRevisionsCall) Do(opts ...googleapi.CallOption) (*ListSchemaRevisionsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &ListSchemaRevisionsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists all schema revisions for the named schema.",
+	//   "flatPath": "v1/projects/{projectsId}/schemas/{schemasId}:listRevisions",
+	//   "httpMethod": "GET",
+	//   "id": "pubsub.projects.schemas.listRevisions",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the schema to list revisions for.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/schemas/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "The maximum number of revisions to return per page.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "The page token, received from a previous ListSchemaRevisions call. Provide this to retrieve the subsequent page.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "view": {
+	//       "description": "The set of Schema fields to return in the response. If not set, returns Schemas with `name` and `type`, but not `definition`. Set to `FULL` to retrieve all fields.",
+	//       "enum": [
+	//         "SCHEMA_VIEW_UNSPECIFIED",
+	//         "BASIC",
+	//         "FULL"
+	//       ],
+	//       "enumDescriptions": [
+	//         "The default / unset value. The API will default to the BASIC view.",
+	//         "Include the name and type of the schema, but not the definition.",
+	//         "Include all Schema object fields."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:listRevisions",
+	//   "response": {
+	//     "$ref": "ListSchemaRevisionsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/pubsub"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *ProjectsSchemasListRevisionsCall) Pages(ctx context.Context, f func(*ListSchemaRevisionsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "pubsub.projects.schemas.rollback":
+
+type ProjectsSchemasRollbackCall struct {
+	s                     *Service
+	name                  string
+	rollbackschemarequest *RollbackSchemaRequest
+	urlParams_            gensupport.URLParams
+	ctx_                  context.Context
+	header_               http.Header
+}
+
+// Rollback: Creates a new schema revision that is a copy of the
+// provided revision_id.
+//
+// - name: The schema being rolled back with revision id.
+func (r *ProjectsSchemasService) Rollback(name string, rollbackschemarequest *RollbackSchemaRequest) *ProjectsSchemasRollbackCall {
+	c := &ProjectsSchemasRollbackCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.rollbackschemarequest = rollbackschemarequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsSchemasRollbackCall) Fields(s ...googleapi.Field) *ProjectsSchemasRollbackCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsSchemasRollbackCall) Context(ctx context.Context) *ProjectsSchemasRollbackCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsSchemasRollbackCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsSchemasRollbackCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.rollbackschemarequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:rollback")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "pubsub.projects.schemas.rollback" call.
+// Exactly one of *Schema or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Schema.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsSchemasRollbackCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Schema{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a new schema revision that is a copy of the provided revision_id.",
+	//   "flatPath": "v1/projects/{projectsId}/schemas/{schemasId}:rollback",
+	//   "httpMethod": "POST",
+	//   "id": "pubsub.projects.schemas.rollback",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The schema being rolled back with revision id.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/schemas/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:rollback",
+	//   "request": {
+	//     "$ref": "RollbackSchemaRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Schema"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/pubsub"
+	//   ]
+	// }
+
+}
+
 // method id "pubsub.projects.schemas.setIamPolicy":
 
 type ProjectsSchemasSetIamPolicyCall struct {
@@ -2969,9 +3831,10 @@ type ProjectsSchemasSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSchemasService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsSchemasSetIamPolicyCall {
 	c := &ProjectsSchemasSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3046,17 +3909,17 @@ func (c *ProjectsSchemasSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3079,7 +3942,7 @@ func (c *ProjectsSchemasSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/schemas/[^/]+$",
 	//       "required": true,
@@ -3119,9 +3982,10 @@ type ProjectsSchemasTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSchemasService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsSchemasTestIamPermissionsCall {
 	c := &ProjectsSchemasTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3196,17 +4060,17 @@ func (c *ProjectsSchemasTestIamPermissionsCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3229,7 +4093,7 @@ func (c *ProjectsSchemasTestIamPermissionsCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/schemas/[^/]+$",
 	//       "required": true,
@@ -3264,8 +4128,8 @@ type ProjectsSchemasValidateCall struct {
 
 // Validate: Validates a schema.
 //
-// - parent: The name of the project in which to validate schemas.
-//   Format is `projects/{project-id}`.
+//   - parent: The name of the project in which to validate schemas.
+//     Format is `projects/{project-id}`.
 func (r *ProjectsSchemasService) Validate(parent string, validateschemarequest *ValidateSchemaRequest) *ProjectsSchemasValidateCall {
 	c := &ProjectsSchemasValidateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3340,17 +4204,17 @@ func (c *ProjectsSchemasValidateCall) Do(opts ...googleapi.CallOption) (*Validat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ValidateSchemaResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3408,8 +4272,8 @@ type ProjectsSchemasValidateMessageCall struct {
 
 // ValidateMessage: Validates a message against a schema.
 //
-// - parent: The name of the project in which to validate schemas.
-//   Format is `projects/{project-id}`.
+//   - parent: The name of the project in which to validate schemas.
+//     Format is `projects/{project-id}`.
 func (r *ProjectsSchemasService) ValidateMessage(parent string, validatemessagerequest *ValidateMessageRequest) *ProjectsSchemasValidateMessageCall {
 	c := &ProjectsSchemasValidateMessageCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3484,17 +4348,17 @@ func (c *ProjectsSchemasValidateMessageCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ValidateMessageResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3568,11 +4432,13 @@ type ProjectsSnapshotsCreateCall struct {
 // generated name is populated in the returned Snapshot object. Note
 // that for REST API requests, you must specify a name in the request.
 //
-// - name: User-provided name for this snapshot. If the name is not
-//   provided in the request, the server will assign a random name for
-//   this snapshot on the same project as the subscription. Note that
-//   for REST API requests, you must specify a name. See the resource
-//   name rules. Format is `projects/{project}/snapshots/{snap}`.
+//   - name: User-provided name for this snapshot. If the name is not
+//     provided in the request, the server will assign a random name for
+//     this snapshot on the same project as the subscription. Note that
+//     for REST API requests, you must specify a name. See the resource
+//     name rules
+//     (https://cloud.google.com/pubsub/docs/admin#resource_names). Format
+//     is `projects/{project}/snapshots/{snap}`.
 func (r *ProjectsSnapshotsService) Create(name string, createsnapshotrequest *CreateSnapshotRequest) *ProjectsSnapshotsCreateCall {
 	c := &ProjectsSnapshotsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3647,17 +4513,17 @@ func (c *ProjectsSnapshotsCreateCall) Do(opts ...googleapi.CallOption) (*Snapsho
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Snapshot{
 		ServerResponse: googleapi.ServerResponse{
@@ -3680,7 +4546,7 @@ func (c *ProjectsSnapshotsCreateCall) Do(opts ...googleapi.CallOption) (*Snapsho
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. User-provided name for this snapshot. If the name is not provided in the request, the server will assign a random name for this snapshot on the same project as the subscription. Note that for REST API requests, you must specify a name. See the resource name rules. Format is `projects/{project}/snapshots/{snap}`.",
+	//       "description": "Required. User-provided name for this snapshot. If the name is not provided in the request, the server will assign a random name for this snapshot on the same project as the subscription. Note that for REST API requests, you must specify a name. See the [resource name rules](https://cloud.google.com/pubsub/docs/admin#resource_names). Format is `projects/{project}/snapshots/{snap}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/snapshots/[^/]+$",
 	//       "required": true,
@@ -3723,8 +4589,8 @@ type ProjectsSnapshotsDeleteCall struct {
 // snapshot or its subscription, unless the same subscription is
 // specified.
 //
-// - snapshot: The name of the snapshot to delete. Format is
-//   `projects/{project}/snapshots/{snap}`.
+//   - snapshot: The name of the snapshot to delete. Format is
+//     `projects/{project}/snapshots/{snap}`.
 func (r *ProjectsSnapshotsService) Delete(snapshot string) *ProjectsSnapshotsDeleteCall {
 	c := &ProjectsSnapshotsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.snapshot = snapshot
@@ -3793,17 +4659,17 @@ func (c *ProjectsSnapshotsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3862,8 +4728,8 @@ type ProjectsSnapshotsGetCall struct {
 // bulk. That is, you can set the acknowledgment state of messages in an
 // existing subscription to the state captured by a snapshot.
 //
-// - snapshot: The name of the snapshot to get. Format is
-//   `projects/{project}/snapshots/{snap}`.
+//   - snapshot: The name of the snapshot to get. Format is
+//     `projects/{project}/snapshots/{snap}`.
 func (r *ProjectsSnapshotsService) Get(snapshot string) *ProjectsSnapshotsGetCall {
 	c := &ProjectsSnapshotsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.snapshot = snapshot
@@ -3945,17 +4811,17 @@ func (c *ProjectsSnapshotsGetCall) Do(opts ...googleapi.CallOption) (*Snapshot, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Snapshot{
 		ServerResponse: googleapi.ServerResponse{
@@ -4012,9 +4878,10 @@ type ProjectsSnapshotsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSnapshotsService) GetIamPolicy(resource string) *ProjectsSnapshotsGetIamPolicyCall {
 	c := &ProjectsSnapshotsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4114,17 +4981,17 @@ func (c *ProjectsSnapshotsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*P
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4153,7 +5020,7 @@ func (c *ProjectsSnapshotsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*P
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/snapshots/[^/]+$",
 	//       "required": true,
@@ -4189,8 +5056,8 @@ type ProjectsSnapshotsListCall struct {
 // you can set the acknowledgment state of messages in an existing
 // subscription to the state captured by a snapshot.
 //
-// - project: The name of the project in which to list snapshots. Format
-//   is `projects/{project-id}`.
+//   - project: The name of the project in which to list snapshots. Format
+//     is `projects/{project-id}`.
 func (r *ProjectsSnapshotsService) List(project string) *ProjectsSnapshotsListCall {
 	c := &ProjectsSnapshotsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -4288,17 +5155,17 @@ func (c *ProjectsSnapshotsListCall) Do(opts ...googleapi.CallOption) (*ListSnaps
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSnapshotsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4464,17 +5331,17 @@ func (c *ProjectsSnapshotsPatchCall) Do(opts ...googleapi.CallOption) (*Snapshot
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Snapshot{
 		ServerResponse: googleapi.ServerResponse{
@@ -4534,9 +5401,10 @@ type ProjectsSnapshotsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSnapshotsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsSnapshotsSetIamPolicyCall {
 	c := &ProjectsSnapshotsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4611,17 +5479,17 @@ func (c *ProjectsSnapshotsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*P
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4644,7 +5512,7 @@ func (c *ProjectsSnapshotsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*P
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/snapshots/[^/]+$",
 	//       "required": true,
@@ -4684,9 +5552,10 @@ type ProjectsSnapshotsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSnapshotsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsSnapshotsTestIamPermissionsCall {
 	c := &ProjectsSnapshotsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4761,17 +5630,17 @@ func (c *ProjectsSnapshotsTestIamPermissionsCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4794,7 +5663,7 @@ func (c *ProjectsSnapshotsTestIamPermissionsCall) Do(opts ...googleapi.CallOptio
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/snapshots/[^/]+$",
 	//       "required": true,
@@ -4834,8 +5703,8 @@ type ProjectsSubscriptionsAcknowledgeCall struct {
 // redelivered later. Acknowledging a message more than once will not
 // result in an error.
 //
-// - subscription: The subscription whose message is being acknowledged.
-//   Format is `projects/{project}/subscriptions/{sub}`.
+//   - subscription: The subscription whose message is being acknowledged.
+//     Format is `projects/{project}/subscriptions/{sub}`.
 func (r *ProjectsSubscriptionsService) Acknowledge(subscription string, acknowledgerequest *AcknowledgeRequest) *ProjectsSubscriptionsAcknowledgeCall {
 	c := &ProjectsSubscriptionsAcknowledgeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.subscription = subscription
@@ -4910,17 +5779,17 @@ func (c *ProjectsSubscriptionsAcknowledgeCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4988,13 +5857,13 @@ type ProjectsSubscriptionsCreateCall struct {
 // generated name is populated in the returned Subscription object. Note
 // that for REST API requests, you must specify a name in the request.
 //
-// - name: The name of the subscription. It must have the format
-//   "projects/{project}/subscriptions/{subscription}".
-//   `{subscription}` must start with a letter, and contain only letters
-//   (`[A-Za-z]`), numbers (`[0-9]`), dashes (`-`), underscores (`_`),
-//   periods (`.`), tildes (`~`), plus (`+`) or percent signs (`%`). It
-//   must be between 3 and 255 characters in length, and it must not
-//   start with "goog".
+//   - name: The name of the subscription. It must have the format
+//     "projects/{project}/subscriptions/{subscription}".
+//     `{subscription}` must start with a letter, and contain only letters
+//     (`[A-Za-z]`), numbers (`[0-9]`), dashes (`-`), underscores (`_`),
+//     periods (`.`), tildes (`~`), plus (`+`) or percent signs (`%`). It
+//     must be between 3 and 255 characters in length, and it must not
+//     start with "goog".
 func (r *ProjectsSubscriptionsService) Create(name string, subscription *Subscription) *ProjectsSubscriptionsCreateCall {
 	c := &ProjectsSubscriptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5069,17 +5938,17 @@ func (c *ProjectsSubscriptionsCreateCall) Do(opts ...googleapi.CallOption) (*Sub
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -5141,8 +6010,8 @@ type ProjectsSubscriptionsDeleteCall struct {
 // association with the old subscription or its topic unless the same
 // topic is specified.
 //
-// - subscription: The subscription to delete. Format is
-//   `projects/{project}/subscriptions/{sub}`.
+//   - subscription: The subscription to delete. Format is
+//     `projects/{project}/subscriptions/{sub}`.
 func (r *ProjectsSubscriptionsService) Delete(subscription string) *ProjectsSubscriptionsDeleteCall {
 	c := &ProjectsSubscriptionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.subscription = subscription
@@ -5211,17 +6080,17 @@ func (c *ProjectsSubscriptionsDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5279,8 +6148,8 @@ type ProjectsSubscriptionsDetachCall struct {
 // subscription is a push subscription, pushes to the endpoint will
 // stop.
 //
-// - subscription: The subscription to detach. Format is
-//   `projects/{project}/subscriptions/{subscription}`.
+//   - subscription: The subscription to detach. Format is
+//     `projects/{project}/subscriptions/{subscription}`.
 func (r *ProjectsSubscriptionsService) Detach(subscription string) *ProjectsSubscriptionsDetachCall {
 	c := &ProjectsSubscriptionsDetachCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.subscription = subscription
@@ -5349,17 +6218,17 @@ func (c *ProjectsSubscriptionsDetachCall) Do(opts ...googleapi.CallOption) (*Det
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DetachSubscriptionResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5414,8 +6283,8 @@ type ProjectsSubscriptionsGetCall struct {
 
 // Get: Gets the configuration details of a subscription.
 //
-// - subscription: The name of the subscription to get. Format is
-//   `projects/{project}/subscriptions/{sub}`.
+//   - subscription: The name of the subscription to get. Format is
+//     `projects/{project}/subscriptions/{sub}`.
 func (r *ProjectsSubscriptionsService) Get(subscription string) *ProjectsSubscriptionsGetCall {
 	c := &ProjectsSubscriptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.subscription = subscription
@@ -5497,17 +6366,17 @@ func (c *ProjectsSubscriptionsGetCall) Do(opts ...googleapi.CallOption) (*Subscr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -5564,9 +6433,10 @@ type ProjectsSubscriptionsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSubscriptionsService) GetIamPolicy(resource string) *ProjectsSubscriptionsGetIamPolicyCall {
 	c := &ProjectsSubscriptionsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5666,17 +6536,17 @@ func (c *ProjectsSubscriptionsGetIamPolicyCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5705,7 +6575,7 @@ func (c *ProjectsSubscriptionsGetIamPolicyCall) Do(opts ...googleapi.CallOption)
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/subscriptions/[^/]+$",
 	//       "required": true,
@@ -5737,8 +6607,8 @@ type ProjectsSubscriptionsListCall struct {
 
 // List: Lists matching subscriptions.
 //
-// - project: The name of the project in which to list subscriptions.
-//   Format is `projects/{project-id}`.
+//   - project: The name of the project in which to list subscriptions.
+//     Format is `projects/{project-id}`.
 func (r *ProjectsSubscriptionsService) List(project string) *ProjectsSubscriptionsListCall {
 	c := &ProjectsSubscriptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -5836,17 +6706,17 @@ func (c *ProjectsSubscriptionsListCall) Do(opts ...googleapi.CallOption) (*ListS
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSubscriptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5938,8 +6808,8 @@ type ProjectsSubscriptionsModifyAckDeadlineCall struct {
 // modify the subscription-level `ackDeadlineSeconds` used for
 // subsequent messages.
 //
-// - subscription: The name of the subscription. Format is
-//   `projects/{project}/subscriptions/{sub}`.
+//   - subscription: The name of the subscription. Format is
+//     `projects/{project}/subscriptions/{sub}`.
 func (r *ProjectsSubscriptionsService) ModifyAckDeadline(subscription string, modifyackdeadlinerequest *ModifyAckDeadlineRequest) *ProjectsSubscriptionsModifyAckDeadlineCall {
 	c := &ProjectsSubscriptionsModifyAckDeadlineCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.subscription = subscription
@@ -6014,17 +6884,17 @@ func (c *ProjectsSubscriptionsModifyAckDeadlineCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6087,8 +6957,8 @@ type ProjectsSubscriptionsModifyPushConfigCall struct {
 // Messages will accumulate for delivery continuously through the call
 // regardless of changes to the `PushConfig`.
 //
-// - subscription: The name of the subscription. Format is
-//   `projects/{project}/subscriptions/{sub}`.
+//   - subscription: The name of the subscription. Format is
+//     `projects/{project}/subscriptions/{sub}`.
 func (r *ProjectsSubscriptionsService) ModifyPushConfig(subscription string, modifypushconfigrequest *ModifyPushConfigRequest) *ProjectsSubscriptionsModifyPushConfigCall {
 	c := &ProjectsSubscriptionsModifyPushConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.subscription = subscription
@@ -6163,17 +7033,17 @@ func (c *ProjectsSubscriptionsModifyPushConfigCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6232,13 +7102,13 @@ type ProjectsSubscriptionsPatchCall struct {
 // Patch: Updates an existing subscription. Note that certain properties
 // of a subscription, such as its topic, are not modifiable.
 //
-// - name: The name of the subscription. It must have the format
-//   "projects/{project}/subscriptions/{subscription}".
-//   `{subscription}` must start with a letter, and contain only letters
-//   (`[A-Za-z]`), numbers (`[0-9]`), dashes (`-`), underscores (`_`),
-//   periods (`.`), tildes (`~`), plus (`+`) or percent signs (`%`). It
-//   must be between 3 and 255 characters in length, and it must not
-//   start with "goog".
+//   - name: The name of the subscription. It must have the format
+//     "projects/{project}/subscriptions/{subscription}".
+//     `{subscription}` must start with a letter, and contain only letters
+//     (`[A-Za-z]`), numbers (`[0-9]`), dashes (`-`), underscores (`_`),
+//     periods (`.`), tildes (`~`), plus (`+`) or percent signs (`%`). It
+//     must be between 3 and 255 characters in length, and it must not
+//     start with "goog".
 func (r *ProjectsSubscriptionsService) Patch(name string, updatesubscriptionrequest *UpdateSubscriptionRequest) *ProjectsSubscriptionsPatchCall {
 	c := &ProjectsSubscriptionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6313,17 +7183,17 @@ func (c *ProjectsSubscriptionsPatchCall) Do(opts ...googleapi.CallOption) (*Subs
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -6379,12 +7249,10 @@ type ProjectsSubscriptionsPullCall struct {
 	header_      http.Header
 }
 
-// Pull: Pulls messages from the server. The server may return
-// `UNAVAILABLE` if there are too many concurrent pull requests pending
-// for the given subscription.
+// Pull: Pulls messages from the server.
 //
-// - subscription: The subscription from which messages should be
-//   pulled. Format is `projects/{project}/subscriptions/{sub}`.
+//   - subscription: The subscription from which messages should be
+//     pulled. Format is `projects/{project}/subscriptions/{sub}`.
 func (r *ProjectsSubscriptionsService) Pull(subscription string, pullrequest *PullRequest) *ProjectsSubscriptionsPullCall {
 	c := &ProjectsSubscriptionsPullCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.subscription = subscription
@@ -6459,17 +7327,17 @@ func (c *ProjectsSubscriptionsPullCall) Do(opts ...googleapi.CallOption) (*PullR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PullResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6483,7 +7351,7 @@ func (c *ProjectsSubscriptionsPullCall) Do(opts ...googleapi.CallOption) (*PullR
 	}
 	return ret, nil
 	// {
-	//   "description": "Pulls messages from the server. The server may return `UNAVAILABLE` if there are too many concurrent pull requests pending for the given subscription.",
+	//   "description": "Pulls messages from the server.",
 	//   "flatPath": "v1/projects/{projectsId}/subscriptions/{subscriptionsId}:pull",
 	//   "httpMethod": "POST",
 	//   "id": "pubsub.projects.subscriptions.pull",
@@ -6608,17 +7476,17 @@ func (c *ProjectsSubscriptionsSeekCall) Do(opts ...googleapi.CallOption) (*SeekR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SeekResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6678,9 +7546,10 @@ type ProjectsSubscriptionsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSubscriptionsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsSubscriptionsSetIamPolicyCall {
 	c := &ProjectsSubscriptionsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6755,17 +7624,17 @@ func (c *ProjectsSubscriptionsSetIamPolicyCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6788,7 +7657,7 @@ func (c *ProjectsSubscriptionsSetIamPolicyCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/subscriptions/[^/]+$",
 	//       "required": true,
@@ -6828,9 +7697,10 @@ type ProjectsSubscriptionsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSubscriptionsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsSubscriptionsTestIamPermissionsCall {
 	c := &ProjectsSubscriptionsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6905,17 +7775,17 @@ func (c *ProjectsSubscriptionsTestIamPermissionsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6938,7 +7808,7 @@ func (c *ProjectsSubscriptionsTestIamPermissionsCall) Do(opts ...googleapi.CallO
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/subscriptions/[^/]+$",
 	//       "required": true,
@@ -6975,12 +7845,12 @@ type ProjectsTopicsCreateCall struct {
 // [resource name rules]
 // (https://cloud.google.com/pubsub/docs/admin#resource_names).
 //
-// - name: The name of the topic. It must have the format
-//   "projects/{project}/topics/{topic}". `{topic}` must start with a
-//   letter, and contain only letters (`[A-Za-z]`), numbers (`[0-9]`),
-//   dashes (`-`), underscores (`_`), periods (`.`), tildes (`~`), plus
-//   (`+`) or percent signs (`%`). It must be between 3 and 255
-//   characters in length, and it must not start with "goog".
+//   - name: The name of the topic. It must have the format
+//     "projects/{project}/topics/{topic}". `{topic}` must start with a
+//     letter, and contain only letters (`[A-Za-z]`), numbers (`[0-9]`),
+//     dashes (`-`), underscores (`_`), periods (`.`), tildes (`~`), plus
+//     (`+`) or percent signs (`%`). It must be between 3 and 255
+//     characters in length, and it must not start with "goog".
 func (r *ProjectsTopicsService) Create(name string, topic *Topic) *ProjectsTopicsCreateCall {
 	c := &ProjectsTopicsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7055,17 +7925,17 @@ func (c *ProjectsTopicsCreateCall) Do(opts ...googleapi.CallOption) (*Topic, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Topic{
 		ServerResponse: googleapi.ServerResponse{
@@ -7127,8 +7997,8 @@ type ProjectsTopicsDeleteCall struct {
 // subscriptions to this topic are not deleted, but their `topic` field
 // is set to `_deleted-topic_`.
 //
-// - topic: Name of the topic to delete. Format is
-//   `projects/{project}/topics/{topic}`.
+//   - topic: Name of the topic to delete. Format is
+//     `projects/{project}/topics/{topic}`.
 func (r *ProjectsTopicsService) Delete(topic string) *ProjectsTopicsDeleteCall {
 	c := &ProjectsTopicsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.topic = topic
@@ -7197,17 +8067,17 @@ func (c *ProjectsTopicsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -7262,8 +8132,8 @@ type ProjectsTopicsGetCall struct {
 
 // Get: Gets the configuration of a topic.
 //
-// - topic: The name of the topic to get. Format is
-//   `projects/{project}/topics/{topic}`.
+//   - topic: The name of the topic to get. Format is
+//     `projects/{project}/topics/{topic}`.
 func (r *ProjectsTopicsService) Get(topic string) *ProjectsTopicsGetCall {
 	c := &ProjectsTopicsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.topic = topic
@@ -7345,17 +8215,17 @@ func (c *ProjectsTopicsGetCall) Do(opts ...googleapi.CallOption) (*Topic, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Topic{
 		ServerResponse: googleapi.ServerResponse{
@@ -7412,9 +8282,10 @@ type ProjectsTopicsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsTopicsService) GetIamPolicy(resource string) *ProjectsTopicsGetIamPolicyCall {
 	c := &ProjectsTopicsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7514,17 +8385,17 @@ func (c *ProjectsTopicsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Poli
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7553,7 +8424,7 @@ func (c *ProjectsTopicsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Poli
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/topics/[^/]+$",
 	//       "required": true,
@@ -7585,8 +8456,8 @@ type ProjectsTopicsListCall struct {
 
 // List: Lists matching topics.
 //
-// - project: The name of the project in which to list topics. Format is
-//   `projects/{project-id}`.
+//   - project: The name of the project in which to list topics. Format is
+//     `projects/{project-id}`.
 func (r *ProjectsTopicsService) List(project string) *ProjectsTopicsListCall {
 	c := &ProjectsTopicsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.project = project
@@ -7684,17 +8555,17 @@ func (c *ProjectsTopicsListCall) Do(opts ...googleapi.CallOption) (*ListTopicsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTopicsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7782,12 +8653,12 @@ type ProjectsTopicsPatchCall struct {
 // Patch: Updates an existing topic. Note that certain properties of a
 // topic are not modifiable.
 //
-// - name: The name of the topic. It must have the format
-//   "projects/{project}/topics/{topic}". `{topic}` must start with a
-//   letter, and contain only letters (`[A-Za-z]`), numbers (`[0-9]`),
-//   dashes (`-`), underscores (`_`), periods (`.`), tildes (`~`), plus
-//   (`+`) or percent signs (`%`). It must be between 3 and 255
-//   characters in length, and it must not start with "goog".
+//   - name: The name of the topic. It must have the format
+//     "projects/{project}/topics/{topic}". `{topic}` must start with a
+//     letter, and contain only letters (`[A-Za-z]`), numbers (`[0-9]`),
+//     dashes (`-`), underscores (`_`), periods (`.`), tildes (`~`), plus
+//     (`+`) or percent signs (`%`). It must be between 3 and 255
+//     characters in length, and it must not start with "goog".
 func (r *ProjectsTopicsService) Patch(name string, updatetopicrequest *UpdateTopicRequest) *ProjectsTopicsPatchCall {
 	c := &ProjectsTopicsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7862,17 +8733,17 @@ func (c *ProjectsTopicsPatchCall) Do(opts ...googleapi.CallOption) (*Topic, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Topic{
 		ServerResponse: googleapi.ServerResponse{
@@ -7931,8 +8802,8 @@ type ProjectsTopicsPublishCall struct {
 // Publish: Adds one or more messages to the topic. Returns `NOT_FOUND`
 // if the topic does not exist.
 //
-// - topic: The messages in the request will be published on this topic.
-//   Format is `projects/{project}/topics/{topic}`.
+//   - topic: The messages in the request will be published on this topic.
+//     Format is `projects/{project}/topics/{topic}`.
 func (r *ProjectsTopicsService) Publish(topic string, publishrequest *PublishRequest) *ProjectsTopicsPublishCall {
 	c := &ProjectsTopicsPublishCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.topic = topic
@@ -8007,17 +8878,17 @@ func (c *ProjectsTopicsPublishCall) Do(opts ...googleapi.CallOption) (*PublishRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PublishResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8077,9 +8948,10 @@ type ProjectsTopicsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsTopicsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsTopicsSetIamPolicyCall {
 	c := &ProjectsTopicsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8154,17 +9026,17 @@ func (c *ProjectsTopicsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Poli
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8187,7 +9059,7 @@ func (c *ProjectsTopicsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Poli
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/topics/[^/]+$",
 	//       "required": true,
@@ -8227,9 +9099,10 @@ type ProjectsTopicsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsTopicsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsTopicsTestIamPermissionsCall {
 	c := &ProjectsTopicsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8304,17 +9177,17 @@ func (c *ProjectsTopicsTestIamPermissionsCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8337,7 +9210,7 @@ func (c *ProjectsTopicsTestIamPermissionsCall) Do(opts ...googleapi.CallOption) 
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/topics/[^/]+$",
 	//       "required": true,
@@ -8376,8 +9249,8 @@ type ProjectsTopicsSnapshotsListCall struct {
 // bulk. That is, you can set the acknowledgment state of messages in an
 // existing subscription to the state captured by a snapshot.
 //
-// - topic: The name of the topic that snapshots are attached to. Format
-//   is `projects/{project}/topics/{topic}`.
+//   - topic: The name of the topic that snapshots are attached to. Format
+//     is `projects/{project}/topics/{topic}`.
 func (r *ProjectsTopicsSnapshotsService) List(topic string) *ProjectsTopicsSnapshotsListCall {
 	c := &ProjectsTopicsSnapshotsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.topic = topic
@@ -8475,17 +9348,17 @@ func (c *ProjectsTopicsSnapshotsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTopicSnapshotsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8572,8 +9445,8 @@ type ProjectsTopicsSubscriptionsListCall struct {
 
 // List: Lists the names of the attached subscriptions on this topic.
 //
-// - topic: The name of the topic that subscriptions are attached to.
-//   Format is `projects/{project}/topics/{topic}`.
+//   - topic: The name of the topic that subscriptions are attached to.
+//     Format is `projects/{project}/topics/{topic}`.
 func (r *ProjectsTopicsSubscriptionsService) List(topic string) *ProjectsTopicsSubscriptionsListCall {
 	c := &ProjectsTopicsSubscriptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.topic = topic
@@ -8671,17 +9544,17 @@ func (c *ProjectsTopicsSubscriptionsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTopicSubscriptionsResponse{
 		ServerResponse: googleapi.ServerResponse{

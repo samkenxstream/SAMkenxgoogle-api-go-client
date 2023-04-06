@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/networkmanagement/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   networkmanagementService, err := networkmanagement.NewService(ctx)
+//	import "google.golang.org/api/networkmanagement/v1beta1"
+//	...
+//	ctx := context.Background()
+//	networkmanagementService, err := networkmanagement.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   networkmanagementService, err := networkmanagement.NewService(ctx, option.WithAPIKey("AIza..."))
+//	networkmanagementService, err := networkmanagement.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   networkmanagementService, err := networkmanagement.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	networkmanagementService, err := networkmanagement.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package networkmanagement // import "google.golang.org/api/networkmanagement/v1beta1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "networkmanagement:v1beta1"
 const apiName = "networkmanagement"
@@ -237,7 +238,19 @@ type AbortInfo struct {
 	//   "MISMATCHED_DESTINATION_NETWORK" - Aborted because the destination
 	// network does not match the destination endpoint.
 	//   "UNSUPPORTED" - Aborted because the test scenario is not supported.
+	//   "MISMATCHED_IP_VERSION" - Aborted because the source and
+	// destination resources have no common IP version.
+	//   "GKE_KONNECTIVITY_PROXY_UNSUPPORTED" - Aborted because the
+	// connection between the control plane and the node of the source
+	// cluster is initiated by the node and managed by the Konnectivity
+	// proxy.
 	Cause string `json:"cause,omitempty"`
+
+	// ProjectsMissingPermission: List of project IDs that the user has
+	// specified in the request but does not have permission to access
+	// network configs. Analysis is aborted in this case with the
+	// PERMISSION_DENIED cause.
+	ProjectsMissingPermission []string `json:"projectsMissingPermission,omitempty"`
 
 	// ResourceUri: URI of the resource that caused the abort.
 	ResourceUri string `json:"resourceUri,omitempty"`
@@ -261,6 +274,37 @@ type AbortInfo struct {
 
 func (s *AbortInfo) MarshalJSON() ([]byte, error) {
 	type NoMethod AbortInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AppEngineVersionEndpoint: Wrapper for app engine service version
+// attributes.
+type AppEngineVersionEndpoint struct {
+	// Uri: An App Engine (https://cloud.google.com/appengine) [service
+	// version](https://cloud.google.com/appengine/docs/admin-api/reference/r
+	// est/v1/apps.services.versions) name.
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Uri") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Uri") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AppEngineVersionEndpoint) MarshalJSON() ([]byte, error) {
+	type NoMethod AppEngineVersionEndpoint
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -319,8 +363,8 @@ func (s *AppEngineVersionInfo) MarshalJSON() ([]byte, error) {
 // "DATA_READ" }, { "log_type": "DATA_WRITE", "exempted_members": [
 // "user:aliya@example.com" ] } ] } ] } For sampleservice, this policy
 // enables DATA_READ, DATA_WRITE and ADMIN_READ logging. It also exempts
-// jose@example.com from DATA_READ logging, and aliya@example.com from
-// DATA_WRITE logging.
+// `jose@example.com` from DATA_READ logging, and `aliya@example.com`
+// from DATA_WRITE logging.
 type AuditConfig struct {
 	// AuditLogConfigs: The configuration for logging of each type of
 	// permission.
@@ -417,19 +461,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -441,9 +492,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -478,9 +527,9 @@ func (s *Binding) MarshalJSON() ([]byte, error) {
 type CancelOperationRequest struct {
 }
 
-// CloudFunctionEndpoint: Wrapper for cloud function attributes.
+// CloudFunctionEndpoint: Wrapper for Cloud Function attributes.
 type CloudFunctionEndpoint struct {
-	// Uri: A Cloud function (https://cloud.google.com/functions) name.
+	// Uri: A Cloud Function (https://cloud.google.com/functions) name.
 	Uri string `json:"uri,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Uri") to
@@ -507,19 +556,19 @@ func (s *CloudFunctionEndpoint) MarshalJSON() ([]byte, error) {
 }
 
 // CloudFunctionInfo: For display only. Metadata associated with a Cloud
-// function.
+// Function.
 type CloudFunctionInfo struct {
-	// DisplayName: Name of a Cloud function.
+	// DisplayName: Name of a Cloud Function.
 	DisplayName string `json:"displayName,omitempty"`
 
-	// Location: Location in which the Cloud function is deployed.
+	// Location: Location in which the Cloud Function is deployed.
 	Location string `json:"location,omitempty"`
 
-	// Uri: URI of a Cloud function.
+	// Uri: URI of a Cloud Function.
 	Uri string `json:"uri,omitempty"`
 
 	// VersionId: Latest successfully deployed version id of the Cloud
-	// function.
+	// Function.
 	VersionId int64 `json:"versionId,omitempty,string"`
 
 	// ForceSendFields is a list of field names (e.g. "DisplayName") to
@@ -541,6 +590,78 @@ type CloudFunctionInfo struct {
 
 func (s *CloudFunctionInfo) MarshalJSON() ([]byte, error) {
 	type NoMethod CloudFunctionInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CloudRunRevisionEndpoint: Wrapper for Cloud Run revision attributes.
+type CloudRunRevisionEndpoint struct {
+	// Uri: A Cloud Run (https://cloud.google.com/run)
+	// [revision](https://cloud.google.com/run/docs/reference/rest/v1/namespa
+	// ces.revisions/get) URI. The format is:
+	// projects/{project}/locations/{location}/revisions/{revision}
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Uri") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Uri") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudRunRevisionEndpoint) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudRunRevisionEndpoint
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CloudRunRevisionInfo: For display only. Metadata associated with a
+// Cloud Run revision.
+type CloudRunRevisionInfo struct {
+	// DisplayName: Name of a Cloud Run revision.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// Location: Location in which this revision is deployed.
+	Location string `json:"location,omitempty"`
+
+	// ServiceName: ID of Cloud Run Service this revision belongs to.
+	ServiceName string `json:"serviceName,omitempty"`
+
+	// ServiceUri: URI of Cloud Run service this revision belongs to.
+	ServiceUri string `json:"serviceUri,omitempty"`
+
+	// Uri: URI of a Cloud Run revision.
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DisplayName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudRunRevisionInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudRunRevisionInfo
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -708,16 +829,18 @@ type DeliverInfo struct {
 	//   "GOOGLE_API" - Target is a Google API.
 	//   "GKE_MASTER" - Target is a Google Kubernetes Engine cluster master.
 	//   "CLOUD_SQL_INSTANCE" - Target is a Cloud SQL instance.
-	//   "PSC_PUBLISHED_SERVICE" - Target is a published service using
+	//   "PSC_PUBLISHED_SERVICE" - Target is a published service that uses
 	// [Private Service
 	// Connect](https://cloud.google.com/vpc/docs/configure-private-service-c
 	// onnect-services).
-	//   "PSC_GOOGLE_API" - Target is all Google APIs using [Private Service
+	//   "PSC_GOOGLE_API" - Target is all Google APIs that use [Private
+	// Service
 	// Connect](https://cloud.google.com/vpc/docs/configure-private-service-c
 	// onnect-apis).
-	//   "PSC_VPC_SC" - Target is VPC-SC using [Private Service
+	//   "PSC_VPC_SC" - Target is a VPC-SC that uses [Private Service
 	// Connect](https://cloud.google.com/vpc/docs/configure-private-service-c
 	// onnect-apis).
+	//   "SERVERLESS_NEG" - Target is a serverless network endpoint group.
 	Target string `json:"target,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ResourceUri") to
@@ -752,7 +875,7 @@ type DropInfo struct {
 	//   "UNKNOWN_EXTERNAL_ADDRESS" - Destination external address cannot be
 	// resolved to a known target. If the address is used in a Google Cloud
 	// project, provide the project ID as test input.
-	//   "FOREIGN_IP_DISALLOWED" - a Compute Engine instance can only send
+	//   "FOREIGN_IP_DISALLOWED" - A Compute Engine instance can only send
 	// or receive a packet with a foreign IP address if ip_forward is
 	// enabled.
 	//   "FIREWALL_RULE" - Dropped due to a firewall rule, unless allowed
@@ -778,6 +901,9 @@ type DropInfo struct {
 	// verify if the IP address is being used in the project.
 	//   "FORWARDING_RULE_MISMATCH" - Forwarding rule's protocol and ports
 	// do not match the packet header.
+	//   "FORWARDING_RULE_REGION_MISMATCH" - Packet could be dropped because
+	// it was sent from a different region to a regional forwarding without
+	// global access.
 	//   "FORWARDING_RULE_NO_INSTANCES" - Forwarding rule does not have
 	// backends configured.
 	//   "FIREWALL_BLOCKING_LOAD_BALANCER_BACKEND_HEALTH_CHECK" - Firewalls
@@ -788,6 +914,10 @@ type DropInfo struct {
 	// wall_rules).
 	//   "INSTANCE_NOT_RUNNING" - Packet is sent from or to a Compute Engine
 	// instance that is not in a running state.
+	//   "GKE_CLUSTER_NOT_RUNNING" - Packet sent from or to a GKE cluster
+	// that is not in running state.
+	//   "CLOUD_SQL_INSTANCE_NOT_RUNNING" - Packet sent from or to a Cloud
+	// SQL instance that is not in running state.
 	//   "TRAFFIC_TYPE_BLOCKED" - The type of traffic is blocked and the
 	// user cannot configure a firewall rule to enable it. See [Always
 	// blocked
@@ -809,19 +939,40 @@ type DropInfo struct {
 	//   "GOOGLE_MANAGED_SERVICE_NO_PEERING" - Packet was dropped because
 	// there is no peering between the originating network and the Google
 	// Managed Services Network.
+	//   "GKE_PSC_ENDPOINT_MISSING" - Packet was dropped because the GKE
+	// cluster uses Private Service Connect (PSC), but the PSC endpoint is
+	// not found in the project.
 	//   "CLOUD_SQL_INSTANCE_NO_IP_ADDRESS" - Packet was dropped because the
 	// Cloud SQL instance has neither a private nor a public IP address.
+	//   "GKE_CONTROL_PLANE_REGION_MISMATCH" - Packet was dropped because a
+	// GKE cluster private endpoint is unreachable from a region different
+	// from the cluster's region.
+	//   "PUBLIC_GKE_CONTROL_PLANE_TO_PRIVATE_DESTINATION" - Packet sent
+	// from a public GKE cluster control plane to a private IP address.
+	//   "GKE_CONTROL_PLANE_NO_ROUTE" - Packet was dropped because there is
+	// no route from a GKE cluster control plane to a destination network.
+	//   "CLOUD_SQL_INSTANCE_NOT_CONFIGURED_FOR_EXTERNAL_TRAFFIC" - Packet
+	// sent from a Cloud SQL instance to an external IP address is not
+	// allowed. The Cloud SQL instance is not configured to send packets to
+	// external IP addresses.
+	//   "PUBLIC_CLOUD_SQL_INSTANCE_TO_PRIVATE_DESTINATION" - Packet sent
+	// from a Cloud SQL instance with only a public IP address to a private
+	// IP address.
+	//   "CLOUD_SQL_INSTANCE_NO_ROUTE" - Packet was dropped because there is
+	// no route from a Cloud SQL instance to a destination network.
 	//   "CLOUD_FUNCTION_NOT_ACTIVE" - Packet could be dropped because the
-	// Cloud function is not in an active status.
+	// Cloud Function is not in an active status.
 	//   "VPC_CONNECTOR_NOT_SET" - Packet could be dropped because no VPC
 	// connector is set.
 	//   "VPC_CONNECTOR_NOT_RUNNING" - Packet could be dropped because the
 	// VPC connector is not in a running state.
-	//   "FORWARDING_RULE_REGION_MISMATCH" - Packet could be dropped because
-	// it was sent from a different region to a regional forwarding without
-	// global access.
-	//   "PSC_CONNECTION_NOT_ACCEPTED" - Privte Service Connect (PSC)
-	// connection is not in accepted state.
+	//   "PSC_CONNECTION_NOT_ACCEPTED" - The Private Service Connect
+	// endpoint is in a project that is not approved to connect to the
+	// service.
+	//   "CLOUD_RUN_REVISION_NOT_READY" - Packet sent from a Cloud Run
+	// revision that is not ready.
+	//   "DROPPED_INSIDE_PSC_SERVICE_PRODUCER" - Packet was dropped inside
+	// Private Service Connect service producer.
 	Cause string `json:"cause,omitempty"`
 
 	// ResourceUri: URI of the resource that caused the drop.
@@ -893,12 +1044,42 @@ type Empty struct {
 
 // Endpoint: Source or destination of the Connectivity Test.
 type Endpoint struct {
-	// CloudFunction: A Cloud function (https://cloud.google.com/functions).
+	// AppEngineVersion: An App Engine (https://cloud.google.com/appengine)
+	// [service
+	// version](https://cloud.google.com/appengine/docs/admin-api/reference/r
+	// est/v1/apps.services.versions).
+	AppEngineVersion *AppEngineVersionEndpoint `json:"appEngineVersion,omitempty"`
+
+	// CloudFunction: A Cloud Function (https://cloud.google.com/functions).
 	CloudFunction *CloudFunctionEndpoint `json:"cloudFunction,omitempty"`
+
+	// CloudRunRevision: A Cloud Run (https://cloud.google.com/run)
+	// [revision](https://cloud.google.com/run/docs/reference/rest/v1/namespa
+	// ces.revisions/get)
+	CloudRunRevision *CloudRunRevisionEndpoint `json:"cloudRunRevision,omitempty"`
 
 	// CloudSqlInstance: A Cloud SQL (https://cloud.google.com/sql) instance
 	// URI.
 	CloudSqlInstance string `json:"cloudSqlInstance,omitempty"`
+
+	// ForwardingRule: Forwarding rule URI. Forwarding rules are frontends
+	// for load balancers, PSC endpoints and Protocol Forwarding. Format:
+	// projects/{project}/global/forwardingRules/{id} or
+	// projects/{project}/regions/{region}/forwardingRules/{id}
+	ForwardingRule string `json:"forwardingRule,omitempty"`
+
+	// ForwardingRuleTarget: Output only. Specifies the type of the target
+	// of the forwarding rule.
+	//
+	// Possible values:
+	//   "FORWARDING_RULE_TARGET_UNSPECIFIED" - Forwarding rule target is
+	// unknown.
+	//   "INSTANCE" - Compute Engine instance for protocol forwarding.
+	//   "LOAD_BALANCER" - Load Balancer. The specific type can be found
+	// from load_balancer_type.
+	//   "VPN_GATEWAY" - Classic Cloud VPN Gateway.
+	//   "PSC" - Forwarding Rule is a Private Service Connect endpoint.
+	ForwardingRuleTarget string `json:"forwardingRuleTarget,omitempty"`
 
 	// GkeMasterCluster: A cluster URI for Google Kubernetes Engine master
 	// (https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-architecture).
@@ -912,6 +1093,35 @@ type Endpoint struct {
 	// destination is a global load balancer VIP
 	// (https://cloud.google.com/load-balancing/docs/load-balancing-overview).
 	IpAddress string `json:"ipAddress,omitempty"`
+
+	// LoadBalancerId: Output only. ID of the load balancer the forwarding
+	// rule points to. Empty for forwarding rules not related to load
+	// balancers.
+	LoadBalancerId string `json:"loadBalancerId,omitempty"`
+
+	// LoadBalancerType: Output only. Type of the load balancer the
+	// forwarding rule points to.
+	//
+	// Possible values:
+	//   "LOAD_BALANCER_TYPE_UNSPECIFIED" - Forwarding rule points to a
+	// different target than a load balancer or a load balancer type is
+	// unknown.
+	//   "HTTPS_ADVANCED_LOAD_BALANCER" - Global external HTTP(S) load
+	// balancer.
+	//   "HTTPS_LOAD_BALANCER" - Global external HTTP(S) load balancer
+	// (classic)
+	//   "REGIONAL_HTTPS_LOAD_BALANCER" - Regional external HTTP(S) load
+	// balancer.
+	//   "INTERNAL_HTTPS_LOAD_BALANCER" - Internal HTTP(S) load balancer.
+	//   "SSL_PROXY_LOAD_BALANCER" - External SSL proxy load balancer.
+	//   "TCP_PROXY_LOAD_BALANCER" - External TCP proxy load balancer.
+	//   "INTERNAL_TCP_PROXY_LOAD_BALANCER" - Internal regional TCP proxy
+	// load balancer.
+	//   "NETWORK_LOAD_BALANCER" - External TCP/UDP Network load balancer.
+	//   "LEGACY_NETWORK_LOAD_BALANCER" - Target-pool based external TCP/UDP
+	// Network load balancer.
+	//   "TCP_UDP_INTERNAL_LOAD_BALANCER" - Internal TCP/UDP load balancer.
+	LoadBalancerType string `json:"loadBalancerType,omitempty"`
 
 	// Network: A Compute Engine network URI.
 	Network string `json:"network,omitempty"`
@@ -944,7 +1154,7 @@ type Endpoint struct {
 	// project.
 	ProjectId string `json:"projectId,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "CloudFunction") to
+	// ForceSendFields is a list of field names (e.g. "AppEngineVersion") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -952,12 +1162,13 @@ type Endpoint struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "CloudFunction") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AppEngineVersion") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -1111,6 +1322,16 @@ type FirewallInfo struct {
 	// details, see [Implied
 	// rules](https://cloud.google.com/vpc/docs/firewalls#default_firewall_ru
 	// les).
+	//   "SERVERLESS_VPC_ACCESS_MANAGED_FIREWALL_RULE" - Implicit firewall
+	// rules that are managed by serverless VPC access to allow ingress
+	// access. They are not visible in the Google Cloud console. For
+	// details, see [VPC connector's implicit
+	// rules](https://cloud.google.com/functions/docs/networking/connecting-v
+	// pc#restrict-access).
+	//   "NETWORK_FIREWALL_POLICY_RULE" - Global network firewall policy
+	// rule. For details, see [Network firewall
+	// policies](https://cloud.google.com/vpc/docs/network-firewall-policies)
+	// .
 	FirewallRuleType string `json:"firewallRuleType,omitempty"`
 
 	// NetworkUri: The URI of the VPC network that the firewall rule is
@@ -1178,6 +1399,7 @@ type ForwardInfo struct {
 	//   "IMPORTED_CUSTOM_ROUTE_NEXT_HOP" - Forwarded to the next hop of a
 	// custom route imported from a peering VPC.
 	//   "CLOUD_SQL_INSTANCE" - Forwarded to a Cloud SQL instance.
+	//   "ANOTHER_PROJECT" - Forwarded to a VPC network in another project.
 	Target string `json:"target,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ResourceUri") to
@@ -1583,6 +1805,7 @@ type LoadBalancerInfo struct {
 	//   "BACKEND_TYPE_UNSPECIFIED" - Type is unspecified.
 	//   "BACKEND_SERVICE" - Backend Service as the load balancer's backend.
 	//   "TARGET_POOL" - Target Pool as the load balancer's backend.
+	//   "TARGET_INSTANCE" - Target Instance as the load balancer's backend.
 	BackendType string `json:"backendType,omitempty"`
 
 	// BackendUri: Backend configuration URI.
@@ -2087,6 +2310,10 @@ type RouteInfo struct {
 	// DestIpRange: Destination IP range of the route.
 	DestIpRange string `json:"destIpRange,omitempty"`
 
+	// DestPortRanges: Destination port ranges of the route. Policy based
+	// routes only.
+	DestPortRanges []string `json:"destPortRanges,omitempty"`
+
 	// DisplayName: Name of a Compute Engine route.
 	DisplayName string `json:"displayName,omitempty"`
 
@@ -2127,6 +2354,9 @@ type RouteInfo struct {
 	// Priority: Priority of the route.
 	Priority int64 `json:"priority,omitempty"`
 
+	// Protocols: Protocols of the route. Policy based routes only.
+	Protocols []string `json:"protocols,omitempty"`
+
 	// RouteType: Type of route.
 	//
 	// Possible values:
@@ -2139,7 +2369,16 @@ type RouteInfo struct {
 	//   "PEERING_SUBNET" - A subnet route received from peering network.
 	//   "PEERING_STATIC" - A static route received from peering network.
 	//   "PEERING_DYNAMIC" - A dynamic route received from peering network.
+	//   "POLICY_BASED" - Policy based route.
 	RouteType string `json:"routeType,omitempty"`
+
+	// SrcIpRange: Source IP address range of the route. Policy based routes
+	// only.
+	SrcIpRange string `json:"srcIpRange,omitempty"`
+
+	// SrcPortRanges: Source port ranges of the route. Policy based routes
+	// only.
+	SrcPortRanges []string `json:"srcPortRanges,omitempty"`
 
 	// Uri: URI of a Compute Engine route. Dynamic route from cloud router
 	// does not have a URI. Advertised route from Google Cloud VPC to
@@ -2263,8 +2502,11 @@ type Step struct {
 	// CausesDrop: This is a step that leads to the final state Drop.
 	CausesDrop bool `json:"causesDrop,omitempty"`
 
-	// CloudFunction: Display information of a Cloud function.
+	// CloudFunction: Display information of a Cloud Function.
 	CloudFunction *CloudFunctionInfo `json:"cloudFunction,omitempty"`
+
+	// CloudRunRevision: Display information of a Cloud Run revision.
+	CloudRunRevision *CloudRunRevisionInfo `json:"cloudRunRevision,omitempty"`
 
 	// CloudSqlInstance: Display information of a Cloud SQL instance.
 	CloudSqlInstance *CloudSQLInstanceInfo `json:"cloudSqlInstance,omitempty"`
@@ -2335,11 +2577,14 @@ type Step struct {
 	// from a Cloud SQL instance. A CloudSQLInstanceInfo is populated with
 	// starting instance information.
 	//   "START_FROM_CLOUD_FUNCTION" - Initial state: packet originating
-	// from a Cloud function. A CloudFunctionInfo is populated with starting
+	// from a Cloud Function. A CloudFunctionInfo is populated with starting
 	// function information.
 	//   "START_FROM_APP_ENGINE_VERSION" - Initial state: packet originating
 	// from an App Engine service version. An AppEngineVersionInfo is
 	// populated with starting version information.
+	//   "START_FROM_CLOUD_RUN_REVISION" - Initial state: packet originating
+	// from a Cloud Run revision. A CloudRunRevisionInfo is populated with
+	// starting revision information.
 	//   "APPLY_INGRESS_FIREWALL_RULE" - Config checking state: verify
 	// ingress firewall rule.
 	//   "APPLY_EGRESS_FIREWALL_RULE" - Config checking state: verify egress
@@ -2755,17 +3000,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -2820,8 +3065,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2927,17 +3172,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3037,8 +3282,8 @@ type ProjectsLocationsGlobalConnectivityTestsCreateCall struct {
 // the reachability result returns a value of AMBIGUOUS. For more
 // information, see the Connectivity Test documentation.
 //
-// - parent: The parent resource of the Connectivity Test to create:
-//   `projects/{project_id}/locations/global`.
+//   - parent: The parent resource of the Connectivity Test to create:
+//     `projects/{project_id}/locations/global`.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) Create(parent string, connectivitytest *ConnectivityTest) *ProjectsLocationsGlobalConnectivityTestsCreateCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3124,17 +3369,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsCreateCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3195,8 +3440,8 @@ type ProjectsLocationsGlobalConnectivityTestsDeleteCall struct {
 
 // Delete: Deletes a specific `ConnectivityTest`.
 //
-// - name: Connectivity Test resource name using the form:
-//   `projects/{project_id}/locations/global/connectivityTests/{test_id}`.
+//   - name: Connectivity Test resource name using the form:
+//     `projects/{project_id}/locations/global/connectivityTests/{test_id}`.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) Delete(name string) *ProjectsLocationsGlobalConnectivityTestsDeleteCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3265,17 +3510,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsDeleteCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3329,8 +3574,8 @@ type ProjectsLocationsGlobalConnectivityTestsGetCall struct {
 
 // Get: Gets the details of a specific Connectivity Test.
 //
-// - name: `ConnectivityTest` resource name using the form:
-//   `projects/{project_id}/locations/global/connectivityTests/{test_id}`.
+//   - name: `ConnectivityTest` resource name using the form:
+//     `projects/{project_id}/locations/global/connectivityTests/{test_id}`.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) Get(name string) *ProjectsLocationsGlobalConnectivityTestsGetCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3412,17 +3657,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsGetCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConnectivityTest{
 		ServerResponse: googleapi.ServerResponse{
@@ -3478,9 +3723,10 @@ type ProjectsLocationsGlobalConnectivityTestsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) GetIamPolicy(resource string) *ProjectsLocationsGlobalConnectivityTestsGetIamPolicyCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3580,17 +3826,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsGetIamPolicyCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3619,7 +3865,7 @@ func (c *ProjectsLocationsGlobalConnectivityTestsGetIamPolicyCall) Do(opts ...go
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/global/connectivityTests/[^/]+$",
 	//       "required": true,
@@ -3650,8 +3896,8 @@ type ProjectsLocationsGlobalConnectivityTestsListCall struct {
 
 // List: Lists all Connectivity Tests owned by a project.
 //
-// - parent: The parent resource of the Connectivity Tests:
-//   `projects/{project_id}/locations/global`.
+//   - parent: The parent resource of the Connectivity Tests:
+//     `projects/{project_id}/locations/global`.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) List(parent string) *ProjectsLocationsGlobalConnectivityTestsListCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3771,17 +4017,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConnectivityTestsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3888,8 +4134,8 @@ type ProjectsLocationsGlobalConnectivityTestsPatchCall struct {
 // result returns a value of `AMBIGUOUS`. See the documentation in
 // `ConnectivityTest` for for more details.
 //
-// - name: Unique name of the resource using the form:
-//   `projects/{project_id}/locations/global/connectivityTests/{test}`.
+//   - name: Unique name of the resource using the form:
+//     `projects/{project_id}/locations/global/connectivityTests/{test}`.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) Patch(name string, connectivitytest *ConnectivityTest) *ProjectsLocationsGlobalConnectivityTestsPatchCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3972,17 +4218,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsPatchCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4053,8 +4299,8 @@ type ProjectsLocationsGlobalConnectivityTestsRerunCall struct {
 // read permissions to the network configurations of listed projects),
 // then the reachability result returns a value of `UNKNOWN`.
 //
-// - name: Connectivity Test resource name using the form:
-//   `projects/{project_id}/locations/global/connectivityTests/{test_id}`.
+//   - name: Connectivity Test resource name using the form:
+//     `projects/{project_id}/locations/global/connectivityTests/{test_id}`.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) Rerun(name string, rerunconnectivitytestrequest *RerunConnectivityTestRequest) *ProjectsLocationsGlobalConnectivityTestsRerunCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsRerunCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4129,17 +4375,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsRerunCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4198,9 +4444,10 @@ type ProjectsLocationsGlobalConnectivityTestsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsGlobalConnectivityTestsSetIamPolicyCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4275,17 +4522,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsSetIamPolicyCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4308,7 +4555,7 @@ func (c *ProjectsLocationsGlobalConnectivityTestsSetIamPolicyCall) Do(opts ...go
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/global/connectivityTests/[^/]+$",
 	//       "required": true,
@@ -4347,9 +4594,10 @@ type ProjectsLocationsGlobalConnectivityTestsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsGlobalConnectivityTestsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsGlobalConnectivityTestsTestIamPermissionsCall {
 	c := &ProjectsLocationsGlobalConnectivityTestsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4424,17 +4672,17 @@ func (c *ProjectsLocationsGlobalConnectivityTestsTestIamPermissionsCall) Do(opts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4457,7 +4705,7 @@ func (c *ProjectsLocationsGlobalConnectivityTestsTestIamPermissionsCall) Do(opts
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/global/connectivityTests/[^/]+$",
 	//       "required": true,
@@ -4575,17 +4823,17 @@ func (c *ProjectsLocationsGlobalOperationsCancelCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4713,17 +4961,17 @@ func (c *ProjectsLocationsGlobalOperationsDeleteCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4861,17 +5109,17 @@ func (c *ProjectsLocationsGlobalOperationsGetCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4925,14 +5173,7 @@ type ProjectsLocationsGlobalOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsGlobalOperationsService) List(name string) *ProjectsLocationsGlobalOperationsListCall {
@@ -5037,17 +5278,17 @@ func (c *ProjectsLocationsGlobalOperationsListCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5061,7 +5302,7 @@ func (c *ProjectsLocationsGlobalOperationsListCall) Do(opts ...googleapi.CallOpt
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1beta1/projects/{projectsId}/locations/global/operations",
 	//   "httpMethod": "GET",
 	//   "id": "networkmanagement.projects.locations.global.operations.list",

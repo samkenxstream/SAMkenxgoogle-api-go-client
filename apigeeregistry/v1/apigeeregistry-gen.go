@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/apigee/docs/api-hub/what-is-api-hub
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/apigeeregistry/v1"
-//   ...
-//   ctx := context.Background()
-//   apigeeregistryService, err := apigeeregistry.NewService(ctx)
+//	import "google.golang.org/api/apigeeregistry/v1"
+//	...
+//	ctx := context.Background()
+//	apigeeregistryService, err := apigeeregistry.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   apigeeregistryService, err := apigeeregistry.NewService(ctx, option.WithAPIKey("AIza..."))
+//	apigeeregistryService, err := apigeeregistry.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   apigeeregistryService, err := apigeeregistry.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	apigeeregistryService, err := apigeeregistry.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package apigeeregistry // import "google.golang.org/api/apigeeregistry/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "apigeeregistry:v1"
 const apiName = "apigeeregistry"
@@ -302,8 +303,8 @@ type ProjectsLocationsRuntimeService struct {
 	s *Service
 }
 
-// Api: An Api is a top-level description of an API. Apis are produced
-// by producers and are commitments to provide services.
+// Api: A top-level description of an API. Produced by producers and are
+// commitments to provide services.
 type Api struct {
 	// Annotations: Annotations attach non-identifying metadata to
 	// resources. Annotation keys and values are less restricted than those
@@ -314,7 +315,7 @@ type Api struct {
 
 	// Availability: A user-definable description of the availability of
 	// this service. Format: free-form, but we expect single words that
-	// describe availability, e.g. "NONE", "TESTING", "PREVIEW", "GENERAL",
+	// describe availability, e.g., "NONE", "TESTING", "PREVIEW", "GENERAL",
 	// "DEPRECATED", "SHUTDOWN".
 	Availability string `json:"availability,omitempty"`
 
@@ -330,23 +331,25 @@ type Api struct {
 	// Labels: Labels attach identifying metadata to resources. Identifying
 	// metadata can be used to filter list operations. Label keys and values
 	// can be no longer than 64 characters (Unicode codepoints), can only
-	// contain lowercase letters, numeric characters, underscores and
+	// contain lowercase letters, numeric characters, underscores, and
 	// dashes. International characters are allowed. No more than 64 user
 	// labels can be associated with one resource (System labels are
 	// excluded). See https://goo.gl/xmQnxf for more information and
 	// examples of labels. System reserved label keys are prefixed with
-	// "apigeeregistry.googleapis.com/" and cannot be changed.
+	// `apigeeregistry.googleapis.com/` and cannot be changed.
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: Resource name.
 	Name string `json:"name,omitempty"`
 
 	// RecommendedDeployment: The recommended deployment of the API. Format:
-	// apis/{api}/deployments/{deployment}
+	// `projects/{project}/locations/{location}/apis/{api}/deployments/{deplo
+	// yment}`
 	RecommendedDeployment string `json:"recommendedDeployment,omitempty"`
 
 	// RecommendedVersion: The recommended version of the API. Format:
-	// apis/{api}/versions/{version}
+	// `projects/{project}/locations/{location}/apis/{api}/versions/{version}
+	// `
 	RecommendedVersion string `json:"recommendedVersion,omitempty"`
 
 	// UpdateTime: Output only. Last update timestamp.
@@ -379,12 +382,11 @@ func (s *Api) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// ApiDeployment: An ApiDeployment describes a service running at
-// particular address that provides a particular version of an API.
-// ApiDeployments have revisions which correspond to different
-// configurations of a single deployment in time. Revision identifiers
-// should be updated whenever the served API spec or endpoint address
-// changes.
+// ApiDeployment: Describes a service running at particular address that
+// provides a particular version of an API. ApiDeployments have
+// revisions which correspond to different configurations of a single
+// deployment in time. Revision identifiers should be updated whenever
+// the served API spec or endpoint address changes.
 type ApiDeployment struct {
 	// AccessGuidance: Text briefly describing how to access the endpoint.
 	// Changes to this value will not affect the revision.
@@ -397,10 +399,11 @@ type ApiDeployment struct {
 	// Artifacts.
 	Annotations map[string]string `json:"annotations,omitempty"`
 
-	// ApiSpecRevision: The full resource name (including revision id) of
+	// ApiSpecRevision: The full resource name (including revision ID) of
 	// the spec of the API being served by the deployment. Changes to this
 	// value will update the revision. Format:
-	// apis/{api}/deployments/{deployment}
+	// `projects/{project}/locations/{location}/apis/{api}/versions/{version}
+	// /specs/{spec@revision}`
 	ApiSpecRevision string `json:"apiSpecRevision,omitempty"`
 
 	// CreateTime: Output only. Creation timestamp; when the deployment
@@ -418,7 +421,7 @@ type ApiDeployment struct {
 	EndpointUri string `json:"endpointUri,omitempty"`
 
 	// ExternalChannelUri: The address of the external channel of the API
-	// (e.g. the Developer Portal). Changes to this value will not affect
+	// (e.g., the Developer Portal). Changes to this value will not affect
 	// the revision.
 	ExternalChannelUri string `json:"externalChannelUri,omitempty"`
 
@@ -434,7 +437,7 @@ type ApiDeployment struct {
 	// labels can be associated with one resource (System labels are
 	// excluded). See https://goo.gl/xmQnxf for more information and
 	// examples of labels. System reserved label keys are prefixed with
-	// "apigeeregistry.googleapis.com/" and cannot be changed.
+	// `apigeeregistry.googleapis.com/` and cannot be changed.
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: Resource name.
@@ -482,14 +485,14 @@ func (s *ApiDeployment) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// ApiSpec: An ApiSpec describes a version of an API in a structured
-// way. ApiSpecs provide formal descriptions that consumers can use to
-// use a version. ApiSpec resources are intended to be fully-resolved
-// descriptions of an ApiVersion. When specs consist of multiple files,
-// these should be bundled together (e.g. in a zip archive) and stored
-// as a unit. Multiple specs can exist to provide representations in
-// different API description formats. Synchronization of these
-// representations would be provided by tooling and background services.
+// ApiSpec: Describes a version of an API in a structured way. ApiSpecs
+// provide formal descriptions that consumers can use to use a version.
+// ApiSpec resources are intended to be fully-resolved descriptions of
+// an ApiVersion. When specs consist of multiple files, these should be
+// bundled together (e.g., in a zip archive) and stored as a unit.
+// Multiple specs can exist to provide representations in different API
+// description formats. Synchronization of these representations would
+// be provided by tooling and background services.
 type ApiSpec struct {
 	// Annotations: Annotations attach non-identifying metadata to
 	// resources. Annotation keys and values are less restricted than those
@@ -526,14 +529,14 @@ type ApiSpec struct {
 	// labels can be associated with one resource (System labels are
 	// excluded). See https://goo.gl/xmQnxf for more information and
 	// examples of labels. System reserved label keys are prefixed with
-	// "apigeeregistry.googleapis.com/" and cannot be changed.
+	// `apigeeregistry.googleapis.com/` and cannot be changed.
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// MimeType: A style (format) descriptor for this spec that is specified
 	// as a Media Type (https://en.wikipedia.org/wiki/Media_type). Possible
-	// values include "application/vnd.apigee.proto",
-	// "application/vnd.apigee.openapi", and
-	// "application/vnd.apigee.graphql", with possible suffixes representing
+	// values include `application/vnd.apigee.proto`,
+	// `application/vnd.apigee.openapi`, and
+	// `application/vnd.apigee.graphql`, with possible suffixes representing
 	// compression types. These hypothetical names are defined in the vendor
 	// tree defined in RFC6838 (https://tools.ietf.org/html/rfc6838) and are
 	// not final. Content types can specify compression. Currently only GZip
@@ -593,8 +596,8 @@ func (s *ApiSpec) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// ApiVersion: An ApiVersion describes a particular version of an API.
-// ApiVersions are what consumers actually use.
+// ApiVersion: Describes a particular version of an API. ApiVersions are
+// what consumers actually use.
 type ApiVersion struct {
 	// Annotations: Annotations attach non-identifying metadata to
 	// resources. Annotation keys and values are less restricted than those
@@ -620,15 +623,20 @@ type ApiVersion struct {
 	// labels can be associated with one resource (System labels are
 	// excluded). See https://goo.gl/xmQnxf for more information and
 	// examples of labels. System reserved label keys are prefixed with
-	// "apigeeregistry.googleapis.com/" and cannot be changed.
+	// `apigeeregistry.googleapis.com/` and cannot be changed.
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: Resource name.
 	Name string `json:"name,omitempty"`
 
+	// PrimarySpec: The primary spec for this version. Format:
+	// projects/{project}/locations/{location}/apis/{api}/versions/{version}/
+	// specs/{spec}
+	PrimarySpec string `json:"primarySpec,omitempty"`
+
 	// State: A user-definable description of the lifecycle phase of this
 	// API version. Format: free-form, but we expect single words that
-	// describe API maturity, e.g. "CONCEPT", "DESIGN", "DEVELOPMENT",
+	// describe API maturity, e.g., "CONCEPT", "DESIGN", "DEVELOPMENT",
 	// "STAGING", "PRODUCTION", "DEPRECATED", "RETIRED".
 	State string `json:"state,omitempty"`
 
@@ -666,12 +674,19 @@ func (s *ApiVersion) MarshalJSON() ([]byte, error) {
 // per resource and are used to store metadata that is too large or
 // numerous to be stored directly on the resource. Since artifacts are
 // stored separately from parent resources, they should generally be
-// used for metadata that is needed infrequently, i.e. not for display
+// used for metadata that is needed infrequently, i.e., not for display
 // in primary views of the resource but perhaps displayed or downloaded
-// upon request. The ListArtifacts method allows artifacts to be quickly
-// enumerated and checked for presence without downloading their
+// upon request. The `ListArtifacts` method allows artifacts to be
+// quickly enumerated and checked for presence without downloading their
 // (potentially-large) contents.
 type Artifact struct {
+	// Annotations: Annotations attach non-identifying metadata to
+	// resources. Annotation keys and values are less restricted than those
+	// of labels, but should be generally used for small values of broad
+	// interest. Larger, topic- specific metadata should be stored in
+	// Artifacts.
+	Annotations map[string]string `json:"annotations,omitempty"`
+
 	// Contents: Input only. The contents of the artifact. Provided by API
 	// callers when artifacts are created or replaced. To access the
 	// contents of an artifact, use GetArtifactContents.
@@ -683,6 +698,17 @@ type Artifact struct {
 	// Hash: Output only. A SHA-256 hash of the artifact's contents. If the
 	// artifact is gzipped, this is the hash of the uncompressed artifact.
 	Hash string `json:"hash,omitempty"`
+
+	// Labels: Labels attach identifying metadata to resources. Identifying
+	// metadata can be used to filter list operations. Label keys and values
+	// can be no longer than 64 characters (Unicode codepoints), can only
+	// contain lowercase letters, numeric characters, underscores and
+	// dashes. International characters are allowed. No more than 64 user
+	// labels can be associated with one resource (System labels are
+	// excluded). See https://goo.gl/xmQnxf for more information and
+	// examples of labels. System reserved label keys are prefixed with
+	// "registry.googleapis.com/" and cannot be changed.
+	Labels map[string]string `json:"labels,omitempty"`
 
 	// MimeType: A content type specifier for the artifact. Content type
 	// specifiers are Media Types (https://en.wikipedia.org/wiki/Media_type)
@@ -705,7 +731,7 @@ type Artifact struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Contents") to
+	// ForceSendFields is a list of field names (e.g. "Annotations") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -713,10 +739,10 @@ type Artifact struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Contents") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "Annotations") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -745,19 +771,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -769,9 +802,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -797,6 +828,42 @@ type Binding struct {
 
 func (s *Binding) MarshalJSON() ([]byte, error) {
 	type NoMethod Binding
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Build: Build information of the Instance if it's in `ACTIVE` state.
+type Build struct {
+	// CommitId: Output only. Commit ID of the latest commit in the build.
+	CommitId string `json:"commitId,omitempty"`
+
+	// CommitTime: Output only. Commit time of the latest commit in the
+	// build.
+	CommitTime string `json:"commitTime,omitempty"`
+
+	// Repo: Output only. Path of the open source repository:
+	// github.com/apigee/registry.
+	Repo string `json:"repo,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CommitId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CommitId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Build) MarshalJSON() ([]byte, error) {
+	type NoMethod Build
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -971,6 +1038,10 @@ func (s *HttpBody) MarshalJSON() ([]byte, error) {
 // Instance: An Instance represents the instance resources of the
 // Registry. Currently, only one instance is allowed for each project.
 type Instance struct {
+	// Build: Output only. Build info of the Instance if it's in `ACTIVE`
+	// state.
+	Build *Build `json:"build,omitempty"`
+
 	// Config: Required. Config of the Instance.
 	Config *Config `json:"config,omitempty"`
 
@@ -978,7 +1049,7 @@ type Instance struct {
 	CreateTime string `json:"createTime,omitempty"`
 
 	// Name: Format: `projects/*/locations/*/instance`. Currently only
-	// locations/global is supported.
+	// `locations/global` is supported.
 	Name string `json:"name,omitempty"`
 
 	// State: Output only. The current state of the Instance.
@@ -1006,7 +1077,7 @@ type Instance struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Config") to
+	// ForceSendFields is a list of field names (e.g. "Build") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -1014,7 +1085,7 @@ type Instance struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Config") to include in API
+	// NullFields is a list of field names (e.g. "Build") to include in API
 	// requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
@@ -1638,7 +1709,7 @@ func (s *Policy) MarshalJSON() ([]byte, error) {
 // RollbackApiDeployment.
 type RollbackApiDeploymentRequest struct {
 	// RevisionId: Required. The revision ID to roll back to. It must be a
-	// revision of the same deployment. Example: c7cfa2a8
+	// revision of the same deployment. Example: `c7cfa2a8`
 	RevisionId string `json:"revisionId,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "RevisionId") to
@@ -1667,7 +1738,7 @@ func (s *RollbackApiDeploymentRequest) MarshalJSON() ([]byte, error) {
 // RollbackApiSpecRequest: Request message for RollbackApiSpec.
 type RollbackApiSpecRequest struct {
 	// RevisionId: Required. The revision ID to roll back to. It must be a
-	// revision of the same spec. Example: c7cfa2a8
+	// revision of the same spec. Example: `c7cfa2a8`
 	RevisionId string `json:"revisionId,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "RevisionId") to
@@ -1988,17 +2059,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -2053,8 +2124,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2160,17 +2231,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2259,10 +2330,10 @@ type ProjectsLocationsApisCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateApi creates a specified API.
+// Create: Creates a specified API.
 //
-// - parent: The parent, which owns this collection of APIs. Format:
-//   projects/*/locations/*.
+//   - parent: The parent, which owns this collection of APIs. Format:
+//     `projects/*/locations/*`.
 func (r *ProjectsLocationsApisService) Create(parent string, api *Api) *ProjectsLocationsApisCreateCall {
 	c := &ProjectsLocationsApisCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2271,7 +2342,7 @@ func (r *ProjectsLocationsApisService) Create(parent string, api *Api) *Projects
 }
 
 // ApiId sets the optional parameter "apiId": Required. The ID to use
-// for the api, which will become the final component of the api's
+// for the API, which will become the final component of the API's
 // resource name. This value should be 4-63 characters, and valid
 // characters are /a-z-/. Following AIP-162, IDs must not have the form
 // of a UUID.
@@ -2347,17 +2418,17 @@ func (c *ProjectsLocationsApisCreateCall) Do(opts ...googleapi.CallOption) (*Api
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Api{
 		ServerResponse: googleapi.ServerResponse{
@@ -2371,7 +2442,7 @@ func (c *ProjectsLocationsApisCreateCall) Do(opts ...googleapi.CallOption) (*Api
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateApi creates a specified API.",
+	//   "description": "Creates a specified API.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.create",
@@ -2380,12 +2451,12 @@ func (c *ProjectsLocationsApisCreateCall) Do(opts ...googleapi.CallOption) (*Api
 	//   ],
 	//   "parameters": {
 	//     "apiId": {
-	//       "description": "Required. The ID to use for the api, which will become the final component of the api's resource name. This value should be 4-63 characters, and valid characters are /a-z-/. Following AIP-162, IDs must not have the form of a UUID.",
+	//       "description": "Required. The ID to use for the API, which will become the final component of the API's resource name. This value should be 4-63 characters, and valid characters are /a-z-/. Following AIP-162, IDs must not have the form of a UUID.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of APIs. Format: projects/*/locations/*",
+	//       "description": "Required. The parent, which owns this collection of APIs. Format: `projects/*/locations/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -2416,14 +2487,22 @@ type ProjectsLocationsApisDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteApi removes a specified API and all of the resources
-// that it owns.
+// Delete: Removes a specified API and all of the resources that it
+// owns.
 //
-// - name: The name of the API to delete. Format:
-//   projects/*/locations/*/apis/*.
+//   - name: The name of the API to delete. Format:
+//     `projects/*/locations/*/apis/*`.
 func (r *ProjectsLocationsApisService) Delete(name string) *ProjectsLocationsApisDeleteCall {
 	c := &ProjectsLocationsApisDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
+	return c
+}
+
+// Force sets the optional parameter "force": If set to true, any child
+// resources will also be deleted. (Otherwise, the request will only
+// work if there are no child resources.)
+func (c *ProjectsLocationsApisDeleteCall) Force(force bool) *ProjectsLocationsApisDeleteCall {
+	c.urlParams_.Set("force", fmt.Sprint(force))
 	return c
 }
 
@@ -2489,17 +2568,17 @@ func (c *ProjectsLocationsApisDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2513,7 +2592,7 @@ func (c *ProjectsLocationsApisDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteApi removes a specified API and all of the resources that it owns.",
+	//   "description": "Removes a specified API and all of the resources that it owns.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.delete",
@@ -2521,8 +2600,13 @@ func (c *ProjectsLocationsApisDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 	//     "name"
 	//   ],
 	//   "parameters": {
+	//     "force": {
+	//       "description": "If set to true, any child resources will also be deleted. (Otherwise, the request will only work if there are no child resources.)",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     },
 	//     "name": {
-	//       "description": "Required. The name of the API to delete. Format: projects/*/locations/*/apis/*",
+	//       "description": "Required. The name of the API to delete. Format: `projects/*/locations/*/apis/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -2551,10 +2635,10 @@ type ProjectsLocationsApisGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetApi returns a specified API.
+// Get: Returns a specified API.
 //
-// - name: The name of the API to retrieve. Format:
-//   projects/*/locations/*/apis/*.
+//   - name: The name of the API to retrieve. Format:
+//     `projects/*/locations/*/apis/*`.
 func (r *ProjectsLocationsApisService) Get(name string) *ProjectsLocationsApisGetCall {
 	c := &ProjectsLocationsApisGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2636,17 +2720,17 @@ func (c *ProjectsLocationsApisGetCall) Do(opts ...googleapi.CallOption) (*Api, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Api{
 		ServerResponse: googleapi.ServerResponse{
@@ -2660,7 +2744,7 @@ func (c *ProjectsLocationsApisGetCall) Do(opts ...googleapi.CallOption) (*Api, e
 	}
 	return ret, nil
 	// {
-	//   "description": "GetApi returns a specified API.",
+	//   "description": "Returns a specified API.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.get",
@@ -2669,7 +2753,7 @@ func (c *ProjectsLocationsApisGetCall) Do(opts ...googleapi.CallOption) (*Api, e
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the API to retrieve. Format: projects/*/locations/*/apis/*",
+	//       "description": "Required. The name of the API to retrieve. Format: `projects/*/locations/*/apis/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -2702,9 +2786,10 @@ type ProjectsLocationsApisGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisService) GetIamPolicy(resource string) *ProjectsLocationsApisGetIamPolicyCall {
 	c := &ProjectsLocationsApisGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2804,17 +2889,17 @@ func (c *ProjectsLocationsApisGetIamPolicyCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2843,7 +2928,7 @@ func (c *ProjectsLocationsApisGetIamPolicyCall) Do(opts ...googleapi.CallOption)
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -2872,10 +2957,10 @@ type ProjectsLocationsApisListCall struct {
 	header_      http.Header
 }
 
-// List: ListApis returns matching APIs.
+// List: Returns matching APIs.
 //
-// - parent: The parent, which owns this collection of APIs. Format:
-//   projects/*/locations/*.
+//   - parent: The parent, which owns this collection of APIs. Format:
+//     `projects/*/locations/*`.
 func (r *ProjectsLocationsApisService) List(parent string) *ProjectsLocationsApisListCall {
 	c := &ProjectsLocationsApisListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2887,6 +2972,14 @@ func (r *ProjectsLocationsApisService) List(parent string) *ProjectsLocationsApi
 // Language and can refer to all message fields.
 func (c *ProjectsLocationsApisListCall) Filter(filter string) *ProjectsLocationsApisListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisListCall) OrderBy(orderBy string) *ProjectsLocationsApisListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -2983,17 +3076,17 @@ func (c *ProjectsLocationsApisListCall) Do(opts ...googleapi.CallOption) (*ListA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListApisResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3007,7 +3100,7 @@ func (c *ProjectsLocationsApisListCall) Do(opts ...googleapi.CallOption) (*ListA
 	}
 	return ret, nil
 	// {
-	//   "description": "ListApis returns matching APIs.",
+	//   "description": "Returns matching APIs.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.list",
@@ -3017,6 +3110,11 @@ func (c *ProjectsLocationsApisListCall) Do(opts ...googleapi.CallOption) (*ListA
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -3032,7 +3130,7 @@ func (c *ProjectsLocationsApisListCall) Do(opts ...googleapi.CallOption) (*ListA
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of APIs. Format: projects/*/locations/*",
+	//       "description": "Required. The parent, which owns this collection of APIs. Format: `projects/*/locations/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -3082,7 +3180,7 @@ type ProjectsLocationsApisPatchCall struct {
 	header_    http.Header
 }
 
-// Patch: UpdateApi can be used to modify a specified API.
+// Patch: Used to modify a specified API.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisService) Patch(name string, api *Api) *ProjectsLocationsApisPatchCall {
@@ -3093,7 +3191,7 @@ func (r *ProjectsLocationsApisService) Patch(name string, api *Api) *ProjectsLoc
 }
 
 // AllowMissing sets the optional parameter "allowMissing": If set to
-// true, and the api is not found, a new api will be created. In this
+// true, and the API is not found, a new API will be created. In this
 // situation, `update_mask` is ignored.
 func (c *ProjectsLocationsApisPatchCall) AllowMissing(allowMissing bool) *ProjectsLocationsApisPatchCall {
 	c.urlParams_.Set("allowMissing", fmt.Sprint(allowMissing))
@@ -3103,8 +3201,8 @@ func (c *ProjectsLocationsApisPatchCall) AllowMissing(allowMissing bool) *Projec
 // UpdateMask sets the optional parameter "updateMask": The list of
 // fields to be updated. If omitted, all fields are updated that are set
 // in the request message (fields set to default values are ignored). If
-// a "*" is specified, all fields are updated, including fields that are
-// unspecified/default in the request.
+// an asterisk "*" is specified, all fields are updated, including
+// fields that are unspecified/default in the request.
 func (c *ProjectsLocationsApisPatchCall) UpdateMask(updateMask string) *ProjectsLocationsApisPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -3177,17 +3275,17 @@ func (c *ProjectsLocationsApisPatchCall) Do(opts ...googleapi.CallOption) (*Api,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Api{
 		ServerResponse: googleapi.ServerResponse{
@@ -3201,7 +3299,7 @@ func (c *ProjectsLocationsApisPatchCall) Do(opts ...googleapi.CallOption) (*Api,
 	}
 	return ret, nil
 	// {
-	//   "description": "UpdateApi can be used to modify a specified API.",
+	//   "description": "Used to modify a specified API.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "apigeeregistry.projects.locations.apis.patch",
@@ -3210,7 +3308,7 @@ func (c *ProjectsLocationsApisPatchCall) Do(opts ...googleapi.CallOption) (*Api,
 	//   ],
 	//   "parameters": {
 	//     "allowMissing": {
-	//       "description": "If set to true, and the api is not found, a new api will be created. In this situation, `update_mask` is ignored.",
+	//       "description": "If set to true, and the API is not found, a new API will be created. In this situation, `update_mask` is ignored.",
 	//       "location": "query",
 	//       "type": "boolean"
 	//     },
@@ -3222,7 +3320,7 @@ func (c *ProjectsLocationsApisPatchCall) Do(opts ...googleapi.CallOption) (*Api,
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If a \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
+	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If an asterisk \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -3257,9 +3355,10 @@ type ProjectsLocationsApisSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsApisSetIamPolicyCall {
 	c := &ProjectsLocationsApisSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3334,17 +3433,17 @@ func (c *ProjectsLocationsApisSetIamPolicyCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3367,7 +3466,7 @@ func (c *ProjectsLocationsApisSetIamPolicyCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -3406,9 +3505,10 @@ type ProjectsLocationsApisTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsApisTestIamPermissionsCall {
 	c := &ProjectsLocationsApisTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3483,17 +3583,17 @@ func (c *ProjectsLocationsApisTestIamPermissionsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3516,7 +3616,7 @@ func (c *ProjectsLocationsApisTestIamPermissionsCall) Do(opts ...googleapi.CallO
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -3548,10 +3648,10 @@ type ProjectsLocationsApisArtifactsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateArtifact creates a specified artifact.
+// Create: Creates a specified artifact.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisArtifactsService) Create(parent string, artifact *Artifact) *ProjectsLocationsApisArtifactsCreateCall {
 	c := &ProjectsLocationsApisArtifactsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3636,17 +3736,17 @@ func (c *ProjectsLocationsApisArtifactsCreateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -3660,7 +3760,7 @@ func (c *ProjectsLocationsApisArtifactsCreateCall) Do(opts ...googleapi.CallOpti
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateArtifact creates a specified artifact.",
+	//   "description": "Creates a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/artifacts",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.artifacts.create",
@@ -3674,7 +3774,7 @@ func (c *ProjectsLocationsApisArtifactsCreateCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -3705,10 +3805,10 @@ type ProjectsLocationsApisArtifactsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteArtifact removes a specified artifact.
+// Delete: Removes a specified artifact.
 //
-// - name: The name of the artifact to delete. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to delete. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisArtifactsService) Delete(name string) *ProjectsLocationsApisArtifactsDeleteCall {
 	c := &ProjectsLocationsApisArtifactsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3777,17 +3877,17 @@ func (c *ProjectsLocationsApisArtifactsDeleteCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3801,7 +3901,7 @@ func (c *ProjectsLocationsApisArtifactsDeleteCall) Do(opts ...googleapi.CallOpti
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteArtifact removes a specified artifact.",
+	//   "description": "Removes a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/artifacts/{artifactsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.artifacts.delete",
@@ -3810,7 +3910,7 @@ func (c *ProjectsLocationsApisArtifactsDeleteCall) Do(opts ...googleapi.CallOpti
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to delete. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to delete. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -3839,10 +3939,10 @@ type ProjectsLocationsApisArtifactsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetArtifact returns a specified artifact.
+// Get: Returns a specified artifact.
 //
-// - name: The name of the artifact to retrieve. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to retrieve. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisArtifactsService) Get(name string) *ProjectsLocationsApisArtifactsGetCall {
 	c := &ProjectsLocationsApisArtifactsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3924,17 +4024,17 @@ func (c *ProjectsLocationsApisArtifactsGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -3948,7 +4048,7 @@ func (c *ProjectsLocationsApisArtifactsGetCall) Do(opts ...googleapi.CallOption)
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifact returns a specified artifact.",
+	//   "description": "Returns a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/artifacts/{artifactsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.artifacts.get",
@@ -3957,7 +4057,7 @@ func (c *ProjectsLocationsApisArtifactsGetCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to retrieve. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to retrieve. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -3986,13 +4086,13 @@ type ProjectsLocationsApisArtifactsGetContentsCall struct {
 	header_      http.Header
 }
 
-// GetContents: GetArtifactContents returns the contents of a specified
-// artifact. If artifacts are stored with GZip compression, the default
-// behavior is to return the artifact uncompressed (the mime_type
-// response field indicates the exact format returned).
+// GetContents: Returns the contents of a specified artifact. If
+// artifacts are stored with GZip compression, the default behavior is
+// to return the artifact uncompressed (the mime_type response field
+// indicates the exact format returned).
 //
-// - name: The name of the artifact whose contents should be retrieved.
-//   Format: {parent}/artifacts/*.
+//   - name: The name of the artifact whose contents should be retrieved.
+//     Format: `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisArtifactsService) GetContents(name string) *ProjectsLocationsApisArtifactsGetContentsCall {
 	c := &ProjectsLocationsApisArtifactsGetContentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4074,17 +4174,17 @@ func (c *ProjectsLocationsApisArtifactsGetContentsCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &HttpBody{
 		ServerResponse: googleapi.ServerResponse{
@@ -4098,7 +4198,7 @@ func (c *ProjectsLocationsApisArtifactsGetContentsCall) Do(opts ...googleapi.Cal
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifactContents returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
+	//   "description": "Returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/artifacts/{artifactsId}:getContents",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.artifacts.getContents",
@@ -4107,7 +4207,7 @@ func (c *ProjectsLocationsApisArtifactsGetContentsCall) Do(opts ...googleapi.Cal
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -4140,9 +4240,10 @@ type ProjectsLocationsApisArtifactsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisArtifactsService) GetIamPolicy(resource string) *ProjectsLocationsApisArtifactsGetIamPolicyCall {
 	c := &ProjectsLocationsApisArtifactsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4242,17 +4343,17 @@ func (c *ProjectsLocationsApisArtifactsGetIamPolicyCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4281,7 +4382,7 @@ func (c *ProjectsLocationsApisArtifactsGetIamPolicyCall) Do(opts ...googleapi.Ca
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -4310,10 +4411,10 @@ type ProjectsLocationsApisArtifactsListCall struct {
 	header_      http.Header
 }
 
-// List: ListArtifacts returns matching artifacts.
+// List: Returns matching artifacts.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisArtifactsService) List(parent string) *ProjectsLocationsApisArtifactsListCall {
 	c := &ProjectsLocationsApisArtifactsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4325,6 +4426,14 @@ func (r *ProjectsLocationsApisArtifactsService) List(parent string) *ProjectsLoc
 // Language and can refer to all message fields except contents.
 func (c *ProjectsLocationsApisArtifactsListCall) Filter(filter string) *ProjectsLocationsApisArtifactsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisArtifactsListCall) OrderBy(orderBy string) *ProjectsLocationsApisArtifactsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -4422,17 +4531,17 @@ func (c *ProjectsLocationsApisArtifactsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListArtifactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4446,7 +4555,7 @@ func (c *ProjectsLocationsApisArtifactsListCall) Do(opts ...googleapi.CallOption
 	}
 	return ret, nil
 	// {
-	//   "description": "ListArtifacts returns matching artifacts.",
+	//   "description": "Returns matching artifacts.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/artifacts",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.artifacts.list",
@@ -4456,6 +4565,11 @@ func (c *ProjectsLocationsApisArtifactsListCall) Do(opts ...googleapi.CallOption
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields except contents.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -4471,7 +4585,7 @@ func (c *ProjectsLocationsApisArtifactsListCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -4521,8 +4635,7 @@ type ProjectsLocationsApisArtifactsReplaceArtifactCall struct {
 	header_    http.Header
 }
 
-// ReplaceArtifact: ReplaceArtifact can be used to replace a specified
-// artifact.
+// ReplaceArtifact: Used to replace a specified artifact.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisArtifactsService) ReplaceArtifact(name string, artifact *Artifact) *ProjectsLocationsApisArtifactsReplaceArtifactCall {
@@ -4599,17 +4712,17 @@ func (c *ProjectsLocationsApisArtifactsReplaceArtifactCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -4623,7 +4736,7 @@ func (c *ProjectsLocationsApisArtifactsReplaceArtifactCall) Do(opts ...googleapi
 	}
 	return ret, nil
 	// {
-	//   "description": "ReplaceArtifact can be used to replace a specified artifact.",
+	//   "description": "Used to replace a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/artifacts/{artifactsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "apigeeregistry.projects.locations.apis.artifacts.replaceArtifact",
@@ -4668,9 +4781,10 @@ type ProjectsLocationsApisArtifactsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisArtifactsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsApisArtifactsSetIamPolicyCall {
 	c := &ProjectsLocationsApisArtifactsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4745,17 +4859,17 @@ func (c *ProjectsLocationsApisArtifactsSetIamPolicyCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4778,7 +4892,7 @@ func (c *ProjectsLocationsApisArtifactsSetIamPolicyCall) Do(opts ...googleapi.Ca
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -4817,9 +4931,10 @@ type ProjectsLocationsApisArtifactsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisArtifactsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsApisArtifactsTestIamPermissionsCall {
 	c := &ProjectsLocationsApisArtifactsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4894,17 +5009,17 @@ func (c *ProjectsLocationsApisArtifactsTestIamPermissionsCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4927,7 +5042,7 @@ func (c *ProjectsLocationsApisArtifactsTestIamPermissionsCall) Do(opts ...google
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -4959,10 +5074,10 @@ type ProjectsLocationsApisDeploymentsCreateCall struct {
 	header_       http.Header
 }
 
-// Create: CreateApiDeployment creates a specified deployment.
+// Create: Creates a specified deployment.
 //
-// - parent: The parent, which owns this collection of deployments.
-//   Format: projects/*/locations/*/apis/*.
+//   - parent: The parent, which owns this collection of deployments.
+//     Format: `projects/*/locations/*/apis/*`.
 func (r *ProjectsLocationsApisDeploymentsService) Create(parent string, apideployment *ApiDeployment) *ProjectsLocationsApisDeploymentsCreateCall {
 	c := &ProjectsLocationsApisDeploymentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5047,17 +5162,17 @@ func (c *ProjectsLocationsApisDeploymentsCreateCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -5071,7 +5186,7 @@ func (c *ProjectsLocationsApisDeploymentsCreateCall) Do(opts ...googleapi.CallOp
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateApiDeployment creates a specified deployment.",
+	//   "description": "Creates a specified deployment.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.create",
@@ -5085,7 +5200,7 @@ func (c *ProjectsLocationsApisDeploymentsCreateCall) Do(opts ...googleapi.CallOp
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of deployments. Format: projects/*/locations/*/apis/*",
+	//       "description": "Required. The parent, which owns this collection of deployments. Format: `projects/*/locations/*/apis/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -5116,11 +5231,11 @@ type ProjectsLocationsApisDeploymentsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteApiDeployment removes a specified deployment, all
-// revisions, and all child resources (e.g. artifacts).
+// Delete: Removes a specified deployment, all revisions, and all child
+// resources (e.g., artifacts).
 //
-// - name: The name of the deployment to delete. Format:
-//   projects/*/locations/*/apis/*/deployments/*.
+//   - name: The name of the deployment to delete. Format:
+//     `projects/*/locations/*/apis/*/deployments/*`.
 func (r *ProjectsLocationsApisDeploymentsService) Delete(name string) *ProjectsLocationsApisDeploymentsDeleteCall {
 	c := &ProjectsLocationsApisDeploymentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5197,17 +5312,17 @@ func (c *ProjectsLocationsApisDeploymentsDeleteCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5221,7 +5336,7 @@ func (c *ProjectsLocationsApisDeploymentsDeleteCall) Do(opts ...googleapi.CallOp
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteApiDeployment removes a specified deployment, all revisions, and all child resources (e.g. artifacts).",
+	//   "description": "Removes a specified deployment, all revisions, and all child resources (e.g., artifacts).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.delete",
@@ -5235,7 +5350,7 @@ func (c *ProjectsLocationsApisDeploymentsDeleteCall) Do(opts ...googleapi.CallOp
 	//       "type": "boolean"
 	//     },
 	//     "name": {
-	//       "description": "Required. The name of the deployment to delete. Format: projects/*/locations/*/apis/*/deployments/*",
+	//       "description": "Required. The name of the deployment to delete. Format: `projects/*/locations/*/apis/*/deployments/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -5263,13 +5378,12 @@ type ProjectsLocationsApisDeploymentsDeleteRevisionCall struct {
 	header_    http.Header
 }
 
-// DeleteRevision: DeleteApiDeploymentRevision deletes a revision of a
-// deployment.
+// DeleteRevision: Deletes a revision of a deployment.
 //
-// - name: The name of the deployment revision to be deleted, with a
-//   revision ID explicitly included. Example:
-//   projects/sample/locations/global/apis/petstore/deployments/prod@c7cf
-//   a2a8.
+//   - name: The name of the deployment revision to be deleted, with a
+//     revision ID explicitly included. Example:
+//     `projects/sample/locations/global/apis/petstore/deployments/prod@c7c
+//     fa2a8`.
 func (r *ProjectsLocationsApisDeploymentsService) DeleteRevision(name string) *ProjectsLocationsApisDeploymentsDeleteRevisionCall {
 	c := &ProjectsLocationsApisDeploymentsDeleteRevisionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5338,17 +5452,17 @@ func (c *ProjectsLocationsApisDeploymentsDeleteRevisionCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -5362,7 +5476,7 @@ func (c *ProjectsLocationsApisDeploymentsDeleteRevisionCall) Do(opts ...googleap
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteApiDeploymentRevision deletes a revision of a deployment.",
+	//   "description": "Deletes a revision of a deployment.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}:deleteRevision",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.deleteRevision",
@@ -5371,7 +5485,7 @@ func (c *ProjectsLocationsApisDeploymentsDeleteRevisionCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the deployment revision to be deleted, with a revision ID explicitly included. Example: projects/sample/locations/global/apis/petstore/deployments/prod@c7cfa2a8",
+	//       "description": "Required. The name of the deployment revision to be deleted, with a revision ID explicitly included. Example: `projects/sample/locations/global/apis/petstore/deployments/prod@c7cfa2a8`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -5400,10 +5514,10 @@ type ProjectsLocationsApisDeploymentsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetApiDeployment returns a specified deployment.
+// Get: Returns a specified deployment.
 //
-// - name: The name of the deployment to retrieve. Format:
-//   projects/*/locations/*/apis/*/deployments/*.
+//   - name: The name of the deployment to retrieve. Format:
+//     `projects/*/locations/*/apis/*/deployments/*`.
 func (r *ProjectsLocationsApisDeploymentsService) Get(name string) *ProjectsLocationsApisDeploymentsGetCall {
 	c := &ProjectsLocationsApisDeploymentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5485,17 +5599,17 @@ func (c *ProjectsLocationsApisDeploymentsGetCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -5509,7 +5623,7 @@ func (c *ProjectsLocationsApisDeploymentsGetCall) Do(opts ...googleapi.CallOptio
 	}
 	return ret, nil
 	// {
-	//   "description": "GetApiDeployment returns a specified deployment.",
+	//   "description": "Returns a specified deployment.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.get",
@@ -5518,7 +5632,7 @@ func (c *ProjectsLocationsApisDeploymentsGetCall) Do(opts ...googleapi.CallOptio
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the deployment to retrieve. Format: projects/*/locations/*/apis/*/deployments/*",
+	//       "description": "Required. The name of the deployment to retrieve. Format: `projects/*/locations/*/apis/*/deployments/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -5551,9 +5665,10 @@ type ProjectsLocationsApisDeploymentsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisDeploymentsService) GetIamPolicy(resource string) *ProjectsLocationsApisDeploymentsGetIamPolicyCall {
 	c := &ProjectsLocationsApisDeploymentsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5653,17 +5768,17 @@ func (c *ProjectsLocationsApisDeploymentsGetIamPolicyCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5692,7 +5807,7 @@ func (c *ProjectsLocationsApisDeploymentsGetIamPolicyCall) Do(opts ...googleapi.
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -5721,10 +5836,10 @@ type ProjectsLocationsApisDeploymentsListCall struct {
 	header_      http.Header
 }
 
-// List: ListApiDeployments returns matching deployments.
+// List: Returns matching deployments.
 //
-// - parent: The parent, which owns this collection of deployments.
-//   Format: projects/*/locations/*/apis/*.
+//   - parent: The parent, which owns this collection of deployments.
+//     Format: `projects/*/locations/*/apis/*`.
 func (r *ProjectsLocationsApisDeploymentsService) List(parent string) *ProjectsLocationsApisDeploymentsListCall {
 	c := &ProjectsLocationsApisDeploymentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5736,6 +5851,14 @@ func (r *ProjectsLocationsApisDeploymentsService) List(parent string) *ProjectsL
 // Language and can refer to all message fields.
 func (c *ProjectsLocationsApisDeploymentsListCall) Filter(filter string) *ProjectsLocationsApisDeploymentsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisDeploymentsListCall) OrderBy(orderBy string) *ProjectsLocationsApisDeploymentsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -5833,17 +5956,17 @@ func (c *ProjectsLocationsApisDeploymentsListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListApiDeploymentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5857,7 +5980,7 @@ func (c *ProjectsLocationsApisDeploymentsListCall) Do(opts ...googleapi.CallOpti
 	}
 	return ret, nil
 	// {
-	//   "description": "ListApiDeployments returns matching deployments.",
+	//   "description": "Returns matching deployments.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.list",
@@ -5867,6 +5990,11 @@ func (c *ProjectsLocationsApisDeploymentsListCall) Do(opts ...googleapi.CallOpti
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -5882,7 +6010,7 @@ func (c *ProjectsLocationsApisDeploymentsListCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of deployments. Format: projects/*/locations/*/apis/*",
+	//       "description": "Required. The parent, which owns this collection of deployments. Format: `projects/*/locations/*/apis/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -5932,14 +6060,21 @@ type ProjectsLocationsApisDeploymentsListRevisionsCall struct {
 	header_      http.Header
 }
 
-// ListRevisions: ListApiDeploymentRevisions lists all revisions of a
-// deployment. Revisions are returned in descending order of revision
-// creation time.
+// ListRevisions: Lists all revisions of a deployment. Revisions are
+// returned in descending order of revision creation time.
 //
 // - name: The name of the deployment to list revisions for.
 func (r *ProjectsLocationsApisDeploymentsService) ListRevisions(name string) *ProjectsLocationsApisDeploymentsListRevisionsCall {
 	c := &ProjectsLocationsApisDeploymentsListRevisionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
+	return c
+}
+
+// Filter sets the optional parameter "filter": An expression that can
+// be used to filter the list. Filters use the Common Expression
+// Language and can refer to all message fields.
+func (c *ProjectsLocationsApisDeploymentsListRevisionsCall) Filter(filter string) *ProjectsLocationsApisDeploymentsListRevisionsCall {
+	c.urlParams_.Set("filter", filter)
 	return c
 }
 
@@ -6034,17 +6169,17 @@ func (c *ProjectsLocationsApisDeploymentsListRevisionsCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListApiDeploymentRevisionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6058,7 +6193,7 @@ func (c *ProjectsLocationsApisDeploymentsListRevisionsCall) Do(opts ...googleapi
 	}
 	return ret, nil
 	// {
-	//   "description": "ListApiDeploymentRevisions lists all revisions of a deployment. Revisions are returned in descending order of revision creation time.",
+	//   "description": "Lists all revisions of a deployment. Revisions are returned in descending order of revision creation time.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}:listRevisions",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.listRevisions",
@@ -6066,6 +6201,11 @@ func (c *ProjectsLocationsApisDeploymentsListRevisionsCall) Do(opts ...googleapi
 	//     "name"
 	//   ],
 	//   "parameters": {
+	//     "filter": {
+	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
 	//     "name": {
 	//       "description": "Required. The name of the deployment to list revisions for.",
 	//       "location": "path",
@@ -6128,8 +6268,7 @@ type ProjectsLocationsApisDeploymentsPatchCall struct {
 	header_       http.Header
 }
 
-// Patch: UpdateApiDeployment can be used to modify a specified
-// deployment.
+// Patch: Used to modify a specified deployment.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisDeploymentsService) Patch(name string, apideployment *ApiDeployment) *ProjectsLocationsApisDeploymentsPatchCall {
@@ -6150,8 +6289,8 @@ func (c *ProjectsLocationsApisDeploymentsPatchCall) AllowMissing(allowMissing bo
 // UpdateMask sets the optional parameter "updateMask": The list of
 // fields to be updated. If omitted, all fields are updated that are set
 // in the request message (fields set to default values are ignored). If
-// a "*" is specified, all fields are updated, including fields that are
-// unspecified/default in the request.
+// an asterisk "*" is specified, all fields are updated, including
+// fields that are unspecified/default in the request.
 func (c *ProjectsLocationsApisDeploymentsPatchCall) UpdateMask(updateMask string) *ProjectsLocationsApisDeploymentsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -6224,17 +6363,17 @@ func (c *ProjectsLocationsApisDeploymentsPatchCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -6248,7 +6387,7 @@ func (c *ProjectsLocationsApisDeploymentsPatchCall) Do(opts ...googleapi.CallOpt
 	}
 	return ret, nil
 	// {
-	//   "description": "UpdateApiDeployment can be used to modify a specified deployment.",
+	//   "description": "Used to modify a specified deployment.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.patch",
@@ -6269,7 +6408,7 @@ func (c *ProjectsLocationsApisDeploymentsPatchCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If a \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
+	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If an asterisk \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -6300,9 +6439,8 @@ type ProjectsLocationsApisDeploymentsRollbackCall struct {
 	header_                      http.Header
 }
 
-// Rollback: RollbackApiDeployment sets the current revision to a
-// specified prior revision. Note that this creates a new revision with
-// a new revision ID.
+// Rollback: Sets the current revision to a specified prior revision.
+// Note that this creates a new revision with a new revision ID.
 //
 // - name: The deployment being rolled back.
 func (r *ProjectsLocationsApisDeploymentsService) Rollback(name string, rollbackapideploymentrequest *RollbackApiDeploymentRequest) *ProjectsLocationsApisDeploymentsRollbackCall {
@@ -6379,17 +6517,17 @@ func (c *ProjectsLocationsApisDeploymentsRollbackCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -6403,7 +6541,7 @@ func (c *ProjectsLocationsApisDeploymentsRollbackCall) Do(opts ...googleapi.Call
 	}
 	return ret, nil
 	// {
-	//   "description": "RollbackApiDeployment sets the current revision to a specified prior revision. Note that this creates a new revision with a new revision ID.",
+	//   "description": "Sets the current revision to a specified prior revision. Note that this creates a new revision with a new revision ID.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}:rollback",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.rollback",
@@ -6448,9 +6586,10 @@ type ProjectsLocationsApisDeploymentsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisDeploymentsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsApisDeploymentsSetIamPolicyCall {
 	c := &ProjectsLocationsApisDeploymentsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6525,17 +6664,17 @@ func (c *ProjectsLocationsApisDeploymentsSetIamPolicyCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6558,7 +6697,7 @@ func (c *ProjectsLocationsApisDeploymentsSetIamPolicyCall) Do(opts ...googleapi.
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -6590,11 +6729,10 @@ type ProjectsLocationsApisDeploymentsTagRevisionCall struct {
 	header_                         http.Header
 }
 
-// TagRevision: TagApiDeploymentRevision adds a tag to a specified
-// revision of a deployment.
+// TagRevision: Adds a tag to a specified revision of a deployment.
 //
-// - name: The name of the deployment to be tagged, including the
-//   revision ID.
+//   - name: The name of the deployment to be tagged, including the
+//     revision ID.
 func (r *ProjectsLocationsApisDeploymentsService) TagRevision(name string, tagapideploymentrevisionrequest *TagApiDeploymentRevisionRequest) *ProjectsLocationsApisDeploymentsTagRevisionCall {
 	c := &ProjectsLocationsApisDeploymentsTagRevisionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6669,17 +6807,17 @@ func (c *ProjectsLocationsApisDeploymentsTagRevisionCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiDeployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -6693,7 +6831,7 @@ func (c *ProjectsLocationsApisDeploymentsTagRevisionCall) Do(opts ...googleapi.C
 	}
 	return ret, nil
 	// {
-	//   "description": "TagApiDeploymentRevision adds a tag to a specified revision of a deployment.",
+	//   "description": "Adds a tag to a specified revision of a deployment.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}:tagRevision",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.tagRevision",
@@ -6741,9 +6879,10 @@ type ProjectsLocationsApisDeploymentsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisDeploymentsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsApisDeploymentsTestIamPermissionsCall {
 	c := &ProjectsLocationsApisDeploymentsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6818,17 +6957,17 @@ func (c *ProjectsLocationsApisDeploymentsTestIamPermissionsCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6851,7 +6990,7 @@ func (c *ProjectsLocationsApisDeploymentsTestIamPermissionsCall) Do(opts ...goog
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -6883,10 +7022,10 @@ type ProjectsLocationsApisDeploymentsArtifactsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateArtifact creates a specified artifact.
+// Create: Creates a specified artifact.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisDeploymentsArtifactsService) Create(parent string, artifact *Artifact) *ProjectsLocationsApisDeploymentsArtifactsCreateCall {
 	c := &ProjectsLocationsApisDeploymentsArtifactsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6971,17 +7110,17 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsCreateCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -6995,7 +7134,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsCreateCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateArtifact creates a specified artifact.",
+	//   "description": "Creates a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}/artifacts",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.artifacts.create",
@@ -7009,7 +7148,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsCreateCall) Do(opts ...googlea
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -7040,10 +7179,10 @@ type ProjectsLocationsApisDeploymentsArtifactsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteArtifact removes a specified artifact.
+// Delete: Removes a specified artifact.
 //
-// - name: The name of the artifact to delete. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to delete. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisDeploymentsArtifactsService) Delete(name string) *ProjectsLocationsApisDeploymentsArtifactsDeleteCall {
 	c := &ProjectsLocationsApisDeploymentsArtifactsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7112,17 +7251,17 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsDeleteCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -7136,7 +7275,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsDeleteCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteArtifact removes a specified artifact.",
+	//   "description": "Removes a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.artifacts.delete",
@@ -7145,7 +7284,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsDeleteCall) Do(opts ...googlea
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to delete. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to delete. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -7174,10 +7313,10 @@ type ProjectsLocationsApisDeploymentsArtifactsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetArtifact returns a specified artifact.
+// Get: Returns a specified artifact.
 //
-// - name: The name of the artifact to retrieve. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to retrieve. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisDeploymentsArtifactsService) Get(name string) *ProjectsLocationsApisDeploymentsArtifactsGetCall {
 	c := &ProjectsLocationsApisDeploymentsArtifactsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7259,17 +7398,17 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsGetCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -7283,7 +7422,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsGetCall) Do(opts ...googleapi.
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifact returns a specified artifact.",
+	//   "description": "Returns a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.artifacts.get",
@@ -7292,7 +7431,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsGetCall) Do(opts ...googleapi.
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to retrieve. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to retrieve. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -7321,13 +7460,13 @@ type ProjectsLocationsApisDeploymentsArtifactsGetContentsCall struct {
 	header_      http.Header
 }
 
-// GetContents: GetArtifactContents returns the contents of a specified
-// artifact. If artifacts are stored with GZip compression, the default
-// behavior is to return the artifact uncompressed (the mime_type
-// response field indicates the exact format returned).
+// GetContents: Returns the contents of a specified artifact. If
+// artifacts are stored with GZip compression, the default behavior is
+// to return the artifact uncompressed (the mime_type response field
+// indicates the exact format returned).
 //
-// - name: The name of the artifact whose contents should be retrieved.
-//   Format: {parent}/artifacts/*.
+//   - name: The name of the artifact whose contents should be retrieved.
+//     Format: `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisDeploymentsArtifactsService) GetContents(name string) *ProjectsLocationsApisDeploymentsArtifactsGetContentsCall {
 	c := &ProjectsLocationsApisDeploymentsArtifactsGetContentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7409,17 +7548,17 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsGetContentsCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &HttpBody{
 		ServerResponse: googleapi.ServerResponse{
@@ -7433,7 +7572,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsGetContentsCall) Do(opts ...go
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifactContents returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
+	//   "description": "Returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}/artifacts/{artifactsId}:getContents",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.artifacts.getContents",
@@ -7442,7 +7581,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsGetContentsCall) Do(opts ...go
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -7471,10 +7610,10 @@ type ProjectsLocationsApisDeploymentsArtifactsListCall struct {
 	header_      http.Header
 }
 
-// List: ListArtifacts returns matching artifacts.
+// List: Returns matching artifacts.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisDeploymentsArtifactsService) List(parent string) *ProjectsLocationsApisDeploymentsArtifactsListCall {
 	c := &ProjectsLocationsApisDeploymentsArtifactsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7486,6 +7625,14 @@ func (r *ProjectsLocationsApisDeploymentsArtifactsService) List(parent string) *
 // Language and can refer to all message fields except contents.
 func (c *ProjectsLocationsApisDeploymentsArtifactsListCall) Filter(filter string) *ProjectsLocationsApisDeploymentsArtifactsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisDeploymentsArtifactsListCall) OrderBy(orderBy string) *ProjectsLocationsApisDeploymentsArtifactsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -7583,17 +7730,17 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsListCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListArtifactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7607,7 +7754,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsListCall) Do(opts ...googleapi
 	}
 	return ret, nil
 	// {
-	//   "description": "ListArtifacts returns matching artifacts.",
+	//   "description": "Returns matching artifacts.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}/artifacts",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.artifacts.list",
@@ -7617,6 +7764,11 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsListCall) Do(opts ...googleapi
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields except contents.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7632,7 +7784,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsListCall) Do(opts ...googleapi
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/deployments/[^/]+$",
 	//       "required": true,
@@ -7682,8 +7834,7 @@ type ProjectsLocationsApisDeploymentsArtifactsReplaceArtifactCall struct {
 	header_    http.Header
 }
 
-// ReplaceArtifact: ReplaceArtifact can be used to replace a specified
-// artifact.
+// ReplaceArtifact: Used to replace a specified artifact.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisDeploymentsArtifactsService) ReplaceArtifact(name string, artifact *Artifact) *ProjectsLocationsApisDeploymentsArtifactsReplaceArtifactCall {
@@ -7760,17 +7911,17 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsReplaceArtifactCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -7784,7 +7935,7 @@ func (c *ProjectsLocationsApisDeploymentsArtifactsReplaceArtifactCall) Do(opts .
 	}
 	return ret, nil
 	// {
-	//   "description": "ReplaceArtifact can be used to replace a specified artifact.",
+	//   "description": "Used to replace a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/deployments/{deploymentsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "apigeeregistry.projects.locations.apis.deployments.artifacts.replaceArtifact",
@@ -7825,10 +7976,10 @@ type ProjectsLocationsApisVersionsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateApiVersion creates a specified version.
+// Create: Creates a specified version.
 //
-// - parent: The parent, which owns this collection of versions. Format:
-//   projects/*/locations/*/apis/*.
+//   - parent: The parent, which owns this collection of versions. Format:
+//     `projects/*/locations/*/apis/*`.
 func (r *ProjectsLocationsApisVersionsService) Create(parent string, apiversion *ApiVersion) *ProjectsLocationsApisVersionsCreateCall {
 	c := &ProjectsLocationsApisVersionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7913,17 +8064,17 @@ func (c *ProjectsLocationsApisVersionsCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -7937,7 +8088,7 @@ func (c *ProjectsLocationsApisVersionsCreateCall) Do(opts ...googleapi.CallOptio
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateApiVersion creates a specified version.",
+	//   "description": "Creates a specified version.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.create",
@@ -7951,7 +8102,7 @@ func (c *ProjectsLocationsApisVersionsCreateCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of versions. Format: projects/*/locations/*/apis/*",
+	//       "description": "Required. The parent, which owns this collection of versions. Format: `projects/*/locations/*/apis/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -7982,14 +8133,22 @@ type ProjectsLocationsApisVersionsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteApiVersion removes a specified version and all of the
-// resources that it owns.
+// Delete: Removes a specified version and all of the resources that it
+// owns.
 //
-// - name: The name of the version to delete. Format:
-//   projects/*/locations/*/apis/*/versions/*.
+//   - name: The name of the version to delete. Format:
+//     `projects/*/locations/*/apis/*/versions/*`.
 func (r *ProjectsLocationsApisVersionsService) Delete(name string) *ProjectsLocationsApisVersionsDeleteCall {
 	c := &ProjectsLocationsApisVersionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
+	return c
+}
+
+// Force sets the optional parameter "force": If set to true, any child
+// resources will also be deleted. (Otherwise, the request will only
+// work if there are no child resources.)
+func (c *ProjectsLocationsApisVersionsDeleteCall) Force(force bool) *ProjectsLocationsApisVersionsDeleteCall {
+	c.urlParams_.Set("force", fmt.Sprint(force))
 	return c
 }
 
@@ -8055,17 +8214,17 @@ func (c *ProjectsLocationsApisVersionsDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8079,7 +8238,7 @@ func (c *ProjectsLocationsApisVersionsDeleteCall) Do(opts ...googleapi.CallOptio
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteApiVersion removes a specified version and all of the resources that it owns.",
+	//   "description": "Removes a specified version and all of the resources that it owns.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.delete",
@@ -8087,8 +8246,13 @@ func (c *ProjectsLocationsApisVersionsDeleteCall) Do(opts ...googleapi.CallOptio
 	//     "name"
 	//   ],
 	//   "parameters": {
+	//     "force": {
+	//       "description": "If set to true, any child resources will also be deleted. (Otherwise, the request will only work if there are no child resources.)",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     },
 	//     "name": {
-	//       "description": "Required. The name of the version to delete. Format: projects/*/locations/*/apis/*/versions/*",
+	//       "description": "Required. The name of the version to delete. Format: `projects/*/locations/*/apis/*/versions/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -8117,10 +8281,10 @@ type ProjectsLocationsApisVersionsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetApiVersion returns a specified version.
+// Get: Returns a specified version.
 //
-// - name: The name of the version to retrieve. Format:
-//   projects/*/locations/*/apis/*/versions/*.
+//   - name: The name of the version to retrieve. Format:
+//     `projects/*/locations/*/apis/*/versions/*`.
 func (r *ProjectsLocationsApisVersionsService) Get(name string) *ProjectsLocationsApisVersionsGetCall {
 	c := &ProjectsLocationsApisVersionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8202,17 +8366,17 @@ func (c *ProjectsLocationsApisVersionsGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -8226,7 +8390,7 @@ func (c *ProjectsLocationsApisVersionsGetCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "GetApiVersion returns a specified version.",
+	//   "description": "Returns a specified version.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.get",
@@ -8235,7 +8399,7 @@ func (c *ProjectsLocationsApisVersionsGetCall) Do(opts ...googleapi.CallOption) 
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the version to retrieve. Format: projects/*/locations/*/apis/*/versions/*",
+	//       "description": "Required. The name of the version to retrieve. Format: `projects/*/locations/*/apis/*/versions/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -8268,9 +8432,10 @@ type ProjectsLocationsApisVersionsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsService) GetIamPolicy(resource string) *ProjectsLocationsApisVersionsGetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8370,17 +8535,17 @@ func (c *ProjectsLocationsApisVersionsGetIamPolicyCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8409,7 +8574,7 @@ func (c *ProjectsLocationsApisVersionsGetIamPolicyCall) Do(opts ...googleapi.Cal
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -8438,10 +8603,10 @@ type ProjectsLocationsApisVersionsListCall struct {
 	header_      http.Header
 }
 
-// List: ListApiVersions returns matching versions.
+// List: Returns matching versions.
 //
-// - parent: The parent, which owns this collection of versions. Format:
-//   projects/*/locations/*/apis/*.
+//   - parent: The parent, which owns this collection of versions. Format:
+//     `projects/*/locations/*/apis/*`.
 func (r *ProjectsLocationsApisVersionsService) List(parent string) *ProjectsLocationsApisVersionsListCall {
 	c := &ProjectsLocationsApisVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8453,6 +8618,14 @@ func (r *ProjectsLocationsApisVersionsService) List(parent string) *ProjectsLoca
 // Language and can refer to all message fields.
 func (c *ProjectsLocationsApisVersionsListCall) Filter(filter string) *ProjectsLocationsApisVersionsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisVersionsListCall) OrderBy(orderBy string) *ProjectsLocationsApisVersionsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -8550,17 +8723,17 @@ func (c *ProjectsLocationsApisVersionsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListApiVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8574,7 +8747,7 @@ func (c *ProjectsLocationsApisVersionsListCall) Do(opts ...googleapi.CallOption)
 	}
 	return ret, nil
 	// {
-	//   "description": "ListApiVersions returns matching versions.",
+	//   "description": "Returns matching versions.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.list",
@@ -8584,6 +8757,11 @@ func (c *ProjectsLocationsApisVersionsListCall) Do(opts ...googleapi.CallOption)
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8599,7 +8777,7 @@ func (c *ProjectsLocationsApisVersionsListCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of versions. Format: projects/*/locations/*/apis/*",
+	//       "description": "Required. The parent, which owns this collection of versions. Format: `projects/*/locations/*/apis/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+$",
 	//       "required": true,
@@ -8649,7 +8827,7 @@ type ProjectsLocationsApisVersionsPatchCall struct {
 	header_    http.Header
 }
 
-// Patch: UpdateApiVersion can be used to modify a specified version.
+// Patch: Used to modify a specified version.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisVersionsService) Patch(name string, apiversion *ApiVersion) *ProjectsLocationsApisVersionsPatchCall {
@@ -8670,8 +8848,8 @@ func (c *ProjectsLocationsApisVersionsPatchCall) AllowMissing(allowMissing bool)
 // UpdateMask sets the optional parameter "updateMask": The list of
 // fields to be updated. If omitted, all fields are updated that are set
 // in the request message (fields set to default values are ignored). If
-// a "*" is specified, all fields are updated, including fields that are
-// unspecified/default in the request.
+// an asterisk "*" is specified, all fields are updated, including
+// fields that are unspecified/default in the request.
 func (c *ProjectsLocationsApisVersionsPatchCall) UpdateMask(updateMask string) *ProjectsLocationsApisVersionsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -8744,17 +8922,17 @@ func (c *ProjectsLocationsApisVersionsPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -8768,7 +8946,7 @@ func (c *ProjectsLocationsApisVersionsPatchCall) Do(opts ...googleapi.CallOption
 	}
 	return ret, nil
 	// {
-	//   "description": "UpdateApiVersion can be used to modify a specified version.",
+	//   "description": "Used to modify a specified version.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.patch",
@@ -8789,7 +8967,7 @@ func (c *ProjectsLocationsApisVersionsPatchCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If a \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
+	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If an asterisk \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -8824,9 +9002,10 @@ type ProjectsLocationsApisVersionsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsApisVersionsSetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8901,17 +9080,17 @@ func (c *ProjectsLocationsApisVersionsSetIamPolicyCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8934,7 +9113,7 @@ func (c *ProjectsLocationsApisVersionsSetIamPolicyCall) Do(opts ...googleapi.Cal
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -8973,9 +9152,10 @@ type ProjectsLocationsApisVersionsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsApisVersionsTestIamPermissionsCall {
 	c := &ProjectsLocationsApisVersionsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9050,17 +9230,17 @@ func (c *ProjectsLocationsApisVersionsTestIamPermissionsCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9083,7 +9263,7 @@ func (c *ProjectsLocationsApisVersionsTestIamPermissionsCall) Do(opts ...googlea
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -9115,10 +9295,10 @@ type ProjectsLocationsApisVersionsArtifactsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateArtifact creates a specified artifact.
+// Create: Creates a specified artifact.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisVersionsArtifactsService) Create(parent string, artifact *Artifact) *ProjectsLocationsApisVersionsArtifactsCreateCall {
 	c := &ProjectsLocationsApisVersionsArtifactsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9203,17 +9383,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsCreateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -9227,7 +9407,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsCreateCall) Do(opts ...googleapi.
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateArtifact creates a specified artifact.",
+	//   "description": "Creates a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/artifacts",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.artifacts.create",
@@ -9241,7 +9421,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsCreateCall) Do(opts ...googleapi.
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -9272,10 +9452,10 @@ type ProjectsLocationsApisVersionsArtifactsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteArtifact removes a specified artifact.
+// Delete: Removes a specified artifact.
 //
-// - name: The name of the artifact to delete. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to delete. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisVersionsArtifactsService) Delete(name string) *ProjectsLocationsApisVersionsArtifactsDeleteCall {
 	c := &ProjectsLocationsApisVersionsArtifactsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9344,17 +9524,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsDeleteCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -9368,7 +9548,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsDeleteCall) Do(opts ...googleapi.
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteArtifact removes a specified artifact.",
+	//   "description": "Removes a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.artifacts.delete",
@@ -9377,7 +9557,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsDeleteCall) Do(opts ...googleapi.
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to delete. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to delete. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -9406,10 +9586,10 @@ type ProjectsLocationsApisVersionsArtifactsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetArtifact returns a specified artifact.
+// Get: Returns a specified artifact.
 //
-// - name: The name of the artifact to retrieve. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to retrieve. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisVersionsArtifactsService) Get(name string) *ProjectsLocationsApisVersionsArtifactsGetCall {
 	c := &ProjectsLocationsApisVersionsArtifactsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9491,17 +9671,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -9515,7 +9695,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetCall) Do(opts ...googleapi.Cal
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifact returns a specified artifact.",
+	//   "description": "Returns a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.artifacts.get",
@@ -9524,7 +9704,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetCall) Do(opts ...googleapi.Cal
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to retrieve. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to retrieve. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -9553,13 +9733,13 @@ type ProjectsLocationsApisVersionsArtifactsGetContentsCall struct {
 	header_      http.Header
 }
 
-// GetContents: GetArtifactContents returns the contents of a specified
-// artifact. If artifacts are stored with GZip compression, the default
-// behavior is to return the artifact uncompressed (the mime_type
-// response field indicates the exact format returned).
+// GetContents: Returns the contents of a specified artifact. If
+// artifacts are stored with GZip compression, the default behavior is
+// to return the artifact uncompressed (the mime_type response field
+// indicates the exact format returned).
 //
-// - name: The name of the artifact whose contents should be retrieved.
-//   Format: {parent}/artifacts/*.
+//   - name: The name of the artifact whose contents should be retrieved.
+//     Format: `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisVersionsArtifactsService) GetContents(name string) *ProjectsLocationsApisVersionsArtifactsGetContentsCall {
 	c := &ProjectsLocationsApisVersionsArtifactsGetContentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9641,17 +9821,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetContentsCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &HttpBody{
 		ServerResponse: googleapi.ServerResponse{
@@ -9665,7 +9845,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetContentsCall) Do(opts ...googl
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifactContents returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
+	//   "description": "Returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/artifacts/{artifactsId}:getContents",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.artifacts.getContents",
@@ -9674,7 +9854,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetContentsCall) Do(opts ...googl
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -9707,9 +9887,10 @@ type ProjectsLocationsApisVersionsArtifactsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsArtifactsService) GetIamPolicy(resource string) *ProjectsLocationsApisVersionsArtifactsGetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsArtifactsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9809,17 +9990,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9848,7 +10029,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsGetIamPolicyCall) Do(opts ...goog
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -9877,10 +10058,10 @@ type ProjectsLocationsApisVersionsArtifactsListCall struct {
 	header_      http.Header
 }
 
-// List: ListArtifacts returns matching artifacts.
+// List: Returns matching artifacts.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisVersionsArtifactsService) List(parent string) *ProjectsLocationsApisVersionsArtifactsListCall {
 	c := &ProjectsLocationsApisVersionsArtifactsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9892,6 +10073,14 @@ func (r *ProjectsLocationsApisVersionsArtifactsService) List(parent string) *Pro
 // Language and can refer to all message fields except contents.
 func (c *ProjectsLocationsApisVersionsArtifactsListCall) Filter(filter string) *ProjectsLocationsApisVersionsArtifactsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisVersionsArtifactsListCall) OrderBy(orderBy string) *ProjectsLocationsApisVersionsArtifactsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -9989,17 +10178,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListArtifactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10013,7 +10202,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsListCall) Do(opts ...googleapi.Ca
 	}
 	return ret, nil
 	// {
-	//   "description": "ListArtifacts returns matching artifacts.",
+	//   "description": "Returns matching artifacts.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/artifacts",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.artifacts.list",
@@ -10023,6 +10212,11 @@ func (c *ProjectsLocationsApisVersionsArtifactsListCall) Do(opts ...googleapi.Ca
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields except contents.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -10038,7 +10232,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsListCall) Do(opts ...googleapi.Ca
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -10088,8 +10282,7 @@ type ProjectsLocationsApisVersionsArtifactsReplaceArtifactCall struct {
 	header_    http.Header
 }
 
-// ReplaceArtifact: ReplaceArtifact can be used to replace a specified
-// artifact.
+// ReplaceArtifact: Used to replace a specified artifact.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisVersionsArtifactsService) ReplaceArtifact(name string, artifact *Artifact) *ProjectsLocationsApisVersionsArtifactsReplaceArtifactCall {
@@ -10166,17 +10359,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsReplaceArtifactCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -10190,7 +10383,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsReplaceArtifactCall) Do(opts ...g
 	}
 	return ret, nil
 	// {
-	//   "description": "ReplaceArtifact can be used to replace a specified artifact.",
+	//   "description": "Used to replace a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.artifacts.replaceArtifact",
@@ -10235,9 +10428,10 @@ type ProjectsLocationsApisVersionsArtifactsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsArtifactsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsApisVersionsArtifactsSetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsArtifactsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10312,17 +10506,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsSetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -10345,7 +10539,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsSetIamPolicyCall) Do(opts ...goog
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -10384,9 +10578,10 @@ type ProjectsLocationsApisVersionsArtifactsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsArtifactsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsApisVersionsArtifactsTestIamPermissionsCall {
 	c := &ProjectsLocationsApisVersionsArtifactsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10461,17 +10656,17 @@ func (c *ProjectsLocationsApisVersionsArtifactsTestIamPermissionsCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10494,7 +10689,7 @@ func (c *ProjectsLocationsApisVersionsArtifactsTestIamPermissionsCall) Do(opts .
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -10526,10 +10721,10 @@ type ProjectsLocationsApisVersionsSpecsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateApiSpec creates a specified spec.
+// Create: Creates a specified spec.
 //
-// - parent: The parent, which owns this collection of specs. Format:
-//   projects/*/locations/*/apis/*/versions/*.
+//   - parent: The parent, which owns this collection of specs. Format:
+//     `projects/*/locations/*/apis/*/versions/*`.
 func (r *ProjectsLocationsApisVersionsSpecsService) Create(parent string, apispec *ApiSpec) *ProjectsLocationsApisVersionsSpecsCreateCall {
 	c := &ProjectsLocationsApisVersionsSpecsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10614,17 +10809,17 @@ func (c *ProjectsLocationsApisVersionsSpecsCreateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiSpec{
 		ServerResponse: googleapi.ServerResponse{
@@ -10638,7 +10833,7 @@ func (c *ProjectsLocationsApisVersionsSpecsCreateCall) Do(opts ...googleapi.Call
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateApiSpec creates a specified spec.",
+	//   "description": "Creates a specified spec.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.create",
@@ -10652,7 +10847,7 @@ func (c *ProjectsLocationsApisVersionsSpecsCreateCall) Do(opts ...googleapi.Call
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of specs. Format: projects/*/locations/*/apis/*/versions/*",
+	//       "description": "Required. The parent, which owns this collection of specs. Format: `projects/*/locations/*/apis/*/versions/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -10683,11 +10878,11 @@ type ProjectsLocationsApisVersionsSpecsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteApiSpec removes a specified spec, all revisions, and
-// all child resources (e.g. artifacts).
+// Delete: Removes a specified spec, all revisions, and all child
+// resources (e.g., artifacts).
 //
-// - name: The name of the spec to delete. Format:
-//   projects/*/locations/*/apis/*/versions/*/specs/*.
+//   - name: The name of the spec to delete. Format:
+//     `projects/*/locations/*/apis/*/versions/*/specs/*`.
 func (r *ProjectsLocationsApisVersionsSpecsService) Delete(name string) *ProjectsLocationsApisVersionsSpecsDeleteCall {
 	c := &ProjectsLocationsApisVersionsSpecsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10764,17 +10959,17 @@ func (c *ProjectsLocationsApisVersionsSpecsDeleteCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -10788,7 +10983,7 @@ func (c *ProjectsLocationsApisVersionsSpecsDeleteCall) Do(opts ...googleapi.Call
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteApiSpec removes a specified spec, all revisions, and all child resources (e.g. artifacts).",
+	//   "description": "Removes a specified spec, all revisions, and all child resources (e.g., artifacts).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.delete",
@@ -10802,7 +10997,7 @@ func (c *ProjectsLocationsApisVersionsSpecsDeleteCall) Do(opts ...googleapi.Call
 	//       "type": "boolean"
 	//     },
 	//     "name": {
-	//       "description": "Required. The name of the spec to delete. Format: projects/*/locations/*/apis/*/versions/*/specs/*",
+	//       "description": "Required. The name of the spec to delete. Format: `projects/*/locations/*/apis/*/versions/*/specs/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -10830,12 +11025,12 @@ type ProjectsLocationsApisVersionsSpecsDeleteRevisionCall struct {
 	header_    http.Header
 }
 
-// DeleteRevision: DeleteApiSpecRevision deletes a revision of a spec.
+// DeleteRevision: Deletes a revision of a spec.
 //
-// - name: The name of the spec revision to be deleted, with a revision
-//   ID explicitly included. Example:
-//   projects/sample/locations/global/apis/petstore/versions/1.0.0/specs/
-//   openapi.yaml@c7cfa2a8.
+//   - name: The name of the spec revision to be deleted, with a revision
+//     ID explicitly included. Example:
+//     `projects/sample/locations/global/apis/petstore/versions/1.0.0/specs
+//     /openapi.yaml@c7cfa2a8`.
 func (r *ProjectsLocationsApisVersionsSpecsService) DeleteRevision(name string) *ProjectsLocationsApisVersionsSpecsDeleteRevisionCall {
 	c := &ProjectsLocationsApisVersionsSpecsDeleteRevisionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10904,17 +11099,17 @@ func (c *ProjectsLocationsApisVersionsSpecsDeleteRevisionCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiSpec{
 		ServerResponse: googleapi.ServerResponse{
@@ -10928,7 +11123,7 @@ func (c *ProjectsLocationsApisVersionsSpecsDeleteRevisionCall) Do(opts ...google
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteApiSpecRevision deletes a revision of a spec.",
+	//   "description": "Deletes a revision of a spec.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}:deleteRevision",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.deleteRevision",
@@ -10937,7 +11132,7 @@ func (c *ProjectsLocationsApisVersionsSpecsDeleteRevisionCall) Do(opts ...google
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the spec revision to be deleted, with a revision ID explicitly included. Example: projects/sample/locations/global/apis/petstore/versions/1.0.0/specs/openapi.yaml@c7cfa2a8",
+	//       "description": "Required. The name of the spec revision to be deleted, with a revision ID explicitly included. Example: `projects/sample/locations/global/apis/petstore/versions/1.0.0/specs/openapi.yaml@c7cfa2a8`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -10966,10 +11161,10 @@ type ProjectsLocationsApisVersionsSpecsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetApiSpec returns a specified spec.
+// Get: Returns a specified spec.
 //
-// - name: The name of the spec to retrieve. Format:
-//   projects/*/locations/*/apis/*/versions/*/specs/*.
+//   - name: The name of the spec to retrieve. Format:
+//     `projects/*/locations/*/apis/*/versions/*/specs/*`.
 func (r *ProjectsLocationsApisVersionsSpecsService) Get(name string) *ProjectsLocationsApisVersionsSpecsGetCall {
 	c := &ProjectsLocationsApisVersionsSpecsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11051,17 +11246,17 @@ func (c *ProjectsLocationsApisVersionsSpecsGetCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiSpec{
 		ServerResponse: googleapi.ServerResponse{
@@ -11075,7 +11270,7 @@ func (c *ProjectsLocationsApisVersionsSpecsGetCall) Do(opts ...googleapi.CallOpt
 	}
 	return ret, nil
 	// {
-	//   "description": "GetApiSpec returns a specified spec.",
+	//   "description": "Returns a specified spec.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.get",
@@ -11084,7 +11279,7 @@ func (c *ProjectsLocationsApisVersionsSpecsGetCall) Do(opts ...googleapi.CallOpt
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the spec to retrieve. Format: projects/*/locations/*/apis/*/versions/*/specs/*",
+	//       "description": "Required. The name of the spec to retrieve. Format: `projects/*/locations/*/apis/*/versions/*/specs/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -11113,13 +11308,13 @@ type ProjectsLocationsApisVersionsSpecsGetContentsCall struct {
 	header_      http.Header
 }
 
-// GetContents: GetApiSpecContents returns the contents of a specified
-// spec. If specs are stored with GZip compression, the default behavior
-// is to return the spec uncompressed (the mime_type response field
-// indicates the exact format returned).
+// GetContents: Returns the contents of a specified spec. If specs are
+// stored with GZip compression, the default behavior is to return the
+// spec uncompressed (the mime_type response field indicates the exact
+// format returned).
 //
-// - name: The name of the spec whose contents should be retrieved.
-//   Format: projects/*/locations/*/apis/*/versions/*/specs/*.
+//   - name: The name of the spec whose contents should be retrieved.
+//     Format: `projects/*/locations/*/apis/*/versions/*/specs/*`.
 func (r *ProjectsLocationsApisVersionsSpecsService) GetContents(name string) *ProjectsLocationsApisVersionsSpecsGetContentsCall {
 	c := &ProjectsLocationsApisVersionsSpecsGetContentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11201,17 +11396,17 @@ func (c *ProjectsLocationsApisVersionsSpecsGetContentsCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &HttpBody{
 		ServerResponse: googleapi.ServerResponse{
@@ -11225,7 +11420,7 @@ func (c *ProjectsLocationsApisVersionsSpecsGetContentsCall) Do(opts ...googleapi
 	}
 	return ret, nil
 	// {
-	//   "description": "GetApiSpecContents returns the contents of a specified spec. If specs are stored with GZip compression, the default behavior is to return the spec uncompressed (the mime_type response field indicates the exact format returned).",
+	//   "description": "Returns the contents of a specified spec. If specs are stored with GZip compression, the default behavior is to return the spec uncompressed (the mime_type response field indicates the exact format returned).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}:getContents",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.getContents",
@@ -11234,7 +11429,7 @@ func (c *ProjectsLocationsApisVersionsSpecsGetContentsCall) Do(opts ...googleapi
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the spec whose contents should be retrieved. Format: projects/*/locations/*/apis/*/versions/*/specs/*",
+	//       "description": "Required. The name of the spec whose contents should be retrieved. Format: `projects/*/locations/*/apis/*/versions/*/specs/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -11267,9 +11462,10 @@ type ProjectsLocationsApisVersionsSpecsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsSpecsService) GetIamPolicy(resource string) *ProjectsLocationsApisVersionsSpecsGetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsSpecsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -11369,17 +11565,17 @@ func (c *ProjectsLocationsApisVersionsSpecsGetIamPolicyCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -11408,7 +11604,7 @@ func (c *ProjectsLocationsApisVersionsSpecsGetIamPolicyCall) Do(opts ...googleap
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -11437,10 +11633,10 @@ type ProjectsLocationsApisVersionsSpecsListCall struct {
 	header_      http.Header
 }
 
-// List: ListApiSpecs returns matching specs.
+// List: Returns matching specs.
 //
-// - parent: The parent, which owns this collection of specs. Format:
-//   projects/*/locations/*/apis/*/versions/*.
+//   - parent: The parent, which owns this collection of specs. Format:
+//     `projects/*/locations/*/apis/*/versions/*`.
 func (r *ProjectsLocationsApisVersionsSpecsService) List(parent string) *ProjectsLocationsApisVersionsSpecsListCall {
 	c := &ProjectsLocationsApisVersionsSpecsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -11452,6 +11648,14 @@ func (r *ProjectsLocationsApisVersionsSpecsService) List(parent string) *Project
 // Language and can refer to all message fields except contents.
 func (c *ProjectsLocationsApisVersionsSpecsListCall) Filter(filter string) *ProjectsLocationsApisVersionsSpecsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisVersionsSpecsListCall) OrderBy(orderBy string) *ProjectsLocationsApisVersionsSpecsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -11549,17 +11753,17 @@ func (c *ProjectsLocationsApisVersionsSpecsListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListApiSpecsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11573,7 +11777,7 @@ func (c *ProjectsLocationsApisVersionsSpecsListCall) Do(opts ...googleapi.CallOp
 	}
 	return ret, nil
 	// {
-	//   "description": "ListApiSpecs returns matching specs.",
+	//   "description": "Returns matching specs.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.list",
@@ -11583,6 +11787,11 @@ func (c *ProjectsLocationsApisVersionsSpecsListCall) Do(opts ...googleapi.CallOp
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields except contents.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -11598,7 +11807,7 @@ func (c *ProjectsLocationsApisVersionsSpecsListCall) Do(opts ...googleapi.CallOp
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of specs. Format: projects/*/locations/*/apis/*/versions/*",
+	//       "description": "Required. The parent, which owns this collection of specs. Format: `projects/*/locations/*/apis/*/versions/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+$",
 	//       "required": true,
@@ -11648,13 +11857,21 @@ type ProjectsLocationsApisVersionsSpecsListRevisionsCall struct {
 	header_      http.Header
 }
 
-// ListRevisions: ListApiSpecRevisions lists all revisions of a spec.
-// Revisions are returned in descending order of revision creation time.
+// ListRevisions: Lists all revisions of a spec. Revisions are returned
+// in descending order of revision creation time.
 //
 // - name: The name of the spec to list revisions for.
 func (r *ProjectsLocationsApisVersionsSpecsService) ListRevisions(name string) *ProjectsLocationsApisVersionsSpecsListRevisionsCall {
 	c := &ProjectsLocationsApisVersionsSpecsListRevisionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
+	return c
+}
+
+// Filter sets the optional parameter "filter": An expression that can
+// be used to filter the list. Filters use the Common Expression
+// Language and can refer to all message fields.
+func (c *ProjectsLocationsApisVersionsSpecsListRevisionsCall) Filter(filter string) *ProjectsLocationsApisVersionsSpecsListRevisionsCall {
+	c.urlParams_.Set("filter", filter)
 	return c
 }
 
@@ -11748,17 +11965,17 @@ func (c *ProjectsLocationsApisVersionsSpecsListRevisionsCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListApiSpecRevisionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11772,7 +11989,7 @@ func (c *ProjectsLocationsApisVersionsSpecsListRevisionsCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "ListApiSpecRevisions lists all revisions of a spec. Revisions are returned in descending order of revision creation time.",
+	//   "description": "Lists all revisions of a spec. Revisions are returned in descending order of revision creation time.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}:listRevisions",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.listRevisions",
@@ -11780,6 +11997,11 @@ func (c *ProjectsLocationsApisVersionsSpecsListRevisionsCall) Do(opts ...googlea
 	//     "name"
 	//   ],
 	//   "parameters": {
+	//     "filter": {
+	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
 	//     "name": {
 	//       "description": "Required. The name of the spec to list revisions for.",
 	//       "location": "path",
@@ -11842,7 +12064,7 @@ type ProjectsLocationsApisVersionsSpecsPatchCall struct {
 	header_    http.Header
 }
 
-// Patch: UpdateApiSpec can be used to modify a specified spec.
+// Patch: Used to modify a specified spec.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisVersionsSpecsService) Patch(name string, apispec *ApiSpec) *ProjectsLocationsApisVersionsSpecsPatchCall {
@@ -11863,8 +12085,8 @@ func (c *ProjectsLocationsApisVersionsSpecsPatchCall) AllowMissing(allowMissing 
 // UpdateMask sets the optional parameter "updateMask": The list of
 // fields to be updated. If omitted, all fields are updated that are set
 // in the request message (fields set to default values are ignored). If
-// a "*" is specified, all fields are updated, including fields that are
-// unspecified/default in the request.
+// an asterisk "*" is specified, all fields are updated, including
+// fields that are unspecified/default in the request.
 func (c *ProjectsLocationsApisVersionsSpecsPatchCall) UpdateMask(updateMask string) *ProjectsLocationsApisVersionsSpecsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -11937,17 +12159,17 @@ func (c *ProjectsLocationsApisVersionsSpecsPatchCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiSpec{
 		ServerResponse: googleapi.ServerResponse{
@@ -11961,7 +12183,7 @@ func (c *ProjectsLocationsApisVersionsSpecsPatchCall) Do(opts ...googleapi.CallO
 	}
 	return ret, nil
 	// {
-	//   "description": "UpdateApiSpec can be used to modify a specified spec.",
+	//   "description": "Used to modify a specified spec.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.patch",
@@ -11982,7 +12204,7 @@ func (c *ProjectsLocationsApisVersionsSpecsPatchCall) Do(opts ...googleapi.CallO
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If a \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
+	//       "description": "The list of fields to be updated. If omitted, all fields are updated that are set in the request message (fields set to default values are ignored). If an asterisk \"*\" is specified, all fields are updated, including fields that are unspecified/default in the request.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -12013,9 +12235,8 @@ type ProjectsLocationsApisVersionsSpecsRollbackCall struct {
 	header_                http.Header
 }
 
-// Rollback: RollbackApiSpec sets the current revision to a specified
-// prior revision. Note that this creates a new revision with a new
-// revision ID.
+// Rollback: Sets the current revision to a specified prior revision.
+// Note that this creates a new revision with a new revision ID.
 //
 // - name: The spec being rolled back.
 func (r *ProjectsLocationsApisVersionsSpecsService) Rollback(name string, rollbackapispecrequest *RollbackApiSpecRequest) *ProjectsLocationsApisVersionsSpecsRollbackCall {
@@ -12092,17 +12313,17 @@ func (c *ProjectsLocationsApisVersionsSpecsRollbackCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiSpec{
 		ServerResponse: googleapi.ServerResponse{
@@ -12116,7 +12337,7 @@ func (c *ProjectsLocationsApisVersionsSpecsRollbackCall) Do(opts ...googleapi.Ca
 	}
 	return ret, nil
 	// {
-	//   "description": "RollbackApiSpec sets the current revision to a specified prior revision. Note that this creates a new revision with a new revision ID.",
+	//   "description": "Sets the current revision to a specified prior revision. Note that this creates a new revision with a new revision ID.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}:rollback",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.rollback",
@@ -12161,9 +12382,10 @@ type ProjectsLocationsApisVersionsSpecsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsSpecsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsApisVersionsSpecsSetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsSpecsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -12238,17 +12460,17 @@ func (c *ProjectsLocationsApisVersionsSpecsSetIamPolicyCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -12271,7 +12493,7 @@ func (c *ProjectsLocationsApisVersionsSpecsSetIamPolicyCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -12303,8 +12525,7 @@ type ProjectsLocationsApisVersionsSpecsTagRevisionCall struct {
 	header_                   http.Header
 }
 
-// TagRevision: TagApiSpecRevision adds a tag to a specified revision of
-// a spec.
+// TagRevision: Adds a tag to a specified revision of a spec.
 //
 // - name: The name of the spec to be tagged, including the revision ID.
 func (r *ProjectsLocationsApisVersionsSpecsService) TagRevision(name string, tagapispecrevisionrequest *TagApiSpecRevisionRequest) *ProjectsLocationsApisVersionsSpecsTagRevisionCall {
@@ -12381,17 +12602,17 @@ func (c *ProjectsLocationsApisVersionsSpecsTagRevisionCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApiSpec{
 		ServerResponse: googleapi.ServerResponse{
@@ -12405,7 +12626,7 @@ func (c *ProjectsLocationsApisVersionsSpecsTagRevisionCall) Do(opts ...googleapi
 	}
 	return ret, nil
 	// {
-	//   "description": "TagApiSpecRevision adds a tag to a specified revision of a spec.",
+	//   "description": "Adds a tag to a specified revision of a spec.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}:tagRevision",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.tagRevision",
@@ -12453,9 +12674,10 @@ type ProjectsLocationsApisVersionsSpecsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsSpecsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsApisVersionsSpecsTestIamPermissionsCall {
 	c := &ProjectsLocationsApisVersionsSpecsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -12530,17 +12752,17 @@ func (c *ProjectsLocationsApisVersionsSpecsTestIamPermissionsCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12563,7 +12785,7 @@ func (c *ProjectsLocationsApisVersionsSpecsTestIamPermissionsCall) Do(opts ...go
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -12595,10 +12817,10 @@ type ProjectsLocationsApisVersionsSpecsArtifactsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateArtifact creates a specified artifact.
+// Create: Creates a specified artifact.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) Create(parent string, artifact *Artifact) *ProjectsLocationsApisVersionsSpecsArtifactsCreateCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12683,17 +12905,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsCreateCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -12707,7 +12929,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsCreateCall) Do(opts ...googl
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateArtifact creates a specified artifact.",
+	//   "description": "Creates a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}/artifacts",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.artifacts.create",
@@ -12721,7 +12943,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsCreateCall) Do(opts ...googl
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -12752,10 +12974,10 @@ type ProjectsLocationsApisVersionsSpecsArtifactsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteArtifact removes a specified artifact.
+// Delete: Removes a specified artifact.
 //
-// - name: The name of the artifact to delete. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to delete. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) Delete(name string) *ProjectsLocationsApisVersionsSpecsArtifactsDeleteCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12824,17 +13046,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsDeleteCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -12848,7 +13070,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsDeleteCall) Do(opts ...googl
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteArtifact removes a specified artifact.",
+	//   "description": "Removes a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.artifacts.delete",
@@ -12857,7 +13079,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsDeleteCall) Do(opts ...googl
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to delete. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to delete. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -12886,10 +13108,10 @@ type ProjectsLocationsApisVersionsSpecsArtifactsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetArtifact returns a specified artifact.
+// Get: Returns a specified artifact.
 //
-// - name: The name of the artifact to retrieve. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to retrieve. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) Get(name string) *ProjectsLocationsApisVersionsSpecsArtifactsGetCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12971,17 +13193,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -12995,7 +13217,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetCall) Do(opts ...googleap
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifact returns a specified artifact.",
+	//   "description": "Returns a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.artifacts.get",
@@ -13004,7 +13226,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to retrieve. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to retrieve. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -13033,13 +13255,13 @@ type ProjectsLocationsApisVersionsSpecsArtifactsGetContentsCall struct {
 	header_      http.Header
 }
 
-// GetContents: GetArtifactContents returns the contents of a specified
-// artifact. If artifacts are stored with GZip compression, the default
-// behavior is to return the artifact uncompressed (the mime_type
-// response field indicates the exact format returned).
+// GetContents: Returns the contents of a specified artifact. If
+// artifacts are stored with GZip compression, the default behavior is
+// to return the artifact uncompressed (the mime_type response field
+// indicates the exact format returned).
 //
-// - name: The name of the artifact whose contents should be retrieved.
-//   Format: {parent}/artifacts/*.
+//   - name: The name of the artifact whose contents should be retrieved.
+//     Format: `{parent}/artifacts/*`.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) GetContents(name string) *ProjectsLocationsApisVersionsSpecsArtifactsGetContentsCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsGetContentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13121,17 +13343,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetContentsCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &HttpBody{
 		ServerResponse: googleapi.ServerResponse{
@@ -13145,7 +13367,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetContentsCall) Do(opts ...
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifactContents returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
+	//   "description": "Returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}/artifacts/{artifactsId}:getContents",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.artifacts.getContents",
@@ -13154,7 +13376,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetContentsCall) Do(opts ...
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -13187,9 +13409,10 @@ type ProjectsLocationsApisVersionsSpecsArtifactsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) GetIamPolicy(resource string) *ProjectsLocationsApisVersionsSpecsArtifactsGetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -13289,17 +13512,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetIamPolicyCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -13328,7 +13551,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsGetIamPolicyCall) Do(opts ..
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -13357,10 +13580,10 @@ type ProjectsLocationsApisVersionsSpecsArtifactsListCall struct {
 	header_      http.Header
 }
 
-// List: ListArtifacts returns matching artifacts.
+// List: Returns matching artifacts.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) List(parent string) *ProjectsLocationsApisVersionsSpecsArtifactsListCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -13372,6 +13595,14 @@ func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) List(parent string)
 // Language and can refer to all message fields except contents.
 func (c *ProjectsLocationsApisVersionsSpecsArtifactsListCall) Filter(filter string) *ProjectsLocationsApisVersionsSpecsArtifactsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsApisVersionsSpecsArtifactsListCall) OrderBy(orderBy string) *ProjectsLocationsApisVersionsSpecsArtifactsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -13469,17 +13700,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsListCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListArtifactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13493,7 +13724,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsListCall) Do(opts ...googlea
 	}
 	return ret, nil
 	// {
-	//   "description": "ListArtifacts returns matching artifacts.",
+	//   "description": "Returns matching artifacts.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}/artifacts",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.artifacts.list",
@@ -13503,6 +13734,11 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsListCall) Do(opts ...googlea
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields except contents.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -13518,7 +13754,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsListCall) Do(opts ...googlea
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+$",
 	//       "required": true,
@@ -13568,8 +13804,7 @@ type ProjectsLocationsApisVersionsSpecsArtifactsReplaceArtifactCall struct {
 	header_    http.Header
 }
 
-// ReplaceArtifact: ReplaceArtifact can be used to replace a specified
-// artifact.
+// ReplaceArtifact: Used to replace a specified artifact.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) ReplaceArtifact(name string, artifact *Artifact) *ProjectsLocationsApisVersionsSpecsArtifactsReplaceArtifactCall {
@@ -13646,17 +13881,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsReplaceArtifactCall) Do(opts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -13670,7 +13905,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsReplaceArtifactCall) Do(opts
 	}
 	return ret, nil
 	// {
-	//   "description": "ReplaceArtifact can be used to replace a specified artifact.",
+	//   "description": "Used to replace a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/apis/{apisId}/versions/{versionsId}/specs/{specsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "apigeeregistry.projects.locations.apis.versions.specs.artifacts.replaceArtifact",
@@ -13715,9 +13950,10 @@ type ProjectsLocationsApisVersionsSpecsArtifactsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsApisVersionsSpecsArtifactsSetIamPolicyCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -13792,17 +14028,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsSetIamPolicyCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -13825,7 +14061,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsSetIamPolicyCall) Do(opts ..
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -13864,9 +14100,10 @@ type ProjectsLocationsApisVersionsSpecsArtifactsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsApisVersionsSpecsArtifactsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsApisVersionsSpecsArtifactsTestIamPermissionsCall {
 	c := &ProjectsLocationsApisVersionsSpecsArtifactsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -13941,17 +14178,17 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsTestIamPermissionsCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13974,7 +14211,7 @@ func (c *ProjectsLocationsApisVersionsSpecsArtifactsTestIamPermissionsCall) Do(o
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/apis/[^/]+/versions/[^/]+/specs/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -14006,10 +14243,10 @@ type ProjectsLocationsArtifactsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: CreateArtifact creates a specified artifact.
+// Create: Creates a specified artifact.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsArtifactsService) Create(parent string, artifact *Artifact) *ProjectsLocationsArtifactsCreateCall {
 	c := &ProjectsLocationsArtifactsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14094,17 +14331,17 @@ func (c *ProjectsLocationsArtifactsCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -14118,7 +14355,7 @@ func (c *ProjectsLocationsArtifactsCreateCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "CreateArtifact creates a specified artifact.",
+	//   "description": "Creates a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/artifacts",
 	//   "httpMethod": "POST",
 	//   "id": "apigeeregistry.projects.locations.artifacts.create",
@@ -14132,7 +14369,7 @@ func (c *ProjectsLocationsArtifactsCreateCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -14163,10 +14400,10 @@ type ProjectsLocationsArtifactsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: DeleteArtifact removes a specified artifact.
+// Delete: Removes a specified artifact.
 //
-// - name: The name of the artifact to delete. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to delete. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsArtifactsService) Delete(name string) *ProjectsLocationsArtifactsDeleteCall {
 	c := &ProjectsLocationsArtifactsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14235,17 +14472,17 @@ func (c *ProjectsLocationsArtifactsDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -14259,7 +14496,7 @@ func (c *ProjectsLocationsArtifactsDeleteCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "DeleteArtifact removes a specified artifact.",
+	//   "description": "Removes a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "apigeeregistry.projects.locations.artifacts.delete",
@@ -14268,7 +14505,7 @@ func (c *ProjectsLocationsArtifactsDeleteCall) Do(opts ...googleapi.CallOption) 
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to delete. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to delete. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -14297,10 +14534,10 @@ type ProjectsLocationsArtifactsGetCall struct {
 	header_      http.Header
 }
 
-// Get: GetArtifact returns a specified artifact.
+// Get: Returns a specified artifact.
 //
-// - name: The name of the artifact to retrieve. Format:
-//   {parent}/artifacts/*.
+//   - name: The name of the artifact to retrieve. Format:
+//     `{parent}/artifacts/*`.
 func (r *ProjectsLocationsArtifactsService) Get(name string) *ProjectsLocationsArtifactsGetCall {
 	c := &ProjectsLocationsArtifactsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14382,17 +14619,17 @@ func (c *ProjectsLocationsArtifactsGetCall) Do(opts ...googleapi.CallOption) (*A
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -14406,7 +14643,7 @@ func (c *ProjectsLocationsArtifactsGetCall) Do(opts ...googleapi.CallOption) (*A
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifact returns a specified artifact.",
+	//   "description": "Returns a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.artifacts.get",
@@ -14415,7 +14652,7 @@ func (c *ProjectsLocationsArtifactsGetCall) Do(opts ...googleapi.CallOption) (*A
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact to retrieve. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact to retrieve. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -14444,13 +14681,13 @@ type ProjectsLocationsArtifactsGetContentsCall struct {
 	header_      http.Header
 }
 
-// GetContents: GetArtifactContents returns the contents of a specified
-// artifact. If artifacts are stored with GZip compression, the default
-// behavior is to return the artifact uncompressed (the mime_type
-// response field indicates the exact format returned).
+// GetContents: Returns the contents of a specified artifact. If
+// artifacts are stored with GZip compression, the default behavior is
+// to return the artifact uncompressed (the mime_type response field
+// indicates the exact format returned).
 //
-// - name: The name of the artifact whose contents should be retrieved.
-//   Format: {parent}/artifacts/*.
+//   - name: The name of the artifact whose contents should be retrieved.
+//     Format: `{parent}/artifacts/*`.
 func (r *ProjectsLocationsArtifactsService) GetContents(name string) *ProjectsLocationsArtifactsGetContentsCall {
 	c := &ProjectsLocationsArtifactsGetContentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14532,17 +14769,17 @@ func (c *ProjectsLocationsArtifactsGetContentsCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &HttpBody{
 		ServerResponse: googleapi.ServerResponse{
@@ -14556,7 +14793,7 @@ func (c *ProjectsLocationsArtifactsGetContentsCall) Do(opts ...googleapi.CallOpt
 	}
 	return ret, nil
 	// {
-	//   "description": "GetArtifactContents returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
+	//   "description": "Returns the contents of a specified artifact. If artifacts are stored with GZip compression, the default behavior is to return the artifact uncompressed (the mime_type response field indicates the exact format returned).",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/artifacts/{artifactsId}:getContents",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.artifacts.getContents",
@@ -14565,7 +14802,7 @@ func (c *ProjectsLocationsArtifactsGetContentsCall) Do(opts ...googleapi.CallOpt
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: {parent}/artifacts/*",
+	//       "description": "Required. The name of the artifact whose contents should be retrieved. Format: `{parent}/artifacts/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -14598,9 +14835,10 @@ type ProjectsLocationsArtifactsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsArtifactsService) GetIamPolicy(resource string) *ProjectsLocationsArtifactsGetIamPolicyCall {
 	c := &ProjectsLocationsArtifactsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -14700,17 +14938,17 @@ func (c *ProjectsLocationsArtifactsGetIamPolicyCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -14739,7 +14977,7 @@ func (c *ProjectsLocationsArtifactsGetIamPolicyCall) Do(opts ...googleapi.CallOp
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -14768,10 +15006,10 @@ type ProjectsLocationsArtifactsListCall struct {
 	header_      http.Header
 }
 
-// List: ListArtifacts returns matching artifacts.
+// List: Returns matching artifacts.
 //
-// - parent: The parent, which owns this collection of artifacts.
-//   Format: {parent}.
+//   - parent: The parent, which owns this collection of artifacts.
+//     Format: `{parent}`.
 func (r *ProjectsLocationsArtifactsService) List(parent string) *ProjectsLocationsArtifactsListCall {
 	c := &ProjectsLocationsArtifactsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14783,6 +15021,14 @@ func (r *ProjectsLocationsArtifactsService) List(parent string) *ProjectsLocatio
 // Language and can refer to all message fields except contents.
 func (c *ProjectsLocationsArtifactsListCall) Filter(filter string) *ProjectsLocationsArtifactsListCall {
 	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": A comma-separated list
+// of fields, e.g. "foo,bar" Fields can be sorted in descending order
+// using the "desc" identifier, e.g. "foo desc,bar"
+func (c *ProjectsLocationsArtifactsListCall) OrderBy(orderBy string) *ProjectsLocationsArtifactsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
@@ -14880,17 +15126,17 @@ func (c *ProjectsLocationsArtifactsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListArtifactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14904,7 +15150,7 @@ func (c *ProjectsLocationsArtifactsListCall) Do(opts ...googleapi.CallOption) (*
 	}
 	return ret, nil
 	// {
-	//   "description": "ListArtifacts returns matching artifacts.",
+	//   "description": "Returns matching artifacts.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/artifacts",
 	//   "httpMethod": "GET",
 	//   "id": "apigeeregistry.projects.locations.artifacts.list",
@@ -14914,6 +15160,11 @@ func (c *ProjectsLocationsArtifactsListCall) Do(opts ...googleapi.CallOption) (*
 	//   "parameters": {
 	//     "filter": {
 	//       "description": "An expression that can be used to filter the list. Filters use the Common Expression Language and can refer to all message fields except contents.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "A comma-separated list of fields, e.g. \"foo,bar\" Fields can be sorted in descending order using the \"desc\" identifier, e.g. \"foo desc,bar\"",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -14929,7 +15180,7 @@ func (c *ProjectsLocationsArtifactsListCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The parent, which owns this collection of artifacts. Format: {parent}",
+	//       "description": "Required. The parent, which owns this collection of artifacts. Format: `{parent}`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -14979,8 +15230,7 @@ type ProjectsLocationsArtifactsReplaceArtifactCall struct {
 	header_    http.Header
 }
 
-// ReplaceArtifact: ReplaceArtifact can be used to replace a specified
-// artifact.
+// ReplaceArtifact: Used to replace a specified artifact.
 //
 // - name: Resource name.
 func (r *ProjectsLocationsArtifactsService) ReplaceArtifact(name string, artifact *Artifact) *ProjectsLocationsArtifactsReplaceArtifactCall {
@@ -15057,17 +15307,17 @@ func (c *ProjectsLocationsArtifactsReplaceArtifactCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Artifact{
 		ServerResponse: googleapi.ServerResponse{
@@ -15081,7 +15331,7 @@ func (c *ProjectsLocationsArtifactsReplaceArtifactCall) Do(opts ...googleapi.Cal
 	}
 	return ret, nil
 	// {
-	//   "description": "ReplaceArtifact can be used to replace a specified artifact.",
+	//   "description": "Used to replace a specified artifact.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/artifacts/{artifactsId}",
 	//   "httpMethod": "PUT",
 	//   "id": "apigeeregistry.projects.locations.artifacts.replaceArtifact",
@@ -15126,9 +15376,10 @@ type ProjectsLocationsArtifactsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsArtifactsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsArtifactsSetIamPolicyCall {
 	c := &ProjectsLocationsArtifactsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -15203,17 +15454,17 @@ func (c *ProjectsLocationsArtifactsSetIamPolicyCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -15236,7 +15487,7 @@ func (c *ProjectsLocationsArtifactsSetIamPolicyCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -15275,9 +15526,10 @@ type ProjectsLocationsArtifactsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsArtifactsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsArtifactsTestIamPermissionsCall {
 	c := &ProjectsLocationsArtifactsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -15352,17 +15604,17 @@ func (c *ProjectsLocationsArtifactsTestIamPermissionsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15385,7 +15637,7 @@ func (c *ProjectsLocationsArtifactsTestIamPermissionsCall) Do(opts ...googleapi.
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/artifacts/[^/]+$",
 	//       "required": true,
@@ -15419,8 +15671,8 @@ type ProjectsLocationsInstancesCreateCall struct {
 
 // Create: Provisions instance resources for the Registry.
 //
-// - parent: Parent resource of the Instance, of the form:
-//   `projects/*/locations/*`.
+//   - parent: Parent resource of the Instance, of the form:
+//     `projects/*/locations/*`.
 func (r *ProjectsLocationsInstancesService) Create(parent string, instance *Instance) *ProjectsLocationsInstancesCreateCall {
 	c := &ProjectsLocationsInstancesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15503,17 +15755,17 @@ func (c *ProjectsLocationsInstancesCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -15574,8 +15826,8 @@ type ProjectsLocationsInstancesDeleteCall struct {
 
 // Delete: Deletes the Registry instance.
 //
-// - name: The name of the Instance to delete. Format:
-//   `projects/*/locations/*/instances/*`.
+//   - name: The name of the Instance to delete. Format:
+//     `projects/*/locations/*/instances/*`.
 func (r *ProjectsLocationsInstancesService) Delete(name string) *ProjectsLocationsInstancesDeleteCall {
 	c := &ProjectsLocationsInstancesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15644,17 +15896,17 @@ func (c *ProjectsLocationsInstancesDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -15708,8 +15960,8 @@ type ProjectsLocationsInstancesGetCall struct {
 
 // Get: Gets details of a single Instance.
 //
-// - name: The name of the Instance to retrieve. Format:
-//   `projects/*/locations/*/instances/*`.
+//   - name: The name of the Instance to retrieve. Format:
+//     `projects/*/locations/*/instances/*`.
 func (r *ProjectsLocationsInstancesService) Get(name string) *ProjectsLocationsInstancesGetCall {
 	c := &ProjectsLocationsInstancesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15791,17 +16043,17 @@ func (c *ProjectsLocationsInstancesGetCall) Do(opts ...googleapi.CallOption) (*I
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Instance{
 		ServerResponse: googleapi.ServerResponse{
@@ -15857,9 +16109,10 @@ type ProjectsLocationsInstancesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesService) GetIamPolicy(resource string) *ProjectsLocationsInstancesGetIamPolicyCall {
 	c := &ProjectsLocationsInstancesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -15959,17 +16212,17 @@ func (c *ProjectsLocationsInstancesGetIamPolicyCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -15998,7 +16251,7 @@ func (c *ProjectsLocationsInstancesGetIamPolicyCall) Do(opts ...googleapi.CallOp
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/instances/[^/]+$",
 	//       "required": true,
@@ -16031,9 +16284,10 @@ type ProjectsLocationsInstancesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsInstancesSetIamPolicyCall {
 	c := &ProjectsLocationsInstancesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -16108,17 +16362,17 @@ func (c *ProjectsLocationsInstancesSetIamPolicyCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -16141,7 +16395,7 @@ func (c *ProjectsLocationsInstancesSetIamPolicyCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/instances/[^/]+$",
 	//       "required": true,
@@ -16180,9 +16434,10 @@ type ProjectsLocationsInstancesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsInstancesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsInstancesTestIamPermissionsCall {
 	c := &ProjectsLocationsInstancesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -16257,17 +16512,17 @@ func (c *ProjectsLocationsInstancesTestIamPermissionsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16290,7 +16545,7 @@ func (c *ProjectsLocationsInstancesTestIamPermissionsCall) Do(opts ...googleapi.
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/instances/[^/]+$",
 	//       "required": true,
@@ -16408,17 +16663,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -16546,17 +16801,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -16694,17 +16949,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -16870,17 +17125,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16973,9 +17228,10 @@ type ProjectsLocationsRuntimeGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRuntimeService) GetIamPolicy(resource string) *ProjectsLocationsRuntimeGetIamPolicyCall {
 	c := &ProjectsLocationsRuntimeGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -17075,17 +17331,17 @@ func (c *ProjectsLocationsRuntimeGetIamPolicyCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -17114,7 +17370,7 @@ func (c *ProjectsLocationsRuntimeGetIamPolicyCall) Do(opts ...googleapi.CallOpti
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/runtime$",
 	//       "required": true,
@@ -17147,9 +17403,10 @@ type ProjectsLocationsRuntimeSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRuntimeService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsRuntimeSetIamPolicyCall {
 	c := &ProjectsLocationsRuntimeSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -17224,17 +17481,17 @@ func (c *ProjectsLocationsRuntimeSetIamPolicyCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -17257,7 +17514,7 @@ func (c *ProjectsLocationsRuntimeSetIamPolicyCall) Do(opts ...googleapi.CallOpti
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/runtime$",
 	//       "required": true,
@@ -17296,9 +17553,10 @@ type ProjectsLocationsRuntimeTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRuntimeService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsRuntimeTestIamPermissionsCall {
 	c := &ProjectsLocationsRuntimeTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -17373,17 +17631,17 @@ func (c *ProjectsLocationsRuntimeTestIamPermissionsCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17406,7 +17664,7 @@ func (c *ProjectsLocationsRuntimeTestIamPermissionsCall) Do(opts ...googleapi.Ca
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/runtime$",
 	//       "required": true,

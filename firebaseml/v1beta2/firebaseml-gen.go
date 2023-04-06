@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://firebase.google.com
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/firebaseml/v1beta2"
-//   ...
-//   ctx := context.Background()
-//   firebasemlService, err := firebaseml.NewService(ctx)
+//	import "google.golang.org/api/firebaseml/v1beta2"
+//	...
+//	ctx := context.Background()
+//	firebasemlService, err := firebaseml.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   firebasemlService, err := firebaseml.NewService(ctx, option.WithAPIKey("AIza..."))
+//	firebasemlService, err := firebaseml.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   firebasemlService, err := firebaseml.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	firebasemlService, err := firebaseml.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package firebaseml // import "google.golang.org/api/firebaseml/v1beta2"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "firebaseml:v1beta2"
 const apiName = "firebaseml"
@@ -574,8 +575,8 @@ type ProjectsModelsCreateCall struct {
 // Create: Creates a model in Firebase ML. The longrunning operation
 // will eventually return a Model
 //
-// - parent: The parent project resource where the model is to be
-//   created. The parent must have the form `projects/{project_id}`.
+//   - parent: The parent project resource where the model is to be
+//     created. The parent must have the form `projects/{project_id}`.
 func (r *ProjectsModelsService) Create(parent string, model *Model) *ProjectsModelsCreateCall {
 	c := &ProjectsModelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -650,17 +651,17 @@ func (c *ProjectsModelsCreateCall) Do(opts ...googleapi.CallOption) (*Operation,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -716,8 +717,8 @@ type ProjectsModelsDeleteCall struct {
 
 // Delete: Deletes a model
 //
-// - name: The name of the model to delete. The name must have the form
-//   `projects/{project_id}/models/{model_id}`.
+//   - name: The name of the model to delete. The name must have the form
+//     `projects/{project_id}/models/{model_id}`.
 func (r *ProjectsModelsService) Delete(name string) *ProjectsModelsDeleteCall {
 	c := &ProjectsModelsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -786,17 +787,17 @@ func (c *ProjectsModelsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -852,8 +853,8 @@ type ProjectsModelsDownloadCall struct {
 // downloading model resources onto devices. It gives very limited
 // information about the model.
 //
-// - name: The name of the model to download. The name must have the
-//   form `projects/{project}/models/{model}`.
+//   - name: The name of the model to download. The name must have the
+//     form `projects/{project}/models/{model}`.
 func (r *ProjectsModelsService) Download(name string) *ProjectsModelsDownloadCall {
 	c := &ProjectsModelsDownloadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -935,17 +936,17 @@ func (c *ProjectsModelsDownloadCall) Do(opts ...googleapi.CallOption) (*Download
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DownloadModelResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -996,8 +997,8 @@ type ProjectsModelsGetCall struct {
 
 // Get: Gets a model resource.
 //
-// - name: The name of the model to get. The name must have the form
-//   `projects/{project_id}/models/{model_id}`.
+//   - name: The name of the model to get. The name must have the form
+//     `projects/{project_id}/models/{model_id}`.
 func (r *ProjectsModelsService) Get(name string) *ProjectsModelsGetCall {
 	c := &ProjectsModelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1079,17 +1080,17 @@ func (c *ProjectsModelsGetCall) Do(opts ...googleapi.CallOption) (*Model, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Model{
 		ServerResponse: googleapi.ServerResponse{
@@ -1143,8 +1144,8 @@ type ProjectsModelsListCall struct {
 
 // List: Lists the models
 //
-// - parent: The name of the parent to list models for. The parent must
-//   have the form `projects/{project_id}'.
+//   - parent: The name of the parent to list models for. The parent must
+//     have the form `projects/{project_id}'.
 func (r *ProjectsModelsService) List(parent string) *ProjectsModelsListCall {
 	c := &ProjectsModelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1247,17 +1248,17 @@ func (c *ProjectsModelsListCall) Do(opts ...googleapi.CallOption) (*ListModelsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListModelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1349,9 +1350,9 @@ type ProjectsModelsPatchCall struct {
 // Patch: Updates a model. The longrunning operation will eventually
 // return a Model.
 //
-// - name: The resource name of the Model. Model names have the form
-//   `projects/{project_id}/models/{model_id}` The name is ignored when
-//   creating a model.
+//   - name: The resource name of the Model. Model names have the form
+//     `projects/{project_id}/models/{model_id}` The name is ignored when
+//     creating a model.
 func (r *ProjectsModelsService) Patch(name string, model *Model) *ProjectsModelsPatchCall {
 	c := &ProjectsModelsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1432,17 +1433,17 @@ func (c *ProjectsModelsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1589,17 +1590,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

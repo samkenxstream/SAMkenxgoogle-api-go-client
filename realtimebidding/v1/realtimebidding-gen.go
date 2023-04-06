@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/authorized-buyers/apis/realtimebidding/reference/rest/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/realtimebidding/v1"
-//   ...
-//   ctx := context.Background()
-//   realtimebiddingService, err := realtimebidding.NewService(ctx)
+//	import "google.golang.org/api/realtimebidding/v1"
+//	...
+//	ctx := context.Background()
+//	realtimebiddingService, err := realtimebidding.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithAPIKey("AIza..."))
+//	realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	realtimebiddingService, err := realtimebidding.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package realtimebidding // import "google.golang.org/api/realtimebidding/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "realtimebidding:v1"
 const apiName = "realtimebidding"
@@ -666,14 +667,14 @@ func (s *BatchRejectPublisherConnectionsResponse) MarshalJSON() ([]byte, error) 
 
 // Bidder: Bidder settings.
 type Bidder struct {
-	// BypassNonguaranteedDealsPretargeting: Output only. A flag to bypass
-	// pretargeting for private auctions and preferred deals. When true, bid
-	// requests from these nonguaranteed deals will always be sent. When
-	// false, bid requests will be subject to regular pretargeting
-	// configurations. Programmatic Guaranteed deals will always be sent to
-	// the bidder, regardless of the value for this flag. Auction packages
-	// are not impacted by this value and are subject to the regular
-	// pretargeting configurations.
+	// BypassNonguaranteedDealsPretargeting: Output only. An option to
+	// bypass pretargeting for private auctions and preferred deals. When
+	// true, bid requests from these nonguaranteed deals will always be
+	// sent. When false, bid requests will be subject to regular
+	// pretargeting configurations. Programmatic Guaranteed deals will
+	// always be sent to the bidder, regardless of the value for this flag.
+	// Auction packages are not impacted by this value and are subject to
+	// the regular pretargeting configurations.
 	BypassNonguaranteedDealsPretargeting bool `json:"bypassNonguaranteedDealsPretargeting,omitempty"`
 
 	// CookieMatchingNetworkId: Output only. The buyer's network ID used for
@@ -733,8 +734,8 @@ func (s *Bidder) MarshalJSON() ([]byte, error) {
 // Buyer: RTB Buyer account information.
 type Buyer struct {
 	// ActiveCreativeCount: Output only. The number of creatives that this
-	// buyer submitted via the API or bid with in the last 30 days. This is
-	// counted against the maximum number of active creatives.
+	// buyer submitted through the API or bid with in the last 30 days. This
+	// is counted against the maximum number of active creatives.
 	ActiveCreativeCount int64 `json:"activeCreativeCount,omitempty,string"`
 
 	// Bidder: Output only. The name of the bidder resource that is
@@ -820,7 +821,7 @@ type Creative struct {
 	AgencyId int64 `json:"agencyId,omitempty,string"`
 
 	// ApiUpdateTime: Output only. The last update timestamp of the creative
-	// via API.
+	// through the API.
 	ApiUpdateTime string `json:"apiUpdateTime,omitempty"`
 
 	// CreativeFormat: Output only. The format of this creative. Can be used
@@ -958,6 +959,15 @@ type Creative struct {
 	// Native: A native creative.
 	Native *NativeContent `json:"native,omitempty"`
 
+	// RenderUrl: Experimental field that can be used during the FLEDGE
+	// Origin Trial (/authorized-buyers/rtb/fledge-origin-trial). The URL to
+	// fetch an interest group ad used in TURTLEDOVE on-device auction
+	// (https://github.com/WICG/turtledove/blob/main/FLEDGE.md#1-browsers-record-interest-groups").
+	// This should be unique among all creatives for a given `accountId`.
+	// This URL should be the same as the URL returned by generateBid()
+	// (https://github.com/WICG/turtledove/blob/main/FLEDGE.md#32-on-device-bidding).
+	RenderUrl string `json:"renderUrl,omitempty"`
+
 	// RestrictedCategories: All restricted categories for the ads that may
 	// be shown from this creative.
 	//
@@ -967,7 +977,7 @@ type Creative struct {
 	//   "ALCOHOL" - The alcohol restricted category.
 	RestrictedCategories []string `json:"restrictedCategories,omitempty"`
 
-	// Version: Output only. The version of this creative. Version for a new
+	// Version: Output only. The version of the creative. Version for a new
 	// creative is 1 and it increments during subsequent creative updates.
 	Version int64 `json:"version,omitempty"`
 
@@ -1269,12 +1279,12 @@ type DestinationNotCrawlableEvidence struct {
 	//
 	// Possible values:
 	//   "REASON_UNSPECIFIED" - Default value that should never be used.
-	//   "UNREACHABLE_ROBOTS" - Site's robots exclusion file (e.g.,
+	//   "UNREACHABLE_ROBOTS" - Site's robots exclusion file (for example,
 	// robots.txt) was unreachable.
 	//   "TIMEOUT_ROBOTS" - Timed out reading site's robots exclusion file
-	// (e.g., robots.txt).
+	// (for example, robots.txt).
 	//   "ROBOTED_DENIED" - Crawler was disallowed by the site's robots
-	// exclusion file (e.g., robots.txt).
+	// exclusion file (for example, robots.txt).
 	//   "UNKNOWN" - Unknown reason.
 	Reason string `json:"reason,omitempty"`
 
@@ -1318,7 +1328,7 @@ type DestinationNotWorkingEvidence struct {
 	// ExpandedUrl: The full non-working URL.
 	ExpandedUrl string `json:"expandedUrl,omitempty"`
 
-	// HttpError: HTTP error code (e.g. 404 or 5xx)
+	// HttpError: HTTP error code (for example, 404 or 5xx)
 	HttpError int64 `json:"httpError,omitempty"`
 
 	// InvalidPage: Page was crawled successfully, but was detected as
@@ -1419,8 +1429,8 @@ func (s *DestinationUrlEvidence) MarshalJSON() ([]byte, error) {
 // DomainCallEvidence: Number of HTTP calls made by a creative, broken
 // down by domain.
 type DomainCallEvidence struct {
-	// TopHttpCallDomains: Breakdown of the most frequent domains called via
-	// HTTP by the creative.
+	// TopHttpCallDomains: Breakdown of the most frequent domains called
+	// through HTTP by the creative.
 	TopHttpCallDomains []*DomainCalls `json:"topHttpCallDomains,omitempty"`
 
 	// TotalHttpCallCount: The total number of HTTP calls made by the
@@ -1538,16 +1548,9 @@ type Endpoint struct {
 	//   "BID_PROTOCOL_UNSPECIFIED" - Placeholder for undefined bid
 	// protocol. This value should not be used.
 	//   "GOOGLE_RTB" - Google RTB protocol / Protobuf encoding.
-	//   "OPENRTB_2_2" - OpenRTB / JSON encoding, specification version 2.2.
-	//   "OPENRTB_2_3" - OpenRTB / JSON encoding, specification version 2.3.
-	//   "OPENRTB_PROTOBUF_2_3" - OpenRTB / Protobuf encoding, specification
-	// version 2.3.
-	//   "OPENRTB_2_4" - OpenRTB / JSON encoding, specification version 2.4.
-	//   "OPENRTB_PROTOBUF_2_4" - OpenRTB / Protobuf encoding, specification
-	// version 2.4.
-	//   "OPENRTB_2_5" - OpenRTB / JSON encoding, specification version 2.5.
-	//   "OPENRTB_PROTOBUF_2_5" - OpenRTB / Protobuf encoding, specification
-	// version 2.5.
+	//   "OPENRTB_JSON" - OpenRTB / JSON encoding (unversioned/latest).
+	//   "OPENRTB_PROTOBUF" - OpenRTB / Protobuf encoding
+	// (unversioned/latest).
 	BidProtocol string `json:"bidProtocol,omitempty"`
 
 	// MaximumQps: The maximum number of queries per second allowed to be
@@ -2223,20 +2226,24 @@ type OpenUserListRequest struct {
 // PolicyCompliance: Policy compliance of the creative for a transaction
 // type or a region.
 type PolicyCompliance struct {
-	// Status: Serving status for the given transaction type (e.g., open
-	// auction, deals) or region (e.g., China, Russia). Can be used to
-	// filter the response of the creatives.list method.
+	// Status: Serving status for the given transaction type (for example,
+	// open auction, deals) or region (for example, China, Russia). Can be
+	// used to filter the response of the creatives.list method.
 	//
 	// Possible values:
 	//   "STATUS_UNSPECIFIED" - Default value that should never be used.
 	//   "PENDING_REVIEW" - Creative is pending review.
 	//   "DISAPPROVED" - Creative cannot serve.
 	//   "APPROVED" - Creative is approved.
+	//   "CERTIFICATE_REQUIRED" - Certificates are required for the creative
+	// to be served in some regions. For more information about creative
+	// certification, refer to:
+	// https://support.google.com/authorizedbuyers/answer/7450776
 	Status string `json:"status,omitempty"`
 
 	// Topics: Topics related to the policy compliance for this transaction
-	// type (e.g., open auction, deals) or region (e.g., China, Russia).
-	// Topics may be present only if status is DISAPPROVED.
+	// type (for example, open auction, deals) or region (for example,
+	// China, Russia). Topics may be present only if status is DISAPPROVED.
 	Topics []*PolicyTopicEntry `json:"topics,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Status") to
@@ -2273,6 +2280,13 @@ type PolicyTopicEntry struct {
 	// HelpCenterUrl: URL of the help center article describing this policy
 	// topic.
 	HelpCenterUrl string `json:"helpCenterUrl,omitempty"`
+
+	// MissingCertificate: Whether or not the policy topic is missing a
+	// certificate. Some policy topics require a certificate to unblock
+	// serving in some regions. For more information about creative
+	// certification, refer to:
+	// https://support.google.com/authorizedbuyers/answer/7450776
+	MissingCertificate bool `json:"missingCertificate,omitempty"`
 
 	// PolicyTopic: Policy topic this entry refers to. For example,
 	// "ALCOHOL", "TRADEMARKS_IN_AD_TEXT", or "DESTINATION_NOT_WORKING". The
@@ -2531,6 +2545,7 @@ type PretargetingConfig struct {
 	// or the `BidRequest.site.publisher.id` / `BidRequest.app.publisher.id`
 	// field on the OpenRTB protocol
 	// (https://developers.google.com/authorized-buyers/rtb/downloads/openrtb-adx-proto).
+	// Publisher IDs will be returned in the order that they were entered.
 	PublisherTargeting *StringTargetingDimension `json:"publisherTargeting,omitempty"`
 
 	// State: Output only. The state of this pretargeting configuration.
@@ -3074,7 +3089,7 @@ type WatchCreativesResponse struct {
 	// `projects/{project_id}/subscriptions/{subscription_id}`. Subscription
 	// is created with pull delivery. All service accounts belonging to the
 	// bidder will have read access to this subscription. Subscriptions that
-	// are inactive for more than 90 days will be disabled. Please use
+	// are inactive for more than 90 days will be disabled. Use
 	// watchCreatives to re-enable the subscription.
 	Subscription string `json:"subscription,omitempty"`
 
@@ -3123,8 +3138,8 @@ type BiddersGetCall struct {
 
 // Get: Gets a bidder account by its name.
 //
-// - name: Name of the bidder to get. Format:
-//   `bidders/{bidderAccountId}`.
+//   - name: Name of the bidder to get. Format:
+//     `bidders/{bidderAccountId}`.
 func (r *BiddersService) Get(name string) *BiddersGetCall {
 	c := &BiddersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3206,17 +3221,17 @@ func (c *BiddersGetCall) Do(opts ...googleapi.CallOption) (*Bidder, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Bidder{
 		ServerResponse: googleapi.ServerResponse{
@@ -3363,17 +3378,17 @@ func (c *BiddersListCall) Do(opts ...googleapi.CallOption) (*ListBiddersResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBiddersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3448,21 +3463,27 @@ type BiddersCreativesListCall struct {
 	header_      http.Header
 }
 
-// List: Lists creatives.
+// List: Lists creatives as they are at the time of the initial request.
+// This call may take multiple hours to complete. For large, paginated
+// requests, this method returns a snapshot of creatives at the time of
+// request for the first page. `lastStatusUpdate` and
+// `creativeServingDecision` may be outdated for creatives on sequential
+// pages. We recommend Google Cloud Pub/Sub
+// (//cloud.google.com/pubsub/docs/overview) to view the latest status.
 //
-// - parent: Name of the parent buyer that owns the creatives. The
-//   pattern for this resource is either `buyers/{buyerAccountId}` or
-//   `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the
-//   `buyerAccountId` can be one of the following: 1. The ID of the
-//   buyer that is accessing their own creatives. 2. The ID of the child
-//   seat buyer under a bidder account. So for listing creatives
-//   pertaining to the child seat buyer (`456`) under bidder account
-//   (`123`), you would use the pattern: `buyers/456`. 3. The ID of the
-//   bidder itself. So for listing creatives pertaining to bidder
-//   (`123`), you would use `buyers/123`. If you want to access all
-//   creatives pertaining to both the bidder and all of its child seat
-//   accounts, you would use `bidders/{bidderAccountId}`, e.g., for all
-//   creatives pertaining to bidder (`123`), use `bidders/123`.
+//   - parent: Name of the parent buyer that owns the creatives. The
+//     pattern for this resource is either `buyers/{buyerAccountId}` or
+//     `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the
+//     `buyerAccountId` can be one of the following: 1. The ID of the
+//     buyer that is accessing their own creatives. 2. The ID of the child
+//     seat buyer under a bidder account. So for listing creatives
+//     pertaining to the child seat buyer (`456`) under bidder account
+//     (`123`), you would use the pattern: `buyers/456`. 3. The ID of the
+//     bidder itself. So for listing creatives pertaining to bidder
+//     (`123`), you would use `buyers/123`. If you want to access all
+//     creatives pertaining to both the bidder and all of its child seat
+//     accounts, you would use `bidders/{bidderAccountId}`, for example,
+//     for all creatives pertaining to bidder (`123`), use `bidders/123`.
 func (r *BiddersCreativesService) List(parent string) *BiddersCreativesListCall {
 	c := &BiddersCreativesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3481,7 +3502,7 @@ func (c *BiddersCreativesListCall) Filter(filter string) *BiddersCreativesListCa
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
 // The server may return fewer creatives than requested (due to timeout
-// constraint) even if more are available via another call. If
+// constraint) even if more are available through another call. If
 // unspecified, server will pick an appropriate default. Acceptable
 // values are 1 to 1000, inclusive.
 func (c *BiddersCreativesListCall) PageSize(pageSize int64) *BiddersCreativesListCall {
@@ -3507,11 +3528,17 @@ func (c *BiddersCreativesListCall) PageToken(pageToken string) *BiddersCreatives
 // specify the view as "FULL".
 //
 // Possible values:
-//   "CREATIVE_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
+//	"CREATIVE_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
 // SERVING_DECISION_ONLY.
-//   "SERVING_DECISION_ONLY" - Only creativeServingDecision is included
+//
+//	"SERVING_DECISION_ONLY" - Only creativeServingDecision is included
+//
 // in the response.
-//   "FULL" - The entire creative resource (including the declared
+//
+//	"FULL" - The entire creative resource (including the declared
+//
 // fields and the creative content) is included in the response.
 func (c *BiddersCreativesListCall) View(view string) *BiddersCreativesListCall {
 	c.urlParams_.Set("view", view)
@@ -3593,17 +3620,17 @@ func (c *BiddersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3617,7 +3644,7 @@ func (c *BiddersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreati
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists creatives.",
+	//   "description": "Lists creatives as they are at the time of the initial request. This call may take multiple hours to complete. For large, paginated requests, this method returns a snapshot of creatives at the time of request for the first page. `lastStatusUpdate` and `creativeServingDecision` may be outdated for creatives on sequential pages. We recommend [Google Cloud Pub/Sub](//cloud.google.com/pubsub/docs/overview) to view the latest status.",
 	//   "flatPath": "v1/bidders/{biddersId}/creatives",
 	//   "httpMethod": "GET",
 	//   "id": "realtimebidding.bidders.creatives.list",
@@ -3631,7 +3658,7 @@ func (c *BiddersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreati
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. The server may return fewer creatives than requested (due to timeout constraint) even if more are available via another call. If unspecified, server will pick an appropriate default. Acceptable values are 1 to 1000, inclusive.",
+	//       "description": "Requested page size. The server may return fewer creatives than requested (due to timeout constraint) even if more are available through another call. If unspecified, server will pick an appropriate default. Acceptable values are 1 to 1000, inclusive.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -3642,7 +3669,7 @@ func (c *BiddersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreati
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Name of the parent buyer that owns the creatives. The pattern for this resource is either `buyers/{buyerAccountId}` or `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the `buyerAccountId` can be one of the following: 1. The ID of the buyer that is accessing their own creatives. 2. The ID of the child seat buyer under a bidder account. So for listing creatives pertaining to the child seat buyer (`456`) under bidder account (`123`), you would use the pattern: `buyers/456`. 3. The ID of the bidder itself. So for listing creatives pertaining to bidder (`123`), you would use `buyers/123`. If you want to access all creatives pertaining to both the bidder and all of its child seat accounts, you would use `bidders/{bidderAccountId}`, e.g., for all creatives pertaining to bidder (`123`), use `bidders/123`.",
+	//       "description": "Required. Name of the parent buyer that owns the creatives. The pattern for this resource is either `buyers/{buyerAccountId}` or `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the `buyerAccountId` can be one of the following: 1. The ID of the buyer that is accessing their own creatives. 2. The ID of the child seat buyer under a bidder account. So for listing creatives pertaining to the child seat buyer (`456`) under bidder account (`123`), you would use the pattern: `buyers/456`. 3. The ID of the bidder itself. So for listing creatives pertaining to bidder (`123`), you would use `buyers/123`. If you want to access all creatives pertaining to both the bidder and all of its child seat accounts, you would use `bidders/{bidderAccountId}`, for example, for all creatives pertaining to bidder (`123`), use `bidders/123`.",
 	//       "location": "path",
 	//       "pattern": "^bidders/[^/]+$",
 	//       "required": true,
@@ -3715,9 +3742,9 @@ type BiddersCreativesWatchCall struct {
 // invocations of this method will return the existing Pub/Sub
 // configuration.
 //
-// - parent: To watch all creatives pertaining to the bidder and all its
-//   child seat accounts, the bidder must follow the pattern
-//   `bidders/{bidderAccountId}`.
+//   - parent: To watch all creatives pertaining to the bidder and all its
+//     child seat accounts, the bidder must follow the pattern
+//     `bidders/{bidderAccountId}`.
 func (r *BiddersCreativesService) Watch(parent string, watchcreativesrequest *WatchCreativesRequest) *BiddersCreativesWatchCall {
 	c := &BiddersCreativesWatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3792,17 +3819,17 @@ func (c *BiddersCreativesWatchCall) Do(opts ...googleapi.CallOption) (*WatchCrea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WatchCreativesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3859,8 +3886,8 @@ type BiddersEndpointsGetCall struct {
 
 // Get: Gets a bidder endpoint by its name.
 //
-// - name: Name of the bidder endpoint to get. Format:
-//   `bidders/{bidderAccountId}/endpoints/{endpointId}`.
+//   - name: Name of the bidder endpoint to get. Format:
+//     `bidders/{bidderAccountId}/endpoints/{endpointId}`.
 func (r *BiddersEndpointsService) Get(name string) *BiddersEndpointsGetCall {
 	c := &BiddersEndpointsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3942,17 +3969,17 @@ func (c *BiddersEndpointsGetCall) Do(opts ...googleapi.CallOption) (*Endpoint, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Endpoint{
 		ServerResponse: googleapi.ServerResponse{
@@ -4006,8 +4033,8 @@ type BiddersEndpointsListCall struct {
 
 // List: Lists all the bidder's endpoints.
 //
-// - parent: Name of the bidder whose endpoints will be listed. Format:
-//   `bidders/{bidderAccountId}`.
+//   - parent: Name of the bidder whose endpoints will be listed. Format:
+//     `bidders/{bidderAccountId}`.
 func (r *BiddersEndpointsService) List(parent string) *BiddersEndpointsListCall {
 	c := &BiddersEndpointsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4107,17 +4134,17 @@ func (c *BiddersEndpointsListCall) Do(opts ...googleapi.CallOption) (*ListEndpoi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListEndpointsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4203,11 +4230,11 @@ type BiddersEndpointsPatchCall struct {
 
 // Patch: Updates a bidder's endpoint.
 //
-// - name: Output only. Name of the endpoint resource that must follow
-//   the pattern `bidders/{bidderAccountId}/endpoints/{endpointId}`,
-//   where {bidderAccountId} is the account ID of the bidder who
-//   operates this endpoint, and {endpointId} is a unique ID assigned by
-//   the server.
+//   - name: Output only. Name of the endpoint resource that must follow
+//     the pattern `bidders/{bidderAccountId}/endpoints/{endpointId}`,
+//     where {bidderAccountId} is the account ID of the bidder who
+//     operates this endpoint, and {endpointId} is a unique ID assigned by
+//     the server.
 func (r *BiddersEndpointsService) Patch(name string, endpoint *Endpoint) *BiddersEndpointsPatchCall {
 	c := &BiddersEndpointsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4289,17 +4316,17 @@ func (c *BiddersEndpointsPatchCall) Do(opts ...googleapi.CallOption) (*Endpoint,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Endpoint{
 		ServerResponse: googleapi.ServerResponse{
@@ -4362,8 +4389,8 @@ type BiddersPretargetingConfigsActivateCall struct {
 
 // Activate: Activates a pretargeting configuration.
 //
-// - name: The name of the pretargeting configuration. Format:
-//   bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - name: The name of the pretargeting configuration. Format:
+//     bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) Activate(name string, activatepretargetingconfigrequest *ActivatePretargetingConfigRequest) *BiddersPretargetingConfigsActivateCall {
 	c := &BiddersPretargetingConfigsActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4438,17 +4465,17 @@ func (c *BiddersPretargetingConfigsActivateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -4506,8 +4533,8 @@ type BiddersPretargetingConfigsAddTargetedAppsCall struct {
 // AddTargetedApps: Adds targeted apps to the pretargeting
 // configuration.
 //
-// - pretargetingConfig: The name of the pretargeting configuration.
-//   Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - pretargetingConfig: The name of the pretargeting configuration.
+//     Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) AddTargetedApps(pretargetingConfig string, addtargetedappsrequest *AddTargetedAppsRequest) *BiddersPretargetingConfigsAddTargetedAppsCall {
 	c := &BiddersPretargetingConfigsAddTargetedAppsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.pretargetingConfig = pretargetingConfig
@@ -4582,17 +4609,17 @@ func (c *BiddersPretargetingConfigsAddTargetedAppsCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -4650,8 +4677,8 @@ type BiddersPretargetingConfigsAddTargetedPublishersCall struct {
 // AddTargetedPublishers: Adds targeted publishers to the pretargeting
 // config.
 //
-// - pretargetingConfig: The name of the pretargeting configuration.
-//   Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - pretargetingConfig: The name of the pretargeting configuration.
+//     Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) AddTargetedPublishers(pretargetingConfig string, addtargetedpublishersrequest *AddTargetedPublishersRequest) *BiddersPretargetingConfigsAddTargetedPublishersCall {
 	c := &BiddersPretargetingConfigsAddTargetedPublishersCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.pretargetingConfig = pretargetingConfig
@@ -4726,17 +4753,17 @@ func (c *BiddersPretargetingConfigsAddTargetedPublishersCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -4794,8 +4821,8 @@ type BiddersPretargetingConfigsAddTargetedSitesCall struct {
 // AddTargetedSites: Adds targeted sites to the pretargeting
 // configuration.
 //
-// - pretargetingConfig: The name of the pretargeting configuration.
-//   Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - pretargetingConfig: The name of the pretargeting configuration.
+//     Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) AddTargetedSites(pretargetingConfig string, addtargetedsitesrequest *AddTargetedSitesRequest) *BiddersPretargetingConfigsAddTargetedSitesCall {
 	c := &BiddersPretargetingConfigsAddTargetedSitesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.pretargetingConfig = pretargetingConfig
@@ -4870,17 +4897,17 @@ func (c *BiddersPretargetingConfigsAddTargetedSitesCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -4941,8 +4968,8 @@ type BiddersPretargetingConfigsCreateCall struct {
 // may create a maximum of 10 pretargeting configurations. Attempts to
 // exceed this maximum results in a 400 bad request error.
 //
-// - parent: Name of the bidder to create the pretargeting configuration
-//   for. Format: bidders/{bidderAccountId}.
+//   - parent: Name of the bidder to create the pretargeting configuration
+//     for. Format: bidders/{bidderAccountId}.
 func (r *BiddersPretargetingConfigsService) Create(parent string, pretargetingconfig *PretargetingConfig) *BiddersPretargetingConfigsCreateCall {
 	c := &BiddersPretargetingConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5017,17 +5044,17 @@ func (c *BiddersPretargetingConfigsCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5083,8 +5110,8 @@ type BiddersPretargetingConfigsDeleteCall struct {
 
 // Delete: Deletes a pretargeting configuration.
 //
-// - name: The name of the pretargeting configuration to delete. Format:
-//   bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - name: The name of the pretargeting configuration to delete. Format:
+//     bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) Delete(name string) *BiddersPretargetingConfigsDeleteCall {
 	c := &BiddersPretargetingConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5153,17 +5180,17 @@ func (c *BiddersPretargetingConfigsDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5217,8 +5244,8 @@ type BiddersPretargetingConfigsGetCall struct {
 
 // Get: Gets a pretargeting configuration.
 //
-// - name: Name of the pretargeting configuration to get. Format:
-//   bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - name: Name of the pretargeting configuration to get. Format:
+//     bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) Get(name string) *BiddersPretargetingConfigsGetCall {
 	c := &BiddersPretargetingConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5300,17 +5327,17 @@ func (c *BiddersPretargetingConfigsGetCall) Do(opts ...googleapi.CallOption) (*P
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5364,8 +5391,8 @@ type BiddersPretargetingConfigsListCall struct {
 
 // List: Lists all pretargeting configurations for a single bidder.
 //
-// - parent: Name of the bidder whose pretargeting configurations will
-//   be listed. Format: bidders/{bidderAccountId}.
+//   - parent: Name of the bidder whose pretargeting configurations will
+//     be listed. Format: bidders/{bidderAccountId}.
 func (r *BiddersPretargetingConfigsService) List(parent string) *BiddersPretargetingConfigsListCall {
 	c := &BiddersPretargetingConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5465,17 +5492,17 @@ func (c *BiddersPretargetingConfigsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPretargetingConfigsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5561,9 +5588,9 @@ type BiddersPretargetingConfigsPatchCall struct {
 
 // Patch: Updates a pretargeting configuration.
 //
-// - name: Output only. Name of the pretargeting configuration that must
-//   follow the pattern
-//   `bidders/{bidder_account_id}/pretargetingConfigs/{config_id}`.
+//   - name: Output only. Name of the pretargeting configuration that must
+//     follow the pattern
+//     `bidders/{bidder_account_id}/pretargetingConfigs/{config_id}`.
 func (r *BiddersPretargetingConfigsService) Patch(name string, pretargetingconfig *PretargetingConfig) *BiddersPretargetingConfigsPatchCall {
 	c := &BiddersPretargetingConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5645,17 +5672,17 @@ func (c *BiddersPretargetingConfigsPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5719,8 +5746,8 @@ type BiddersPretargetingConfigsRemoveTargetedAppsCall struct {
 // RemoveTargetedApps: Removes targeted apps from the pretargeting
 // configuration.
 //
-// - pretargetingConfig: The name of the pretargeting configuration.
-//   Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - pretargetingConfig: The name of the pretargeting configuration.
+//     Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) RemoveTargetedApps(pretargetingConfig string, removetargetedappsrequest *RemoveTargetedAppsRequest) *BiddersPretargetingConfigsRemoveTargetedAppsCall {
 	c := &BiddersPretargetingConfigsRemoveTargetedAppsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.pretargetingConfig = pretargetingConfig
@@ -5795,17 +5822,17 @@ func (c *BiddersPretargetingConfigsRemoveTargetedAppsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5863,8 +5890,8 @@ type BiddersPretargetingConfigsRemoveTargetedPublishersCall struct {
 // RemoveTargetedPublishers: Removes targeted publishers from the
 // pretargeting config.
 //
-// - pretargetingConfig: The name of the pretargeting configuration.
-//   Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - pretargetingConfig: The name of the pretargeting configuration.
+//     Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) RemoveTargetedPublishers(pretargetingConfig string, removetargetedpublishersrequest *RemoveTargetedPublishersRequest) *BiddersPretargetingConfigsRemoveTargetedPublishersCall {
 	c := &BiddersPretargetingConfigsRemoveTargetedPublishersCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.pretargetingConfig = pretargetingConfig
@@ -5939,17 +5966,17 @@ func (c *BiddersPretargetingConfigsRemoveTargetedPublishersCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6007,8 +6034,8 @@ type BiddersPretargetingConfigsRemoveTargetedSitesCall struct {
 // RemoveTargetedSites: Removes targeted sites from the pretargeting
 // configuration.
 //
-// - pretargetingConfig: The name of the pretargeting configuration.
-//   Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - pretargetingConfig: The name of the pretargeting configuration.
+//     Format: bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) RemoveTargetedSites(pretargetingConfig string, removetargetedsitesrequest *RemoveTargetedSitesRequest) *BiddersPretargetingConfigsRemoveTargetedSitesCall {
 	c := &BiddersPretargetingConfigsRemoveTargetedSitesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.pretargetingConfig = pretargetingConfig
@@ -6083,17 +6110,17 @@ func (c *BiddersPretargetingConfigsRemoveTargetedSitesCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6150,8 +6177,8 @@ type BiddersPretargetingConfigsSuspendCall struct {
 
 // Suspend: Suspends a pretargeting configuration.
 //
-// - name: The name of the pretargeting configuration. Format:
-//   bidders/{bidderAccountId}/pretargetingConfig/{configId}.
+//   - name: The name of the pretargeting configuration. Format:
+//     bidders/{bidderAccountId}/pretargetingConfig/{configId}.
 func (r *BiddersPretargetingConfigsService) Suspend(name string, suspendpretargetingconfigrequest *SuspendPretargetingConfigRequest) *BiddersPretargetingConfigsSuspendCall {
 	c := &BiddersPretargetingConfigsSuspendCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6226,17 +6253,17 @@ func (c *BiddersPretargetingConfigsSuspendCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PretargetingConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6293,9 +6320,9 @@ type BiddersPublisherConnectionsBatchApproveCall struct {
 
 // BatchApprove: Batch approves multiple publisher connections.
 //
-// - parent: The bidder for whom publisher connections will be approved.
-//   Format: `bidders/{bidder}` where `{bidder}` is the account ID of
-//   the bidder.
+//   - parent: The bidder for whom publisher connections will be approved.
+//     Format: `bidders/{bidder}` where `{bidder}` is the account ID of
+//     the bidder.
 func (r *BiddersPublisherConnectionsService) BatchApprove(parent string, batchapprovepublisherconnectionsrequest *BatchApprovePublisherConnectionsRequest) *BiddersPublisherConnectionsBatchApproveCall {
 	c := &BiddersPublisherConnectionsBatchApproveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6372,17 +6399,17 @@ func (c *BiddersPublisherConnectionsBatchApproveCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchApprovePublisherConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6439,9 +6466,9 @@ type BiddersPublisherConnectionsBatchRejectCall struct {
 
 // BatchReject: Batch rejects multiple publisher connections.
 //
-// - parent: The bidder for whom publisher connections will be rejected.
-//   Format: `bidders/{bidder}` where `{bidder}` is the account ID of
-//   the bidder.
+//   - parent: The bidder for whom publisher connections will be rejected.
+//     Format: `bidders/{bidder}` where `{bidder}` is the account ID of
+//     the bidder.
 func (r *BiddersPublisherConnectionsService) BatchReject(parent string, batchrejectpublisherconnectionsrequest *BatchRejectPublisherConnectionsRequest) *BiddersPublisherConnectionsBatchRejectCall {
 	c := &BiddersPublisherConnectionsBatchRejectCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6517,17 +6544,17 @@ func (c *BiddersPublisherConnectionsBatchRejectCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchRejectPublisherConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6584,11 +6611,11 @@ type BiddersPublisherConnectionsGetCall struct {
 
 // Get: Gets a publisher connection.
 //
-// - name: Name of the publisher whose connection information is to be
-//   retrieved. In the pattern
-//   `bidders/{bidder}/publisherConnections/{publisher}` where
-//   `{bidder}` is the account ID of the bidder, and `{publisher}` is
-//   the ads.txt/app-ads.txt publisher ID. See publisherConnection.name.
+//   - name: Name of the publisher whose connection information is to be
+//     retrieved. In the pattern
+//     `bidders/{bidder}/publisherConnections/{publisher}` where
+//     `{bidder}` is the account ID of the bidder, and `{publisher}` is
+//     the ads.txt/app-ads.txt publisher ID. See publisherConnection.name.
 func (r *BiddersPublisherConnectionsService) Get(name string) *BiddersPublisherConnectionsGetCall {
 	c := &BiddersPublisherConnectionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6670,17 +6697,17 @@ func (c *BiddersPublisherConnectionsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PublisherConnection{
 		ServerResponse: googleapi.ServerResponse{
@@ -6734,9 +6761,9 @@ type BiddersPublisherConnectionsListCall struct {
 
 // List: Lists publisher connections for a given bidder.
 //
-// - parent: Name of the bidder for which publishers have initiated
-//   connections. The pattern for this resource is `bidders/{bidder}`
-//   where `{bidder}` represents the account ID of the bidder.
+//   - parent: Name of the bidder for which publishers have initiated
+//     connections. The pattern for this resource is `bidders/{bidder}`
+//     where `{bidder}` represents the account ID of the bidder.
 func (r *BiddersPublisherConnectionsService) List(parent string) *BiddersPublisherConnectionsListCall {
 	c := &BiddersPublisherConnectionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6757,8 +6784,9 @@ func (c *BiddersPublisherConnectionsListCall) Filter(filter string) *BiddersPubl
 
 // OrderBy sets the optional parameter "orderBy": Order specification by
 // which results should be sorted. If no sort order is specified, the
-// results will be returned in an arbitrary order. Currently results can
-// be sorted by `createTime`. Example: 'createTime DESC'.
+// results will be returned in alphabetic order based on the publisher's
+// publisher code. Results can be sorted by `createTime`. Example:
+// 'createTime DESC'.
 func (c *BiddersPublisherConnectionsListCall) OrderBy(orderBy string) *BiddersPublisherConnectionsListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -6766,7 +6794,7 @@ func (c *BiddersPublisherConnectionsListCall) OrderBy(orderBy string) *BiddersPu
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
 // The server may return fewer results than requested (due to timeout
-// constraint) even if more are available via another call. If
+// constraint) even if more are available through another call. If
 // unspecified, the server will pick an appropriate default. Acceptable
 // values are 1 to 5000, inclusive.
 func (c *BiddersPublisherConnectionsListCall) PageSize(pageSize int64) *BiddersPublisherConnectionsListCall {
@@ -6859,17 +6887,17 @@ func (c *BiddersPublisherConnectionsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPublisherConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6897,12 +6925,12 @@ func (c *BiddersPublisherConnectionsListCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Order specification by which results should be sorted. If no sort order is specified, the results will be returned in an arbitrary order. Currently results can be sorted by `createTime`. Example: 'createTime DESC'.",
+	//       "description": "Order specification by which results should be sorted. If no sort order is specified, the results will be returned in alphabetic order based on the publisher's publisher code. Results can be sorted by `createTime`. Example: 'createTime DESC'.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. The server may return fewer results than requested (due to timeout constraint) even if more are available via another call. If unspecified, the server will pick an appropriate default. Acceptable values are 1 to 5000, inclusive.",
+	//       "description": "Requested page size. The server may return fewer results than requested (due to timeout constraint) even if more are available through another call. If unspecified, the server will pick an appropriate default. Acceptable values are 1 to 5000, inclusive.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -7047,17 +7075,17 @@ func (c *BuyersGetCall) Do(opts ...googleapi.CallOption) (*Buyer, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Buyer{
 		ServerResponse: googleapi.ServerResponse{
@@ -7114,14 +7142,14 @@ type BuyersGetRemarketingTagCall struct {
 // When a user visits a page containing a remarketing tag, Google adds
 // the user to a user list.
 //
-// - name: To fetch remarketing tag for an account, name must follow the
-//   pattern `buyers/{accountId}` where `{accountId}` represents ID of a
-//   buyer that owns the remarketing tag. For a bidder accessing
-//   remarketing tag on behalf of a child seat buyer, `{accountId}`
-//   should represent the ID of the child seat buyer. To fetch
-//   remarketing tag for a specific user list, name must follow the
-//   pattern `buyers/{accountId}/userLists/{userListId}`. See
-//   UserList.name.
+//   - name: To fetch remarketing tag for an account, name must follow the
+//     pattern `buyers/{accountId}` where `{accountId}` represents ID of a
+//     buyer that owns the remarketing tag. For a bidder accessing
+//     remarketing tag on behalf of a child seat buyer, `{accountId}`
+//     should represent the ID of the child seat buyer. To fetch
+//     remarketing tag for a specific user list, name must follow the
+//     pattern `buyers/{accountId}/userLists/{userListId}`. See
+//     UserList.name.
 func (r *BuyersService) GetRemarketingTag(name string) *BuyersGetRemarketingTagCall {
 	c := &BuyersGetRemarketingTagCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7203,17 +7231,17 @@ func (c *BuyersGetRemarketingTagCall) Do(opts ...googleapi.CallOption) (*GetRema
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GetRemarketingTagResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7361,17 +7389,17 @@ func (c *BuyersListCall) Do(opts ...googleapi.CallOption) (*ListBuyersResponse, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBuyersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7448,12 +7476,12 @@ type BuyersCreativesCreateCall struct {
 
 // Create: Creates a creative.
 //
-// - parent: The name of the parent buyer that the new creative belongs
-//   to that must follow the pattern `buyers/{buyerAccountId}`, where
-//   `{buyerAccountId}` represents the account ID of the buyer who owns
-//   a creative. For a bidder accessing creatives on behalf of a child
-//   seat buyer, `{buyerAccountId}` should represent the account ID of
-//   the child seat buyer.
+//   - parent: The name of the parent buyer that the new creative belongs
+//     to that must follow the pattern `buyers/{buyerAccountId}`, where
+//     `{buyerAccountId}` represents the account ID of the buyer who owns
+//     a creative. For a bidder accessing creatives on behalf of a child
+//     seat buyer, `{buyerAccountId}` should represent the account ID of
+//     the child seat buyer.
 func (r *BuyersCreativesService) Create(parent string, creative *Creative) *BuyersCreativesCreateCall {
 	c := &BuyersCreativesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7528,17 +7556,17 @@ func (c *BuyersCreativesCreateCall) Do(opts ...googleapi.CallOption) (*Creative,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -7609,11 +7637,17 @@ func (r *BuyersCreativesService) Get(name string) *BuyersCreativesGetCall {
 // specify the view as "FULL".
 //
 // Possible values:
-//   "CREATIVE_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
+//	"CREATIVE_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
 // SERVING_DECISION_ONLY.
-//   "SERVING_DECISION_ONLY" - Only creativeServingDecision is included
+//
+//	"SERVING_DECISION_ONLY" - Only creativeServingDecision is included
+//
 // in the response.
-//   "FULL" - The entire creative resource (including the declared
+//
+//	"FULL" - The entire creative resource (including the declared
+//
 // fields and the creative content) is included in the response.
 func (c *BuyersCreativesGetCall) View(view string) *BuyersCreativesGetCall {
 	c.urlParams_.Set("view", view)
@@ -7695,17 +7729,17 @@ func (c *BuyersCreativesGetCall) Do(opts ...googleapi.CallOption) (*Creative, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -7772,21 +7806,27 @@ type BuyersCreativesListCall struct {
 	header_      http.Header
 }
 
-// List: Lists creatives.
+// List: Lists creatives as they are at the time of the initial request.
+// This call may take multiple hours to complete. For large, paginated
+// requests, this method returns a snapshot of creatives at the time of
+// request for the first page. `lastStatusUpdate` and
+// `creativeServingDecision` may be outdated for creatives on sequential
+// pages. We recommend Google Cloud Pub/Sub
+// (//cloud.google.com/pubsub/docs/overview) to view the latest status.
 //
-// - parent: Name of the parent buyer that owns the creatives. The
-//   pattern for this resource is either `buyers/{buyerAccountId}` or
-//   `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the
-//   `buyerAccountId` can be one of the following: 1. The ID of the
-//   buyer that is accessing their own creatives. 2. The ID of the child
-//   seat buyer under a bidder account. So for listing creatives
-//   pertaining to the child seat buyer (`456`) under bidder account
-//   (`123`), you would use the pattern: `buyers/456`. 3. The ID of the
-//   bidder itself. So for listing creatives pertaining to bidder
-//   (`123`), you would use `buyers/123`. If you want to access all
-//   creatives pertaining to both the bidder and all of its child seat
-//   accounts, you would use `bidders/{bidderAccountId}`, e.g., for all
-//   creatives pertaining to bidder (`123`), use `bidders/123`.
+//   - parent: Name of the parent buyer that owns the creatives. The
+//     pattern for this resource is either `buyers/{buyerAccountId}` or
+//     `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the
+//     `buyerAccountId` can be one of the following: 1. The ID of the
+//     buyer that is accessing their own creatives. 2. The ID of the child
+//     seat buyer under a bidder account. So for listing creatives
+//     pertaining to the child seat buyer (`456`) under bidder account
+//     (`123`), you would use the pattern: `buyers/456`. 3. The ID of the
+//     bidder itself. So for listing creatives pertaining to bidder
+//     (`123`), you would use `buyers/123`. If you want to access all
+//     creatives pertaining to both the bidder and all of its child seat
+//     accounts, you would use `bidders/{bidderAccountId}`, for example,
+//     for all creatives pertaining to bidder (`123`), use `bidders/123`.
 func (r *BuyersCreativesService) List(parent string) *BuyersCreativesListCall {
 	c := &BuyersCreativesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7805,7 +7845,7 @@ func (c *BuyersCreativesListCall) Filter(filter string) *BuyersCreativesListCall
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
 // The server may return fewer creatives than requested (due to timeout
-// constraint) even if more are available via another call. If
+// constraint) even if more are available through another call. If
 // unspecified, server will pick an appropriate default. Acceptable
 // values are 1 to 1000, inclusive.
 func (c *BuyersCreativesListCall) PageSize(pageSize int64) *BuyersCreativesListCall {
@@ -7831,11 +7871,17 @@ func (c *BuyersCreativesListCall) PageToken(pageToken string) *BuyersCreativesLi
 // specify the view as "FULL".
 //
 // Possible values:
-//   "CREATIVE_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
+//	"CREATIVE_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
 // SERVING_DECISION_ONLY.
-//   "SERVING_DECISION_ONLY" - Only creativeServingDecision is included
+//
+//	"SERVING_DECISION_ONLY" - Only creativeServingDecision is included
+//
 // in the response.
-//   "FULL" - The entire creative resource (including the declared
+//
+//	"FULL" - The entire creative resource (including the declared
+//
 // fields and the creative content) is included in the response.
 func (c *BuyersCreativesListCall) View(view string) *BuyersCreativesListCall {
 	c.urlParams_.Set("view", view)
@@ -7917,17 +7963,17 @@ func (c *BuyersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreativ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7941,7 +7987,7 @@ func (c *BuyersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreativ
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists creatives.",
+	//   "description": "Lists creatives as they are at the time of the initial request. This call may take multiple hours to complete. For large, paginated requests, this method returns a snapshot of creatives at the time of request for the first page. `lastStatusUpdate` and `creativeServingDecision` may be outdated for creatives on sequential pages. We recommend [Google Cloud Pub/Sub](//cloud.google.com/pubsub/docs/overview) to view the latest status.",
 	//   "flatPath": "v1/buyers/{buyersId}/creatives",
 	//   "httpMethod": "GET",
 	//   "id": "realtimebidding.buyers.creatives.list",
@@ -7955,7 +8001,7 @@ func (c *BuyersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreativ
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. The server may return fewer creatives than requested (due to timeout constraint) even if more are available via another call. If unspecified, server will pick an appropriate default. Acceptable values are 1 to 1000, inclusive.",
+	//       "description": "Requested page size. The server may return fewer creatives than requested (due to timeout constraint) even if more are available through another call. If unspecified, server will pick an appropriate default. Acceptable values are 1 to 1000, inclusive.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -7966,7 +8012,7 @@ func (c *BuyersCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreativ
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Name of the parent buyer that owns the creatives. The pattern for this resource is either `buyers/{buyerAccountId}` or `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the `buyerAccountId` can be one of the following: 1. The ID of the buyer that is accessing their own creatives. 2. The ID of the child seat buyer under a bidder account. So for listing creatives pertaining to the child seat buyer (`456`) under bidder account (`123`), you would use the pattern: `buyers/456`. 3. The ID of the bidder itself. So for listing creatives pertaining to bidder (`123`), you would use `buyers/123`. If you want to access all creatives pertaining to both the bidder and all of its child seat accounts, you would use `bidders/{bidderAccountId}`, e.g., for all creatives pertaining to bidder (`123`), use `bidders/123`.",
+	//       "description": "Required. Name of the parent buyer that owns the creatives. The pattern for this resource is either `buyers/{buyerAccountId}` or `bidders/{bidderAccountId}`. For `buyers/{buyerAccountId}`, the `buyerAccountId` can be one of the following: 1. The ID of the buyer that is accessing their own creatives. 2. The ID of the child seat buyer under a bidder account. So for listing creatives pertaining to the child seat buyer (`456`) under bidder account (`123`), you would use the pattern: `buyers/456`. 3. The ID of the bidder itself. So for listing creatives pertaining to bidder (`123`), you would use `buyers/123`. If you want to access all creatives pertaining to both the bidder and all of its child seat accounts, you would use `bidders/{bidderAccountId}`, for example, for all creatives pertaining to bidder (`123`), use `bidders/123`.",
 	//       "location": "path",
 	//       "pattern": "^buyers/[^/]+$",
 	//       "required": true,
@@ -8033,11 +8079,11 @@ type BuyersCreativesPatchCall struct {
 
 // Patch: Updates a creative.
 //
-// - name: Output only. Name of the creative. Follows the pattern
-//   `buyers/{buyer}/creatives/{creative}`, where `{buyer}` represents
-//   the account ID of the buyer who owns the creative, and `{creative}`
-//   is the buyer-specific creative ID that references this creative in
-//   the bid response.
+//   - name: Output only. Name of the creative. Follows the pattern
+//     `buyers/{buyer}/creatives/{creative}`, where `{buyer}` represents
+//     the account ID of the buyer who owns the creative, and `{creative}`
+//     is the buyer-specific creative ID that references this creative in
+//     the bid response.
 func (r *BuyersCreativesService) Patch(name string, creative *Creative) *BuyersCreativesPatchCall {
 	c := &BuyersCreativesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8119,17 +8165,17 @@ func (c *BuyersCreativesPatchCall) Do(opts ...googleapi.CallOption) (*Creative, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -8268,17 +8314,17 @@ func (c *BuyersUserListsCloseCall) Do(opts ...googleapi.CallOption) (*UserList, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserList{
 		ServerResponse: googleapi.ServerResponse{
@@ -8335,12 +8381,12 @@ type BuyersUserListsCreateCall struct {
 
 // Create: Create a new user list.
 //
-// - parent: The name of the parent buyer of the user list to be
-//   retrieved that must follow the pattern `buyers/{buyerAccountId}`,
-//   where `{buyerAccountId}` represents the account ID of the buyer who
-//   owns user lists. For a bidder accessing user lists on behalf of a
-//   child seat buyer , `{buyerAccountId}` should represent the account
-//   ID of the child seat buyer.
+//   - parent: The name of the parent buyer of the user list to be
+//     retrieved that must follow the pattern `buyers/{buyerAccountId}`,
+//     where `{buyerAccountId}` represents the account ID of the buyer who
+//     owns user lists. For a bidder accessing user lists on behalf of a
+//     child seat buyer , `{buyerAccountId}` should represent the account
+//     ID of the child seat buyer.
 func (r *BuyersUserListsService) Create(parent string, userlist *UserList) *BuyersUserListsCreateCall {
 	c := &BuyersUserListsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8415,17 +8461,17 @@ func (c *BuyersUserListsCreateCall) Do(opts ...googleapi.CallOption) (*UserList,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserList{
 		ServerResponse: googleapi.ServerResponse{
@@ -8564,17 +8610,17 @@ func (c *BuyersUserListsGetCall) Do(opts ...googleapi.CallOption) (*UserList, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserList{
 		ServerResponse: googleapi.ServerResponse{
@@ -8631,14 +8677,14 @@ type BuyersUserListsGetRemarketingTagCall struct {
 // When a user visits a page containing a remarketing tag, Google adds
 // the user to a user list.
 //
-// - name: To fetch remarketing tag for an account, name must follow the
-//   pattern `buyers/{accountId}` where `{accountId}` represents ID of a
-//   buyer that owns the remarketing tag. For a bidder accessing
-//   remarketing tag on behalf of a child seat buyer, `{accountId}`
-//   should represent the ID of the child seat buyer. To fetch
-//   remarketing tag for a specific user list, name must follow the
-//   pattern `buyers/{accountId}/userLists/{userListId}`. See
-//   UserList.name.
+//   - name: To fetch remarketing tag for an account, name must follow the
+//     pattern `buyers/{accountId}` where `{accountId}` represents ID of a
+//     buyer that owns the remarketing tag. For a bidder accessing
+//     remarketing tag on behalf of a child seat buyer, `{accountId}`
+//     should represent the ID of the child seat buyer. To fetch
+//     remarketing tag for a specific user list, name must follow the
+//     pattern `buyers/{accountId}/userLists/{userListId}`. See
+//     UserList.name.
 func (r *BuyersUserListsService) GetRemarketingTag(name string) *BuyersUserListsGetRemarketingTagCall {
 	c := &BuyersUserListsGetRemarketingTagCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8720,17 +8766,17 @@ func (c *BuyersUserListsGetRemarketingTagCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GetRemarketingTagResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8784,12 +8830,12 @@ type BuyersUserListsListCall struct {
 
 // List: Lists the user lists visible to the current user.
 //
-// - parent: The name of the parent buyer for the user lists to be
-//   returned that must follow the pattern `buyers/{buyerAccountId}`,
-//   where `{buyerAccountId}` represents the account ID of the buyer who
-//   owns user lists. For a bidder accessing user lists on behalf of a
-//   child seat buyer , `{buyerAccountId}` should represent the account
-//   ID of the child seat buyer.
+//   - parent: The name of the parent buyer for the user lists to be
+//     returned that must follow the pattern `buyers/{buyerAccountId}`,
+//     where `{buyerAccountId}` represents the account ID of the buyer who
+//     owns user lists. For a bidder accessing user lists on behalf of a
+//     child seat buyer , `{buyerAccountId}` should represent the account
+//     ID of the child seat buyer.
 func (r *BuyersUserListsService) List(parent string) *BuyersUserListsListCall {
 	c := &BuyersUserListsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8885,17 +8931,17 @@ func (c *BuyersUserListsListCall) Do(opts ...googleapi.CallOption) (*ListUserLis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListUserListsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9057,17 +9103,17 @@ func (c *BuyersUserListsOpenCall) Do(opts ...googleapi.CallOption) (*UserList, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserList{
 		ServerResponse: googleapi.ServerResponse{
@@ -9125,13 +9171,13 @@ type BuyersUserListsUpdateCall struct {
 // Update: Update the given user list. Only user lists with
 // URLRestrictions can be updated.
 //
-// - name: Output only. Name of the user list that must follow the
-//   pattern `buyers/{buyer}/userLists/{user_list}`, where `{buyer}`
-//   represents the account ID of the buyer who owns the user list. For
-//   a bidder accessing user lists on behalf of a child seat buyer,
-//   `{buyer}` represents the account ID of the child seat buyer.
-//   `{user_list}` is an int64 identifier assigned by Google to uniquely
-//   identify a user list.
+//   - name: Output only. Name of the user list that must follow the
+//     pattern `buyers/{buyer}/userLists/{user_list}`, where `{buyer}`
+//     represents the account ID of the buyer who owns the user list. For
+//     a bidder accessing user lists on behalf of a child seat buyer,
+//     `{buyer}` represents the account ID of the child seat buyer.
+//     `{user_list}` is an int64 identifier assigned by Google to uniquely
+//     identify a user list.
 func (r *BuyersUserListsService) Update(nameid string, userlist *UserList) *BuyersUserListsUpdateCall {
 	c := &BuyersUserListsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -9206,17 +9252,17 @@ func (c *BuyersUserListsUpdateCall) Do(opts ...googleapi.CallOption) (*UserList,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserList{
 		ServerResponse: googleapi.ServerResponse{

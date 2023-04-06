@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/secret-manager/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/secretmanager/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   secretmanagerService, err := secretmanager.NewService(ctx)
+//	import "google.golang.org/api/secretmanager/v1beta1"
+//	...
+//	ctx := context.Background()
+//	secretmanagerService, err := secretmanager.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   secretmanagerService, err := secretmanager.NewService(ctx, option.WithAPIKey("AIza..."))
+//	secretmanagerService, err := secretmanager.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   secretmanagerService, err := secretmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	secretmanagerService, err := secretmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package secretmanager // import "google.golang.org/api/secretmanager/v1beta1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "secretmanager:v1beta1"
 const apiName = "secretmanager"
@@ -367,19 +368,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -391,9 +399,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -1220,17 +1226,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -1285,8 +1291,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1392,17 +1398,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1494,8 +1500,8 @@ type ProjectsSecretsAddVersionCall struct {
 // AddVersion: Creates a new SecretVersion containing secret data and
 // attaches it to an existing Secret.
 //
-// - parent: The resource name of the Secret to associate with the
-//   SecretVersion in the format `projects/*/secrets/*`.
+//   - parent: The resource name of the Secret to associate with the
+//     SecretVersion in the format `projects/*/secrets/*`.
 func (r *ProjectsSecretsService) AddVersion(parent string, addsecretversionrequest *AddSecretVersionRequest) *ProjectsSecretsAddVersionCall {
 	c := &ProjectsSecretsAddVersionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1570,17 +1576,17 @@ func (c *ProjectsSecretsAddVersionCall) Do(opts ...googleapi.CallOption) (*Secre
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecretVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -1637,8 +1643,8 @@ type ProjectsSecretsCreateCall struct {
 
 // Create: Creates a new Secret containing no SecretVersions.
 //
-// - parent: The resource name of the project to associate with the
-//   Secret, in the format `projects/*`.
+//   - parent: The resource name of the project to associate with the
+//     Secret, in the format `projects/*`.
 func (r *ProjectsSecretsService) Create(parent string, secret *Secret) *ProjectsSecretsCreateCall {
 	c := &ProjectsSecretsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1723,17 +1729,17 @@ func (c *ProjectsSecretsCreateCall) Do(opts ...googleapi.CallOption) (*Secret, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Secret{
 		ServerResponse: googleapi.ServerResponse{
@@ -1794,8 +1800,8 @@ type ProjectsSecretsDeleteCall struct {
 
 // Delete: Deletes a Secret.
 //
-// - name: The resource name of the Secret to delete in the format
-//   `projects/*/secrets/*`.
+//   - name: The resource name of the Secret to delete in the format
+//     `projects/*/secrets/*`.
 func (r *ProjectsSecretsService) Delete(name string) *ProjectsSecretsDeleteCall {
 	c := &ProjectsSecretsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1864,17 +1870,17 @@ func (c *ProjectsSecretsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1928,8 +1934,8 @@ type ProjectsSecretsGetCall struct {
 
 // Get: Gets metadata for a given Secret.
 //
-// - name: The resource name of the Secret, in the format
-//   `projects/*/secrets/*`.
+//   - name: The resource name of the Secret, in the format
+//     `projects/*/secrets/*`.
 func (r *ProjectsSecretsService) Get(name string) *ProjectsSecretsGetCall {
 	c := &ProjectsSecretsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2011,17 +2017,17 @@ func (c *ProjectsSecretsGetCall) Do(opts ...googleapi.CallOption) (*Secret, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Secret{
 		ServerResponse: googleapi.ServerResponse{
@@ -2076,9 +2082,10 @@ type ProjectsSecretsGetIamPolicyCall struct {
 // GetIamPolicy: Gets the access control policy for a secret. Returns
 // empty policy if the secret exists and does not have a policy set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSecretsService) GetIamPolicy(resource string) *ProjectsSecretsGetIamPolicyCall {
 	c := &ProjectsSecretsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2178,17 +2185,17 @@ func (c *ProjectsSecretsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2217,7 +2224,7 @@ func (c *ProjectsSecretsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/secrets/[^/]+$",
 	//       "required": true,
@@ -2248,8 +2255,8 @@ type ProjectsSecretsListCall struct {
 
 // List: Lists Secrets.
 //
-// - parent: The resource name of the project associated with the
-//   Secrets, in the format `projects/*`.
+//   - parent: The resource name of the project associated with the
+//     Secrets, in the format `projects/*`.
 func (r *ProjectsSecretsService) List(parent string) *ProjectsSecretsListCall {
 	c := &ProjectsSecretsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2347,17 +2354,17 @@ func (c *ProjectsSecretsListCall) Do(opts ...googleapi.CallOption) (*ListSecrets
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSecretsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2443,8 +2450,8 @@ type ProjectsSecretsPatchCall struct {
 
 // Patch: Updates metadata of an existing Secret.
 //
-// - name: Output only. The resource name of the Secret in the format
-//   `projects/*/secrets/*`.
+//   - name: Output only. The resource name of the Secret in the format
+//     `projects/*/secrets/*`.
 func (r *ProjectsSecretsService) Patch(name string, secret *Secret) *ProjectsSecretsPatchCall {
 	c := &ProjectsSecretsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2526,17 +2533,17 @@ func (c *ProjectsSecretsPatchCall) Do(opts ...googleapi.CallOption) (*Secret, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Secret{
 		ServerResponse: googleapi.ServerResponse{
@@ -2601,9 +2608,10 @@ type ProjectsSecretsSetIamPolicyCall struct {
 // Replaces any existing policy. Permissions on SecretVersions are
 // enforced according to the policy set on the associated Secret.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSecretsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsSecretsSetIamPolicyCall {
 	c := &ProjectsSecretsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2678,17 +2686,17 @@ func (c *ProjectsSecretsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2711,7 +2719,7 @@ func (c *ProjectsSecretsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Pol
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/secrets/[^/]+$",
 	//       "required": true,
@@ -2750,9 +2758,10 @@ type ProjectsSecretsTestIamPermissionsCall struct {
 // command-line tools, not for authorization checking. This operation
 // may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsSecretsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsSecretsTestIamPermissionsCall {
 	c := &ProjectsSecretsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2827,17 +2836,17 @@ func (c *ProjectsSecretsTestIamPermissionsCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2860,7 +2869,7 @@ func (c *ProjectsSecretsTestIamPermissionsCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/secrets/[^/]+$",
 	//       "required": true,
@@ -2896,8 +2905,8 @@ type ProjectsSecretsVersionsAccessCall struct {
 // `projects/*/secrets/*/versions/latest` is an alias to the `latest`
 // SecretVersion.
 //
-// - name: The resource name of the SecretVersion in the format
-//   `projects/*/secrets/*/versions/*`.
+//   - name: The resource name of the SecretVersion in the format
+//     `projects/*/secrets/*/versions/*`.
 func (r *ProjectsSecretsVersionsService) Access(name string) *ProjectsSecretsVersionsAccessCall {
 	c := &ProjectsSecretsVersionsAccessCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2979,17 +2988,17 @@ func (c *ProjectsSecretsVersionsAccessCall) Do(opts ...googleapi.CallOption) (*A
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccessSecretVersionResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3044,8 +3053,8 @@ type ProjectsSecretsVersionsDestroyCall struct {
 // Destroy: Destroys a SecretVersion. Sets the state of the
 // SecretVersion to DESTROYED and irrevocably destroys the secret data.
 //
-// - name: The resource name of the SecretVersion to destroy in the
-//   format `projects/*/secrets/*/versions/*`.
+//   - name: The resource name of the SecretVersion to destroy in the
+//     format `projects/*/secrets/*/versions/*`.
 func (r *ProjectsSecretsVersionsService) Destroy(name string, destroysecretversionrequest *DestroySecretVersionRequest) *ProjectsSecretsVersionsDestroyCall {
 	c := &ProjectsSecretsVersionsDestroyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3120,17 +3129,17 @@ func (c *ProjectsSecretsVersionsDestroyCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecretVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -3188,8 +3197,8 @@ type ProjectsSecretsVersionsDisableCall struct {
 // Disable: Disables a SecretVersion. Sets the state of the
 // SecretVersion to DISABLED.
 //
-// - name: The resource name of the SecretVersion to disable in the
-//   format `projects/*/secrets/*/versions/*`.
+//   - name: The resource name of the SecretVersion to disable in the
+//     format `projects/*/secrets/*/versions/*`.
 func (r *ProjectsSecretsVersionsService) Disable(name string, disablesecretversionrequest *DisableSecretVersionRequest) *ProjectsSecretsVersionsDisableCall {
 	c := &ProjectsSecretsVersionsDisableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3264,17 +3273,17 @@ func (c *ProjectsSecretsVersionsDisableCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecretVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -3332,8 +3341,8 @@ type ProjectsSecretsVersionsEnableCall struct {
 // Enable: Enables a SecretVersion. Sets the state of the SecretVersion
 // to ENABLED.
 //
-// - name: The resource name of the SecretVersion to enable in the
-//   format `projects/*/secrets/*/versions/*`.
+//   - name: The resource name of the SecretVersion to enable in the
+//     format `projects/*/secrets/*/versions/*`.
 func (r *ProjectsSecretsVersionsService) Enable(name string, enablesecretversionrequest *EnableSecretVersionRequest) *ProjectsSecretsVersionsEnableCall {
 	c := &ProjectsSecretsVersionsEnableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3408,17 +3417,17 @@ func (c *ProjectsSecretsVersionsEnableCall) Do(opts ...googleapi.CallOption) (*S
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecretVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -3477,10 +3486,10 @@ type ProjectsSecretsVersionsGetCall struct {
 // `projects/*/secrets/*/versions/latest` is an alias to the `latest`
 // SecretVersion.
 //
-// - name: The resource name of the SecretVersion in the format
-//   `projects/*/secrets/*/versions/*`.
-//   `projects/*/secrets/*/versions/latest` is an alias to the `latest`
-//   SecretVersion.
+//   - name: The resource name of the SecretVersion in the format
+//     `projects/*/secrets/*/versions/*`.
+//     `projects/*/secrets/*/versions/latest` is an alias to the `latest`
+//     SecretVersion.
 func (r *ProjectsSecretsVersionsService) Get(name string) *ProjectsSecretsVersionsGetCall {
 	c := &ProjectsSecretsVersionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3562,17 +3571,17 @@ func (c *ProjectsSecretsVersionsGetCall) Do(opts ...googleapi.CallOption) (*Secr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecretVersion{
 		ServerResponse: googleapi.ServerResponse{
@@ -3626,8 +3635,8 @@ type ProjectsSecretsVersionsListCall struct {
 
 // List: Lists SecretVersions. This call does not return secret data.
 //
-// - parent: The resource name of the Secret associated with the
-//   SecretVersions to list, in the format `projects/*/secrets/*`.
+//   - parent: The resource name of the Secret associated with the
+//     SecretVersions to list, in the format `projects/*/secrets/*`.
 func (r *ProjectsSecretsVersionsService) List(parent string) *ProjectsSecretsVersionsListCall {
 	c := &ProjectsSecretsVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3725,17 +3734,17 @@ func (c *ProjectsSecretsVersionsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSecretVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{

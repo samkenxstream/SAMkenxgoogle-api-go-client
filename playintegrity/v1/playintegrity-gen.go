@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developer.android.com/google/play/integrity
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/playintegrity/v1"
-//   ...
-//   ctx := context.Background()
-//   playintegrityService, err := playintegrity.NewService(ctx)
+//	import "google.golang.org/api/playintegrity/v1"
+//	...
+//	ctx := context.Background()
+//	playintegrityService, err := playintegrity.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   playintegrityService, err := playintegrity.NewService(ctx, option.WithAPIKey("AIza..."))
+//	playintegrityService, err := playintegrity.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   playintegrityService, err := playintegrity.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	playintegrityService, err := playintegrity.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package playintegrity // import "google.golang.org/api/playintegrity/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "playintegrity:v1"
 const apiName = "playintegrity"
@@ -145,9 +146,62 @@ type V1Service struct {
 	s *Service
 }
 
+// AccountActivity: Contains a signal helping apps differentiating
+// between likely genuine users and likely non-genuine traffic (such as
+// accounts being used for fraud, accounts used by automated traffic, or
+// accounts used in device farms) based on the presence and volume of
+// Play store activity.
+type AccountActivity struct {
+	// ActivityLevel: Required. Indicates the activity level of the account.
+	//
+	// Possible values:
+	//   "ACTIVITY_LEVEL_UNSPECIFIED" - Activity level has not been set.
+	//   "UNEVALUATED" - Account activity level is not evaluated because one
+	// of the prerequisite conditions is not met (e.g., device is not
+	// trusted, the user does not have Play app license)
+	//   "UNUSUAL" - Google Play store activity is unusual for at least one
+	// of the user accounts on the device. Google Play recommends checking
+	// that this is a real user.
+	//   "UNKNOWN" - Google Play does not have sufficient activity for the
+	// user account on the device. The account may be new, or it may lack
+	// activity on Google Play.
+	//   "TYPICAL_BASIC" - Google Play store activity is typical for the
+	// user account or accounts on the device.
+	//   "TYPICAL_STRONG" - Google Play store activity is typical for the
+	// user account or accounts on the device, with harder to replicate
+	// signals.
+	ActivityLevel string `json:"activityLevel,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ActivityLevel") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ActivityLevel") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AccountActivity) MarshalJSON() ([]byte, error) {
+	type NoMethod AccountActivity
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // AccountDetails: Contains the account information such as the
 // licensing status for the user in the scope.
 type AccountDetails struct {
+	// AccountActivity: Details about the account activity for the user in
+	// the scope.
+	AccountActivity *AccountActivity `json:"accountActivity,omitempty"`
+
 	// AppLicensingVerdict: Required. Details about the licensing status of
 	// the user for the app in the scope.
 	//
@@ -163,15 +217,15 @@ type AccountDetails struct {
 	// meet the minimum bar or the application was not a known Play version.
 	AppLicensingVerdict string `json:"appLicensingVerdict,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "AppLicensingVerdict")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "AccountActivity") to
+	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "AppLicensingVerdict") to
+	// NullFields is a list of field names (e.g. "AccountActivity") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -204,9 +258,9 @@ type AppIntegrity struct {
 	// meet the minimum bar.
 	AppRecognitionVerdict string `json:"appRecognitionVerdict,omitempty"`
 
-	// CertificateSha256Digest: Hex fingerprint of the application signing
-	// certificate. e.g. “ABCE1F....” Set iff app_recognition_verdict !=
-	// UNEVALUATED.
+	// CertificateSha256Digest: The SHA256 hash of the requesting app's
+	// signing certificates (base64 web-safe encoded). Set iff
+	// app_recognition_verdict != UNEVALUATED.
 	CertificateSha256Digest []string `json:"certificateSha256Digest,omitempty"`
 
 	// PackageName: Package name of the application under attestation. Set
@@ -356,9 +410,12 @@ func (s *DeviceIntegrity) MarshalJSON() ([]byte, error) {
 
 // RequestDetails: Contains the integrity request information.
 type RequestDetails struct {
-	// Nonce: Required. Nonce that was provided in the request (which is
-	// base64 web-safe no-wrap).
+	// Nonce: Nonce that was provided in the request (which is base64
+	// web-safe no-wrap).
 	Nonce string `json:"nonce,omitempty"`
+
+	// RequestHash: Request hash that was provided in the request.
+	RequestHash string `json:"requestHash,omitempty"`
 
 	// RequestPackageName: Required. Application package name this
 	// attestation was requested for. Note: This field makes no guarantees
@@ -483,8 +540,8 @@ type V1DecodeIntegrityTokenCall struct {
 // DecodeIntegrityToken: Decodes the integrity token and returns the
 // token payload.
 //
-// - packageName: Package name of the app the attached integrity token
-//   belongs to.
+//   - packageName: Package name of the app the attached integrity token
+//     belongs to.
 func (r *V1Service) DecodeIntegrityToken(packageName string, decodeintegritytokenrequest *DecodeIntegrityTokenRequest) *V1DecodeIntegrityTokenCall {
 	c := &V1DecodeIntegrityTokenCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -559,17 +616,17 @@ func (c *V1DecodeIntegrityTokenCall) Do(opts ...googleapi.CallOption) (*DecodeIn
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DecodeIntegrityTokenResponse{
 		ServerResponse: googleapi.ServerResponse{

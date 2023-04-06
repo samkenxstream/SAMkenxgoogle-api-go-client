@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/gkebackup/v1"
-//   ...
-//   ctx := context.Background()
-//   gkebackupService, err := gkebackup.NewService(ctx)
+//	import "google.golang.org/api/gkebackup/v1"
+//	...
+//	ctx := context.Background()
+//	gkebackupService, err := gkebackup.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   gkebackupService, err := gkebackup.NewService(ctx, option.WithAPIKey("AIza..."))
+//	gkebackupService, err := gkebackup.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   gkebackupService, err := gkebackup.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	gkebackupService, err := gkebackup.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package gkebackup // import "google.golang.org/api/gkebackup/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "gkebackup:v1"
 const apiName = "gkebackup"
@@ -258,8 +259,8 @@ type ProjectsLocationsRestorePlansRestoresVolumeRestoresService struct {
 // "DATA_READ" }, { "log_type": "DATA_WRITE", "exempted_members": [
 // "user:aliya@example.com" ] } ] } ] } For sampleservice, this policy
 // enables DATA_READ, DATA_WRITE and ADMIN_READ logging. It also exempts
-// jose@example.com from DATA_READ logging, and aliya@example.com from
-// DATA_WRITE logging.
+// `jose@example.com` from DATA_READ logging, and `aliya@example.com`
+// from DATA_WRITE logging.
 type AuditConfig struct {
 	// AuditLogConfigs: The configuration for logging of each type of
 	// permission.
@@ -416,7 +417,7 @@ type Backup struct {
 	Manual bool `json:"manual,omitempty"`
 
 	// Name: Output only. The fully qualified name of the Backup.
-	// projects/*/locations/*/backupPlans/*/backups/*
+	// `projects/*/locations/*/backupPlans/*/backups/*`
 	Name string `json:"name,omitempty"`
 
 	// PodCount: Output only. The total number of Kubernetes Pods contained
@@ -430,9 +431,9 @@ type Backup struct {
 	// RetainDays: The age (in days) after which this Backup will be
 	// automatically deleted. Must be an integer value >= 0: - If 0, no
 	// automatic deletion will occur for this Backup. - If not 0, this must
-	// be >= delete_lock_days. Once a Backup is created, this value may only
-	// be increased. Defaults to the parent BackupPlan's backup_retain_days
-	// value.
+	// be >= delete_lock_days and <= 365. Once a Backup is created, this
+	// value may only be increased. Defaults to the parent BackupPlan's
+	// backup_retain_days value.
 	RetainDays int64 `json:"retainDays,omitempty"`
 
 	// RetainExpireTime: Output only. The time at which this Backup will be
@@ -576,7 +577,7 @@ type BackupPlan struct {
 
 	// Cluster: Required. Immutable. The source cluster from which Backups
 	// will be created via this BackupPlan. Valid formats: -
-	// projects/*/locations/*/clusters/* - projects/*/zones/*/clusters/*
+	// `projects/*/locations/*/clusters/*` - `projects/*/zones/*/clusters/*`
 	Cluster string `json:"cluster,omitempty"`
 
 	// CreateTime: Output only. The timestamp when this BackupPlan resource
@@ -609,7 +610,7 @@ type BackupPlan struct {
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: Output only. The full name of the BackupPlan resource. Format:
-	// projects/*/locations/*/backupPlans/*
+	// `projects/*/locations/*/backupPlans/*`
 	Name string `json:"name,omitempty"`
 
 	// ProtectedPodCount: Output only. The number of Kubernetes Pods backed
@@ -672,19 +673,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -696,9 +704,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -739,8 +745,8 @@ type ClusterMetadata struct {
 	BackupCrdVersions map[string]string `json:"backupCrdVersions,omitempty"`
 
 	// Cluster: The source cluster from which this Backup was created. Valid
-	// formats: - projects/*/locations/*/clusters/* -
-	// projects/*/zones/*/clusters/* This is inherited from the parent
+	// formats: - `projects/*/locations/*/clusters/*` -
+	// `projects/*/zones/*/clusters/*` This is inherited from the parent
 	// BackupPlan's cluster field.
 	Cluster string `json:"cluster,omitempty"`
 
@@ -773,14 +779,23 @@ func (s *ClusterMetadata) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// ClusterResourceRestoreScope: Identifies the cluster-scoped resources
-// to restore from the Backup.
+// ClusterResourceRestoreScope: Defines the scope of cluster-scoped
+// resources to restore. Some group kinds are not reasonable choices for
+// a restore, and will cause an error if selected here. Any scope
+// selection that would restore "all valid" resources automatically
+// excludes these group kinds. - gkebackup.gke.io/BackupJob -
+// gkebackup.gke.io/RestoreJob - metrics.k8s.io/NodeMetrics -
+// migration.k8s.io/StorageState -
+// migration.k8s.io/StorageVersionMigration - Node -
+// snapshot.storage.k8s.io/VolumeSnapshotContent -
+// storage.k8s.io/CSINode Some group kinds are driven by restore
+// configuration elsewhere, and will cause an error if selected here. -
+// Namespace - PersistentVolume
 type ClusterResourceRestoreScope struct {
-	// SelectedGroupKinds: A list of "types" of cluster-scoped resources to
-	// be restored from the Backup. An empty list means that NO
-	// cluster-scoped resources will be restored. Note that Namespaces and
-	// PersistentVolume restoration is handled separately and is not
-	// governed by this field.
+	// SelectedGroupKinds: A list of cluster-scoped resource group kinds to
+	// restore from the backup. If specified, only the selected resources
+	// will be restored. Mutually exclusive to any other field in the
+	// message.
 	SelectedGroupKinds []*GroupKind `json:"selectedGroupKinds,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "SelectedGroupKinds")
@@ -822,7 +837,7 @@ type Empty struct {
 // used to encrypt Backup artifacts.
 type EncryptionKey struct {
 	// GcpKmsEncryptionKey: Google Cloud KMS encryption key. Format:
-	// projects/*/locations/*/keyRings/*/cryptoKeys/*
+	// `projects/*/locations/*/keyRings/*/cryptoKeys/*`
 	GcpKmsEncryptionKey string `json:"gcpKmsEncryptionKey,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "GcpKmsEncryptionKey")
@@ -1676,12 +1691,12 @@ type Restore struct {
 	// Backup: Required. Immutable. A reference to the Backup used as the
 	// source from which this Restore will restore. Note that this Backup
 	// must be a sub-resource of the RestorePlan's backup_plan. Format:
-	// projects/*/locations/*/backupPlans/*/backups/*.
+	// `projects/*/locations/*/backupPlans/*/backups/*`.
 	Backup string `json:"backup,omitempty"`
 
 	// Cluster: Output only. The target cluster into which this Restore will
-	// restore data. Valid formats: - projects/*/locations/*/clusters/* -
-	// projects/*/zones/*/clusters/* Inherited from parent RestorePlan's
+	// restore data. Valid formats: - `projects/*/locations/*/clusters/*` -
+	// `projects/*/zones/*/clusters/*` Inherited from parent RestorePlan's
 	// cluster value.
 	Cluster string `json:"cluster,omitempty"`
 
@@ -1711,7 +1726,7 @@ type Restore struct {
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: Output only. The full name of the Restore resource. Format:
-	// projects/*/locations/*/restorePlans/*/restores/*
+	// `projects/*/locations/*/restorePlans/*/restores/*`
 	Name string `json:"name,omitempty"`
 
 	// ResourcesExcludedCount: Output only. Number of resources excluded
@@ -1790,7 +1805,7 @@ func (s *Restore) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// RestoreConfig: Configuration of a restore. Next id: 9
+// RestoreConfig: Configuration of a restore. Next id: 12
 type RestoreConfig struct {
 	// AllNamespaces: Restore all namespaced resources in the Backup if set
 	// to "True". Specifying this field to "False" is an error.
@@ -1905,17 +1920,17 @@ func (s *RestoreConfig) MarshalJSON() ([]byte, error) {
 
 // RestorePlan: The configuration of a potential series of Restore
 // operations to be performed against Backups belong to a particular
-// BackupPlan. Next id: 11
+// BackupPlan. Next id: 13
 type RestorePlan struct {
 	// BackupPlan: Required. Immutable. A reference to the BackupPlan from
 	// which Backups may be used as the source for Restores created via this
-	// RestorePlan. Format: projects/*/locations/*/backupPlans/*.
+	// RestorePlan. Format: `projects/*/locations/*/backupPlans/*`.
 	BackupPlan string `json:"backupPlan,omitempty"`
 
 	// Cluster: Required. Immutable. The target cluster into which Restores
 	// created via this RestorePlan will restore data. NOTE: the cluster's
 	// region must be the same as the RestorePlan. Valid formats: -
-	// projects/*/locations/*/clusters/* - projects/*/zones/*/clusters/*
+	// `projects/*/locations/*/clusters/*` - `projects/*/zones/*/clusters/*`
 	Cluster string `json:"cluster,omitempty"`
 
 	// CreateTime: Output only. The timestamp when this RestorePlan resource
@@ -1940,7 +1955,7 @@ type RestorePlan struct {
 	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: Output only. The full name of the RestorePlan resource. Format:
-	// projects/*/locations/*/restorePlans/*.
+	// `projects/*/locations/*/restorePlans/*`.
 	Name string `json:"name,omitempty"`
 
 	// RestoreConfig: Required. Configuration of Restores created via this
@@ -1996,15 +2011,16 @@ type RetentionPolicy struct {
 	BackupDeleteLockDays int64 `json:"backupDeleteLockDays,omitempty"`
 
 	// BackupRetainDays: The default maximum age of a Backup created via
-	// this BackupPlan. This field MUST be an integer value >= 0. If
-	// specified, a Backup created under this BackupPlan will be
+	// this BackupPlan. This field MUST be an integer value >= 0 and <= 365.
+	// If specified, a Backup created under this BackupPlan will be
 	// automatically deleted after its age reaches (create_time +
 	// backup_retain_days). If not specified, Backups created under this
 	// BackupPlan will NOT be subject to automatic deletion. Updating this
 	// field does NOT affect existing Backups under it. Backups created
 	// AFTER a successful update will automatically pick up the new value.
-	// NOTE: backup_retain_days must be >= backup_delete_lock_days. Default:
-	// 0 (no automatic deletion)
+	// NOTE: backup_retain_days must be >= backup_delete_lock_days. If
+	// cron_schedule is defined, then this must be <= 360 * the creation
+	// interval. Default: 0 (no automatic deletion)
 	BackupRetainDays int64 `json:"backupRetainDays,omitempty"`
 
 	// Locked: This flag denotes whether the retention policy of this
@@ -2042,7 +2058,8 @@ func (s *RetentionPolicy) MarshalJSON() ([]byte, error) {
 type Schedule struct {
 	// CronSchedule: A standard cron (https://wikipedia.com/wiki/cron)
 	// string that defines a repeating schedule for creating Backups via
-	// this BackupPlan. Default (empty): no automatic backup creation will
+	// this BackupPlan. If this is defined, then backup_retain_days must
+	// also be defined. Default (empty): no automatic backup creation will
 	// occur.
 	CronSchedule string `json:"cronSchedule,omitempty"`
 
@@ -2129,7 +2146,7 @@ type SubstitutionRule struct {
 	// not match this expression. If this field is NOT specified, then ALL
 	// fields matched by the target_json_path expression will undergo
 	// substitution. Note that an empty (e.g., "", rather than unspecified)
-	// value for for this field will only match empty fields.
+	// value for this field will only match empty fields.
 	OriginalValuePattern string `json:"originalValuePattern,omitempty"`
 
 	// TargetGroupKinds: (Filtering parameter) Any resource subject to
@@ -2279,7 +2296,7 @@ type VolumeBackup struct {
 
 	// Name: Output only. The full name of the VolumeBackup resource.
 	// Format:
-	// projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*.
+	// `projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*`.
 	Name string `json:"name,omitempty"`
 
 	// SourcePvc: Output only. A reference to the source Kubernetes PVC from
@@ -2376,7 +2393,7 @@ type VolumeRestore struct {
 	Etag string `json:"etag,omitempty"`
 
 	// Name: Output only. Full name of the VolumeRestore resource. Format:
-	// projects/*/locations/*/restorePlans/*/restores/*/volumeRestores/*.
+	// `projects/*/locations/*/restorePlans/*/restores/*/volumeRestores/*`
 	Name string `json:"name,omitempty"`
 
 	// State: Output only. The current state of this VolumeRestore.
@@ -2411,7 +2428,7 @@ type VolumeRestore struct {
 
 	// VolumeBackup: Output only. The full name of the VolumeBackup from
 	// which the volume will be restored. Format:
-	// projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*.
+	// `projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*`.
 	VolumeBackup string `json:"volumeBackup,omitempty"`
 
 	// VolumeHandle: Output only. A storage system-specific opaque handler
@@ -2537,17 +2554,17 @@ func (c *ProjectsLocationsDeleteOperationsCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2683,17 +2700,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -2748,8 +2765,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2855,17 +2872,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2956,8 +2973,8 @@ type ProjectsLocationsBackupPlansCreateCall struct {
 
 // Create: Creates a new BackupPlan in a given location.
 //
-// - parent: The location within which to create the BackupPlan. Format:
-//   projects/*/locations/*.
+//   - parent: The location within which to create the BackupPlan. Format:
+//     `projects/*/locations/*`.
 func (r *ProjectsLocationsBackupPlansService) Create(parent string, backupplan *BackupPlan) *ProjectsLocationsBackupPlansCreateCall {
 	c := &ProjectsLocationsBackupPlansCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3043,17 +3060,17 @@ func (c *ProjectsLocationsBackupPlansCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3081,7 +3098,7 @@ func (c *ProjectsLocationsBackupPlansCreateCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The location within which to create the BackupPlan. Format: projects/*/locations/*",
+	//       "description": "Required. The location within which to create the BackupPlan. Format: `projects/*/locations/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -3114,8 +3131,8 @@ type ProjectsLocationsBackupPlansDeleteCall struct {
 
 // Delete: Deletes an existing BackupPlan.
 //
-// - name: Fully qualified BackupPlan name. Format:
-//   projects/*/locations/*/backupPlans/*.
+//   - name: Fully qualified BackupPlan name. Format:
+//     `projects/*/locations/*/backupPlans/*`.
 func (r *ProjectsLocationsBackupPlansService) Delete(name string) *ProjectsLocationsBackupPlansDeleteCall {
 	c := &ProjectsLocationsBackupPlansDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3192,17 +3209,17 @@ func (c *ProjectsLocationsBackupPlansDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3230,7 +3247,7 @@ func (c *ProjectsLocationsBackupPlansDeleteCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "name": {
-	//       "description": "Required. Fully qualified BackupPlan name. Format: projects/*/locations/*/backupPlans/*",
+	//       "description": "Required. Fully qualified BackupPlan name. Format: `projects/*/locations/*/backupPlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -3261,8 +3278,8 @@ type ProjectsLocationsBackupPlansGetCall struct {
 
 // Get: Retrieve the details of a single BackupPlan.
 //
-// - name: Fully qualified BackupPlan name. Format:
-//   projects/*/locations/*/backupPlans/*.
+//   - name: Fully qualified BackupPlan name. Format:
+//     `projects/*/locations/*/backupPlans/*`.
 func (r *ProjectsLocationsBackupPlansService) Get(name string) *ProjectsLocationsBackupPlansGetCall {
 	c := &ProjectsLocationsBackupPlansGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3344,17 +3361,17 @@ func (c *ProjectsLocationsBackupPlansGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BackupPlan{
 		ServerResponse: googleapi.ServerResponse{
@@ -3377,7 +3394,7 @@ func (c *ProjectsLocationsBackupPlansGetCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Fully qualified BackupPlan name. Format: projects/*/locations/*/backupPlans/*",
+	//       "description": "Required. Fully qualified BackupPlan name. Format: `projects/*/locations/*/backupPlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -3410,9 +3427,10 @@ type ProjectsLocationsBackupPlansGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansService) GetIamPolicy(resource string) *ProjectsLocationsBackupPlansGetIamPolicyCall {
 	c := &ProjectsLocationsBackupPlansGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3512,17 +3530,17 @@ func (c *ProjectsLocationsBackupPlansGetIamPolicyCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3551,7 +3569,7 @@ func (c *ProjectsLocationsBackupPlansGetIamPolicyCall) Do(opts ...googleapi.Call
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -3582,8 +3600,8 @@ type ProjectsLocationsBackupPlansListCall struct {
 
 // List: Lists BackupPlans in a given location.
 //
-// - parent: The location that contains the BackupPlans to list. Format:
-//   projects/*/locations/*.
+//   - parent: The location that contains the BackupPlans to list. Format:
+//     `projects/*/locations/*`.
 func (r *ProjectsLocationsBackupPlansService) List(parent string) *ProjectsLocationsBackupPlansListCall {
 	c := &ProjectsLocationsBackupPlansListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3700,17 +3718,17 @@ func (c *ProjectsLocationsBackupPlansListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBackupPlansResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3754,7 +3772,7 @@ func (c *ProjectsLocationsBackupPlansListCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The location that contains the BackupPlans to list. Format: projects/*/locations/*",
+	//       "description": "Required. The location that contains the BackupPlans to list. Format: `projects/*/locations/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -3806,8 +3824,8 @@ type ProjectsLocationsBackupPlansPatchCall struct {
 
 // Patch: Update a BackupPlan.
 //
-// - name: Output only. The full name of the BackupPlan resource.
-//   Format: projects/*/locations/*/backupPlans/*.
+//   - name: Output only. The full name of the BackupPlan resource.
+//     Format: `projects/*/locations/*/backupPlans/*`.
 func (r *ProjectsLocationsBackupPlansService) Patch(name string, backupplan *BackupPlan) *ProjectsLocationsBackupPlansPatchCall {
 	c := &ProjectsLocationsBackupPlansPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3897,17 +3915,17 @@ func (c *ProjectsLocationsBackupPlansPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3930,7 +3948,7 @@ func (c *ProjectsLocationsBackupPlansPatchCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Output only. The full name of the BackupPlan resource. Format: projects/*/locations/*/backupPlans/*",
+	//       "description": "Output only. The full name of the BackupPlan resource. Format: `projects/*/locations/*/backupPlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -3972,9 +3990,10 @@ type ProjectsLocationsBackupPlansSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsBackupPlansSetIamPolicyCall {
 	c := &ProjectsLocationsBackupPlansSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4049,17 +4068,17 @@ func (c *ProjectsLocationsBackupPlansSetIamPolicyCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4082,7 +4101,7 @@ func (c *ProjectsLocationsBackupPlansSetIamPolicyCall) Do(opts ...googleapi.Call
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -4121,9 +4140,10 @@ type ProjectsLocationsBackupPlansTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsBackupPlansTestIamPermissionsCall {
 	c := &ProjectsLocationsBackupPlansTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4198,17 +4218,17 @@ func (c *ProjectsLocationsBackupPlansTestIamPermissionsCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4231,7 +4251,7 @@ func (c *ProjectsLocationsBackupPlansTestIamPermissionsCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -4265,8 +4285,8 @@ type ProjectsLocationsBackupPlansBackupsCreateCall struct {
 
 // Create: Creates a Backup for the given BackupPlan.
 //
-// - parent: The BackupPlan within which to create the Backup. Format:
-//   projects/*/locations/*/backupPlans/*.
+//   - parent: The BackupPlan within which to create the Backup. Format:
+//     `projects/*/locations/*/backupPlans/*`.
 func (r *ProjectsLocationsBackupPlansBackupsService) Create(parent string, backup *Backup) *ProjectsLocationsBackupPlansBackupsCreateCall {
 	c := &ProjectsLocationsBackupPlansBackupsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4352,17 +4372,17 @@ func (c *ProjectsLocationsBackupPlansBackupsCreateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4390,7 +4410,7 @@ func (c *ProjectsLocationsBackupPlansBackupsCreateCall) Do(opts ...googleapi.Cal
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The BackupPlan within which to create the Backup. Format: projects/*/locations/*/backupPlans/*",
+	//       "description": "Required. The BackupPlan within which to create the Backup. Format: `projects/*/locations/*/backupPlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -4423,8 +4443,8 @@ type ProjectsLocationsBackupPlansBackupsDeleteCall struct {
 
 // Delete: Deletes an existing Backup.
 //
-// - name: Name of the Backup resource. Format:
-//   projects/*/locations/*/backupPlans/*/backups/*.
+//   - name: Name of the Backup resource. Format:
+//     `projects/*/locations/*/backupPlans/*/backups/*`.
 func (r *ProjectsLocationsBackupPlansBackupsService) Delete(name string) *ProjectsLocationsBackupPlansBackupsDeleteCall {
 	c := &ProjectsLocationsBackupPlansBackupsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4509,17 +4529,17 @@ func (c *ProjectsLocationsBackupPlansBackupsDeleteCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4552,7 +4572,7 @@ func (c *ProjectsLocationsBackupPlansBackupsDeleteCall) Do(opts ...googleapi.Cal
 	//       "type": "boolean"
 	//     },
 	//     "name": {
-	//       "description": "Required. Name of the Backup resource. Format: projects/*/locations/*/backupPlans/*/backups/*",
+	//       "description": "Required. Name of the Backup resource. Format: `projects/*/locations/*/backupPlans/*/backups/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+$",
 	//       "required": true,
@@ -4583,8 +4603,8 @@ type ProjectsLocationsBackupPlansBackupsGetCall struct {
 
 // Get: Retrieve the details of a single Backup.
 //
-// - name: Full name of the Backup resource. Format:
-//   projects/*/locations/*/backupPlans/*/backups/*.
+//   - name: Full name of the Backup resource. Format:
+//     `projects/*/locations/*/backupPlans/*/backups/*`.
 func (r *ProjectsLocationsBackupPlansBackupsService) Get(name string) *ProjectsLocationsBackupPlansBackupsGetCall {
 	c := &ProjectsLocationsBackupPlansBackupsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4666,17 +4686,17 @@ func (c *ProjectsLocationsBackupPlansBackupsGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Backup{
 		ServerResponse: googleapi.ServerResponse{
@@ -4699,7 +4719,7 @@ func (c *ProjectsLocationsBackupPlansBackupsGetCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Full name of the Backup resource. Format: projects/*/locations/*/backupPlans/*/backups/*",
+	//       "description": "Required. Full name of the Backup resource. Format: `projects/*/locations/*/backupPlans/*/backups/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+$",
 	//       "required": true,
@@ -4732,9 +4752,10 @@ type ProjectsLocationsBackupPlansBackupsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansBackupsService) GetIamPolicy(resource string) *ProjectsLocationsBackupPlansBackupsGetIamPolicyCall {
 	c := &ProjectsLocationsBackupPlansBackupsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4834,17 +4855,17 @@ func (c *ProjectsLocationsBackupPlansBackupsGetIamPolicyCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4873,7 +4894,7 @@ func (c *ProjectsLocationsBackupPlansBackupsGetIamPolicyCall) Do(opts ...googlea
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+$",
 	//       "required": true,
@@ -4904,8 +4925,8 @@ type ProjectsLocationsBackupPlansBackupsListCall struct {
 
 // List: Lists the Backups for a given BackupPlan.
 //
-// - parent: The BackupPlan that contains the Backups to list. Format:
-//   projects/*/locations/*/backupPlans/*.
+//   - parent: The BackupPlan that contains the Backups to list. Format:
+//     `projects/*/locations/*/backupPlans/*`.
 func (r *ProjectsLocationsBackupPlansBackupsService) List(parent string) *ProjectsLocationsBackupPlansBackupsListCall {
 	c := &ProjectsLocationsBackupPlansBackupsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5022,17 +5043,17 @@ func (c *ProjectsLocationsBackupPlansBackupsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBackupsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5076,7 +5097,7 @@ func (c *ProjectsLocationsBackupPlansBackupsListCall) Do(opts ...googleapi.CallO
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The BackupPlan that contains the Backups to list. Format: projects/*/locations/*/backupPlans/*",
+	//       "description": "Required. The BackupPlan that contains the Backups to list. Format: `projects/*/locations/*/backupPlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+$",
 	//       "required": true,
@@ -5128,8 +5149,8 @@ type ProjectsLocationsBackupPlansBackupsPatchCall struct {
 
 // Patch: Update a Backup.
 //
-// - name: Output only. The fully qualified name of the Backup.
-//   projects/*/locations/*/backupPlans/*/backups/*.
+//   - name: Output only. The fully qualified name of the Backup.
+//     `projects/*/locations/*/backupPlans/*/backups/*`.
 func (r *ProjectsLocationsBackupPlansBackupsService) Patch(name string, backup *Backup) *ProjectsLocationsBackupPlansBackupsPatchCall {
 	c := &ProjectsLocationsBackupPlansBackupsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5217,17 +5238,17 @@ func (c *ProjectsLocationsBackupPlansBackupsPatchCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5250,7 +5271,7 @@ func (c *ProjectsLocationsBackupPlansBackupsPatchCall) Do(opts ...googleapi.Call
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Output only. The fully qualified name of the Backup. projects/*/locations/*/backupPlans/*/backups/*",
+	//       "description": "Output only. The fully qualified name of the Backup. `projects/*/locations/*/backupPlans/*/backups/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+$",
 	//       "required": true,
@@ -5292,9 +5313,10 @@ type ProjectsLocationsBackupPlansBackupsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansBackupsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsBackupPlansBackupsSetIamPolicyCall {
 	c := &ProjectsLocationsBackupPlansBackupsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5369,17 +5391,17 @@ func (c *ProjectsLocationsBackupPlansBackupsSetIamPolicyCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5402,7 +5424,7 @@ func (c *ProjectsLocationsBackupPlansBackupsSetIamPolicyCall) Do(opts ...googlea
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+$",
 	//       "required": true,
@@ -5441,9 +5463,10 @@ type ProjectsLocationsBackupPlansBackupsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansBackupsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsBackupPlansBackupsTestIamPermissionsCall {
 	c := &ProjectsLocationsBackupPlansBackupsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5518,17 +5541,17 @@ func (c *ProjectsLocationsBackupPlansBackupsTestIamPermissionsCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5551,7 +5574,7 @@ func (c *ProjectsLocationsBackupPlansBackupsTestIamPermissionsCall) Do(opts ...g
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+$",
 	//       "required": true,
@@ -5585,8 +5608,8 @@ type ProjectsLocationsBackupPlansBackupsVolumeBackupsGetCall struct {
 
 // Get: Retrieve the details of a single VolumeBackup.
 //
-// - name: Full name of the VolumeBackup resource. Format:
-//   projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*.
+//   - name: Full name of the VolumeBackup resource. Format:
+//     `projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*`.
 func (r *ProjectsLocationsBackupPlansBackupsVolumeBackupsService) Get(name string) *ProjectsLocationsBackupPlansBackupsVolumeBackupsGetCall {
 	c := &ProjectsLocationsBackupPlansBackupsVolumeBackupsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5668,17 +5691,17 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsGetCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VolumeBackup{
 		ServerResponse: googleapi.ServerResponse{
@@ -5701,7 +5724,7 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsGetCall) Do(opts ...goo
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Full name of the VolumeBackup resource. Format: projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*",
+	//       "description": "Required. Full name of the VolumeBackup resource. Format: `projects/*/locations/*/backupPlans/*/backups/*/volumeBackups/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+/volumeBackups/[^/]+$",
 	//       "required": true,
@@ -5734,9 +5757,10 @@ type ProjectsLocationsBackupPlansBackupsVolumeBackupsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansBackupsVolumeBackupsService) GetIamPolicy(resource string) *ProjectsLocationsBackupPlansBackupsVolumeBackupsGetIamPolicyCall {
 	c := &ProjectsLocationsBackupPlansBackupsVolumeBackupsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5836,17 +5860,17 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsGetIamPolicyCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5875,7 +5899,7 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsGetIamPolicyCall) Do(op
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+/volumeBackups/[^/]+$",
 	//       "required": true,
@@ -5906,8 +5930,8 @@ type ProjectsLocationsBackupPlansBackupsVolumeBackupsListCall struct {
 
 // List: Lists the VolumeBackups for a given Backup.
 //
-// - parent: The Backup that contains the VolumeBackups to list. Format:
-//   projects/*/locations/*/backupPlans/*/backups/*.
+//   - parent: The Backup that contains the VolumeBackups to list. Format:
+//     `projects/*/locations/*/backupPlans/*/backups/*`.
 func (r *ProjectsLocationsBackupPlansBackupsVolumeBackupsService) List(parent string) *ProjectsLocationsBackupPlansBackupsVolumeBackupsListCall {
 	c := &ProjectsLocationsBackupPlansBackupsVolumeBackupsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6024,17 +6048,17 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsListCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVolumeBackupsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6078,7 +6102,7 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsListCall) Do(opts ...go
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The Backup that contains the VolumeBackups to list. Format: projects/*/locations/*/backupPlans/*/backups/*",
+	//       "description": "Required. The Backup that contains the VolumeBackups to list. Format: `projects/*/locations/*/backupPlans/*/backups/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+$",
 	//       "required": true,
@@ -6132,9 +6156,10 @@ type ProjectsLocationsBackupPlansBackupsVolumeBackupsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansBackupsVolumeBackupsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsBackupPlansBackupsVolumeBackupsSetIamPolicyCall {
 	c := &ProjectsLocationsBackupPlansBackupsVolumeBackupsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6209,17 +6234,17 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsSetIamPolicyCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6242,7 +6267,7 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsSetIamPolicyCall) Do(op
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+/volumeBackups/[^/]+$",
 	//       "required": true,
@@ -6281,9 +6306,10 @@ type ProjectsLocationsBackupPlansBackupsVolumeBackupsTestIamPermissionsCall stru
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsBackupPlansBackupsVolumeBackupsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsBackupPlansBackupsVolumeBackupsTestIamPermissionsCall {
 	c := &ProjectsLocationsBackupPlansBackupsVolumeBackupsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6358,17 +6384,17 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsTestIamPermissionsCall)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6391,7 +6417,7 @@ func (c *ProjectsLocationsBackupPlansBackupsVolumeBackupsTestIamPermissionsCall)
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/backupPlans/[^/]+/backups/[^/]+/volumeBackups/[^/]+$",
 	//       "required": true,
@@ -6509,17 +6535,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6660,17 +6686,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6724,14 +6750,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -6837,17 +6856,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6861,7 +6880,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "gkebackup.projects.locations.operations.list",
@@ -6938,8 +6957,8 @@ type ProjectsLocationsRestorePlansCreateCall struct {
 
 // Create: Creates a new RestorePlan in a given location.
 //
-// - parent: The location within which to create the RestorePlan.
-//   Format: projects/*/locations/*.
+//   - parent: The location within which to create the RestorePlan.
+//     Format: `projects/*/locations/*`.
 func (r *ProjectsLocationsRestorePlansService) Create(parent string, restoreplan *RestorePlan) *ProjectsLocationsRestorePlansCreateCall {
 	c := &ProjectsLocationsRestorePlansCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7025,17 +7044,17 @@ func (c *ProjectsLocationsRestorePlansCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7058,7 +7077,7 @@ func (c *ProjectsLocationsRestorePlansCreateCall) Do(opts ...googleapi.CallOptio
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "Required. The location within which to create the RestorePlan. Format: projects/*/locations/*",
+	//       "description": "Required. The location within which to create the RestorePlan. Format: `projects/*/locations/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -7096,8 +7115,8 @@ type ProjectsLocationsRestorePlansDeleteCall struct {
 
 // Delete: Deletes an existing RestorePlan.
 //
-// - name: Fully qualified RestorePlan name. Format:
-//   projects/*/locations/*/restorePlans/*.
+//   - name: Fully qualified RestorePlan name. Format:
+//     `projects/*/locations/*/restorePlans/*`.
 func (r *ProjectsLocationsRestorePlansService) Delete(name string) *ProjectsLocationsRestorePlansDeleteCall {
 	c := &ProjectsLocationsRestorePlansDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7182,17 +7201,17 @@ func (c *ProjectsLocationsRestorePlansDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7225,7 +7244,7 @@ func (c *ProjectsLocationsRestorePlansDeleteCall) Do(opts ...googleapi.CallOptio
 	//       "type": "boolean"
 	//     },
 	//     "name": {
-	//       "description": "Required. Fully qualified RestorePlan name. Format: projects/*/locations/*/restorePlans/*",
+	//       "description": "Required. Fully qualified RestorePlan name. Format: `projects/*/locations/*/restorePlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -7256,8 +7275,8 @@ type ProjectsLocationsRestorePlansGetCall struct {
 
 // Get: Retrieve the details of a single RestorePlan.
 //
-// - name: Fully qualified RestorePlan name. Format:
-//   projects/*/locations/*/restorePlans/*.
+//   - name: Fully qualified RestorePlan name. Format:
+//     `projects/*/locations/*/restorePlans/*`.
 func (r *ProjectsLocationsRestorePlansService) Get(name string) *ProjectsLocationsRestorePlansGetCall {
 	c := &ProjectsLocationsRestorePlansGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7339,17 +7358,17 @@ func (c *ProjectsLocationsRestorePlansGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RestorePlan{
 		ServerResponse: googleapi.ServerResponse{
@@ -7372,7 +7391,7 @@ func (c *ProjectsLocationsRestorePlansGetCall) Do(opts ...googleapi.CallOption) 
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Fully qualified RestorePlan name. Format: projects/*/locations/*/restorePlans/*",
+	//       "description": "Required. Fully qualified RestorePlan name. Format: `projects/*/locations/*/restorePlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -7405,9 +7424,10 @@ type ProjectsLocationsRestorePlansGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansService) GetIamPolicy(resource string) *ProjectsLocationsRestorePlansGetIamPolicyCall {
 	c := &ProjectsLocationsRestorePlansGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7507,17 +7527,17 @@ func (c *ProjectsLocationsRestorePlansGetIamPolicyCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7546,7 +7566,7 @@ func (c *ProjectsLocationsRestorePlansGetIamPolicyCall) Do(opts ...googleapi.Cal
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -7577,8 +7597,8 @@ type ProjectsLocationsRestorePlansListCall struct {
 
 // List: Lists RestorePlans in a given location.
 //
-// - parent: The location that contains the RestorePlans to list.
-//   Format: projects/*/locations/*.
+//   - parent: The location that contains the RestorePlans to list.
+//     Format: `projects/*/locations/*`.
 func (r *ProjectsLocationsRestorePlansService) List(parent string) *ProjectsLocationsRestorePlansListCall {
 	c := &ProjectsLocationsRestorePlansListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7695,17 +7715,17 @@ func (c *ProjectsLocationsRestorePlansListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListRestorePlansResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7749,7 +7769,7 @@ func (c *ProjectsLocationsRestorePlansListCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The location that contains the RestorePlans to list. Format: projects/*/locations/*",
+	//       "description": "Required. The location that contains the RestorePlans to list. Format: `projects/*/locations/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -7801,8 +7821,8 @@ type ProjectsLocationsRestorePlansPatchCall struct {
 
 // Patch: Update a RestorePlan.
 //
-// - name: Output only. The full name of the RestorePlan resource.
-//   Format: projects/*/locations/*/restorePlans/*.
+//   - name: Output only. The full name of the RestorePlan resource.
+//     Format: `projects/*/locations/*/restorePlans/*`.
 func (r *ProjectsLocationsRestorePlansService) Patch(name string, restoreplan *RestorePlan) *ProjectsLocationsRestorePlansPatchCall {
 	c := &ProjectsLocationsRestorePlansPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7891,17 +7911,17 @@ func (c *ProjectsLocationsRestorePlansPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7924,7 +7944,7 @@ func (c *ProjectsLocationsRestorePlansPatchCall) Do(opts ...googleapi.CallOption
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Output only. The full name of the RestorePlan resource. Format: projects/*/locations/*/restorePlans/*.",
+	//       "description": "Output only. The full name of the RestorePlan resource. Format: `projects/*/locations/*/restorePlans/*`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -7966,9 +7986,10 @@ type ProjectsLocationsRestorePlansSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsRestorePlansSetIamPolicyCall {
 	c := &ProjectsLocationsRestorePlansSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8043,17 +8064,17 @@ func (c *ProjectsLocationsRestorePlansSetIamPolicyCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8076,7 +8097,7 @@ func (c *ProjectsLocationsRestorePlansSetIamPolicyCall) Do(opts ...googleapi.Cal
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -8115,9 +8136,10 @@ type ProjectsLocationsRestorePlansTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsRestorePlansTestIamPermissionsCall {
 	c := &ProjectsLocationsRestorePlansTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8192,17 +8214,17 @@ func (c *ProjectsLocationsRestorePlansTestIamPermissionsCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8225,7 +8247,7 @@ func (c *ProjectsLocationsRestorePlansTestIamPermissionsCall) Do(opts ...googlea
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -8259,8 +8281,8 @@ type ProjectsLocationsRestorePlansRestoresCreateCall struct {
 
 // Create: Creates a new Restore for the given RestorePlan.
 //
-// - parent: The RestorePlan within which to create the Restore. Format:
-//   projects/*/locations/*/restorePlans/*.
+//   - parent: The RestorePlan within which to create the Restore. Format:
+//     `projects/*/locations/*/restorePlans/*`.
 func (r *ProjectsLocationsRestorePlansRestoresService) Create(parent string, restore *Restore) *ProjectsLocationsRestorePlansRestoresCreateCall {
 	c := &ProjectsLocationsRestorePlansRestoresCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8346,17 +8368,17 @@ func (c *ProjectsLocationsRestorePlansRestoresCreateCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8379,7 +8401,7 @@ func (c *ProjectsLocationsRestorePlansRestoresCreateCall) Do(opts ...googleapi.C
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "Required. The RestorePlan within which to create the Restore. Format: projects/*/locations/*/restorePlans/*",
+	//       "description": "Required. The RestorePlan within which to create the Restore. Format: `projects/*/locations/*/restorePlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -8417,8 +8439,8 @@ type ProjectsLocationsRestorePlansRestoresDeleteCall struct {
 
 // Delete: Deletes an existing Restore.
 //
-// - name: Full name of the Restore Format:
-//   projects/*/locations/*/restorePlans/*/restores/*.
+//   - name: Full name of the Restore Format:
+//     `projects/*/locations/*/restorePlans/*/restores/*`.
 func (r *ProjectsLocationsRestorePlansRestoresService) Delete(name string) *ProjectsLocationsRestorePlansRestoresDeleteCall {
 	c := &ProjectsLocationsRestorePlansRestoresDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8503,17 +8525,17 @@ func (c *ProjectsLocationsRestorePlansRestoresDeleteCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8546,7 +8568,7 @@ func (c *ProjectsLocationsRestorePlansRestoresDeleteCall) Do(opts ...googleapi.C
 	//       "type": "boolean"
 	//     },
 	//     "name": {
-	//       "description": "Required. Full name of the Restore Format: projects/*/locations/*/restorePlans/*/restores/*",
+	//       "description": "Required. Full name of the Restore Format: `projects/*/locations/*/restorePlans/*/restores/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+$",
 	//       "required": true,
@@ -8577,8 +8599,8 @@ type ProjectsLocationsRestorePlansRestoresGetCall struct {
 
 // Get: Retrieves the details of a single Restore.
 //
-// - name: Name of the restore resource. Format:
-//   projects/*/locations/*/restorePlans/*/restores/*.
+//   - name: Name of the restore resource. Format:
+//     `projects/*/locations/*/restorePlans/*/restores/*`.
 func (r *ProjectsLocationsRestorePlansRestoresService) Get(name string) *ProjectsLocationsRestorePlansRestoresGetCall {
 	c := &ProjectsLocationsRestorePlansRestoresGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8660,17 +8682,17 @@ func (c *ProjectsLocationsRestorePlansRestoresGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Restore{
 		ServerResponse: googleapi.ServerResponse{
@@ -8693,7 +8715,7 @@ func (c *ProjectsLocationsRestorePlansRestoresGetCall) Do(opts ...googleapi.Call
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the restore resource. Format: projects/*/locations/*/restorePlans/*/restores/*",
+	//       "description": "Required. Name of the restore resource. Format: `projects/*/locations/*/restorePlans/*/restores/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+$",
 	//       "required": true,
@@ -8726,9 +8748,10 @@ type ProjectsLocationsRestorePlansRestoresGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansRestoresService) GetIamPolicy(resource string) *ProjectsLocationsRestorePlansRestoresGetIamPolicyCall {
 	c := &ProjectsLocationsRestorePlansRestoresGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8828,17 +8851,17 @@ func (c *ProjectsLocationsRestorePlansRestoresGetIamPolicyCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8867,7 +8890,7 @@ func (c *ProjectsLocationsRestorePlansRestoresGetIamPolicyCall) Do(opts ...googl
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+$",
 	//       "required": true,
@@ -8898,8 +8921,8 @@ type ProjectsLocationsRestorePlansRestoresListCall struct {
 
 // List: Lists the Restores for a given RestorePlan.
 //
-// - parent: The RestorePlan that contains the Restores to list. Format:
-//   projects/*/locations/*/restorePlans/*.
+//   - parent: The RestorePlan that contains the Restores to list. Format:
+//     `projects/*/locations/*/restorePlans/*`.
 func (r *ProjectsLocationsRestorePlansRestoresService) List(parent string) *ProjectsLocationsRestorePlansRestoresListCall {
 	c := &ProjectsLocationsRestorePlansRestoresListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9016,17 +9039,17 @@ func (c *ProjectsLocationsRestorePlansRestoresListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListRestoresResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9070,7 +9093,7 @@ func (c *ProjectsLocationsRestorePlansRestoresListCall) Do(opts ...googleapi.Cal
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The RestorePlan that contains the Restores to list. Format: projects/*/locations/*/restorePlans/*",
+	//       "description": "Required. The RestorePlan that contains the Restores to list. Format: `projects/*/locations/*/restorePlans/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+$",
 	//       "required": true,
@@ -9122,8 +9145,8 @@ type ProjectsLocationsRestorePlansRestoresPatchCall struct {
 
 // Patch: Update a Restore.
 //
-// - name: Output only. The full name of the Restore resource. Format:
-//   projects/*/locations/*/restorePlans/*/restores/*.
+//   - name: Output only. The full name of the Restore resource. Format:
+//     `projects/*/locations/*/restorePlans/*/restores/*`.
 func (r *ProjectsLocationsRestorePlansRestoresService) Patch(name string, restore *Restore) *ProjectsLocationsRestorePlansRestoresPatchCall {
 	c := &ProjectsLocationsRestorePlansRestoresPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9211,17 +9234,17 @@ func (c *ProjectsLocationsRestorePlansRestoresPatchCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9244,7 +9267,7 @@ func (c *ProjectsLocationsRestorePlansRestoresPatchCall) Do(opts ...googleapi.Ca
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Output only. The full name of the Restore resource. Format: projects/*/locations/*/restorePlans/*/restores/*",
+	//       "description": "Output only. The full name of the Restore resource. Format: `projects/*/locations/*/restorePlans/*/restores/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+$",
 	//       "required": true,
@@ -9286,9 +9309,10 @@ type ProjectsLocationsRestorePlansRestoresSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansRestoresService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsRestorePlansRestoresSetIamPolicyCall {
 	c := &ProjectsLocationsRestorePlansRestoresSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9363,17 +9387,17 @@ func (c *ProjectsLocationsRestorePlansRestoresSetIamPolicyCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9396,7 +9420,7 @@ func (c *ProjectsLocationsRestorePlansRestoresSetIamPolicyCall) Do(opts ...googl
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+$",
 	//       "required": true,
@@ -9435,9 +9459,10 @@ type ProjectsLocationsRestorePlansRestoresTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansRestoresService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsRestorePlansRestoresTestIamPermissionsCall {
 	c := &ProjectsLocationsRestorePlansRestoresTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9512,17 +9537,17 @@ func (c *ProjectsLocationsRestorePlansRestoresTestIamPermissionsCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9545,7 +9570,7 @@ func (c *ProjectsLocationsRestorePlansRestoresTestIamPermissionsCall) Do(opts ..
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+$",
 	//       "required": true,
@@ -9579,8 +9604,8 @@ type ProjectsLocationsRestorePlansRestoresVolumeRestoresGetCall struct {
 
 // Get: Retrieve the details of a single VolumeRestore.
 //
-// - name: Full name of the VolumeRestore resource. Format:
-//   projects/*/locations/*/restorePlans/*/restores/*/volumeRestores/*.
+//   - name: Full name of the VolumeRestore resource. Format:
+//     `projects/*/locations/*/restorePlans/*/restores/*/volumeRestores/*`.
 func (r *ProjectsLocationsRestorePlansRestoresVolumeRestoresService) Get(name string) *ProjectsLocationsRestorePlansRestoresVolumeRestoresGetCall {
 	c := &ProjectsLocationsRestorePlansRestoresVolumeRestoresGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9662,17 +9687,17 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresGetCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VolumeRestore{
 		ServerResponse: googleapi.ServerResponse{
@@ -9695,7 +9720,7 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresGetCall) Do(opts ...
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Full name of the VolumeRestore resource. Format: projects/*/locations/*/restorePlans/*/restores/*/volumeRestores/*",
+	//       "description": "Required. Full name of the VolumeRestore resource. Format: `projects/*/locations/*/restorePlans/*/restores/*/volumeRestores/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+/volumeRestores/[^/]+$",
 	//       "required": true,
@@ -9728,9 +9753,10 @@ type ProjectsLocationsRestorePlansRestoresVolumeRestoresGetIamPolicyCall struct 
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansRestoresVolumeRestoresService) GetIamPolicy(resource string) *ProjectsLocationsRestorePlansRestoresVolumeRestoresGetIamPolicyCall {
 	c := &ProjectsLocationsRestorePlansRestoresVolumeRestoresGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9830,17 +9856,17 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresGetIamPolicyCall) Do
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9869,7 +9895,7 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresGetIamPolicyCall) Do
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+/volumeRestores/[^/]+$",
 	//       "required": true,
@@ -9900,8 +9926,8 @@ type ProjectsLocationsRestorePlansRestoresVolumeRestoresListCall struct {
 
 // List: Lists the VolumeRestores for a given Restore.
 //
-// - parent: The Restore that contains the VolumeRestores to list.
-//   Format: projects/*/locations/*/restorePlans/*/restores/*.
+//   - parent: The Restore that contains the VolumeRestores to list.
+//     Format: `projects/*/locations/*/restorePlans/*/restores/*`.
 func (r *ProjectsLocationsRestorePlansRestoresVolumeRestoresService) List(parent string) *ProjectsLocationsRestorePlansRestoresVolumeRestoresListCall {
 	c := &ProjectsLocationsRestorePlansRestoresVolumeRestoresListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10019,17 +10045,17 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresListCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVolumeRestoresResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10073,7 +10099,7 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresListCall) Do(opts ..
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The Restore that contains the VolumeRestores to list. Format: projects/*/locations/*/restorePlans/*/restores/*",
+	//       "description": "Required. The Restore that contains the VolumeRestores to list. Format: `projects/*/locations/*/restorePlans/*/restores/*`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+$",
 	//       "required": true,
@@ -10127,9 +10153,10 @@ type ProjectsLocationsRestorePlansRestoresVolumeRestoresSetIamPolicyCall struct 
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansRestoresVolumeRestoresService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsLocationsRestorePlansRestoresVolumeRestoresSetIamPolicyCall {
 	c := &ProjectsLocationsRestorePlansRestoresVolumeRestoresSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10204,17 +10231,17 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresSetIamPolicyCall) Do
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -10237,7 +10264,7 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresSetIamPolicyCall) Do
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+/volumeRestores/[^/]+$",
 	//       "required": true,
@@ -10276,9 +10303,10 @@ type ProjectsLocationsRestorePlansRestoresVolumeRestoresTestIamPermissionsCall s
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsRestorePlansRestoresVolumeRestoresService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsLocationsRestorePlansRestoresVolumeRestoresTestIamPermissionsCall {
 	c := &ProjectsLocationsRestorePlansRestoresVolumeRestoresTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10353,17 +10381,17 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresTestIamPermissionsCa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10386,7 +10414,7 @@ func (c *ProjectsLocationsRestorePlansRestoresVolumeRestoresTestIamPermissionsCa
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/restorePlans/[^/]+/restores/[^/]+/volumeRestores/[^/]+$",
 	//       "required": true,

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/translate/docs/quickstarts
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/translate/v3beta1"
-//   ...
-//   ctx := context.Background()
-//   translateService, err := translate.NewService(ctx)
+//	import "google.golang.org/api/translate/v3beta1"
+//	...
+//	ctx := context.Background()
+//	translateService, err := translate.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   translateService, err := translate.NewService(ctx, option.WithScopes(translate.CloudTranslationScope))
+//	translateService, err := translate.NewService(ctx, option.WithScopes(translate.CloudTranslationScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   translateService, err := translate.NewService(ctx, option.WithAPIKey("AIza..."))
+//	translateService, err := translate.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   translateService, err := translate.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	translateService, err := translate.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package translate // import "google.golang.org/api/translate/v3beta1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "translate:v3beta1"
 const apiName = "translate"
@@ -264,7 +265,7 @@ type BatchDocumentOutputConfig struct {
 	// index.csv will be keeping updated during the process, please make
 	// sure there is no custom retention policy applied on the output bucket
 	// that may avoid file updating.
-	// (https://cloud.google.com/storage/docs/bucket-lock?hl=en#retention-policy)
+	// (https://cloud.google.com/storage/docs/bucket-lock#retention-policy)
 	// The naming format of translation output files follows (for target
 	// language code [trg]): `translation_output`:
 	// gs://translation_output/a_b_c_[trg]_translation.[extension]
@@ -304,6 +305,18 @@ func (s *BatchDocumentOutputConfig) MarshalJSON() ([]byte, error) {
 
 // BatchTranslateDocumentRequest: The BatchTranslateDocument request.
 type BatchTranslateDocumentRequest struct {
+	// CustomizedAttribution: Optional. This flag is to support user
+	// customized attribution. If not provided, the default is `Machine
+	// Translated by Google`. Customized attribution should follow rules in
+	// https://cloud.google.com/translate/attribution#attribution_and_logos
+	CustomizedAttribution string `json:"customizedAttribution,omitempty"`
+
+	// EnableShadowRemovalNativePdf: Optional. If true, use the text removal
+	// server to remove the shadow text on background image for native pdf
+	// translation. Shadow removal feature can only be enabled when
+	// is_translate_native_pdf_only: false && pdf_native_only: false
+	EnableShadowRemovalNativePdf bool `json:"enableShadowRemovalNativePdf,omitempty"`
+
 	// FormatConversions: Optional.
 	FormatConversions map[string]string `json:"formatConversions,omitempty"`
 
@@ -344,15 +357,16 @@ type BatchTranslateDocumentRequest struct {
 	// here.
 	TargetLanguageCodes []string `json:"targetLanguageCodes,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "FormatConversions")
-	// to unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "CustomizedAttribution") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "FormatConversions") to
+	// NullFields is a list of field names (e.g. "CustomizedAttribution") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -861,9 +875,9 @@ type GlossaryInputConfig struct {
 	// column names. - TMX (`.tmx`): TMX file with parallel data defining
 	// source/target term pairs. For equivalent term sets glossaries: - CSV
 	// (`.csv`): Multi-column CSV file defining equivalent glossary terms in
-	// multiple languages. The format is defined for Google Translation
-	// Toolkit and documented in Use a glossary
-	// (https://support.google.com/translatortoolkit/answer/6306379?hl=en).
+	// multiple languages. See documentation for more information -
+	// glossaries
+	// (https://cloud.google.com/translate/docs/advanced/glossary).
 	GcsSource *GcsSource `json:"gcsSource,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "GcsSource") to
@@ -1255,9 +1269,9 @@ type OutputConfig struct {
 	// keeping updated during the process, please make sure there is no
 	// custom retention policy applied on the output bucket that may avoid
 	// file updating.
-	// (https://cloud.google.com/storage/docs/bucket-lock?hl=en#retention-policy)
+	// (https://cloud.google.com/storage/docs/bucket-lock#retention-policy)
 	// The format of translations_file (for target language code 'trg') is:
-	// gs://translation_test/a_b_c_'trg'_translations.[extension] If the
+	// `gs://translation_test/a_b_c_'trg'_translations.[extension]` If the
 	// input file extension is tsv, the output has the following columns:
 	// Column 1: ID of the request provided in the input, if it's not
 	// provided in the input, then the input row number is used (0-based).
@@ -1429,6 +1443,12 @@ func (s *SupportedLanguages) MarshalJSON() ([]byte, error) {
 
 // TranslateDocumentRequest: A document translation request.
 type TranslateDocumentRequest struct {
+	// CustomizedAttribution: Optional. This flag is to support user
+	// customized attribution. If not provided, the default is `Machine
+	// Translated by Google`. Customized attribution should follow rules in
+	// https://cloud.google.com/translate/attribution#attribution_and_logos
+	CustomizedAttribution string `json:"customizedAttribution,omitempty"`
+
 	// DocumentInputConfig: Required. Input configurations.
 	DocumentInputConfig *DocumentInputConfig `json:"documentInputConfig,omitempty"`
 
@@ -1439,10 +1459,26 @@ type TranslateDocumentRequest struct {
 	// the same as the input file's mime type.
 	DocumentOutputConfig *DocumentOutputConfig `json:"documentOutputConfig,omitempty"`
 
+	// EnableRotationCorrection: Optional. If true, enable auto rotation
+	// correction in DVS.
+	EnableRotationCorrection bool `json:"enableRotationCorrection,omitempty"`
+
+	// EnableShadowRemovalNativePdf: Optional. If true, use the text removal
+	// server to remove the shadow text on background image for native pdf
+	// translation. Shadow removal feature can only be enabled when
+	// is_translate_native_pdf_only: false && pdf_native_only: false
+	EnableShadowRemovalNativePdf bool `json:"enableShadowRemovalNativePdf,omitempty"`
+
 	// GlossaryConfig: Optional. Glossary to be applied. The glossary must
 	// be within the same region (have the same location-id) as the model,
 	// otherwise an INVALID_ARGUMENT (400) error is returned.
 	GlossaryConfig *TranslateTextGlossaryConfig `json:"glossaryConfig,omitempty"`
+
+	// IsTranslateNativePdfOnly: Optional. is_translate_native_pdf_only
+	// field for external customers. If true, the page limit of online
+	// native pdf translation is 300 and only native pdf pages will be
+	// translated.
+	IsTranslateNativePdfOnly bool `json:"isTranslateNativePdfOnly,omitempty"`
 
 	// Labels: Optional. The labels with user-defined metadata for the
 	// request. Label keys and values can be no longer than 63 characters
@@ -1476,15 +1512,16 @@ type TranslateDocumentRequest struct {
 	// listed in Language Support.
 	TargetLanguageCode string `json:"targetLanguageCode,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "DocumentInputConfig")
-	// to unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "CustomizedAttribution") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "DocumentInputConfig") to
+	// NullFields is a list of field names (e.g. "CustomizedAttribution") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -1794,14 +1831,14 @@ type ProjectsDetectLanguageCall struct {
 
 // DetectLanguage: Detects the language of text within a request.
 //
-// - parent: Project or location to make a call. Must refer to a
-//   caller's project. Format:
-//   `projects/{project-number-or-id}/locations/{location-id}` or
-//   `projects/{project-number-or-id}`. For global calls, use
-//   `projects/{project-number-or-id}/locations/global` or
-//   `projects/{project-number-or-id}`. Only models within the same
-//   region (has same location-id) can be used. Otherwise an
-//   INVALID_ARGUMENT (400) error is returned.
+//   - parent: Project or location to make a call. Must refer to a
+//     caller's project. Format:
+//     `projects/{project-number-or-id}/locations/{location-id}` or
+//     `projects/{project-number-or-id}`. For global calls, use
+//     `projects/{project-number-or-id}/locations/global` or
+//     `projects/{project-number-or-id}`. Only models within the same
+//     region (has same location-id) can be used. Otherwise an
+//     INVALID_ARGUMENT (400) error is returned.
 func (r *ProjectsService) DetectLanguage(parent string, detectlanguagerequest *DetectLanguageRequest) *ProjectsDetectLanguageCall {
 	c := &ProjectsDetectLanguageCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1876,17 +1913,17 @@ func (c *ProjectsDetectLanguageCall) Do(opts ...googleapi.CallOption) (*DetectLa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DetectLanguageResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1945,15 +1982,15 @@ type ProjectsGetSupportedLanguagesCall struct {
 // GetSupportedLanguages: Returns a list of supported languages for
 // translation.
 //
-// - parent: Project or location to make a call. Must refer to a
-//   caller's project. Format: `projects/{project-number-or-id}` or
-//   `projects/{project-number-or-id}/locations/{location-id}`. For
-//   global calls, use
-//   `projects/{project-number-or-id}/locations/global` or
-//   `projects/{project-number-or-id}`. Non-global location is required
-//   for AutoML models. Only models within the same region (have same
-//   location-id) can be used, otherwise an INVALID_ARGUMENT (400) error
-//   is returned.
+//   - parent: Project or location to make a call. Must refer to a
+//     caller's project. Format: `projects/{project-number-or-id}` or
+//     `projects/{project-number-or-id}/locations/{location-id}`. For
+//     global calls, use
+//     `projects/{project-number-or-id}/locations/global` or
+//     `projects/{project-number-or-id}`. Non-global location is required
+//     for AutoML models. Only models within the same region (have same
+//     location-id) can be used, otherwise an INVALID_ARGUMENT (400) error
+//     is returned.
 func (r *ProjectsService) GetSupportedLanguages(parent string) *ProjectsGetSupportedLanguagesCall {
 	c := &ProjectsGetSupportedLanguagesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2057,17 +2094,17 @@ func (c *ProjectsGetSupportedLanguagesCall) Do(opts ...googleapi.CallOption) (*S
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SupportedLanguages{
 		ServerResponse: googleapi.ServerResponse{
@@ -2132,15 +2169,15 @@ type ProjectsTranslateTextCall struct {
 
 // TranslateText: Translates input text and returns translated text.
 //
-// - parent: Project or location to make a call. Must refer to a
-//   caller's project. Format: `projects/{project-number-or-id}` or
-//   `projects/{project-number-or-id}/locations/{location-id}`. For
-//   global calls, use
-//   `projects/{project-number-or-id}/locations/global` or
-//   `projects/{project-number-or-id}`. Non-global location is required
-//   for requests using AutoML models or custom glossaries. Models and
-//   glossaries must be within the same region (have same location-id),
-//   otherwise an INVALID_ARGUMENT (400) error is returned.
+//   - parent: Project or location to make a call. Must refer to a
+//     caller's project. Format: `projects/{project-number-or-id}` or
+//     `projects/{project-number-or-id}/locations/{location-id}`. For
+//     global calls, use
+//     `projects/{project-number-or-id}/locations/global` or
+//     `projects/{project-number-or-id}`. Non-global location is required
+//     for requests using AutoML models or custom glossaries. Models and
+//     glossaries must be within the same region (have same location-id),
+//     otherwise an INVALID_ARGUMENT (400) error is returned.
 func (r *ProjectsService) TranslateText(parent string, translatetextrequest *TranslateTextRequest) *ProjectsTranslateTextCall {
 	c := &ProjectsTranslateTextCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2215,17 +2252,17 @@ func (c *ProjectsTranslateTextCall) Do(opts ...googleapi.CallOption) (*Translate
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TranslateTextResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2289,12 +2326,12 @@ type ProjectsLocationsBatchTranslateDocumentCall struct {
 // immediately and you can use google.longrunning.Operation.name to poll
 // the status of the call.
 //
-// - parent: Location to make a regional call. Format:
-//   `projects/{project-number-or-id}/locations/{location-id}`. The
-//   `global` location is not supported for batch translation. Only
-//   AutoML Translation models or glossaries within the same region
-//   (have the same location-id) can be used, otherwise an
-//   INVALID_ARGUMENT (400) error is returned.
+//   - parent: Location to make a regional call. Format:
+//     `projects/{project-number-or-id}/locations/{location-id}`. The
+//     `global` location is not supported for batch translation. Only
+//     AutoML Translation models or glossaries within the same region
+//     (have the same location-id) can be used, otherwise an
+//     INVALID_ARGUMENT (400) error is returned.
 func (r *ProjectsLocationsService) BatchTranslateDocument(parent string, batchtranslatedocumentrequest *BatchTranslateDocumentRequest) *ProjectsLocationsBatchTranslateDocumentCall {
 	c := &ProjectsLocationsBatchTranslateDocumentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2369,17 +2406,17 @@ func (c *ProjectsLocationsBatchTranslateDocumentCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2442,12 +2479,12 @@ type ProjectsLocationsBatchTranslateTextCall struct {
 // can use google.longrunning.Operation.name to poll the status of the
 // call.
 //
-// - parent: Location to make a call. Must refer to a caller's project.
-//   Format: `projects/{project-number-or-id}/locations/{location-id}`.
-//   The `global` location is not supported for batch translation. Only
-//   AutoML Translation models or glossaries within the same region
-//   (have the same location-id) can be used, otherwise an
-//   INVALID_ARGUMENT (400) error is returned.
+//   - parent: Location to make a call. Must refer to a caller's project.
+//     Format: `projects/{project-number-or-id}/locations/{location-id}`.
+//     The `global` location is not supported for batch translation. Only
+//     AutoML Translation models or glossaries within the same region
+//     (have the same location-id) can be used, otherwise an
+//     INVALID_ARGUMENT (400) error is returned.
 func (r *ProjectsLocationsService) BatchTranslateText(parent string, batchtranslatetextrequest *BatchTranslateTextRequest) *ProjectsLocationsBatchTranslateTextCall {
 	c := &ProjectsLocationsBatchTranslateTextCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2522,17 +2559,17 @@ func (c *ProjectsLocationsBatchTranslateTextCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2589,14 +2626,14 @@ type ProjectsLocationsDetectLanguageCall struct {
 
 // DetectLanguage: Detects the language of text within a request.
 //
-// - parent: Project or location to make a call. Must refer to a
-//   caller's project. Format:
-//   `projects/{project-number-or-id}/locations/{location-id}` or
-//   `projects/{project-number-or-id}`. For global calls, use
-//   `projects/{project-number-or-id}/locations/global` or
-//   `projects/{project-number-or-id}`. Only models within the same
-//   region (has same location-id) can be used. Otherwise an
-//   INVALID_ARGUMENT (400) error is returned.
+//   - parent: Project or location to make a call. Must refer to a
+//     caller's project. Format:
+//     `projects/{project-number-or-id}/locations/{location-id}` or
+//     `projects/{project-number-or-id}`. For global calls, use
+//     `projects/{project-number-or-id}/locations/global` or
+//     `projects/{project-number-or-id}`. Only models within the same
+//     region (has same location-id) can be used. Otherwise an
+//     INVALID_ARGUMENT (400) error is returned.
 func (r *ProjectsLocationsService) DetectLanguage(parent string, detectlanguagerequest *DetectLanguageRequest) *ProjectsLocationsDetectLanguageCall {
 	c := &ProjectsLocationsDetectLanguageCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2671,17 +2708,17 @@ func (c *ProjectsLocationsDetectLanguageCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DetectLanguageResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2821,17 +2858,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -2887,15 +2924,15 @@ type ProjectsLocationsGetSupportedLanguagesCall struct {
 // GetSupportedLanguages: Returns a list of supported languages for
 // translation.
 //
-// - parent: Project or location to make a call. Must refer to a
-//   caller's project. Format: `projects/{project-number-or-id}` or
-//   `projects/{project-number-or-id}/locations/{location-id}`. For
-//   global calls, use
-//   `projects/{project-number-or-id}/locations/global` or
-//   `projects/{project-number-or-id}`. Non-global location is required
-//   for AutoML models. Only models within the same region (have same
-//   location-id) can be used, otherwise an INVALID_ARGUMENT (400) error
-//   is returned.
+//   - parent: Project or location to make a call. Must refer to a
+//     caller's project. Format: `projects/{project-number-or-id}` or
+//     `projects/{project-number-or-id}/locations/{location-id}`. For
+//     global calls, use
+//     `projects/{project-number-or-id}/locations/global` or
+//     `projects/{project-number-or-id}`. Non-global location is required
+//     for AutoML models. Only models within the same region (have same
+//     location-id) can be used, otherwise an INVALID_ARGUMENT (400) error
+//     is returned.
 func (r *ProjectsLocationsService) GetSupportedLanguages(parent string) *ProjectsLocationsGetSupportedLanguagesCall {
 	c := &ProjectsLocationsGetSupportedLanguagesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2999,17 +3036,17 @@ func (c *ProjectsLocationsGetSupportedLanguagesCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SupportedLanguages{
 		ServerResponse: googleapi.ServerResponse{
@@ -3075,8 +3112,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3182,17 +3219,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3284,14 +3321,14 @@ type ProjectsLocationsTranslateDocumentCall struct {
 
 // TranslateDocument: Translates documents in synchronous mode.
 //
-// - parent: Location to make a regional call. Format:
-//   `projects/{project-number-or-id}/locations/{location-id}`. For
-//   global calls, use
-//   `projects/{project-number-or-id}/locations/global`. Non-global
-//   location is required for requests using AutoML models or custom
-//   glossaries. Models and glossaries must be within the same region
-//   (have the same location-id), otherwise an INVALID_ARGUMENT (400)
-//   error is returned.
+//   - parent: Location to make a regional call. Format:
+//     `projects/{project-number-or-id}/locations/{location-id}`. For
+//     global calls, use
+//     `projects/{project-number-or-id}/locations/global`. Non-global
+//     location is required for requests using AutoML models or custom
+//     glossaries. Models and glossaries must be within the same region
+//     (have the same location-id), otherwise an INVALID_ARGUMENT (400)
+//     error is returned.
 func (r *ProjectsLocationsService) TranslateDocument(parent string, translatedocumentrequest *TranslateDocumentRequest) *ProjectsLocationsTranslateDocumentCall {
 	c := &ProjectsLocationsTranslateDocumentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3366,17 +3403,17 @@ func (c *ProjectsLocationsTranslateDocumentCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TranslateDocumentResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3434,15 +3471,15 @@ type ProjectsLocationsTranslateTextCall struct {
 
 // TranslateText: Translates input text and returns translated text.
 //
-// - parent: Project or location to make a call. Must refer to a
-//   caller's project. Format: `projects/{project-number-or-id}` or
-//   `projects/{project-number-or-id}/locations/{location-id}`. For
-//   global calls, use
-//   `projects/{project-number-or-id}/locations/global` or
-//   `projects/{project-number-or-id}`. Non-global location is required
-//   for requests using AutoML models or custom glossaries. Models and
-//   glossaries must be within the same region (have same location-id),
-//   otherwise an INVALID_ARGUMENT (400) error is returned.
+//   - parent: Project or location to make a call. Must refer to a
+//     caller's project. Format: `projects/{project-number-or-id}` or
+//     `projects/{project-number-or-id}/locations/{location-id}`. For
+//     global calls, use
+//     `projects/{project-number-or-id}/locations/global` or
+//     `projects/{project-number-or-id}`. Non-global location is required
+//     for requests using AutoML models or custom glossaries. Models and
+//     glossaries must be within the same region (have same location-id),
+//     otherwise an INVALID_ARGUMENT (400) error is returned.
 func (r *ProjectsLocationsService) TranslateText(parent string, translatetextrequest *TranslateTextRequest) *ProjectsLocationsTranslateTextCall {
 	c := &ProjectsLocationsTranslateTextCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3517,17 +3554,17 @@ func (c *ProjectsLocationsTranslateTextCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TranslateTextResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3661,17 +3698,17 @@ func (c *ProjectsLocationsGlossariesCreateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3798,17 +3835,17 @@ func (c *ProjectsLocationsGlossariesDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3946,17 +3983,17 @@ func (c *ProjectsLocationsGlossariesGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Glossary{
 		ServerResponse: googleapi.ServerResponse{
@@ -4012,8 +4049,8 @@ type ProjectsLocationsGlossariesListCall struct {
 // List: Lists glossaries in a project. Returns NOT_FOUND, if the
 // project doesn't exist.
 //
-// - parent: The name of the project from which to list all of the
-//   glossaries.
+//   - parent: The name of the project from which to list all of the
+//     glossaries.
 func (r *ProjectsLocationsGlossariesService) List(parent string) *ProjectsLocationsGlossariesListCall {
 	c := &ProjectsLocationsGlossariesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4134,17 +4171,17 @@ func (c *ProjectsLocationsGlossariesListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListGlossariesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4320,17 +4357,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4459,17 +4496,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4608,17 +4645,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4673,14 +4710,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -4785,17 +4815,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4809,7 +4839,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v3beta1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "translate.projects.locations.operations.list",
@@ -4971,17 +5001,17 @@ func (c *ProjectsLocationsOperationsWaitCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

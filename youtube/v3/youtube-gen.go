@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/youtube/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/youtube/v3"
-//   ...
-//   ctx := context.Background()
-//   youtubeService, err := youtube.NewService(ctx)
+//	import "google.golang.org/api/youtube/v3"
+//	...
+//	ctx := context.Background()
+//	youtubeService, err := youtube.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   youtubeService, err := youtube.NewService(ctx, option.WithScopes(youtube.YoutubepartnerChannelAuditScope))
+//	youtubeService, err := youtube.NewService(ctx, option.WithScopes(youtube.YoutubepartnerChannelAuditScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   youtubeService, err := youtube.NewService(ctx, option.WithAPIKey("AIza..."))
+//	youtubeService, err := youtube.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   youtubeService, err := youtube.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	youtubeService, err := youtube.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package youtube // import "google.golang.org/api/youtube/v3"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "youtube:v3"
 const apiName = "youtube"
@@ -1525,7 +1526,6 @@ type CdnSettings struct {
 	//   "dash"
 	//   "webrtc"
 	//   "hls"
-	//   "srt"
 	IngestionType string `json:"ingestionType,omitempty"`
 
 	// Resolution: The resolution of the inbound video data.
@@ -4088,6 +4088,60 @@ func (s *ContentRating) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Cuepoint: Note that there may be a 5-second end-point resolution
+// issue. For instance, if a cuepoint comes in for 22:03:27, we may
+// stuff the cuepoint into 22:03:25 or 22:03:30, depending. This is an
+// artifact of HLS.
+type Cuepoint struct {
+	// Possible values:
+	//   "cueTypeUnspecified"
+	//   "cueTypeAd"
+	CueType string `json:"cueType,omitempty"`
+
+	// DurationSecs: The duration of this cuepoint.
+	DurationSecs int64 `json:"durationSecs,omitempty"`
+
+	Etag string `json:"etag,omitempty"`
+
+	// Id: The identifier for cuepoint resource.
+	Id string `json:"id,omitempty"`
+
+	// InsertionOffsetTimeMs: The time when the cuepoint should be inserted
+	// by offset to the broadcast actual start time.
+	InsertionOffsetTimeMs int64 `json:"insertionOffsetTimeMs,omitempty,string"`
+
+	// WalltimeMs: The wall clock time at which the cuepoint should be
+	// inserted. Only one of insertion_offset_time_ms and walltime_ms may be
+	// set at a time.
+	WalltimeMs uint64 `json:"walltimeMs,omitempty,string"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "CueType") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CueType") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Cuepoint) MarshalJSON() ([]byte, error) {
+	type NoMethod Cuepoint
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 type Entity struct {
 	Id string `json:"id,omitempty"`
 
@@ -5110,23 +5164,24 @@ func (s *LiveBroadcastSnippet) MarshalJSON() ([]byte, error) {
 // represent a snapshot of the values at the time of the request.
 // Statistics are only returned for live broadcasts.
 type LiveBroadcastStatistics struct {
-	// TotalChatCount: The total number of live chat messages currently on
-	// the broadcast. The property and its value will be present if the
-	// broadcast is public, has the live chat feature enabled, and has at
-	// least one message. Note that this field will not be filled after the
-	// broadcast ends. So this property would not identify the number of
-	// chat messages for an archived video of a completed live broadcast.
-	TotalChatCount uint64 `json:"totalChatCount,omitempty,string"`
+	// ConcurrentViewers: The number of viewers currently watching the
+	// broadcast. The property and its value will be present if the
+	// broadcast has current viewers and the broadcast owner has not hidden
+	// the viewcount for the video. Note that YouTube stops tracking the
+	// number of concurrent viewers for a broadcast when the broadcast ends.
+	// So, this property would not identify the number of viewers watching
+	// an archived video of a live broadcast that already ended.
+	ConcurrentViewers uint64 `json:"concurrentViewers,omitempty,string"`
 
-	// ForceSendFields is a list of field names (e.g. "TotalChatCount") to
-	// unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "ConcurrentViewers")
+	// to unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "TotalChatCount") to
+	// NullFields is a list of field names (e.g. "ConcurrentViewers") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -8367,6 +8422,43 @@ func (s *ThirdPartyLink) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+type ThirdPartyLinkListResponse struct {
+	// Etag: Etag of this resource.
+	Etag string `json:"etag,omitempty"`
+
+	Items []*ThirdPartyLink `json:"items,omitempty"`
+
+	// Kind: Identifies what kind of resource this is. Value: the fixed
+	// string "youtube#thirdPartyLinkListResponse".
+	Kind string `json:"kind,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Etag") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Etag") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ThirdPartyLinkListResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod ThirdPartyLinkListResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ThirdPartyLinkSnippet: Basic information about a third party account
 // link, including its type and type-specific information.
 type ThirdPartyLinkSnippet struct {
@@ -9979,7 +10071,7 @@ func (s *VideoStatistics) MarshalJSON() ([]byte, error) {
 }
 
 // VideoStatus: Basic details about a video category, such as its
-// localized title. Next Id: 17
+// localized title. Next Id: 18
 type VideoStatus struct {
 	// Embeddable: This value indicates if the video can be embedded on
 	// another website. @mutable youtube.videos.insert youtube.videos.update
@@ -10319,9 +10411,9 @@ type AbuseReportsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include.
 func (r *AbuseReportsService) Insert(part []string, abusereport *AbuseReport) *AbuseReportsInsertCall {
 	c := &AbuseReportsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -10393,17 +10485,17 @@ func (c *AbuseReportsInsertCall) Do(opts ...googleapi.CallOption) (*AbuseReport,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AbuseReport{
 		ServerResponse: googleapi.ServerResponse{
@@ -10460,14 +10552,14 @@ type ActivitiesListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more activity resource properties that the API response will
-//   include. If the parameter identifies a property that contains child
-//   properties, the child properties will be included in the response.
-//   For example, in an activity resource, the snippet property contains
-//   other properties that identify the type of activity, a display
-//   title for the activity, and so forth. If you set *part=snippet*,
-//   the API response will also contain all of those nested properties.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more activity resource properties that the API response will
+//     include. If the parameter identifies a property that contains child
+//     properties, the child properties will be included in the response.
+//     For example, in an activity resource, the snippet property contains
+//     other properties that identify the type of activity, a display
+//     title for the activity, and so forth. If you set *part=snippet*,
+//     the API response will also contain all of those nested properties.
 func (r *ActivitiesService) List(part []string) *ActivitiesListCall {
 	c := &ActivitiesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -10599,17 +10691,17 @@ func (c *ActivitiesListCall) Do(opts ...googleapi.CallOption) (*ActivityListResp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ActivityListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10810,7 +10902,7 @@ func (c *CaptionsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -10860,8 +10952,8 @@ type CaptionsDownloadCall struct {
 
 // Download: Downloads a caption track.
 //
-// - id: The ID of the caption track to download, required for One
-//   Platform.
+//   - id: The ID of the caption track to download, required for One
+//     Platform.
 func (r *CaptionsService) Download(id string) *CaptionsDownloadCall {
 	c := &CaptionsDownloadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.id = id
@@ -10979,7 +11071,7 @@ func (c *CaptionsDownloadCall) Download(opts ...googleapi.CallOption) (*http.Res
 	}
 	if err := googleapi.CheckResponse(res); err != nil {
 		res.Body.Close()
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	return res, nil
 }
@@ -10993,7 +11085,7 @@ func (c *CaptionsDownloadCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -11056,9 +11148,9 @@ type CaptionsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter specifies the caption resource parts
-//   that the API response will include. Set the parameter value to
-//   snippet.
+//   - part: The *part* parameter specifies the caption resource parts
+//     that the API response will include. Set the parameter value to
+//     snippet.
 func (r *CaptionsService) Insert(part []string, caption *Caption) *CaptionsInsertCall {
 	c := &CaptionsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -11212,17 +11304,17 @@ func (c *CaptionsInsertCall) Do(opts ...googleapi.CallOption) (*Caption, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -11238,7 +11330,7 @@ func (c *CaptionsInsertCall) Do(opts ...googleapi.CallOption) (*Caption, error) 
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &Caption{
@@ -11330,11 +11422,11 @@ type CaptionsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more caption resource parts that the API response will include.
-//   The part names that you can include in the parameter value are id
-//   and snippet.
-// - videoId: Returns the captions for the specified video.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more caption resource parts that the API response will include.
+//     The part names that you can include in the parameter value are id
+//     and snippet.
+//   - videoId: Returns the captions for the specified video.
 func (r *CaptionsService) List(part []string, videoId string) *CaptionsListCall {
 	c := &CaptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -11446,17 +11538,17 @@ func (c *CaptionsListCall) Do(opts ...googleapi.CallOption) (*CaptionListRespons
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CaptionListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11534,10 +11626,10 @@ type CaptionsUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more caption resource parts that the API response will include.
-//   The part names that you can include in the parameter value are id
-//   and snippet.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more caption resource parts that the API response will include.
+//     The part names that you can include in the parameter value are id
+//     and snippet.
 func (r *CaptionsService) Update(part []string, caption *Caption) *CaptionsUpdateCall {
 	c := &CaptionsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -11691,17 +11783,17 @@ func (c *CaptionsUpdateCall) Do(opts ...googleapi.CallOption) (*Caption, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -11717,7 +11809,7 @@ func (c *CaptionsUpdateCall) Do(opts ...googleapi.CallOption) (*Caption, error) 
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &Caption{
@@ -11978,17 +12070,17 @@ func (c *ChannelBannersInsertCall) Do(opts ...googleapi.CallOption) (*ChannelBan
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -12004,7 +12096,7 @@ func (c *ChannelBannersInsertCall) Do(opts ...googleapi.CallOption) (*ChannelBan
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &ChannelBannerResource{
@@ -12165,7 +12257,7 @@ func (c *ChannelSectionsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -12210,11 +12302,11 @@ type ChannelSectionsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. The part
-//   names that you can include in the parameter value are snippet and
-//   contentDetails.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. The part
+//     names that you can include in the parameter value are snippet and
+//     contentDetails.
 func (r *ChannelSectionsService) Insert(part []string, channelsection *ChannelSection) *ChannelSectionsInsertCall {
 	c := &ChannelSectionsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -12327,17 +12419,17 @@ func (c *ChannelSectionsInsertCall) Do(opts ...googleapi.CallOption) (*ChannelSe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChannelSection{
 		ServerResponse: googleapi.ServerResponse{
@@ -12405,16 +12497,16 @@ type ChannelSectionsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more channelSection resource properties that the API response
-//   will include. The part names that you can include in the parameter
-//   value are id, snippet, and contentDetails. If the parameter
-//   identifies a property that contains child properties, the child
-//   properties will be included in the response. For example, in a
-//   channelSection resource, the snippet property contains other
-//   properties, such as a display title for the channelSection. If you
-//   set *part=snippet*, the API response will also contain all of those
-//   nested properties.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more channelSection resource properties that the API response
+//     will include. The part names that you can include in the parameter
+//     value are id, snippet, and contentDetails. If the parameter
+//     identifies a property that contains child properties, the child
+//     properties will be included in the response. For example, in a
+//     channelSection resource, the snippet property contains other
+//     properties, such as a display title for the channelSection. If you
+//     set *part=snippet*, the API response will also contain all of those
+//     nested properties.
 func (r *ChannelSectionsService) List(part []string) *ChannelSectionsListCall {
 	c := &ChannelSectionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -12538,17 +12630,17 @@ func (c *ChannelSectionsListCall) Do(opts ...googleapi.CallOption) (*ChannelSect
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChannelSectionListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12630,11 +12722,11 @@ type ChannelSectionsUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. The part
-//   names that you can include in the parameter value are snippet and
-//   contentDetails.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. The part
+//     names that you can include in the parameter value are snippet and
+//     contentDetails.
 func (r *ChannelSectionsService) Update(part []string, channelsection *ChannelSection) *ChannelSectionsUpdateCall {
 	c := &ChannelSectionsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -12723,17 +12815,17 @@ func (c *ChannelSectionsUpdateCall) Do(opts ...googleapi.CallOption) (*ChannelSe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChannelSection{
 		ServerResponse: googleapi.ServerResponse{
@@ -12796,14 +12888,14 @@ type ChannelsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more channel resource properties that the API response will
-//   include. If the parameter identifies a property that contains child
-//   properties, the child properties will be included in the response.
-//   For example, in a channel resource, the contentDetails property
-//   contains other properties, such as the uploads properties. As such,
-//   if you set *part=contentDetails*, the API response will also
-//   contain all of those nested properties.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more channel resource properties that the API response will
+//     include. If the parameter identifies a property that contains child
+//     properties, the child properties will be included in the response.
+//     For example, in a channel resource, the contentDetails property
+//     contains other properties, such as the uploads properties. As such,
+//     if you set *part=contentDetails*, the API response will also
+//     contain all of those nested properties.
 func (r *ChannelsService) List(part []string) *ChannelsListCall {
 	c := &ChannelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -12969,17 +13061,17 @@ func (c *ChannelsListCall) Do(opts ...googleapi.CallOption) (*ChannelListRespons
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChannelListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13112,14 +13204,14 @@ type ChannelsUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. The API
-//   currently only allows the parameter value to be set to either
-//   brandingSettings or invideoPromotion. (You cannot update both of
-//   those parts with a single request.) Note that this method overrides
-//   the existing values for all of the mutable properties that are
-//   contained in any parts that the parameter value specifies.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. The API
+//     currently only allows the parameter value to be set to either
+//     brandingSettings or invideoPromotion. (You cannot update both of
+//     those parts with a single request.) Note that this method overrides
+//     the existing values for all of the mutable properties that are
+//     contained in any parts that the parameter value specifies.
 func (r *ChannelsService) Update(part []string, channel *Channel) *ChannelsUpdateCall {
 	c := &ChannelsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -13206,17 +13298,17 @@ func (c *ChannelsUpdateCall) Do(opts ...googleapi.CallOption) (*Channel, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -13279,9 +13371,9 @@ type CommentThreadsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter identifies the properties that the API
-//   response will include. Set the parameter value to snippet. The
-//   snippet part has a quota cost of 2 units.
+//   - part: The *part* parameter identifies the properties that the API
+//     response will include. Set the parameter value to snippet. The
+//     snippet part has a quota cost of 2 units.
 func (r *CommentThreadsService) Insert(part []string, commentthread *CommentThread) *CommentThreadsInsertCall {
 	c := &CommentThreadsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -13353,17 +13445,17 @@ func (c *CommentThreadsInsertCall) Do(opts ...googleapi.CallOption) (*CommentThr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CommentThread{
 		ServerResponse: googleapi.ServerResponse{
@@ -13419,9 +13511,9 @@ type CommentThreadsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more commentThread resource properties that the API response
-//   will include.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more commentThread resource properties that the API response
+//     will include.
 func (r *CommentThreadsService) List(part []string) *CommentThreadsListCall {
 	c := &CommentThreadsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -13465,11 +13557,14 @@ func (c *CommentThreadsListCall) MaxResults(maxResults int64) *CommentThreadsLis
 // published, heldForReview, likelySpam.
 //
 // Possible values:
-//   "published" (default) - The comment is available for public
+//
+//	"published" (default) - The comment is available for public
+//
 // display.
-//   "heldForReview" - The comment is awaiting review by a moderator.
-//   "likelySpam"
-//   "rejected" - The comment is unfit for display.
+//
+//	"heldForReview" - The comment is awaiting review by a moderator.
+//	"likelySpam"
+//	"rejected" - The comment is unfit for display.
 func (c *CommentThreadsListCall) ModerationStatus(moderationStatus string) *CommentThreadsListCall {
 	c.urlParams_.Set("moderationStatus", moderationStatus)
 	return c
@@ -13478,9 +13573,10 @@ func (c *CommentThreadsListCall) ModerationStatus(moderationStatus string) *Comm
 // Order sets the optional parameter "order":
 //
 // Possible values:
-//   "orderUnspecified"
-//   "time" (default) - Order by time.
-//   "relevance" - Order by relevance.
+//
+//	"orderUnspecified"
+//	"time" (default) - Order by time.
+//	"relevance" - Order by relevance.
 func (c *CommentThreadsListCall) Order(order string) *CommentThreadsListCall {
 	c.urlParams_.Set("order", order)
 	return c
@@ -13507,10 +13603,13 @@ func (c *CommentThreadsListCall) SearchTerms(searchTerms string) *CommentThreads
 // text format for the returned comments.
 //
 // Possible values:
-//   "textFormatUnspecified"
-//   "html" (default) - Returns the comments in HTML format. This is the
+//
+//	"textFormatUnspecified"
+//	"html" (default) - Returns the comments in HTML format. This is the
+//
 // default value.
-//   "plainText" - Returns the comments in plain text format.
+//
+//	"plainText" - Returns the comments in plain text format.
 func (c *CommentThreadsListCall) TextFormat(textFormat string) *CommentThreadsListCall {
 	c.urlParams_.Set("textFormat", textFormat)
 	return c
@@ -13595,17 +13694,17 @@ func (c *CommentThreadsListCall) Do(opts ...googleapi.CallOption) (*CommentThrea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CommentThreadListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13828,7 +13927,7 @@ func (c *CommentsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13866,9 +13965,9 @@ type CommentsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter identifies the properties that the API
-//   response will include. Set the parameter value to snippet. The
-//   snippet part has a quota cost of 2 units.
+//   - part: The *part* parameter identifies the properties that the API
+//     response will include. Set the parameter value to snippet. The
+//     snippet part has a quota cost of 2 units.
 func (r *CommentsService) Insert(part []string, comment *Comment) *CommentsInsertCall {
 	c := &CommentsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -13940,17 +14039,17 @@ func (c *CommentsInsertCall) Do(opts ...googleapi.CallOption) (*Comment, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Comment{
 		ServerResponse: googleapi.ServerResponse{
@@ -14006,9 +14105,9 @@ type CommentsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more comment resource properties that the API response will
-//   include.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more comment resource properties that the API response will
+//     include.
 func (r *CommentsService) List(part []string) *CommentsListCall {
 	c := &CommentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -14052,10 +14151,13 @@ func (c *CommentsListCall) ParentId(parentId string) *CommentsListCall {
 // text format for the returned comments.
 //
 // Possible values:
-//   "textFormatUnspecified"
-//   "html" (default) - Returns the comments in HTML format. This is the
+//
+//	"textFormatUnspecified"
+//	"html" (default) - Returns the comments in HTML format. This is the
+//
 // default value.
-//   "plainText" - Returns the comments in plain text format.
+//
+//	"plainText" - Returns the comments in plain text format.
 func (c *CommentsListCall) TextFormat(textFormat string) *CommentsListCall {
 	c.urlParams_.Set("textFormat", textFormat)
 	return c
@@ -14133,17 +14235,17 @@ func (c *CommentsListCall) Do(opts ...googleapi.CallOption) (*CommentListRespons
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CommentListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14258,8 +14360,8 @@ type CommentsMarkAsSpamCall struct {
 // MarkAsSpam: Expresses the caller's opinion that one or more comments
 // should be flagged as spam.
 //
-// - id: Flags the comments with the given IDs as spam in the caller's
-//   opinion.
+//   - id: Flags the comments with the given IDs as spam in the caller's
+//     opinion.
 func (r *CommentsService) MarkAsSpam(id []string) *CommentsMarkAsSpamCall {
 	c := &CommentsMarkAsSpamCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("id", append([]string{}, id...))
@@ -14320,7 +14422,7 @@ func (c *CommentsMarkAsSpamCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -14360,13 +14462,13 @@ type CommentsSetModerationStatusCall struct {
 // SetModerationStatus: Sets the moderation status of one or more
 // comments.
 //
-// - id: Modifies the moderation status of the comments with the given
-//   IDs.
-// - moderationStatus: Specifies the requested moderation status. Note,
-//   comments can be in statuses, which are not available through this
-//   call. For example, this call does not allow to mark a comment as
-//   'likely spam'. Valid values: MODERATION_STATUS_PUBLISHED,
-//   MODERATION_STATUS_HELD_FOR_REVIEW, MODERATION_STATUS_REJECTED.
+//   - id: Modifies the moderation status of the comments with the given
+//     IDs.
+//   - moderationStatus: Specifies the requested moderation status. Note,
+//     comments can be in statuses, which are not available through this
+//     call. For example, this call does not allow to mark a comment as
+//     'likely spam'. Valid values: MODERATION_STATUS_PUBLISHED,
+//     MODERATION_STATUS_HELD_FOR_REVIEW, MODERATION_STATUS_REJECTED.
 func (r *CommentsService) SetModerationStatus(id []string, moderationStatus string) *CommentsSetModerationStatusCall {
 	c := &CommentsSetModerationStatusCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("id", append([]string{}, id...))
@@ -14437,7 +14539,7 @@ func (c *CommentsSetModerationStatusCall) Do(opts ...googleapi.CallOption) error
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -14502,10 +14604,10 @@ type CommentsUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter identifies the properties that the API
-//   response will include. You must at least include the snippet part
-//   in the parameter value since that part contains all of the
-//   properties that the API request can update.
+//   - part: The *part* parameter identifies the properties that the API
+//     response will include. You must at least include the snippet part
+//     in the parameter value since that part contains all of the
+//     properties that the API request can update.
 func (r *CommentsService) Update(part []string, comment *Comment) *CommentsUpdateCall {
 	c := &CommentsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -14577,17 +14679,17 @@ func (c *CommentsUpdateCall) Do(opts ...googleapi.CallOption) (*Comment, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Comment{
 		ServerResponse: googleapi.ServerResponse{
@@ -14643,9 +14745,9 @@ type I18nLanguagesListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies the i18nLanguage resource
-//   properties that the API response will include. Set the parameter
-//   value to snippet.
+//   - part: The *part* parameter specifies the i18nLanguage resource
+//     properties that the API response will include. Set the parameter
+//     value to snippet.
 func (r *I18nLanguagesService) List(part []string) *I18nLanguagesListCall {
 	c := &I18nLanguagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -14730,17 +14832,17 @@ func (c *I18nLanguagesListCall) Do(opts ...googleapi.CallOption) (*I18nLanguageL
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &I18nLanguageListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14801,9 +14903,9 @@ type I18nRegionsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies the i18nRegion resource
-//   properties that the API response will include. Set the parameter
-//   value to snippet.
+//   - part: The *part* parameter specifies the i18nRegion resource
+//     properties that the API response will include. Set the parameter
+//     value to snippet.
 func (r *I18nRegionsService) List(part []string) *I18nRegionsListCall {
 	c := &I18nRegionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -14888,17 +14990,17 @@ func (c *I18nRegionsListCall) Do(opts ...googleapi.CallOption) (*I18nRegionListR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &I18nRegionListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14958,11 +15060,11 @@ type LiveBroadcastsBindCall struct {
 
 // Bind: Bind a broadcast to a stream.
 //
-// - id: Broadcast to bind to the stream.
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more liveBroadcast resource properties that the API response
-//   will include. The part names that you can include in the parameter
-//   value are id, snippet, contentDetails, and status.
+//   - id: Broadcast to bind to the stream.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more liveBroadcast resource properties that the API response
+//     will include. The part names that you can include in the parameter
+//     value are id, snippet, contentDetails, and status.
 func (r *LiveBroadcastsService) Bind(id string, part []string) *LiveBroadcastsBindCall {
 	c := &LiveBroadcastsBindCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("id", id)
@@ -15077,17 +15179,17 @@ func (c *LiveBroadcastsBindCall) Do(opts ...googleapi.CallOption) (*LiveBroadcas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveBroadcast{
 		ServerResponse: googleapi.ServerResponse{
@@ -15264,7 +15366,7 @@ func (c *LiveBroadcastsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -15314,11 +15416,11 @@ type LiveBroadcastsInsertCall struct {
 
 // Insert: Inserts a new stream for the authenticated user.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. The part
-//   properties that you can include in the parameter value are id,
-//   snippet, contentDetails, and status.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. The part
+//     properties that you can include in the parameter value are id,
+//     snippet, contentDetails, and status.
 func (r *LiveBroadcastsService) Insert(part []string, livebroadcast *LiveBroadcast) *LiveBroadcastsInsertCall {
 	c := &LiveBroadcastsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -15431,17 +15533,17 @@ func (c *LiveBroadcastsInsertCall) Do(opts ...googleapi.CallOption) (*LiveBroadc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveBroadcast{
 		ServerResponse: googleapi.ServerResponse{
@@ -15496,6 +15598,213 @@ func (c *LiveBroadcastsInsertCall) Do(opts ...googleapi.CallOption) (*LiveBroadc
 
 }
 
+// method id "youtube.liveBroadcasts.insertCuepoint":
+
+type LiveBroadcastsInsertCuepointCall struct {
+	s          *Service
+	cuepoint   *Cuepoint
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// InsertCuepoint: Insert cuepoints in a broadcast
+func (r *LiveBroadcastsService) InsertCuepoint(cuepoint *Cuepoint) *LiveBroadcastsInsertCuepointCall {
+	c := &LiveBroadcastsInsertCuepointCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.cuepoint = cuepoint
+	return c
+}
+
+// Id sets the optional parameter "id": Broadcast to insert ads to, or
+// equivalently `external_video_id` for internal use.
+func (c *LiveBroadcastsInsertCuepointCall) Id(id string) *LiveBroadcastsInsertCuepointCall {
+	c.urlParams_.Set("id", id)
+	return c
+}
+
+// OnBehalfOfContentOwner sets the optional parameter
+// "onBehalfOfContentOwner": *Note:* This parameter is intended
+// exclusively for YouTube content partners. The
+// *onBehalfOfContentOwner* parameter indicates that the request's
+// authorization credentials identify a YouTube CMS user who is acting
+// on behalf of the content owner specified in the parameter value. This
+// parameter is intended for YouTube content partners that own and
+// manage many different YouTube channels. It allows content owners to
+// authenticate once and get access to all their video and channel data,
+// without having to provide authentication credentials for each
+// individual channel. The CMS account that the user authenticates with
+// must be linked to the specified YouTube content owner.
+func (c *LiveBroadcastsInsertCuepointCall) OnBehalfOfContentOwner(onBehalfOfContentOwner string) *LiveBroadcastsInsertCuepointCall {
+	c.urlParams_.Set("onBehalfOfContentOwner", onBehalfOfContentOwner)
+	return c
+}
+
+// OnBehalfOfContentOwnerChannel sets the optional parameter
+// "onBehalfOfContentOwnerChannel": This parameter can only be used in a
+// properly authorized request. *Note:* This parameter is intended
+// exclusively for YouTube content partners. The
+// *onBehalfOfContentOwnerChannel* parameter specifies the YouTube
+// channel ID of the channel to which a video is being added. This
+// parameter is required when a request specifies a value for the
+// onBehalfOfContentOwner parameter, and it can only be used in
+// conjunction with that parameter. In addition, the request must be
+// authorized using a CMS account that is linked to the content owner
+// that the onBehalfOfContentOwner parameter specifies. Finally, the
+// channel that the onBehalfOfContentOwnerChannel parameter value
+// specifies must be linked to the content owner that the
+// onBehalfOfContentOwner parameter specifies. This parameter is
+// intended for YouTube content partners that own and manage many
+// different YouTube channels. It allows content owners to authenticate
+// once and perform actions on behalf of the channel specified in the
+// parameter value, without having to provide authentication credentials
+// for each separate channel.
+func (c *LiveBroadcastsInsertCuepointCall) OnBehalfOfContentOwnerChannel(onBehalfOfContentOwnerChannel string) *LiveBroadcastsInsertCuepointCall {
+	c.urlParams_.Set("onBehalfOfContentOwnerChannel", onBehalfOfContentOwnerChannel)
+	return c
+}
+
+// Part sets the optional parameter "part": The *part* parameter
+// specifies a comma-separated list of one or more liveBroadcast
+// resource properties that the API response will include. The part
+// names that you can include in the parameter value are id, snippet,
+// contentDetails, and status.
+func (c *LiveBroadcastsInsertCuepointCall) Part(part ...string) *LiveBroadcastsInsertCuepointCall {
+	c.urlParams_.SetMulti("part", append([]string{}, part...))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *LiveBroadcastsInsertCuepointCall) Fields(s ...googleapi.Field) *LiveBroadcastsInsertCuepointCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *LiveBroadcastsInsertCuepointCall) Context(ctx context.Context) *LiveBroadcastsInsertCuepointCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *LiveBroadcastsInsertCuepointCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *LiveBroadcastsInsertCuepointCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.cuepoint)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "youtube/v3/liveBroadcasts/cuepoint")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "youtube.liveBroadcasts.insertCuepoint" call.
+// Exactly one of *Cuepoint or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Cuepoint.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *LiveBroadcastsInsertCuepointCall) Do(opts ...googleapi.CallOption) (*Cuepoint, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Cuepoint{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Insert cuepoints in a broadcast",
+	//   "flatPath": "youtube/v3/liveBroadcasts/cuepoint",
+	//   "httpMethod": "POST",
+	//   "id": "youtube.liveBroadcasts.insertCuepoint",
+	//   "parameterOrder": [],
+	//   "parameters": {
+	//     "id": {
+	//       "description": "Broadcast to insert ads to, or equivalently `external_video_id` for internal use.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "onBehalfOfContentOwner": {
+	//       "description": "*Note:* This parameter is intended exclusively for YouTube content partners. The *onBehalfOfContentOwner* parameter indicates that the request's authorization credentials identify a YouTube CMS user who is acting on behalf of the content owner specified in the parameter value. This parameter is intended for YouTube content partners that own and manage many different YouTube channels. It allows content owners to authenticate once and get access to all their video and channel data, without having to provide authentication credentials for each individual channel. The CMS account that the user authenticates with must be linked to the specified YouTube content owner.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "onBehalfOfContentOwnerChannel": {
+	//       "description": "This parameter can only be used in a properly authorized request. *Note:* This parameter is intended exclusively for YouTube content partners. The *onBehalfOfContentOwnerChannel* parameter specifies the YouTube channel ID of the channel to which a video is being added. This parameter is required when a request specifies a value for the onBehalfOfContentOwner parameter, and it can only be used in conjunction with that parameter. In addition, the request must be authorized using a CMS account that is linked to the content owner that the onBehalfOfContentOwner parameter specifies. Finally, the channel that the onBehalfOfContentOwnerChannel parameter value specifies must be linked to the content owner that the onBehalfOfContentOwner parameter specifies. This parameter is intended for YouTube content partners that own and manage many different YouTube channels. It allows content owners to authenticate once and perform actions on behalf of the channel specified in the parameter value, without having to provide authentication credentials for each separate channel.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "part": {
+	//       "description": "The *part* parameter specifies a comma-separated list of one or more liveBroadcast resource properties that the API response will include. The part names that you can include in the parameter value are id, snippet, contentDetails, and status.",
+	//       "location": "query",
+	//       "repeated": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "youtube/v3/liveBroadcasts/cuepoint",
+	//   "request": {
+	//     "$ref": "Cuepoint"
+	//   },
+	//   "response": {
+	//     "$ref": "Cuepoint"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/youtube",
+	//     "https://www.googleapis.com/auth/youtube.force-ssl",
+	//     "https://www.googleapis.com/auth/youtubepartner"
+	//   ]
+	// }
+
+}
+
 // method id "youtube.liveBroadcasts.list":
 
 type LiveBroadcastsListCall struct {
@@ -15509,10 +15818,10 @@ type LiveBroadcastsListCall struct {
 // List: Retrieve the list of broadcasts associated with the given
 // channel.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more liveBroadcast resource properties that the API response
-//   will include. The part names that you can include in the parameter
-//   value are id, snippet, contentDetails, status and statistics.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more liveBroadcast resource properties that the API response
+//     will include. The part names that you can include in the parameter
+//     value are id, snippet, contentDetails, status and statistics.
 func (r *LiveBroadcastsService) List(part []string) *LiveBroadcastsListCall {
 	c := &LiveBroadcastsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -15523,11 +15832,12 @@ func (r *LiveBroadcastsService) List(part []string) *LiveBroadcastsListCall {
 // broadcasts with a certain status, e.g. active broadcasts.
 //
 // Possible values:
-//   "broadcastStatusFilterUnspecified"
-//   "all" - Return all broadcasts.
-//   "active" - Return current live broadcasts.
-//   "upcoming" - Return broadcasts that have not yet started.
-//   "completed" - Return broadcasts that have already ended.
+//
+//	"broadcastStatusFilterUnspecified"
+//	"all" - Return all broadcasts.
+//	"active" - Return current live broadcasts.
+//	"upcoming" - Return broadcasts that have not yet started.
+//	"completed" - Return broadcasts that have already ended.
 func (c *LiveBroadcastsListCall) BroadcastStatus(broadcastStatus string) *LiveBroadcastsListCall {
 	c.urlParams_.Set("broadcastStatus", broadcastStatus)
 	return c
@@ -15537,10 +15847,11 @@ func (c *LiveBroadcastsListCall) BroadcastStatus(broadcastStatus string) *LiveBr
 // only broadcasts with the selected type.
 //
 // Possible values:
-//   "broadcastTypeFilterUnspecified"
-//   "all" - Return all broadcasts.
-//   "event" (default) - Return only scheduled event broadcasts.
-//   "persistent" - Return only persistent broadcasts.
+//
+//	"broadcastTypeFilterUnspecified"
+//	"all" - Return all broadcasts.
+//	"event" (default) - Return only scheduled event broadcasts.
+//	"persistent" - Return only persistent broadcasts.
 func (c *LiveBroadcastsListCall) BroadcastType(broadcastType string) *LiveBroadcastsListCall {
 	c.urlParams_.Set("broadcastType", broadcastType)
 	return c
@@ -15689,17 +16000,17 @@ func (c *LiveBroadcastsListCall) Do(opts ...googleapi.CallOption) (*LiveBroadcas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveBroadcastListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15845,13 +16156,13 @@ type LiveBroadcastsTransitionCall struct {
 
 // Transition: Transition a broadcast to a given status.
 //
-// - broadcastStatus: The status to which the broadcast is going to
-//   transition.
-// - id: Broadcast to transition.
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more liveBroadcast resource properties that the API response
-//   will include. The part names that you can include in the parameter
-//   value are id, snippet, contentDetails, and status.
+//   - broadcastStatus: The status to which the broadcast is going to
+//     transition.
+//   - id: Broadcast to transition.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more liveBroadcast resource properties that the API response
+//     will include. The part names that you can include in the parameter
+//     value are id, snippet, contentDetails, and status.
 func (r *LiveBroadcastsService) Transition(broadcastStatus string, id string, part []string) *LiveBroadcastsTransitionCall {
 	c := &LiveBroadcastsTransitionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("broadcastStatus", broadcastStatus)
@@ -15960,17 +16271,17 @@ func (c *LiveBroadcastsTransitionCall) Do(opts ...googleapi.CallOption) (*LiveBr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveBroadcast{
 		ServerResponse: googleapi.ServerResponse{
@@ -16060,20 +16371,20 @@ type LiveBroadcastsUpdateCall struct {
 
 // Update: Updates an existing broadcast for the authenticated user.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. The part
-//   properties that you can include in the parameter value are id,
-//   snippet, contentDetails, and status. Note that this method will
-//   override the existing values for all of the mutable properties that
-//   are contained in any parts that the parameter value specifies. For
-//   example, a broadcast's privacy status is defined in the status
-//   part. As such, if your request is updating a private or unlisted
-//   broadcast, and the request's part parameter value includes the
-//   status part, the broadcast's privacy setting will be updated to
-//   whatever value the request body specifies. If the request body does
-//   not specify a value, the existing privacy setting will be removed
-//   and the broadcast will revert to the default privacy setting.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. The part
+//     properties that you can include in the parameter value are id,
+//     snippet, contentDetails, and status. Note that this method will
+//     override the existing values for all of the mutable properties that
+//     are contained in any parts that the parameter value specifies. For
+//     example, a broadcast's privacy status is defined in the status
+//     part. As such, if your request is updating a private or unlisted
+//     broadcast, and the request's part parameter value includes the
+//     status part, the broadcast's privacy setting will be updated to
+//     whatever value the request body specifies. If the request body does
+//     not specify a value, the existing privacy setting will be removed
+//     and the broadcast will revert to the default privacy setting.
 func (r *LiveBroadcastsService) Update(part []string, livebroadcast *LiveBroadcast) *LiveBroadcastsUpdateCall {
 	c := &LiveBroadcastsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -16186,17 +16497,17 @@ func (c *LiveBroadcastsUpdateCall) Do(opts ...googleapi.CallOption) (*LiveBroadc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveBroadcast{
 		ServerResponse: googleapi.ServerResponse{
@@ -16323,7 +16634,7 @@ func (c *LiveChatBansDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -16362,10 +16673,10 @@ type LiveChatBansInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response returns. Set the
-//   parameter value to snippet.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response returns. Set the
+//     parameter value to snippet.
 func (r *LiveChatBansService) Insert(part []string, livechatban *LiveChatBan) *LiveChatBansInsertCall {
 	c := &LiveChatBansInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -16437,17 +16748,17 @@ func (c *LiveChatBansInsertCall) Do(opts ...googleapi.CallOption) (*LiveChatBan,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveChatBan{
 		ServerResponse: googleapi.ServerResponse{
@@ -16564,7 +16875,7 @@ func (c *LiveChatMessagesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -16603,10 +16914,10 @@ type LiveChatMessagesInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes. It identifies the
-//   properties that the write operation will set as well as the
-//   properties that the API response will include. Set the parameter
-//   value to snippet.
+//   - part: The *part* parameter serves two purposes. It identifies the
+//     properties that the write operation will set as well as the
+//     properties that the API response will include. Set the parameter
+//     value to snippet.
 func (r *LiveChatMessagesService) Insert(part []string, livechatmessage *LiveChatMessage) *LiveChatMessagesInsertCall {
 	c := &LiveChatMessagesInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -16678,17 +16989,17 @@ func (c *LiveChatMessagesInsertCall) Do(opts ...googleapi.CallOption) (*LiveChat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveChatMessage{
 		ServerResponse: googleapi.ServerResponse{
@@ -16745,11 +17056,11 @@ type LiveChatMessagesListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - liveChatId: The id of the live chat for which comments should be
-//   returned.
-// - part: The *part* parameter specifies the liveChatComment resource
-//   parts that the API response will include. Supported values are id
-//   and snippet.
+//   - liveChatId: The id of the live chat for which comments should be
+//     returned.
+//   - part: The *part* parameter specifies the liveChatComment resource
+//     parts that the API response will include. Supported values are id
+//     and snippet.
 func (r *LiveChatMessagesService) List(liveChatId string, part []string) *LiveChatMessagesListCall {
 	c := &LiveChatMessagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("liveChatId", liveChatId)
@@ -16861,17 +17172,17 @@ func (c *LiveChatMessagesListCall) Do(opts ...googleapi.CallOption) (*LiveChatMe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveChatMessageListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17041,7 +17352,7 @@ func (c *LiveChatModeratorsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17080,10 +17391,10 @@ type LiveChatModeratorsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response returns. Set the
-//   parameter value to snippet.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response returns. Set the
+//     parameter value to snippet.
 func (r *LiveChatModeratorsService) Insert(part []string, livechatmoderator *LiveChatModerator) *LiveChatModeratorsInsertCall {
 	c := &LiveChatModeratorsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -17155,17 +17466,17 @@ func (c *LiveChatModeratorsInsertCall) Do(opts ...googleapi.CallOption) (*LiveCh
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveChatModerator{
 		ServerResponse: googleapi.ServerResponse{
@@ -17222,11 +17533,11 @@ type LiveChatModeratorsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - liveChatId: The id of the live chat for which moderators should be
-//   returned.
-// - part: The *part* parameter specifies the liveChatModerator resource
-//   parts that the API response will include. Supported values are id
-//   and snippet.
+//   - liveChatId: The id of the live chat for which moderators should be
+//     returned.
+//   - part: The *part* parameter specifies the liveChatModerator resource
+//     parts that the API response will include. Supported values are id
+//     and snippet.
 func (r *LiveChatModeratorsService) List(liveChatId string, part []string) *LiveChatModeratorsListCall {
 	c := &LiveChatModeratorsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("liveChatId", liveChatId)
@@ -17323,17 +17634,17 @@ func (c *LiveChatModeratorsListCall) Do(opts ...googleapi.CallOption) (*LiveChat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveChatModeratorListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17531,7 +17842,7 @@ func (c *LiveStreamsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17580,11 +17891,11 @@ type LiveStreamsInsertCall struct {
 
 // Insert: Inserts a new stream for the authenticated user.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. The part
-//   properties that you can include in the parameter value are id,
-//   snippet, cdn, content_details, and status.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. The part
+//     properties that you can include in the parameter value are id,
+//     snippet, cdn, content_details, and status.
 func (r *LiveStreamsService) Insert(part []string, livestream *LiveStream) *LiveStreamsInsertCall {
 	c := &LiveStreamsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -17697,17 +18008,17 @@ func (c *LiveStreamsInsertCall) Do(opts ...googleapi.CallOption) (*LiveStream, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveStream{
 		ServerResponse: googleapi.ServerResponse{
@@ -17775,10 +18086,10 @@ type LiveStreamsListCall struct {
 // List: Retrieve the list of streams associated with the given channel.
 // --
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more liveStream resource properties that the API response will
-//   include. The part names that you can include in the parameter value
-//   are id, snippet, cdn, and status.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more liveStream resource properties that the API response will
+//     include. The part names that you can include in the parameter value
+//     are id, snippet, cdn, and status.
 func (r *LiveStreamsService) List(part []string) *LiveStreamsListCall {
 	c := &LiveStreamsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -17928,17 +18239,17 @@ func (c *LiveStreamsListCall) Do(opts ...googleapi.CallOption) (*LiveStreamListR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveStreamListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18048,15 +18359,15 @@ type LiveStreamsUpdateCall struct {
 
 // Update: Updates an existing stream for the authenticated user.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. The part
-//   properties that you can include in the parameter value are id,
-//   snippet, cdn, and status. Note that this method will override the
-//   existing values for all of the mutable properties that are
-//   contained in any parts that the parameter value specifies. If the
-//   request body does not specify a value for a mutable property, the
-//   existing value for that property will be removed.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. The part
+//     properties that you can include in the parameter value are id,
+//     snippet, cdn, and status. Note that this method will override the
+//     existing values for all of the mutable properties that are
+//     contained in any parts that the parameter value specifies. If the
+//     request body does not specify a value for a mutable property, the
+//     existing value for that property will be removed.
 func (r *LiveStreamsService) Update(part []string, livestream *LiveStream) *LiveStreamsUpdateCall {
 	c := &LiveStreamsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -18169,17 +18480,17 @@ func (c *LiveStreamsUpdateCall) Do(opts ...googleapi.CallOption) (*LiveStream, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LiveStream{
 		ServerResponse: googleapi.ServerResponse{
@@ -18247,8 +18558,8 @@ type MembersListCall struct {
 // List: Retrieves a list of members that match the request criteria for
 // a channel.
 //
-// - part: The *part* parameter specifies the member resource parts that
-//   the API response will include. Set the parameter value to snippet.
+//   - part: The *part* parameter specifies the member resource parts that
+//     the API response will include. Set the parameter value to snippet.
 func (r *MembersService) List(part []string) *MembersListCall {
 	c := &MembersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -18284,10 +18595,14 @@ func (c *MembersListCall) MaxResults(maxResults int64) *MembersListCall {
 // which channel members to return.
 //
 // Possible values:
-//   "listMembersModeUnknown"
-//   "updates" - Return only members that joined after the first call
+//
+//	"listMembersModeUnknown"
+//	"updates" - Return only members that joined after the first call
+//
 // with this mode was made.
-//   "all_current" (default) - Return all current members, from newest
+//
+//	"all_current" (default) - Return all current members, from newest
+//
 // to oldest.
 func (c *MembersListCall) Mode(mode string) *MembersListCall {
 	c.urlParams_.Set("mode", mode)
@@ -18375,17 +18690,17 @@ func (c *MembersListCall) Do(opts ...googleapi.CallOption) (*MemberListResponse,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &MemberListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18500,9 +18815,9 @@ type MembershipsLevelsListCall struct {
 // List: Retrieves a list of all pricing levels offered by a creator to
 // the fans.
 //
-// - part: The *part* parameter specifies the membershipsLevel resource
-//   parts that the API response will include. Supported values are id
-//   and snippet.
+//   - part: The *part* parameter specifies the membershipsLevel resource
+//     parts that the API response will include. Supported values are id
+//     and snippet.
 func (r *MembershipsLevelsService) List(part []string) *MembershipsLevelsListCall {
 	c := &MembershipsLevelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -18581,17 +18896,17 @@ func (c *MembershipsLevelsListCall) Do(opts ...googleapi.CallOption) (*Membershi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &MembershipsLevelListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18721,7 +19036,7 @@ func (c *PlaylistItemsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -18766,9 +19081,9 @@ type PlaylistItemsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include.
 func (r *PlaylistItemsService) Insert(part []string, playlistitem *PlaylistItem) *PlaylistItemsInsertCall {
 	c := &PlaylistItemsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -18857,17 +19172,17 @@ func (c *PlaylistItemsInsertCall) Do(opts ...googleapi.CallOption) (*PlaylistIte
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PlaylistItem{
 		ServerResponse: googleapi.ServerResponse{
@@ -18930,15 +19245,15 @@ type PlaylistItemsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more playlistItem resource properties that the API response will
-//   include. If the parameter identifies a property that contains child
-//   properties, the child properties will be included in the response.
-//   For example, in a playlistItem resource, the snippet property
-//   contains numerous fields, including the title, description,
-//   position, and resourceId properties. As such, if you set
-//   *part=snippet*, the API response will contain all of those
-//   properties.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more playlistItem resource properties that the API response will
+//     include. If the parameter identifies a property that contains child
+//     properties, the child properties will be included in the response.
+//     For example, in a playlistItem resource, the snippet property
+//     contains numerous fields, including the title, description,
+//     position, and resourceId properties. As such, if you set
+//     *part=snippet*, the API response will contain all of those
+//     properties.
 func (r *PlaylistItemsService) List(part []string) *PlaylistItemsListCall {
 	c := &PlaylistItemsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -19071,17 +19386,17 @@ func (c *PlaylistItemsListCall) Do(opts ...googleapi.CallOption) (*PlaylistItemL
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PlaylistItemListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19192,20 +19507,20 @@ type PlaylistItemsUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. Note
-//   that this method will override the existing values for all of the
-//   mutable properties that are contained in any parts that the
-//   parameter value specifies. For example, a playlist item can specify
-//   a start time and end time, which identify the times portion of the
-//   video that should play when users watch the video in the playlist.
-//   If your request is updating a playlist item that sets these values,
-//   and the request's part parameter value includes the contentDetails
-//   part, the playlist item's start and end times will be updated to
-//   whatever value the request body specifies. If the request body does
-//   not specify values, the existing start and end times will be
-//   removed and replaced with the default settings.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. Note
+//     that this method will override the existing values for all of the
+//     mutable properties that are contained in any parts that the
+//     parameter value specifies. For example, a playlist item can specify
+//     a start time and end time, which identify the times portion of the
+//     video that should play when users watch the video in the playlist.
+//     If your request is updating a playlist item that sets these values,
+//     and the request's part parameter value includes the contentDetails
+//     part, the playlist item's start and end times will be updated to
+//     whatever value the request body specifies. If the request body does
+//     not specify values, the existing start and end times will be
+//     removed and replaced with the default settings.
 func (r *PlaylistItemsService) Update(part []string, playlistitem *PlaylistItem) *PlaylistItemsUpdateCall {
 	c := &PlaylistItemsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -19294,17 +19609,17 @@ func (c *PlaylistItemsUpdateCall) Do(opts ...googleapi.CallOption) (*PlaylistIte
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PlaylistItem{
 		ServerResponse: googleapi.ServerResponse{
@@ -19444,7 +19759,7 @@ func (c *PlaylistsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -19489,9 +19804,9 @@ type PlaylistsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include.
 func (r *PlaylistsService) Insert(part []string, playlist *Playlist) *PlaylistsInsertCall {
 	c := &PlaylistsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -19604,17 +19919,17 @@ func (c *PlaylistsInsertCall) Do(opts ...googleapi.CallOption) (*Playlist, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Playlist{
 		ServerResponse: googleapi.ServerResponse{
@@ -19682,14 +19997,14 @@ type PlaylistsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more playlist resource properties that the API response will
-//   include. If the parameter identifies a property that contains child
-//   properties, the child properties will be included in the response.
-//   For example, in a playlist resource, the snippet property contains
-//   properties like author, title, description, tags, and timeCreated.
-//   As such, if you set *part=snippet*, the API response will contain
-//   all of those properties.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more playlist resource properties that the API response will
+//     include. If the parameter identifies a property that contains child
+//     properties, the child properties will be included in the response.
+//     For example, in a playlist resource, the snippet property contains
+//     properties like author, title, description, tags, and timeCreated.
+//     As such, if you set *part=snippet*, the API response will contain
+//     all of those properties.
 func (r *PlaylistsService) List(part []string) *PlaylistsListCall {
 	c := &PlaylistsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -19703,7 +20018,7 @@ func (c *PlaylistsListCall) ChannelId(channelId string) *PlaylistsListCall {
 	return c
 }
 
-// Hl sets the optional parameter "hl": Returen content in specified
+// Hl sets the optional parameter "hl": Return content in specified
 // language
 func (c *PlaylistsListCall) Hl(hl string) *PlaylistsListCall {
 	c.urlParams_.Set("hl", hl)
@@ -19854,17 +20169,17 @@ func (c *PlaylistsListCall) Do(opts ...googleapi.CallOption) (*PlaylistListRespo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PlaylistListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19892,7 +20207,7 @@ func (c *PlaylistsListCall) Do(opts ...googleapi.CallOption) (*PlaylistListRespo
 	//       "type": "string"
 	//     },
 	//     "hl": {
-	//       "description": "Returen content in specified language",
+	//       "description": "Return content in specified language",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -19986,15 +20301,15 @@ type PlaylistsUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. Note
-//   that this method will override the existing values for mutable
-//   properties that are contained in any parts that the request body
-//   specifies. For example, a playlist's description is contained in
-//   the snippet part, which must be included in the request body. If
-//   the request does not specify a value for the snippet.description
-//   property, the playlist's existing description will be deleted.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. Note
+//     that this method will override the existing values for mutable
+//     properties that are contained in any parts that the request body
+//     specifies. For example, a playlist's description is contained in
+//     the snippet part, which must be included in the request body. If
+//     the request does not specify a value for the snippet.description
+//     property, the playlist's existing description will be deleted.
 func (r *PlaylistsService) Update(part []string, playlist *Playlist) *PlaylistsUpdateCall {
 	c := &PlaylistsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -20083,17 +20398,17 @@ func (c *PlaylistsUpdateCall) Do(opts ...googleapi.CallOption) (*Playlist, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Playlist{
 		ServerResponse: googleapi.ServerResponse{
@@ -20156,9 +20471,9 @@ type SearchListCall struct {
 
 // List: Retrieves a list of search resources
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more search resource properties that the API response will
-//   include. Set the parameter value to snippet.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more search resource properties that the API response will
+//     include. Set the parameter value to snippet.
 func (r *SearchService) List(part []string) *SearchListCall {
 	c := &SearchListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -20176,9 +20491,10 @@ func (c *SearchListCall) ChannelId(channelId string) *SearchListCall {
 // on the channel search.
 //
 // Possible values:
-//   "channelTypeUnspecified"
-//   "any" - Return all channels.
-//   "show" - Only retrieve shows.
+//
+//	"channelTypeUnspecified"
+//	"any" - Return all channels.
+//	"show" - Only retrieve shows.
 func (c *SearchListCall) ChannelType(channelType string) *SearchListCall {
 	c.urlParams_.Set("channelType", channelType)
 	return c
@@ -20188,10 +20504,11 @@ func (c *SearchListCall) ChannelType(channelType string) *SearchListCall {
 // livestream status of the videos.
 //
 // Possible values:
-//   "none"
-//   "upcoming" - The live broadcast is upcoming.
-//   "live" - The live broadcast is active.
-//   "completed" - The live broadcast has been completed.
+//
+//	"none"
+//	"upcoming" - The live broadcast is upcoming.
+//	"live" - The live broadcast is active.
+//	"completed" - The live broadcast has been completed.
 func (c *SearchListCall) EventType(eventType string) *SearchListCall {
 	c.urlParams_.Set("eventType", eventType)
 	return c
@@ -20261,17 +20578,25 @@ func (c *SearchListCall) OnBehalfOfContentOwner(onBehalfOfContentOwner string) *
 // Order sets the optional parameter "order": Sort order of the results.
 //
 // Possible values:
-//   "searchSortUnspecified"
-//   "date" - Resources are sorted in reverse chronological order based
+//
+//	"searchSortUnspecified"
+//	"date" - Resources are sorted in reverse chronological order based
+//
 // on the date they were created.
-//   "rating" - Resources are sorted from highest to lowest rating.
-//   "viewCount" - Resources are sorted from highest to lowest number of
+//
+//	"rating" - Resources are sorted from highest to lowest rating.
+//	"viewCount" - Resources are sorted from highest to lowest number of
+//
 // views.
-//   "relevance" (default) - Resources are sorted based on their
+//
+//	"relevance" (default) - Resources are sorted based on their
+//
 // relevance to the search query. This is the default value for this
 // parameter.
-//   "title" - Resources are sorted alphabetically by title.
-//   "videoCount" - Channels are sorted in descending order of their
+//
+//	"title" - Resources are sorted alphabetically by title.
+//	"videoCount" - Channels are sorted in descending order of their
+//
 // number of uploaded videos.
 func (c *SearchListCall) Order(order string) *SearchListCall {
 	c.urlParams_.Set("order", order)
@@ -20333,14 +20658,18 @@ func (c *SearchListCall) RelevanceLanguage(relevanceLanguage string) *SearchList
 // as standard content.
 //
 // Possible values:
-//   "safeSearchSettingUnspecified"
-//   "none" - YouTube will not filter the search result set.
-//   "moderate" (default) - YouTube will filter some content from search
+//
+//	"safeSearchSettingUnspecified"
+//	"none" - YouTube will not filter the search result set.
+//	"moderate" (default) - YouTube will filter some content from search
+//
 // results and, at the least, will filter content that is restricted in
 // your locale. Based on their content, search results could be removed
 // from search results or demoted in search results. This is the default
 // parameter value.
-//   "strict" - YouTube will try to exclude all restricted content from
+//
+//	"strict" - YouTube will try to exclude all restricted content from
+//
 // the search result set. Based on their content, search results could
 // be removed from search results or demoted in search results.
 func (c *SearchListCall) SafeSearch(safeSearch string) *SearchListCall {
@@ -20366,10 +20695,11 @@ func (c *SearchListCall) Type(type_ ...string) *SearchListCall {
 // the presence of captions on the videos.
 //
 // Possible values:
-//   "videoCaptionUnspecified"
-//   "any" - Do not filter results based on caption availability.
-//   "closedCaption" - Only include videos that have captions.
-//   "none" - Only include videos that do not have captions.
+//
+//	"videoCaptionUnspecified"
+//	"any" - Do not filter results based on caption availability.
+//	"closedCaption" - Only include videos that have captions.
+//	"none" - Only include videos that do not have captions.
 func (c *SearchListCall) VideoCaption(videoCaption string) *SearchListCall {
 	c.urlParams_.Set("videoCaption", videoCaption)
 	return c
@@ -20386,9 +20716,10 @@ func (c *SearchListCall) VideoCategoryId(videoCategoryId string) *SearchListCall
 // on the definition of the videos.
 //
 // Possible values:
-//   "any" - Return all videos, regardless of their resolution.
-//   "standard" - Only retrieve videos in standard definition.
-//   "high" - Only retrieve HD videos.
+//
+//	"any" - Return all videos, regardless of their resolution.
+//	"standard" - Only retrieve videos in standard definition.
+//	"high" - Only retrieve HD videos.
 func (c *SearchListCall) VideoDefinition(videoDefinition string) *SearchListCall {
 	c.urlParams_.Set("videoDefinition", videoDefinition)
 	return c
@@ -20398,10 +20729,13 @@ func (c *SearchListCall) VideoDefinition(videoDefinition string) *SearchListCall
 // on 3d videos.
 //
 // Possible values:
-//   "any" - Include both 3D and non-3D videos in returned results. This
+//
+//	"any" - Include both 3D and non-3D videos in returned results. This
+//
 // is the default value.
-//   "2d" - Restrict search results to exclude 3D videos.
-//   "3d" - Restrict search results to only include 3D videos.
+//
+//	"2d" - Restrict search results to exclude 3D videos.
+//	"3d" - Restrict search results to only include 3D videos.
 func (c *SearchListCall) VideoDimension(videoDimension string) *SearchListCall {
 	c.urlParams_.Set("videoDimension", videoDimension)
 	return c
@@ -20411,13 +20745,18 @@ func (c *SearchListCall) VideoDimension(videoDimension string) *SearchListCall {
 // the duration of the videos.
 //
 // Possible values:
-//   "videoDurationUnspecified"
-//   "any" - Do not filter video search results based on their duration.
+//
+//	"videoDurationUnspecified"
+//	"any" - Do not filter video search results based on their duration.
+//
 // This is the default value.
-//   "short" - Only include videos that are less than four minutes long.
-//   "medium" - Only include videos that are between four and 20 minutes
+//
+//	"short" - Only include videos that are less than four minutes long.
+//	"medium" - Only include videos that are between four and 20 minutes
+//
 // long (inclusive).
-//   "long" - Only include videos longer than 20 minutes.
+//
+//	"long" - Only include videos longer than 20 minutes.
 func (c *SearchListCall) VideoDuration(videoDuration string) *SearchListCall {
 	c.urlParams_.Set("videoDuration", videoDuration)
 	return c
@@ -20427,9 +20766,10 @@ func (c *SearchListCall) VideoDuration(videoDuration string) *SearchListCall {
 // on embeddable videos.
 //
 // Possible values:
-//   "videoEmbeddableUnspecified"
-//   "any" - Return all videos, embeddable or not.
-//   "true" - Only retrieve embeddable videos.
+//
+//	"videoEmbeddableUnspecified"
+//	"any" - Return all videos, embeddable or not.
+//	"true" - Only retrieve embeddable videos.
 func (c *SearchListCall) VideoEmbeddable(videoEmbeddable string) *SearchListCall {
 	c.urlParams_.Set("videoEmbeddable", videoEmbeddable)
 	return c
@@ -20439,11 +20779,17 @@ func (c *SearchListCall) VideoEmbeddable(videoEmbeddable string) *SearchListCall
 // the license of the videos.
 //
 // Possible values:
-//   "any" - Return all videos, regardless of which license they have,
+//
+//	"any" - Return all videos, regardless of which license they have,
+//
 // that match the query parameters.
-//   "youtube" - Only return videos that have the standard YouTube
+//
+//	"youtube" - Only return videos that have the standard YouTube
+//
 // license.
-//   "creativeCommon" - Only return videos that have a Creative Commons
+//
+//	"creativeCommon" - Only return videos that have a Creative Commons
+//
 // license. Users can reuse videos with this license in other videos
 // that they create. Learn more.
 func (c *SearchListCall) VideoLicense(videoLicense string) *SearchListCall {
@@ -20455,9 +20801,10 @@ func (c *SearchListCall) VideoLicense(videoLicense string) *SearchListCall {
 // on syndicated videos.
 //
 // Possible values:
-//   "videoSyndicatedUnspecified"
-//   "any" - Return all videos, syndicated or not.
-//   "true" - Only retrieve syndicated videos.
+//
+//	"videoSyndicatedUnspecified"
+//	"any" - Return all videos, syndicated or not.
+//	"true" - Only retrieve syndicated videos.
 func (c *SearchListCall) VideoSyndicated(videoSyndicated string) *SearchListCall {
 	c.urlParams_.Set("videoSyndicated", videoSyndicated)
 	return c
@@ -20467,10 +20814,11 @@ func (c *SearchListCall) VideoSyndicated(videoSyndicated string) *SearchListCall
 // of a specific type.
 //
 // Possible values:
-//   "videoTypeUnspecified"
-//   "any" - Return all videos.
-//   "movie" - Only retrieve movies.
-//   "episode" - Only retrieve episodes of shows.
+//
+//	"videoTypeUnspecified"
+//	"any" - Return all videos.
+//	"movie" - Only retrieve movies.
+//	"episode" - Only retrieve episodes of shows.
 func (c *SearchListCall) VideoType(videoType string) *SearchListCall {
 	c.urlParams_.Set("videoType", videoType)
 	return c
@@ -20548,17 +20896,17 @@ func (c *SearchListCall) Do(opts ...googleapi.CallOption) (*SearchListResponse, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20994,7 +21342,7 @@ func (c *SubscriptionsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -21034,9 +21382,9 @@ type SubscriptionsInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include.
 func (r *SubscriptionsService) Insert(part []string, subscription *Subscription) *SubscriptionsInsertCall {
 	c := &SubscriptionsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -21108,17 +21456,17 @@ func (c *SubscriptionsInsertCall) Do(opts ...googleapi.CallOption) (*Subscriptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -21176,14 +21524,14 @@ type SubscriptionsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more subscription resource properties that the API response will
-//   include. If the parameter identifies a property that contains child
-//   properties, the child properties will be included in the response.
-//   For example, in a subscription resource, the snippet property
-//   contains other properties, such as a display title for the
-//   subscription. If you set *part=snippet*, the API response will also
-//   contain all of those nested properties.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more subscription resource properties that the API response will
+//     include. If the parameter identifies a property that contains child
+//     properties, the child properties will be included in the response.
+//     For example, in a subscription resource, the snippet property
+//     contains other properties, such as a display title for the
+//     subscription. If you set *part=snippet*, the API response will also
+//     contain all of those nested properties.
 func (r *SubscriptionsService) List(part []string) *SubscriptionsListCall {
 	c := &SubscriptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -21286,10 +21634,11 @@ func (c *SubscriptionsListCall) OnBehalfOfContentOwnerChannel(onBehalfOfContentO
 // subscriptions
 //
 // Possible values:
-//   "subscriptionOrderUnspecified"
-//   "relevance" (default) - Sort by relevance.
-//   "unread" - Sort by order of activity.
-//   "alphabetical" - Sort alphabetically.
+//
+//	"subscriptionOrderUnspecified"
+//	"relevance" (default) - Sort by relevance.
+//	"unread" - Sort by order of activity.
+//	"alphabetical" - Sort alphabetically.
 func (c *SubscriptionsListCall) Order(order string) *SubscriptionsListCall {
 	c.urlParams_.Set("order", order)
 	return c
@@ -21376,17 +21725,17 @@ func (c *SubscriptionsListCall) Do(opts ...googleapi.CallOption) (*SubscriptionL
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -21535,9 +21884,9 @@ type SuperChatEventsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies the superChatEvent resource
-//   parts that the API response will include. This parameter is
-//   currently not supported.
+//   - part: The *part* parameter specifies the superChatEvent resource
+//     parts that the API response will include. This parameter is
+//     currently not supported.
 func (r *SuperChatEventsService) List(part []string) *SuperChatEventsListCall {
 	c := &SuperChatEventsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -21640,17 +21989,17 @@ func (c *SuperChatEventsListCall) Do(opts ...googleapi.CallOption) (*SuperChatEv
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SuperChatEventListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -21823,17 +22172,17 @@ func (c *TestsInsertCall) Do(opts ...googleapi.CallOption) (*TestItem, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestItem{
 		ServerResponse: googleapi.ServerResponse{
@@ -21891,9 +22240,9 @@ type ThirdPartyLinksDeleteCall struct {
 
 // Delete: Deletes a resource.
 //
-// - linkingToken: Delete the partner links with the given linking
-//   token.
-// - type: Type of the link to be deleted.
+//   - linkingToken: Delete the partner links with the given linking
+//     token.
+//   - type: Type of the link to be deleted.
 func (r *ThirdPartyLinksService) Delete(linkingToken string, type_ string) *ThirdPartyLinksDeleteCall {
 	c := &ThirdPartyLinksDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("linkingToken", linkingToken)
@@ -21969,7 +22318,7 @@ func (c *ThirdPartyLinksDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -22031,9 +22380,9 @@ type ThirdPartyLinksInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter specifies the thirdPartyLink resource
-//   parts that the API request and response will include. Supported
-//   values are linkingToken, status, and snippet.
+//   - part: The *part* parameter specifies the thirdPartyLink resource
+//     parts that the API request and response will include. Supported
+//     values are linkingToken, status, and snippet.
 func (r *ThirdPartyLinksService) Insert(part []string, thirdpartylink *ThirdPartyLink) *ThirdPartyLinksInsertCall {
 	c := &ThirdPartyLinksInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -22112,17 +22461,17 @@ func (c *ThirdPartyLinksInsertCall) Do(opts ...googleapi.CallOption) (*ThirdPart
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ThirdPartyLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -22180,9 +22529,9 @@ type ThirdPartyLinksListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies the thirdPartyLink resource
-//   parts that the API response will include. Supported values are
-//   linkingToken, status, and snippet.
+//   - part: The *part* parameter specifies the thirdPartyLink resource
+//     parts that the API response will include. Supported values are
+//     linkingToken, status, and snippet.
 func (r *ThirdPartyLinksService) List(part []string) *ThirdPartyLinksListCall {
 	c := &ThirdPartyLinksListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -22207,8 +22556,10 @@ func (c *ThirdPartyLinksListCall) LinkingToken(linkingToken string) *ThirdPartyL
 // the given type.
 //
 // Possible values:
-//   "linkUnspecified"
-//   "channelToStoreLink" - A link that is connecting (or about to
+//
+//	"linkUnspecified"
+//	"channelToStoreLink" - A link that is connecting (or about to
+//
 // connect) a channel with a store on a merchandising platform in order
 // to enable retail commerce capabilities for that channel on YouTube.
 func (c *ThirdPartyLinksListCall) Type(type_ string) *ThirdPartyLinksListCall {
@@ -22275,32 +22626,32 @@ func (c *ThirdPartyLinksListCall) doRequest(alt string) (*http.Response, error) 
 }
 
 // Do executes the "youtube.thirdPartyLinks.list" call.
-// Exactly one of *ThirdPartyLink or error will be non-nil. Any non-2xx
-// status code is an error. Response headers are in either
-// *ThirdPartyLink.ServerResponse.Header or (if a response was returned
-// at all) in error.(*googleapi.Error).Header. Use
+// Exactly one of *ThirdPartyLinkListResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *ThirdPartyLinkListResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
 // googleapi.IsNotModified to check whether the returned error was
 // because http.StatusNotModified was returned.
-func (c *ThirdPartyLinksListCall) Do(opts ...googleapi.CallOption) (*ThirdPartyLink, error) {
+func (c *ThirdPartyLinksListCall) Do(opts ...googleapi.CallOption) (*ThirdPartyLinkListResponse, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
 	res, err := c.doRequest("json")
 	if res != nil && res.StatusCode == http.StatusNotModified {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
-	ret := &ThirdPartyLink{
+	ret := &ThirdPartyLinkListResponse{
 		ServerResponse: googleapi.ServerResponse{
 			Header:         res.Header,
 			HTTPStatusCode: res.StatusCode,
@@ -22353,7 +22704,7 @@ func (c *ThirdPartyLinksListCall) Do(opts ...googleapi.CallOption) (*ThirdPartyL
 	//   },
 	//   "path": "youtube/v3/thirdPartyLinks",
 	//   "response": {
-	//     "$ref": "ThirdPartyLink"
+	//     "$ref": "ThirdPartyLinkListResponse"
 	//   }
 	// }
 
@@ -22371,9 +22722,9 @@ type ThirdPartyLinksUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter specifies the thirdPartyLink resource
-//   parts that the API request and response will include. Supported
-//   values are linkingToken, status, and snippet.
+//   - part: The *part* parameter specifies the thirdPartyLink resource
+//     parts that the API request and response will include. Supported
+//     values are linkingToken, status, and snippet.
 func (r *ThirdPartyLinksService) Update(part []string, thirdpartylink *ThirdPartyLink) *ThirdPartyLinksUpdateCall {
 	c := &ThirdPartyLinksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -22452,17 +22803,17 @@ func (c *ThirdPartyLinksUpdateCall) Do(opts ...googleapi.CallOption) (*ThirdPart
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ThirdPartyLink{
 		ServerResponse: googleapi.ServerResponse{
@@ -22522,8 +22873,8 @@ type ThumbnailsSetCall struct {
 // uploading/setting of a thumbnail for multiple videos, which doesn't
 // result in creation of a single resource), I use a custom verb here.
 //
-// - videoId: Returns the Thumbnail with the given video IDs for Stubby
-//   or Apiary.
+//   - videoId: Returns the Thumbnail with the given video IDs for Stubby
+//     or Apiary.
 func (r *ThumbnailsService) Set(videoId string) *ThumbnailsSetCall {
 	c := &ThumbnailsSetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.Set("videoId", videoId)
@@ -22657,17 +23008,17 @@ func (c *ThumbnailsSetCall) Do(opts ...googleapi.CallOption) (*ThumbnailSetRespo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -22683,7 +23034,7 @@ func (c *ThumbnailsSetCall) Do(opts ...googleapi.CallOption) (*ThumbnailSetRespo
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &ThumbnailSetResponse{
@@ -22763,9 +23114,9 @@ type VideoAbuseReportReasonsListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies the videoCategory resource
-//   parts that the API response will include. Supported values are id
-//   and snippet.
+//   - part: The *part* parameter specifies the videoCategory resource
+//     parts that the API response will include. Supported values are id
+//     and snippet.
 func (r *VideoAbuseReportReasonsService) List(part []string) *VideoAbuseReportReasonsListCall {
 	c := &VideoAbuseReportReasonsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -22851,17 +23202,17 @@ func (c *VideoAbuseReportReasonsListCall) Do(opts ...googleapi.CallOption) (*Vid
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VideoAbuseReportReasonListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -22921,9 +23272,9 @@ type VideoCategoriesListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies the videoCategory resource
-//   properties that the API response will include. Set the parameter
-//   value to snippet.
+//   - part: The *part* parameter specifies the videoCategory resource
+//     properties that the API response will include. Set the parameter
+//     value to snippet.
 func (r *VideoCategoriesService) List(part []string) *VideoCategoriesListCall {
 	c := &VideoCategoriesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -23021,17 +23372,17 @@ func (c *VideoCategoriesListCall) Do(opts ...googleapi.CallOption) (*VideoCatego
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VideoCategoryListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23180,7 +23531,7 @@ func (c *VideosDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -23322,17 +23673,17 @@ func (c *VideosGetRatingCall) Do(opts ...googleapi.CallOption) (*VideoGetRatingR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VideoGetRatingResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -23392,15 +23743,15 @@ type VideosInsertCall struct {
 
 // Insert: Inserts a new resource into this collection.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. Note
-//   that not all parts contain properties that can be set when
-//   inserting or updating a video. For example, the statistics object
-//   encapsulates statistics that YouTube calculates for a video and
-//   does not contain values that you can set or modify. If the
-//   parameter value specifies a part that does not contain mutable
-//   values, that part will still be included in the API response.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. Note
+//     that not all parts contain properties that can be set when
+//     inserting or updating a video. For example, the statistics object
+//     encapsulates statistics that YouTube calculates for a video and
+//     does not contain values that you can set or modify. If the
+//     parameter value specifies a part that does not contain mutable
+//     values, that part will still be included in the API response.
 func (r *VideosService) Insert(part []string, video *Video) *VideosInsertCall {
 	c := &VideosInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -23585,17 +23936,17 @@ func (c *VideosInsertCall) Do(opts ...googleapi.CallOption) (*Video, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -23611,7 +23962,7 @@ func (c *VideosInsertCall) Do(opts ...googleapi.CallOption) (*Video, error) {
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &Video{
@@ -23715,14 +24066,14 @@ type VideosListCall struct {
 
 // List: Retrieves a list of resources, possibly filtered.
 //
-// - part: The *part* parameter specifies a comma-separated list of one
-//   or more video resource properties that the API response will
-//   include. If the parameter identifies a property that contains child
-//   properties, the child properties will be included in the response.
-//   For example, in a video resource, the snippet property contains the
-//   channelId, title, description, tags, and categoryId properties. As
-//   such, if you set *part=snippet*, the API response will contain all
-//   of those properties.
+//   - part: The *part* parameter specifies a comma-separated list of one
+//     or more video resource properties that the API response will
+//     include. If the parameter identifies a property that contains child
+//     properties, the child properties will be included in the response.
+//     For example, in a video resource, the snippet property contains the
+//     channelId, title, description, tags, and categoryId properties. As
+//     such, if you set *part=snippet*, the API response will contain all
+//     of those properties.
 func (r *VideosService) List(part []string) *VideosListCall {
 	c := &VideosListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -23733,8 +24084,10 @@ func (r *VideosService) List(part []string) *VideosListCall {
 // in the specified chart.
 //
 // Possible values:
-//   "chartUnspecified"
-//   "mostPopular" - Return the most popular videos for the specified
+//
+//	"chartUnspecified"
+//	"mostPopular" - Return the most popular videos for the specified
+//
 // content region and video category.
 func (c *VideosListCall) Chart(chart string) *VideosListCall {
 	c.urlParams_.Set("chart", chart)
@@ -23793,9 +24146,10 @@ func (c *VideosListCall) MaxWidth(maxWidth int64) *VideosListCall {
 // RateType.RATED_TYPE_NONE.
 //
 // Possible values:
-//   "none"
-//   "like" - The entity is liked.
-//   "dislike" - The entity is disliked.
+//
+//	"none"
+//	"like" - The entity is liked.
+//	"dislike" - The entity is disliked.
 func (c *VideosListCall) MyRating(myRating string) *VideosListCall {
 	c.urlParams_.Set("myRating", myRating)
 	return c
@@ -23916,17 +24270,17 @@ func (c *VideosListCall) Do(opts ...googleapi.CallOption) (*VideoListResponse, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VideoListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -24154,7 +24508,7 @@ func (c *VideosRateCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -24291,7 +24645,7 @@ func (c *VideosReportAbuseCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -24332,24 +24686,24 @@ type VideosUpdateCall struct {
 
 // Update: Updates an existing resource.
 //
-// - part: The *part* parameter serves two purposes in this operation.
-//   It identifies the properties that the write operation will set as
-//   well as the properties that the API response will include. Note
-//   that this method will override the existing values for all of the
-//   mutable properties that are contained in any parts that the
-//   parameter value specifies. For example, a video's privacy setting
-//   is contained in the status part. As such, if your request is
-//   updating a private video, and the request's part parameter value
-//   includes the status part, the video's privacy setting will be
-//   updated to whatever value the request body specifies. If the
-//   request body does not specify a value, the existing privacy setting
-//   will be removed and the video will revert to the default privacy
-//   setting. In addition, not all parts contain properties that can be
-//   set when inserting or updating a video. For example, the statistics
-//   object encapsulates statistics that YouTube calculates for a video
-//   and does not contain values that you can set or modify. If the
-//   parameter value specifies a part that does not contain mutable
-//   values, that part will still be included in the API response.
+//   - part: The *part* parameter serves two purposes in this operation.
+//     It identifies the properties that the write operation will set as
+//     well as the properties that the API response will include. Note
+//     that this method will override the existing values for all of the
+//     mutable properties that are contained in any parts that the
+//     parameter value specifies. For example, a video's privacy setting
+//     is contained in the status part. As such, if your request is
+//     updating a private video, and the request's part parameter value
+//     includes the status part, the video's privacy setting will be
+//     updated to whatever value the request body specifies. If the
+//     request body does not specify a value, the existing privacy setting
+//     will be removed and the video will revert to the default privacy
+//     setting. In addition, not all parts contain properties that can be
+//     set when inserting or updating a video. For example, the statistics
+//     object encapsulates statistics that YouTube calculates for a video
+//     and does not contain values that you can set or modify. If the
+//     parameter value specifies a part that does not contain mutable
+//     values, that part will still be included in the API response.
 func (r *VideosService) Update(part []string, video *Video) *VideosUpdateCall {
 	c := &VideosUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.urlParams_.SetMulti("part", append([]string{}, part...))
@@ -24439,17 +24793,17 @@ func (c *VideosUpdateCall) Do(opts ...googleapi.CallOption) (*Video, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Video{
 		ServerResponse: googleapi.ServerResponse{
@@ -24647,7 +25001,7 @@ func (c *WatermarksSetCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -24663,7 +25017,7 @@ func (c *WatermarksSetCall) Do(opts ...googleapi.CallOption) error {
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return err
+			return gensupport.WrapError(err)
 		}
 	}
 	return nil
@@ -24809,7 +25163,7 @@ func (c *WatermarksUnsetCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -24933,17 +25287,17 @@ func (c *YoutubeV3UpdateCommentThreadsCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CommentThread{
 		ServerResponse: googleapi.ServerResponse{

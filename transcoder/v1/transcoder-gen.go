@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/transcoder/docs/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/transcoder/v1"
-//   ...
-//   ctx := context.Background()
-//   transcoderService, err := transcoder.NewService(ctx)
+//	import "google.golang.org/api/transcoder/v1"
+//	...
+//	ctx := context.Background()
+//	transcoderService, err := transcoder.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   transcoderService, err := transcoder.NewService(ctx, option.WithAPIKey("AIza..."))
+//	transcoderService, err := transcoder.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   transcoderService, err := transcoder.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	transcoderService, err := transcoder.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package transcoder // import "google.golang.org/api/transcoder/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "transcoder:v1"
 const apiName = "transcoder"
@@ -506,6 +507,16 @@ type AudioStream struct {
 	// `ac3` - `eac3`
 	Codec string `json:"codec,omitempty"`
 
+	// DisplayName: The name for this particular audio stream that will be
+	// added to the HLS/DASH manifest. Not supported in MP4 files.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// LanguageCode: The BCP-47 language code, such as `en-US` or `sr-Latn`.
+	// For more information, see
+	// https://www.unicode.org/reports/tr35/#Unicode_locale_identifier. Not
+	// supported in MP4 files.
+	LanguageCode string `json:"languageCode,omitempty"`
+
 	// Mapping: The mapping for the `Job.edit_list` atoms with audio
 	// `EditAtom.inputs`.
 	Mapping []*AudioMapping `json:"mapping,omitempty"`
@@ -533,6 +544,48 @@ type AudioStream struct {
 
 func (s *AudioStream) MarshalJSON() ([]byte, error) {
 	type NoMethod AudioStream
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BwdifConfig: Bob Weaver Deinterlacing Filter Configuration.
+type BwdifConfig struct {
+	// DeinterlaceAllFrames: Deinterlace all frames rather than just the
+	// frames identified as interlaced. The default is `false`.
+	DeinterlaceAllFrames bool `json:"deinterlaceAllFrames,omitempty"`
+
+	// Mode: Specifies the deinterlacing mode to adopt. The default is
+	// `send_frame`. Supported values: - `send_frame`: Output one frame for
+	// each frame - `send_field`: Output one frame for each field
+	Mode string `json:"mode,omitempty"`
+
+	// Parity: The picture field parity assumed for the input interlaced
+	// video. The default is `auto`. Supported values: - `tff`: Assume the
+	// top field is first - `bff`: Assume the bottom field is first -
+	// `auto`: Enable automatic detection of field parity
+	Parity string `json:"parity,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "DeinterlaceAllFrames") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeinterlaceAllFrames") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BwdifConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod BwdifConfig
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -684,6 +737,37 @@ func (s *Deblock) UnmarshalJSON(data []byte) error {
 	}
 	s.Strength = float64(s1.Strength)
 	return nil
+}
+
+// Deinterlace: Deinterlace configuration for input video.
+type Deinterlace struct {
+	// Bwdif: Specifies the Bob Weaver Deinterlacing Filter Configuration.
+	Bwdif *BwdifConfig `json:"bwdif,omitempty"`
+
+	// Yadif: Specifies the Yet Another Deinterlacing Filter Configuration.
+	Yadif *YadifConfig `json:"yadif,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Bwdif") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Bwdif") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Deinterlace) MarshalJSON() ([]byte, error) {
+	type NoMethod Deinterlace
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // Denoise: Denoise preprocessing configuration. **Note:** This
@@ -889,7 +973,11 @@ type H264CodecSettings struct {
 	// HeightPixels: The height of the video in pixels. Must be an even
 	// integer. When not specified, the height is adjusted to match the
 	// specified width and input aspect ratio. If both are omitted, the
-	// input height is used.
+	// input height is used. For portrait videos that contain horizontal ASR
+	// and rotation metadata, provide the height, in pixels, per the
+	// horizontal ASR. The API calculates the width per the horizontal ASR.
+	// The API detects any rotation metadata and swaps the requested height
+	// and width for the output.
 	HeightPixels int64 `json:"heightPixels,omitempty"`
 
 	// PixelFormat: Pixel format to use. The default is `yuv420p`. Supported
@@ -939,7 +1027,11 @@ type H264CodecSettings struct {
 	// WidthPixels: The width of the video in pixels. Must be an even
 	// integer. When not specified, the width is adjusted to match the
 	// specified height and input aspect ratio. If both are omitted, the
-	// input width is used.
+	// input width is used. For portrait videos that contain horizontal ASR
+	// and rotation metadata, provide the width, in pixels, per the
+	// horizontal ASR. The API calculates the height per the horizontal ASR.
+	// The API detects any rotation metadata and swaps the requested height
+	// and width for the output.
 	WidthPixels int64 `json:"widthPixels,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AllowOpenGop") to
@@ -1038,7 +1130,11 @@ type H265CodecSettings struct {
 	// HeightPixels: The height of the video in pixels. Must be an even
 	// integer. When not specified, the height is adjusted to match the
 	// specified width and input aspect ratio. If both are omitted, the
-	// input height is used.
+	// input height is used. For portrait videos that contain horizontal ASR
+	// and rotation metadata, provide the height, in pixels, per the
+	// horizontal ASR. The API calculates the width per the horizontal ASR.
+	// The API detects any rotation metadata and swaps the requested height
+	// and width for the output.
 	HeightPixels int64 `json:"heightPixels,omitempty"`
 
 	// PixelFormat: Pixel format to use. The default is `yuv420p`. Supported
@@ -1092,7 +1188,11 @@ type H265CodecSettings struct {
 	// WidthPixels: The width of the video in pixels. Must be an even
 	// integer. When not specified, the width is adjusted to match the
 	// specified height and input aspect ratio. If both are omitted, the
-	// input width is used.
+	// input width is used. For portrait videos that contain horizontal ASR
+	// and rotation metadata, provide the width, in pixels, per the
+	// horizontal ASR. The API calculates the height per the horizontal ASR.
+	// The API detects any rotation metadata and swaps the requested height
+	// and width for the output.
 	WidthPixels int64 `json:"widthPixels,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AllowOpenGop") to
@@ -1252,6 +1352,23 @@ type Job struct {
 	// (https://cloud.google.com/transcoder/docs/concepts/supported-input-and-output-formats).
 	InputUri string `json:"inputUri,omitempty"`
 
+	// Labels: The labels associated with this job. You can use these to
+	// organize and group your jobs.
+	Labels map[string]string `json:"labels,omitempty"`
+
+	// Mode: The processing mode of the job. The default is
+	// `PROCESSING_MODE_INTERACTIVE`.
+	//
+	// Possible values:
+	//   "PROCESSING_MODE_UNSPECIFIED" - The job processing mode is not
+	// specified.
+	//   "PROCESSING_MODE_INTERACTIVE" - The job processing mode is
+	// interactive mode. Interactive job will either be ran or rejected if
+	// quota does not allow for it.
+	//   "PROCESSING_MODE_BATCH" - The job processing mode is batch mode.
+	// Batch mode allows queuing of jobs.
+	Mode string `json:"mode,omitempty"`
+
 	// Name: The resource name of the job. Format:
 	// `projects/{project_number}/locations/{location}/jobs/{job}`
 	Name string `json:"name,omitempty"`
@@ -1280,9 +1397,8 @@ type Job struct {
 	State string `json:"state,omitempty"`
 
 	// TemplateId: Input only. Specify the `template_id` to use for
-	// populating `Job.config`. The default is `preset/web-hd`. Preset
-	// Transcoder templates: - `preset/{preset_id}` - User defined
-	// JobTemplate: `{job_template_id}`
+	// populating `Job.config`. The default is `preset/web-hd`, which is the
+	// only supported preset. User defined JobTemplate: `{job_template_id}`
 	TemplateId string `json:"templateId,omitempty"`
 
 	// TtlAfterCompletionDays: Job time to live value in days, which will be
@@ -1350,7 +1466,8 @@ type JobConfig struct {
 	// PubsubDestination: Destination on Pub/Sub.
 	PubsubDestination *PubsubDestination `json:"pubsubDestination,omitempty"`
 
-	// SpriteSheets: List of output sprite sheets.
+	// SpriteSheets: List of output sprite sheets. Spritesheets require at
+	// least one VideoStream in the Jobconfig.
 	SpriteSheets []*SpriteSheet `json:"spriteSheets,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AdBreaks") to
@@ -1380,6 +1497,10 @@ func (s *JobConfig) MarshalJSON() ([]byte, error) {
 type JobTemplate struct {
 	// Config: The configuration for this template.
 	Config *JobConfig `json:"config,omitempty"`
+
+	// Labels: The labels associated with this job template. You can use
+	// these to organize and group your job templates.
+	Labels map[string]string `json:"labels,omitempty"`
 
 	// Name: The resource name of the job template. Format:
 	// `projects/{project_number}/locations/{location}/jobTemplates/{job_temp
@@ -1752,6 +1873,9 @@ type PreprocessingConfig struct {
 	// Deblock: Deblock preprocessing configuration.
 	Deblock *Deblock `json:"deblock,omitempty"`
 
+	// Deinterlace: Specify the video deinterlace configuration.
+	Deinterlace *Deinterlace `json:"deinterlace,omitempty"`
+
 	// Denoise: Denoise preprocessing configuration.
 	Denoise *Denoise `json:"denoise,omitempty"`
 
@@ -1886,14 +2010,22 @@ type SpriteSheet struct {
 	// an even integer. To preserve the source aspect ratio, set the
 	// SpriteSheet.sprite_height_pixels field or the
 	// SpriteSheet.sprite_width_pixels field, but not both (the API will
-	// automatically calculate the missing field).
+	// automatically calculate the missing field). For portrait videos that
+	// contain horizontal ASR and rotation metadata, provide the height, in
+	// pixels, per the horizontal ASR. The API calculates the width per the
+	// horizontal ASR. The API detects any rotation metadata and swaps the
+	// requested height and width for the output.
 	SpriteHeightPixels int64 `json:"spriteHeightPixels,omitempty"`
 
 	// SpriteWidthPixels: Required. The width of sprite in pixels. Must be
 	// an even integer. To preserve the source aspect ratio, set the
 	// SpriteSheet.sprite_width_pixels field or the
 	// SpriteSheet.sprite_height_pixels field, but not both (the API will
-	// automatically calculate the missing field).
+	// automatically calculate the missing field). For portrait videos that
+	// contain horizontal ASR and rotation metadata, provide the width, in
+	// pixels, per the horizontal ASR. The API calculates the height per the
+	// horizontal ASR. The API detects any rotation metadata and swaps the
+	// requested height and width for the output.
 	SpriteWidthPixels int64 `json:"spriteWidthPixels,omitempty"`
 
 	// StartTimeOffset: Start time in seconds, relative to the output file
@@ -2017,6 +2149,16 @@ type TextStream struct {
 	// `webvtt`
 	Codec string `json:"codec,omitempty"`
 
+	// DisplayName: The name for this particular text stream that will be
+	// added to the HLS/DASH manifest. Not supported in MP4 files.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// LanguageCode: The BCP-47 language code, such as `en-US` or `sr-Latn`.
+	// For more information, see
+	// https://www.unicode.org/reports/tr35/#Unicode_locale_identifier. Not
+	// supported in MP4 files.
+	LanguageCode string `json:"languageCode,omitempty"`
+
 	// Mapping: The mapping for the `Job.edit_list` atoms with text
 	// `EditAtom.inputs`.
 	Mapping []*TextMapping `json:"mapping,omitempty"`
@@ -2111,7 +2253,11 @@ type Vp9CodecSettings struct {
 	// HeightPixels: The height of the video in pixels. Must be an even
 	// integer. When not specified, the height is adjusted to match the
 	// specified width and input aspect ratio. If both are omitted, the
-	// input height is used.
+	// input height is used. For portrait videos that contain horizontal ASR
+	// and rotation metadata, provide the height, in pixels, per the
+	// horizontal ASR. The API calculates the width per the horizontal ASR.
+	// The API detects any rotation metadata and swaps the requested height
+	// and width for the output.
 	HeightPixels int64 `json:"heightPixels,omitempty"`
 
 	// PixelFormat: Pixel format to use. The default is `yuv420p`. Supported
@@ -2137,7 +2283,11 @@ type Vp9CodecSettings struct {
 	// WidthPixels: The width of the video in pixels. Must be an even
 	// integer. When not specified, the width is adjusted to match the
 	// specified height and input aspect ratio. If both are omitted, the
-	// input width is used.
+	// input width is used. For portrait videos that contain horizontal ASR
+	// and rotation metadata, provide the width, in pixels, per the
+	// horizontal ASR. The API calculates the height per the horizontal ASR.
+	// The API detects any rotation metadata and swaps the requested height
+	// and width for the output.
 	WidthPixels int64 `json:"widthPixels,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "BitrateBps") to
@@ -2177,6 +2327,52 @@ func (s *Vp9CodecSettings) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// YadifConfig: Yet Another Deinterlacing Filter Configuration.
+type YadifConfig struct {
+	// DeinterlaceAllFrames: Deinterlace all frames rather than just the
+	// frames identified as interlaced. The default is `false`.
+	DeinterlaceAllFrames bool `json:"deinterlaceAllFrames,omitempty"`
+
+	// DisableSpatialInterlacing: Disable spacial interlacing. The default
+	// is `false`.
+	DisableSpatialInterlacing bool `json:"disableSpatialInterlacing,omitempty"`
+
+	// Mode: Specifies the deinterlacing mode to adopt. The default is
+	// `send_frame`. Supported values: - `send_frame`: Output one frame for
+	// each frame - `send_field`: Output one frame for each field
+	Mode string `json:"mode,omitempty"`
+
+	// Parity: The picture field parity assumed for the input interlaced
+	// video. The default is `auto`. Supported values: - `tff`: Assume the
+	// top field is first - `bff`: Assume the bottom field is first -
+	// `auto`: Enable automatic detection of field parity
+	Parity string `json:"parity,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "DeinterlaceAllFrames") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeinterlaceAllFrames") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *YadifConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod YadifConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // method id "transcoder.projects.locations.jobTemplates.create":
 
 type ProjectsLocationsJobTemplatesCreateCall struct {
@@ -2190,8 +2386,8 @@ type ProjectsLocationsJobTemplatesCreateCall struct {
 
 // Create: Creates a job template in the specified region.
 //
-// - parent: The parent location to create this job template. Format:
-//   `projects/{project}/locations/{location}`.
+//   - parent: The parent location to create this job template. Format:
+//     `projects/{project}/locations/{location}`.
 func (r *ProjectsLocationsJobTemplatesService) Create(parent string, jobtemplate *JobTemplate) *ProjectsLocationsJobTemplatesCreateCall {
 	c := &ProjectsLocationsJobTemplatesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2276,17 +2472,17 @@ func (c *ProjectsLocationsJobTemplatesCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &JobTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -2347,9 +2543,9 @@ type ProjectsLocationsJobTemplatesDeleteCall struct {
 
 // Delete: Deletes a job template.
 //
-// - name: The name of the job template to delete.
-//   `projects/{project}/locations/{location}/jobTemplates/{job_template}
-//   `.
+//   - name: The name of the job template to delete.
+//     `projects/{project}/locations/{location}/jobTemplates/{job_template}
+//     `.
 func (r *ProjectsLocationsJobTemplatesService) Delete(name string) *ProjectsLocationsJobTemplatesDeleteCall {
 	c := &ProjectsLocationsJobTemplatesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2426,17 +2622,17 @@ func (c *ProjectsLocationsJobTemplatesDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2495,9 +2691,9 @@ type ProjectsLocationsJobTemplatesGetCall struct {
 
 // Get: Returns the job template data.
 //
-// - name: The name of the job template to retrieve. Format:
-//   `projects/{project}/locations/{location}/jobTemplates/{job_template}
-//   `.
+//   - name: The name of the job template to retrieve. Format:
+//     `projects/{project}/locations/{location}/jobTemplates/{job_template}
+//     `.
 func (r *ProjectsLocationsJobTemplatesService) Get(name string) *ProjectsLocationsJobTemplatesGetCall {
 	c := &ProjectsLocationsJobTemplatesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2579,17 +2775,17 @@ func (c *ProjectsLocationsJobTemplatesGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &JobTemplate{
 		ServerResponse: googleapi.ServerResponse{
@@ -2643,8 +2839,8 @@ type ProjectsLocationsJobTemplatesListCall struct {
 
 // List: Lists job templates in the specified region.
 //
-// - parent: The parent location from which to retrieve the collection
-//   of job templates. Format: `projects/{project}/locations/{location}`.
+//   - parent: The parent location from which to retrieve the collection
+//     of job templates. Format: `projects/{project}/locations/{location}`.
 func (r *ProjectsLocationsJobTemplatesService) List(parent string) *ProjectsLocationsJobTemplatesListCall {
 	c := &ProjectsLocationsJobTemplatesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2756,17 +2952,17 @@ func (c *ProjectsLocationsJobTemplatesListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListJobTemplatesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2862,8 +3058,8 @@ type ProjectsLocationsJobsCreateCall struct {
 
 // Create: Creates a job in the specified region.
 //
-// - parent: The parent location to create and process this job. Format:
-//   `projects/{project}/locations/{location}`.
+//   - parent: The parent location to create and process this job. Format:
+//     `projects/{project}/locations/{location}`.
 func (r *ProjectsLocationsJobsService) Create(parent string, job *Job) *ProjectsLocationsJobsCreateCall {
 	c := &ProjectsLocationsJobsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2938,17 +3134,17 @@ func (c *ProjectsLocationsJobsCreateCall) Do(opts ...googleapi.CallOption) (*Job
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Job{
 		ServerResponse: googleapi.ServerResponse{
@@ -3004,8 +3200,8 @@ type ProjectsLocationsJobsDeleteCall struct {
 
 // Delete: Deletes a job.
 //
-// - name: The name of the job to delete. Format:
-//   `projects/{project}/locations/{location}/jobs/{job}`.
+//   - name: The name of the job to delete. Format:
+//     `projects/{project}/locations/{location}/jobs/{job}`.
 func (r *ProjectsLocationsJobsService) Delete(name string) *ProjectsLocationsJobsDeleteCall {
 	c := &ProjectsLocationsJobsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3082,17 +3278,17 @@ func (c *ProjectsLocationsJobsDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3151,8 +3347,8 @@ type ProjectsLocationsJobsGetCall struct {
 
 // Get: Returns the job data.
 //
-// - name: The name of the job to retrieve. Format:
-//   `projects/{project}/locations/{location}/jobs/{job}`.
+//   - name: The name of the job to retrieve. Format:
+//     `projects/{project}/locations/{location}/jobs/{job}`.
 func (r *ProjectsLocationsJobsService) Get(name string) *ProjectsLocationsJobsGetCall {
 	c := &ProjectsLocationsJobsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3234,17 +3430,17 @@ func (c *ProjectsLocationsJobsGetCall) Do(opts ...googleapi.CallOption) (*Job, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Job{
 		ServerResponse: googleapi.ServerResponse{
@@ -3410,17 +3606,17 @@ func (c *ProjectsLocationsJobsListCall) Do(opts ...googleapi.CallOption) (*ListJ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListJobsResponse{
 		ServerResponse: googleapi.ServerResponse{

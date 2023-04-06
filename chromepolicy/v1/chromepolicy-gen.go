@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: http://developers.google.com/chrome/policy
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/chromepolicy/v1"
-//   ...
-//   ctx := context.Background()
-//   chromepolicyService, err := chromepolicy.NewService(ctx)
+//	import "google.golang.org/api/chromepolicy/v1"
+//	...
+//	ctx := context.Background()
+//	chromepolicyService, err := chromepolicy.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   chromepolicyService, err := chromepolicy.NewService(ctx, option.WithScopes(chromepolicy.ChromeManagementPolicyReadonlyScope))
+//	chromepolicyService, err := chromepolicy.NewService(ctx, option.WithScopes(chromepolicy.ChromeManagementPolicyReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   chromepolicyService, err := chromepolicy.NewService(ctx, option.WithAPIKey("AIza..."))
+//	chromepolicyService, err := chromepolicy.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   chromepolicyService, err := chromepolicy.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	chromepolicyService, err := chromepolicy.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package chromepolicy // import "google.golang.org/api/chromepolicy/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "chromepolicy:v1"
 const apiName = "chromepolicy"
@@ -166,6 +167,8 @@ type CustomersService struct {
 
 func NewCustomersPoliciesService(s *Service) *CustomersPoliciesService {
 	rs := &CustomersPoliciesService{s: s}
+	rs.Groups = NewCustomersPoliciesGroupsService(s)
+	rs.Networks = NewCustomersPoliciesNetworksService(s)
 	rs.Orgunits = NewCustomersPoliciesOrgunitsService(s)
 	return rs
 }
@@ -173,7 +176,29 @@ func NewCustomersPoliciesService(s *Service) *CustomersPoliciesService {
 type CustomersPoliciesService struct {
 	s *Service
 
+	Groups *CustomersPoliciesGroupsService
+
+	Networks *CustomersPoliciesNetworksService
+
 	Orgunits *CustomersPoliciesOrgunitsService
+}
+
+func NewCustomersPoliciesGroupsService(s *Service) *CustomersPoliciesGroupsService {
+	rs := &CustomersPoliciesGroupsService{s: s}
+	return rs
+}
+
+type CustomersPoliciesGroupsService struct {
+	s *Service
+}
+
+func NewCustomersPoliciesNetworksService(s *Service) *CustomersPoliciesNetworksService {
+	rs := &CustomersPoliciesNetworksService{s: s}
+	return rs
+}
+
+type CustomersPoliciesNetworksService struct {
+	s *Service
 }
 
 func NewCustomersPoliciesOrgunitsService(s *Service) *CustomersPoliciesOrgunitsService {
@@ -204,6 +229,11 @@ type MediaService struct {
 }
 
 type ChromeCrosDpanelAutosettingsProtoPolicyApiLifecycle struct {
+	// DeprecatedInFavorOf: In the event that this policy was deprecated in
+	// favor of another policy, the fully qualified namespace(s) of the new
+	// policies as they will show in PolicyAPI.
+	DeprecatedInFavorOf []string `json:"deprecatedInFavorOf,omitempty"`
+
 	// Description: Description about current life cycle.
 	Description string `json:"description,omitempty"`
 
@@ -233,20 +263,21 @@ type ChromeCrosDpanelAutosettingsProtoPolicyApiLifecycle struct {
 	// policy was introduced to replace this one.
 	PolicyApiLifecycleStage string `json:"policyApiLifecycleStage,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Description") to
-	// unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "DeprecatedInFavorOf")
+	// to unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Description") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "DeprecatedInFavorOf") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -256,9 +287,9 @@ func (s *ChromeCrosDpanelAutosettingsProtoPolicyApiLifecycle) MarshalJSON() ([]b
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1AdditionalTargetKeyName: Additional key names
-// that will be used to identify the target of the policy value.
-type GoogleChromePolicyV1AdditionalTargetKeyName struct {
+// GoogleChromePolicyVersionsV1AdditionalTargetKeyName: Additional key
+// names that will be used to identify the target of the policy value.
+type GoogleChromePolicyVersionsV1AdditionalTargetKeyName struct {
 	// Key: Key name.
 	Key string `json:"key,omitempty"`
 
@@ -282,16 +313,52 @@ type GoogleChromePolicyV1AdditionalTargetKeyName struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1AdditionalTargetKeyName) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1AdditionalTargetKeyName
+func (s *GoogleChromePolicyVersionsV1AdditionalTargetKeyName) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1AdditionalTargetKeyName
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest: Request
-// message for specifying that multiple policy values inherit their
-// value from their parents.
-type GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest struct {
+// GoogleChromePolicyVersionsV1BatchDeleteGroupPoliciesRequest: Request
+// message for specifying that multiple policy values will be deleted.
+type GoogleChromePolicyVersionsV1BatchDeleteGroupPoliciesRequest struct {
+	// Requests: List of policies that will be deleted as defined by the
+	// `requests`. All requests in the list must follow these restrictions:
+	// 1. All schemas in the list must have the same root namespace. 2. All
+	// `policyTargetKey.targetResource` values must point to a group
+	// resource. 3. All `policyTargetKey` values must have the same `app_id`
+	// key name in the `additionalTargetKeys`. 4. No two modification
+	// requests can reference the same `policySchema` + ` policyTargetKey`
+	// pair.
+	Requests []*GoogleChromePolicyVersionsV1DeleteGroupPolicyRequest `json:"requests,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Requests") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Requests") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1BatchDeleteGroupPoliciesRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1BatchDeleteGroupPoliciesRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1BatchInheritOrgUnitPoliciesRequest:
+// Request message for specifying that multiple policy values inherit
+// their value from their parents.
+type GoogleChromePolicyVersionsV1BatchInheritOrgUnitPoliciesRequest struct {
 	// Requests: List of policies that have to inherit their values as
 	// defined by the `requests`. All requests in the list must follow these
 	// restrictions: 1. All schemas in the list must have the same root
@@ -302,7 +369,7 @@ type GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest struct {
 	// the targets must have an empty `additionalTargetKeys` map. 4. No two
 	// modification requests can reference the same `policySchema` + `
 	// policyTargetKey` pair.
-	Requests []*GoogleChromePolicyV1InheritOrgUnitPolicyRequest `json:"requests,omitempty"`
+	Requests []*GoogleChromePolicyVersionsV1InheritOrgUnitPolicyRequest `json:"requests,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Requests") to
 	// unconditionally include in API requests. By default, fields with
@@ -321,15 +388,53 @@ type GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest
+func (s *GoogleChromePolicyVersionsV1BatchInheritOrgUnitPoliciesRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1BatchInheritOrgUnitPoliciesRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest: Request
-// message for modifying multiple policy values for a specific target.
-type GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest struct {
+// GoogleChromePolicyVersionsV1BatchModifyGroupPoliciesRequest: Request
+// message for modifying multiple policy values for a specific
+// group-based target.
+type GoogleChromePolicyVersionsV1BatchModifyGroupPoliciesRequest struct {
+	// Requests: List of policies to modify as defined by the `requests`.
+	// All requests in the list must follow these restrictions: 1. All
+	// schemas in the list must have the same root namespace. 2. All
+	// `policyTargetKey.targetResource` values must point to a group
+	// resource. 3. All `policyTargetKey` values must have the same `app_id`
+	// key name in the `additionalTargetKeys`. 4. No two modification
+	// requests can reference the same `policySchema` + ` policyTargetKey`
+	// pair.
+	Requests []*GoogleChromePolicyVersionsV1ModifyGroupPolicyRequest `json:"requests,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Requests") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Requests") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1BatchModifyGroupPoliciesRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1BatchModifyGroupPoliciesRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1BatchModifyOrgUnitPoliciesRequest:
+// Request message for modifying multiple policy values for a specific
+// target.
+type GoogleChromePolicyVersionsV1BatchModifyOrgUnitPoliciesRequest struct {
 	// Requests: List of policies to modify as defined by the `requests`.
 	// All requests in the list must follow these restrictions: 1. All
 	// schemas in the list must have the same root namespace. 2. All
@@ -340,7 +445,7 @@ type GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest struct {
 	// must have an empty `additionalTargetKeys` map. 4. No two modification
 	// requests can reference the same `policySchema` + ` policyTargetKey`
 	// pair.
-	Requests []*GoogleChromePolicyV1ModifyOrgUnitPolicyRequest `json:"requests,omitempty"`
+	Requests []*GoogleChromePolicyVersionsV1ModifyOrgUnitPolicyRequest `json:"requests,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Requests") to
 	// unconditionally include in API requests. By default, fields with
@@ -359,23 +464,218 @@ type GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest
+func (s *GoogleChromePolicyVersionsV1BatchModifyOrgUnitPoliciesRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1BatchModifyOrgUnitPoliciesRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1InheritOrgUnitPolicyRequest: Request parameters
-// for inheriting policy value of a specific org unit target from the
-// policy value of its parent org unit.
-type GoogleChromePolicyV1InheritOrgUnitPolicyRequest struct {
+// GoogleChromePolicyVersionsV1CertificateReference: Error information
+// for removing of a specific certificate on a specific target. A
+// reference to a certificate.
+type GoogleChromePolicyVersionsV1CertificateReference struct {
+	// Network: Output only. The name of the referencing network.
+	Network string `json:"network,omitempty"`
+
+	// OrgUnitId: Output only. The obfuscated id of the org unit the
+	// referencing network is in.
+	OrgUnitId string `json:"orgUnitId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Network") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Network") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1CertificateReference) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1CertificateReference
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1DefineCertificateRequest: Request object
+// for creating a certificate.
+type GoogleChromePolicyVersionsV1DefineCertificateRequest struct {
+	// CeritificateName: Optional. The optional name of the certificate. If
+	// not specified, the certificate issuer will be used as the name.
+	CeritificateName string `json:"ceritificateName,omitempty"`
+
+	// Certificate: Required. The raw contents of the .PEM, .CRT, or .CER
+	// file.
+	Certificate string `json:"certificate,omitempty"`
+
+	// Settings: Optional. Certificate settings within the
+	// chrome.networks.certificates namespace.
+	Settings []*GoogleChromePolicyVersionsV1NetworkSetting `json:"settings,omitempty"`
+
+	// TargetResource: Required. The target resource on which this
+	// certificate is applied. The following resources are supported: *
+	// Organizational Unit ("orgunits/{orgunit_id}")
+	TargetResource string `json:"targetResource,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CeritificateName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CeritificateName") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1DefineCertificateRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1DefineCertificateRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1DefineCertificateResponse: Response
+// object for creating a certificate.
+type GoogleChromePolicyVersionsV1DefineCertificateResponse struct {
+	// NetworkId: The guid of the certificate created by the action.
+	NetworkId string `json:"networkId,omitempty"`
+
+	// Settings: the affiliated settings of the certificate (NOT
+	// IMPLEMENTED)
+	Settings []*GoogleChromePolicyVersionsV1NetworkSetting `json:"settings,omitempty"`
+
+	// TargetResource: the resource at which the certificate is defined.
+	TargetResource string `json:"targetResource,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NetworkId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NetworkId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1DefineCertificateResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1DefineCertificateResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1DefineNetworkRequest: Request object for
+// creating a new network.
+type GoogleChromePolicyVersionsV1DefineNetworkRequest struct {
+	// Name: Required. Name of the new created network.
+	Name string `json:"name,omitempty"`
+
+	// Settings: Required. Detailed network settings.
+	Settings []*GoogleChromePolicyVersionsV1NetworkSetting `json:"settings,omitempty"`
+
+	// TargetResource: Required. The target resource on which this new
+	// network will be defined. The following resources are supported: *
+	// Organizational Unit ("orgunits/{orgunit_id}")
+	TargetResource string `json:"targetResource,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1DefineNetworkRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1DefineNetworkRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1DefineNetworkResponse: Response object
+// for creating a network.
+type GoogleChromePolicyVersionsV1DefineNetworkResponse struct {
+	// NetworkId: Network ID of the new created network.
+	NetworkId string `json:"networkId,omitempty"`
+
+	// Settings: Detailed network settings of the new created network
+	Settings []*GoogleChromePolicyVersionsV1NetworkSetting `json:"settings,omitempty"`
+
+	// TargetResource: The target resource on which this new network will be
+	// defined. The following resources are supported: * Organizational Unit
+	// ("orgunits/{orgunit_id}")
+	TargetResource string `json:"targetResource,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NetworkId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NetworkId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1DefineNetworkResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1DefineNetworkResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1DeleteGroupPolicyRequest: Request
+// parameters for deleting the policy value of a specific group target.
+type GoogleChromePolicyVersionsV1DeleteGroupPolicyRequest struct {
 	// PolicySchema: The fully qualified name of the policy schema that is
 	// being inherited.
 	PolicySchema string `json:"policySchema,omitempty"`
 
 	// PolicyTargetKey: Required. The key of the target for which we want to
-	// modify a policy. The target resource must point to an Org Unit.
-	PolicyTargetKey *GoogleChromePolicyV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+	// modify a policy. The target resource must point to a Group.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "PolicySchema") to
 	// unconditionally include in API requests. By default, fields with
@@ -394,21 +694,170 @@ type GoogleChromePolicyV1InheritOrgUnitPolicyRequest struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1InheritOrgUnitPolicyRequest) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1InheritOrgUnitPolicyRequest
+func (s *GoogleChromePolicyVersionsV1DeleteGroupPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1DeleteGroupPolicyRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1ListPolicySchemasResponse: Response message for
-// listing policy schemas that match a filter.
-type GoogleChromePolicyV1ListPolicySchemasResponse struct {
+// GoogleChromePolicyVersionsV1FieldConstraints: Information about any
+// range constraints.
+type GoogleChromePolicyVersionsV1FieldConstraints struct {
+	// NumericRangeConstraint: The allowed range for numeric fields.
+	NumericRangeConstraint *GoogleChromePolicyVersionsV1NumericRangeConstraint `json:"numericRangeConstraint,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "NumericRangeConstraint") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NumericRangeConstraint")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1FieldConstraints) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1FieldConstraints
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1InheritOrgUnitPolicyRequest: Request
+// parameters for inheriting policy value of a specific org unit target
+// from the policy value of its parent org unit.
+type GoogleChromePolicyVersionsV1InheritOrgUnitPolicyRequest struct {
+	// PolicySchema: The fully qualified name of the policy schema that is
+	// being inherited.
+	PolicySchema string `json:"policySchema,omitempty"`
+
+	// PolicyTargetKey: Required. The key of the target for which we want to
+	// modify a policy. The target resource must point to an Org Unit.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PolicySchema") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PolicySchema") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1InheritOrgUnitPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1InheritOrgUnitPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1ListGroupPriorityOrderingRequest: Request
+// message for listing the group priority ordering of an app.
+type GoogleChromePolicyVersionsV1ListGroupPriorityOrderingRequest struct {
+	// PolicyNamespace: The namespace of the policy type for the request.
+	PolicyNamespace string `json:"policyNamespace,omitempty"`
+
+	// PolicySchema: The schema name of the policy for the request.
+	PolicySchema string `json:"policySchema,omitempty"`
+
+	// PolicyTargetKey: Required. The key of the target for which we want to
+	// retrieve the group priority ordering. The target resource must point
+	// to an app.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PolicyNamespace") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PolicyNamespace") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1ListGroupPriorityOrderingRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ListGroupPriorityOrderingRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse:
+// Response message for listing the group priority ordering of an app.
+type GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse struct {
+	// GroupIds: Output only. The group IDs, in priority ordering.
+	GroupIds []string `json:"groupIds,omitempty"`
+
+	// PolicyNamespace: Output only. The namespace of the policy type of the
+	// group IDs.
+	PolicyNamespace string `json:"policyNamespace,omitempty"`
+
+	// PolicySchema: Output only. The schema name of the policy for the
+	// group IDs.
+	PolicySchema string `json:"policySchema,omitempty"`
+
+	// PolicyTargetKey: Output only. The target resource for which the group
+	// priority ordering has been retrieved.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "GroupIds") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GroupIds") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1ListPolicySchemasResponse: Response
+// message for listing policy schemas that match a filter.
+type GoogleChromePolicyVersionsV1ListPolicySchemasResponse struct {
 	// NextPageToken: The page token used to get the next page of policy
 	// schemas.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// PolicySchemas: The list of policy schemas that match the query.
-	PolicySchemas []*GoogleChromePolicyV1PolicySchema `json:"policySchemas,omitempty"`
+	PolicySchemas []*GoogleChromePolicyVersionsV1PolicySchema `json:"policySchemas,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -431,21 +880,21 @@ type GoogleChromePolicyV1ListPolicySchemasResponse struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1ListPolicySchemasResponse) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1ListPolicySchemasResponse
+func (s *GoogleChromePolicyVersionsV1ListPolicySchemasResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ListPolicySchemasResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1ModifyOrgUnitPolicyRequest: Request parameters
-// for modifying a policy value for a specific org unit target.
-type GoogleChromePolicyV1ModifyOrgUnitPolicyRequest struct {
+// GoogleChromePolicyVersionsV1ModifyGroupPolicyRequest: Request
+// parameters for modifying a policy value for a specific group target.
+type GoogleChromePolicyVersionsV1ModifyGroupPolicyRequest struct {
 	// PolicyTargetKey: Required. The key of the target for which we want to
-	// modify a policy. The target resource must point to an Org Unit.
-	PolicyTargetKey *GoogleChromePolicyV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+	// modify a policy. The target resource must point to a Group.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
 
 	// PolicyValue: The new value for the policy.
-	PolicyValue *GoogleChromePolicyV1PolicyValue `json:"policyValue,omitempty"`
+	PolicyValue *GoogleChromePolicyVersionsV1PolicyValue `json:"policyValue,omitempty"`
 
 	// UpdateMask: Required. Policy fields to update. Only fields in this
 	// mask will be updated; other fields in `policy_value` will be ignored
@@ -471,15 +920,231 @@ type GoogleChromePolicyV1ModifyOrgUnitPolicyRequest struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1ModifyOrgUnitPolicyRequest) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1ModifyOrgUnitPolicyRequest
+func (s *GoogleChromePolicyVersionsV1ModifyGroupPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ModifyGroupPolicyRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicySchema: Resource representing a policy
-// schema. Next ID: 12
-type GoogleChromePolicyV1PolicySchema struct {
+// GoogleChromePolicyVersionsV1ModifyOrgUnitPolicyRequest: Request
+// parameters for modifying a policy value for a specific org unit
+// target.
+type GoogleChromePolicyVersionsV1ModifyOrgUnitPolicyRequest struct {
+	// PolicyTargetKey: Required. The key of the target for which we want to
+	// modify a policy. The target resource must point to an Org Unit.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+
+	// PolicyValue: The new value for the policy.
+	PolicyValue *GoogleChromePolicyVersionsV1PolicyValue `json:"policyValue,omitempty"`
+
+	// UpdateMask: Required. Policy fields to update. Only fields in this
+	// mask will be updated; other fields in `policy_value` will be ignored
+	// (even if they have values). If a field is in this list it must have a
+	// value in 'policy_value'.
+	UpdateMask string `json:"updateMask,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PolicyTargetKey") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PolicyTargetKey") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1ModifyOrgUnitPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ModifyOrgUnitPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1NetworkSetting: A network setting
+// contains network configurations.
+type GoogleChromePolicyVersionsV1NetworkSetting struct {
+	// PolicySchema: The fully qualified name of the network setting.
+	PolicySchema string `json:"policySchema,omitempty"`
+
+	// Value: The value of the network setting.
+	Value googleapi.RawMessage `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PolicySchema") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PolicySchema") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1NetworkSetting) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1NetworkSetting
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1NumericRangeConstraint: A constraint on
+// upper and/or lower bounds, with at least one being set.
+type GoogleChromePolicyVersionsV1NumericRangeConstraint struct {
+	// Maximum: Maximum value.
+	Maximum int64 `json:"maximum,omitempty,string"`
+
+	// Minimum: Minimum value.
+	Minimum int64 `json:"minimum,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Maximum") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Maximum") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1NumericRangeConstraint) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1NumericRangeConstraint
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1PolicyModificationError: Error
+// information for a modification request of a specific policy on a
+// specific target.
+type GoogleChromePolicyVersionsV1PolicyModificationError struct {
+	// Errors: Output only. The non-field errors related to the
+	// modification.
+	Errors []string `json:"errors,omitempty"`
+
+	// FieldErrors: Output only. The error messages related to the
+	// modification.
+	FieldErrors []*GoogleChromePolicyVersionsV1PolicyModificationFieldError `json:"fieldErrors,omitempty"`
+
+	// PolicySchema: Output only. The specific policy schema modification
+	// that had an error.
+	PolicySchema string `json:"policySchema,omitempty"`
+
+	// PolicyTargetKey: Output only. The specific policy target modification
+	// that had error.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Errors") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Errors") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1PolicyModificationError) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicyModificationError
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1PolicyModificationErrorDetails: Details
+// of the errors encountered during a policy modification request. This
+// message will be returned as part of the details of a
+// google.rpc.Status returned to the user when there is an error in
+// their request.
+type GoogleChromePolicyVersionsV1PolicyModificationErrorDetails struct {
+	// ModificationErrors: Output only. List of specific policy
+	// modifications errors that may have occurred during a modifying
+	// request.
+	ModificationErrors []*GoogleChromePolicyVersionsV1PolicyModificationError `json:"modificationErrors,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ModificationErrors")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ModificationErrors") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1PolicyModificationErrorDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicyModificationErrorDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1PolicyModificationFieldError: Error
+// information for a modification request of a specific field on a
+// specific policy.
+type GoogleChromePolicyVersionsV1PolicyModificationFieldError struct {
+	// Error: Output only. The error message related to the field.
+	Error string `json:"error,omitempty"`
+
+	// Field: Output only. The name of the field with the error.
+	Field string `json:"field,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Error") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Error") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1PolicyModificationFieldError) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicyModificationFieldError
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1PolicySchema: Resource representing a
+// policy schema.
+type GoogleChromePolicyVersionsV1PolicySchema struct {
 	// AccessRestrictions: Output only. Specific access restrictions related
 	// to this policy.
 	AccessRestrictions []string `json:"accessRestrictions,omitempty"`
@@ -488,14 +1153,17 @@ type GoogleChromePolicyV1PolicySchema struct {
 	// be used to identify the target of the policy value. When specifying a
 	// `policyTargetKey`, each of the additional keys specified here will
 	// have to be included in the `additionalTargetKeys` map.
-	AdditionalTargetKeyNames []*GoogleChromePolicyV1AdditionalTargetKeyName `json:"additionalTargetKeyNames,omitempty"`
+	AdditionalTargetKeyNames []*GoogleChromePolicyVersionsV1AdditionalTargetKeyName `json:"additionalTargetKeyNames,omitempty"`
+
+	// CategoryTitle: Title of the category in which a setting belongs.
+	CategoryTitle string `json:"categoryTitle,omitempty"`
 
 	// Definition: Schema definition using proto descriptor.
 	Definition *Proto2FileDescriptorProto `json:"definition,omitempty"`
 
 	// FieldDescriptions: Output only. Detailed description of each field
 	// that is part of the schema.
-	FieldDescriptions []*GoogleChromePolicyV1PolicySchemaFieldDescription `json:"fieldDescriptions,omitempty"`
+	FieldDescriptions []*GoogleChromePolicyVersionsV1PolicySchemaFieldDescription `json:"fieldDescriptions,omitempty"`
 
 	// Name: Format:
 	// name=customers/{customer}/policySchemas/{schema_namespace}
@@ -503,10 +1171,10 @@ type GoogleChromePolicyV1PolicySchema struct {
 
 	// Notices: Output only. Special notice messages related to setting
 	// certain values in certain fields in the schema.
-	Notices []*GoogleChromePolicyV1PolicySchemaNoticeDescription `json:"notices,omitempty"`
+	Notices []*GoogleChromePolicyVersionsV1PolicySchemaNoticeDescription `json:"notices,omitempty"`
 
-	// PolicyApiLifeycle: Output only. Current life cycle information.
-	PolicyApiLifeycle *ChromeCrosDpanelAutosettingsProtoPolicyApiLifecycle `json:"policyApiLifeycle,omitempty"`
+	// PolicyApiLifecycle: Output only. Current lifecycle information.
+	PolicyApiLifecycle *ChromeCrosDpanelAutosettingsProtoPolicyApiLifecycle `json:"policyApiLifecycle,omitempty"`
 
 	// PolicyDescription: Output only. Description about the policy schema
 	// for user consumption.
@@ -514,8 +1182,9 @@ type GoogleChromePolicyV1PolicySchema struct {
 
 	// SchemaName: Output only. The fully qualified name of the policy
 	// schema. This value is used to fill the field `policy_schema` in
-	// PolicyValue when calling BatchInheritOrgUnitPolicies or
-	// BatchModifyOrgUnitPolicies
+	// PolicyValue when calling BatchInheritOrgUnitPolicies
+	// BatchModifyOrgUnitPolicies BatchModifyGroupPolicies or
+	// BatchDeleteGroupPolicies.
 	SchemaName string `json:"schemaName,omitempty"`
 
 	// SupportUri: Output only. URI to related support article for this
@@ -553,15 +1222,15 @@ type GoogleChromePolicyV1PolicySchema struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicySchema) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicySchema
+func (s *GoogleChromePolicyVersionsV1PolicySchema) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicySchema
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicySchemaFieldDependencies: The field and the
-// value it must have for another field to be allowed to be set.
-type GoogleChromePolicyV1PolicySchemaFieldDependencies struct {
+// GoogleChromePolicyVersionsV1PolicySchemaFieldDependencies: The field
+// and the value it must have for another field to be allowed to be set.
+type GoogleChromePolicyVersionsV1PolicySchemaFieldDependencies struct {
 	// SourceField: The source field which this field depends on.
 	SourceField string `json:"sourceField,omitempty"`
 
@@ -586,26 +1255,38 @@ type GoogleChromePolicyV1PolicySchemaFieldDependencies struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicySchemaFieldDependencies) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicySchemaFieldDependencies
+func (s *GoogleChromePolicyVersionsV1PolicySchemaFieldDependencies) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicySchemaFieldDependencies
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicySchemaFieldDescription: Provides detailed
-// information for a particular field that is part of a PolicySchema.
-type GoogleChromePolicyV1PolicySchemaFieldDescription struct {
-	// Description: Output only. The description for the field.
+// GoogleChromePolicyVersionsV1PolicySchemaFieldDescription: Provides
+// detailed information for a particular field that is part of a
+// PolicySchema.
+type GoogleChromePolicyVersionsV1PolicySchemaFieldDescription struct {
+	// DefaultValue: Output only. Client default if the policy is unset.
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+
+	// Description: Deprecated. Use name and field_description instead. The
+	// description for the field.
 	Description string `json:"description,omitempty"`
 
 	// Field: Output only. The name of the field for associated with this
 	// description.
 	Field string `json:"field,omitempty"`
 
+	// FieldConstraints: Output only. Information on any input constraints
+	// associated on the values for the field.
+	FieldConstraints *GoogleChromePolicyVersionsV1FieldConstraints `json:"fieldConstraints,omitempty"`
+
 	// FieldDependencies: Output only. Provides a list of fields and values.
 	// At least one of the fields must have the corresponding value in order
 	// for this field to be allowed to be set.
-	FieldDependencies []*GoogleChromePolicyV1PolicySchemaFieldDependencies `json:"fieldDependencies,omitempty"`
+	FieldDependencies []*GoogleChromePolicyVersionsV1PolicySchemaFieldDependencies `json:"fieldDependencies,omitempty"`
+
+	// FieldDescription: Output only. The description of the field.
+	FieldDescription string `json:"fieldDescription,omitempty"`
 
 	// InputConstraint: Output only. Any input constraints associated on the
 	// values for the field.
@@ -613,18 +1294,21 @@ type GoogleChromePolicyV1PolicySchemaFieldDescription struct {
 
 	// KnownValueDescriptions: Output only. If the field has a set of known
 	// values, this field will provide a description for these values.
-	KnownValueDescriptions []*GoogleChromePolicyV1PolicySchemaFieldKnownValueDescription `json:"knownValueDescriptions,omitempty"`
+	KnownValueDescriptions []*GoogleChromePolicyVersionsV1PolicySchemaFieldKnownValueDescription `json:"knownValueDescriptions,omitempty"`
+
+	// Name: Output only. The name of the field.
+	Name string `json:"name,omitempty"`
 
 	// NestedFieldDescriptions: Output only. Provides the description of the
 	// fields nested in this field, if the field is a message type that
 	// defines multiple fields.
-	NestedFieldDescriptions []*GoogleChromePolicyV1PolicySchemaFieldDescription `json:"nestedFieldDescriptions,omitempty"`
+	NestedFieldDescriptions []*GoogleChromePolicyVersionsV1PolicySchemaFieldDescription `json:"nestedFieldDescriptions,omitempty"`
 
 	// RequiredItems: Output only. Provides a list of fields that are
 	// required to be set if this field has a certain value.
-	RequiredItems []*GoogleChromePolicyV1PolicySchemaRequiredItems `json:"requiredItems,omitempty"`
+	RequiredItems []*GoogleChromePolicyVersionsV1PolicySchemaRequiredItems `json:"requiredItems,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Description") to
+	// ForceSendFields is a list of field names (e.g. "DefaultValue") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -632,7 +1316,7 @@ type GoogleChromePolicyV1PolicySchemaFieldDescription struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Description") to include
+	// NullFields is a list of field names (e.g. "DefaultValue") to include
 	// in API requests with the JSON null value. By default, fields with
 	// empty values are omitted from API requests. However, any field with
 	// an empty value appearing in NullFields will be sent to the server as
@@ -641,16 +1325,16 @@ type GoogleChromePolicyV1PolicySchemaFieldDescription struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicySchemaFieldDescription) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicySchemaFieldDescription
+func (s *GoogleChromePolicyVersionsV1PolicySchemaFieldDescription) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicySchemaFieldDescription
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicySchemaFieldKnownValueDescription: Provides
-// detailed information about a known value that is allowed for a
-// particular field in a PolicySchema.
-type GoogleChromePolicyV1PolicySchemaFieldKnownValueDescription struct {
+// GoogleChromePolicyVersionsV1PolicySchemaFieldKnownValueDescription:
+// Provides detailed information about a known value that is allowed for
+// a particular field in a PolicySchema.
+type GoogleChromePolicyVersionsV1PolicySchemaFieldKnownValueDescription struct {
 	// Description: Output only. Additional description for this value.
 	Description string `json:"description,omitempty"`
 
@@ -675,16 +1359,16 @@ type GoogleChromePolicyV1PolicySchemaFieldKnownValueDescription struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicySchemaFieldKnownValueDescription) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicySchemaFieldKnownValueDescription
+func (s *GoogleChromePolicyVersionsV1PolicySchemaFieldKnownValueDescription) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicySchemaFieldKnownValueDescription
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicySchemaNoticeDescription: Provides special
-// notice messages related to a particular value in a field that is part
-// of a PolicySchema.
-type GoogleChromePolicyV1PolicySchemaNoticeDescription struct {
+// GoogleChromePolicyVersionsV1PolicySchemaNoticeDescription: Provides
+// special notice messages related to a particular value in a field that
+// is part of a PolicySchema.
+type GoogleChromePolicyVersionsV1PolicySchemaNoticeDescription struct {
 	// AcknowledgementRequired: Output only. Whether the user needs to
 	// acknowledge the notice message before the value can be set.
 	AcknowledgementRequired bool `json:"acknowledgementRequired,omitempty"`
@@ -720,15 +1404,15 @@ type GoogleChromePolicyV1PolicySchemaNoticeDescription struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicySchemaNoticeDescription) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicySchemaNoticeDescription
+func (s *GoogleChromePolicyVersionsV1PolicySchemaNoticeDescription) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicySchemaNoticeDescription
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicySchemaRequiredItems: The fields that will
-// become required based on the value of this field.
-type GoogleChromePolicyV1PolicySchemaRequiredItems struct {
+// GoogleChromePolicyVersionsV1PolicySchemaRequiredItems: The fields
+// that will become required based on the value of this field.
+type GoogleChromePolicyVersionsV1PolicySchemaRequiredItems struct {
 	// FieldConditions: The value(s) of the field that provoke required
 	// field enforcement. An empty field_conditions implies that any value
 	// assigned to this field will provoke required field enforcement.
@@ -756,22 +1440,22 @@ type GoogleChromePolicyV1PolicySchemaRequiredItems struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicySchemaRequiredItems) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicySchemaRequiredItems
+func (s *GoogleChromePolicyVersionsV1PolicySchemaRequiredItems) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicySchemaRequiredItems
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicyTargetKey: The key used to identify the
-// target on which the policy will be applied.
-type GoogleChromePolicyV1PolicyTargetKey struct {
+// GoogleChromePolicyVersionsV1PolicyTargetKey: The key used to identify
+// the target on which the policy will be applied.
+type GoogleChromePolicyVersionsV1PolicyTargetKey struct {
 	// AdditionalTargetKeys: Map containing the additional target key name
 	// and value pairs used to further identify the target of the policy.
 	AdditionalTargetKeys map[string]string `json:"additionalTargetKeys,omitempty"`
 
 	// TargetResource: The target resource on which this policy is applied.
 	// The following resources are supported: * Organizational Unit
-	// ("orgunits/{orgunit_id}")
+	// ("orgunits/{orgunit_id}") * Group ("groups/{group_id}")
 	TargetResource string `json:"targetResource,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -793,15 +1477,15 @@ type GoogleChromePolicyV1PolicyTargetKey struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicyTargetKey) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicyTargetKey
+func (s *GoogleChromePolicyVersionsV1PolicyTargetKey) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicyTargetKey
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1PolicyValue: A particular value for a policy
-// managed by the service.
-type GoogleChromePolicyV1PolicyValue struct {
+// GoogleChromePolicyVersionsV1PolicyValue: A particular value for a
+// policy managed by the service.
+type GoogleChromePolicyVersionsV1PolicyValue struct {
 	// PolicySchema: The fully qualified name of the policy schema
 	// associated with this policy.
 	PolicySchema string `json:"policySchema,omitempty"`
@@ -827,15 +1511,135 @@ type GoogleChromePolicyV1PolicyValue struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1PolicyValue) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1PolicyValue
+func (s *GoogleChromePolicyVersionsV1PolicyValue) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1PolicyValue
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1ResolveRequest: Request message for getting the
-// resolved policy value for a specific target.
-type GoogleChromePolicyV1ResolveRequest struct {
+// GoogleChromePolicyVersionsV1RemoveCertificateErrorDetails: Details of
+// the errors encountered during a remove certificate request. This
+// message will be returned as part of the details of a
+// google.rpc.Status returned to the user when there is an error in
+// their request.
+type GoogleChromePolicyVersionsV1RemoveCertificateErrorDetails struct {
+	// CertificateReferences: Output only. If the certificate was not
+	// removed, a list of references to the certificate that prevented it
+	// from being removed. Only unreferenced certificates can be removed.
+	CertificateReferences []*GoogleChromePolicyVersionsV1CertificateReference `json:"certificateReferences,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "CertificateReferences") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CertificateReferences") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1RemoveCertificateErrorDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1RemoveCertificateErrorDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1RemoveCertificateRequest: Request object
+// for removing a certificate.
+type GoogleChromePolicyVersionsV1RemoveCertificateRequest struct {
+	// NetworkId: Required. The GUID of the certificate to remove.
+	NetworkId string `json:"networkId,omitempty"`
+
+	// TargetResource: Required. The target resource on which this
+	// certificate will be removed. The following resources are supported: *
+	// Organizational Unit ("orgunits/{orgunit_id}")
+	TargetResource string `json:"targetResource,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "NetworkId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NetworkId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1RemoveCertificateRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1RemoveCertificateRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1RemoveCertificateResponse: Response
+// object for removing a certificate.
+type GoogleChromePolicyVersionsV1RemoveCertificateResponse struct {
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+}
+
+// GoogleChromePolicyVersionsV1RemoveNetworkRequest: Request object for
+// removing a network
+type GoogleChromePolicyVersionsV1RemoveNetworkRequest struct {
+	// NetworkId: Required. The GUID of the network to remove.
+	NetworkId string `json:"networkId,omitempty"`
+
+	// TargetResource: Required. The target resource on which this network
+	// will be removed. The following resources are supported: *
+	// Organizational Unit ("orgunits/{orgunit_id}")
+	TargetResource string `json:"targetResource,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "NetworkId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NetworkId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1RemoveNetworkRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1RemoveNetworkRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1RemoveNetworkResponse: Response object
+// for removing a network.
+type GoogleChromePolicyVersionsV1RemoveNetworkResponse struct {
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+}
+
+// GoogleChromePolicyVersionsV1ResolveRequest: Request message for
+// getting the resolved policy value for a specific target.
+type GoogleChromePolicyVersionsV1ResolveRequest struct {
 	// PageSize: The maximum number of policies to return, defaults to 100
 	// and has a maximum of 1000.
 	PageSize int64 `json:"pageSize,omitempty"`
@@ -844,21 +1648,20 @@ type GoogleChromePolicyV1ResolveRequest struct {
 	// request.
 	PageToken string `json:"pageToken,omitempty"`
 
-	// PolicySchemaFilter: The schema filter to apply to the resolve
-	// request. Specify a schema name to view a particular schema, for
-	// example: chrome.users.ShowLogoutButton Wildcards are supported, but
-	// only in the leaf portion of the schema name. Wildcards cannot be used
-	// in namespace directly. Please read
-	// https://developers.google.com/chrome/chrome-management/guides/policyapi
-	// for details on schema namepsaces. For example: Valid:
-	// "chrome.users.*", "chrome.users.apps.*", "chrome.printers.*" Invalid:
-	// "*", "*.users", "chrome.*", "chrome.*.apps.*"
+	// PolicySchemaFilter: Required. The schema filter to apply to the
+	// resolve request. Specify a schema name to view a particular schema,
+	// for example: chrome.users.ShowLogoutButton Wildcards are supported,
+	// but only in the leaf portion of the schema name. Wildcards cannot be
+	// used in namespace directly. Please read
+	// https://developers.google.com/chrome/policy/guides/policy-schemas for
+	// details on schema namespaces. For example: Valid: "chrome.users.*",
+	// "chrome.users.apps.*", "chrome.printers.*" Invalid: "*", "*.users",
+	// "chrome.*", "chrome.*.apps.*"
 	PolicySchemaFilter string `json:"policySchemaFilter,omitempty"`
 
 	// PolicyTargetKey: Required. The key of the target resource on which
-	// the policies should be resolved. The target resource must point to an
-	// Org Unit.
-	PolicyTargetKey *GoogleChromePolicyV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+	// the policies should be resolved.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "PageSize") to
 	// unconditionally include in API requests. By default, fields with
@@ -877,22 +1680,22 @@ type GoogleChromePolicyV1ResolveRequest struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1ResolveRequest) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1ResolveRequest
+func (s *GoogleChromePolicyVersionsV1ResolveRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ResolveRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1ResolveResponse: Response message for getting the
-// resolved policy value for a specific target.
-type GoogleChromePolicyV1ResolveResponse struct {
+// GoogleChromePolicyVersionsV1ResolveResponse: Response message for
+// getting the resolved policy value for a specific target.
+type GoogleChromePolicyVersionsV1ResolveResponse struct {
 	// NextPageToken: The page token used to get the next set of resolved
 	// policies found by the request.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// ResolvedPolicies: The list of resolved policies found by the resolve
 	// request.
-	ResolvedPolicies []*GoogleChromePolicyV1ResolvedPolicy `json:"resolvedPolicies,omitempty"`
+	ResolvedPolicies []*GoogleChromePolicyVersionsV1ResolvedPolicy `json:"resolvedPolicies,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -915,15 +1718,15 @@ type GoogleChromePolicyV1ResolveResponse struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1ResolveResponse) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1ResolveResponse
+func (s *GoogleChromePolicyVersionsV1ResolveResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ResolveResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1ResolvedPolicy: The resolved value of a policy
-// for a given target.
-type GoogleChromePolicyV1ResolvedPolicy struct {
+// GoogleChromePolicyVersionsV1ResolvedPolicy: The resolved value of a
+// policy for a given target.
+type GoogleChromePolicyVersionsV1ResolvedPolicy struct {
 	// AddedSourceKey: Output only. The added source key establishes at
 	// which level an entity was explicitly added for management. This is
 	// useful for certain type of policies that are only applied if they are
@@ -932,21 +1735,21 @@ type GoogleChromePolicyV1ResolvedPolicy struct {
 	// that it was explicitly added to. If this is not present it means that
 	// the policy is managed without the need to explicitly add an entity,
 	// for example: standard user or device policies.
-	AddedSourceKey *GoogleChromePolicyV1PolicyTargetKey `json:"addedSourceKey,omitempty"`
+	AddedSourceKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"addedSourceKey,omitempty"`
 
 	// SourceKey: Output only. The source resource from which this policy
 	// value is obtained. May be the same as `targetKey` if the policy is
 	// directly modified on the target, otherwise it would be another
 	// resource from which the policy gets its value (if applicable). If not
 	// present, the source is the default value for the customer.
-	SourceKey *GoogleChromePolicyV1PolicyTargetKey `json:"sourceKey,omitempty"`
+	SourceKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"sourceKey,omitempty"`
 
 	// TargetKey: Output only. The target resource for which the resolved
 	// policy value applies.
-	TargetKey *GoogleChromePolicyV1PolicyTargetKey `json:"targetKey,omitempty"`
+	TargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"targetKey,omitempty"`
 
 	// Value: Output only. The resolved value of the policy.
-	Value *GoogleChromePolicyV1PolicyValue `json:"value,omitempty"`
+	Value *GoogleChromePolicyVersionsV1PolicyValue `json:"value,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AddedSourceKey") to
 	// unconditionally include in API requests. By default, fields with
@@ -966,15 +1769,55 @@ type GoogleChromePolicyV1ResolvedPolicy struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1ResolvedPolicy) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1ResolvedPolicy
+func (s *GoogleChromePolicyVersionsV1ResolvedPolicy) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1ResolvedPolicy
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1UploadPolicyFileRequest: Request message for
-// uploading a file for a policy. Next ID: 5
-type GoogleChromePolicyV1UploadPolicyFileRequest struct {
+// GoogleChromePolicyVersionsV1UpdateGroupPriorityOrderingRequest:
+// Request message for updating the group priority ordering of an app.
+type GoogleChromePolicyVersionsV1UpdateGroupPriorityOrderingRequest struct {
+	// GroupIds: Required. The group IDs, in desired priority ordering.
+	GroupIds []string `json:"groupIds,omitempty"`
+
+	// PolicyNamespace: The namespace of the policy type for the request.
+	PolicyNamespace string `json:"policyNamespace,omitempty"`
+
+	// PolicySchema: The schema name of the policy for the request.
+	PolicySchema string `json:"policySchema,omitempty"`
+
+	// PolicyTargetKey: Required. The key of the target for which we want to
+	// update the group priority ordering. The target resource must point to
+	// an app.
+	PolicyTargetKey *GoogleChromePolicyVersionsV1PolicyTargetKey `json:"policyTargetKey,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "GroupIds") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GroupIds") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromePolicyVersionsV1UpdateGroupPriorityOrderingRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1UpdateGroupPriorityOrderingRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromePolicyVersionsV1UploadPolicyFileRequest: Request message
+// for uploading a file for a policy.
+type GoogleChromePolicyVersionsV1UploadPolicyFileRequest struct {
 	// PolicyField: Required. The fully qualified policy schema and field
 	// name this file is uploaded for. This information will be used to
 	// validate the content type of the file.
@@ -997,15 +1840,15 @@ type GoogleChromePolicyV1UploadPolicyFileRequest struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1UploadPolicyFileRequest) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1UploadPolicyFileRequest
+func (s *GoogleChromePolicyVersionsV1UploadPolicyFileRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1UploadPolicyFileRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromePolicyV1UploadPolicyFileResponse: Response message for
-// downloading an uploaded file. Next ID: 2
-type GoogleChromePolicyV1UploadPolicyFileResponse struct {
+// GoogleChromePolicyVersionsV1UploadPolicyFileResponse: Response
+// message for downloading an uploaded file.
+type GoogleChromePolicyVersionsV1UploadPolicyFileResponse struct {
 	// DownloadUri: The uri for end user to download the file.
 	DownloadUri string `json:"downloadUri,omitempty"`
 
@@ -1030,8 +1873,8 @@ type GoogleChromePolicyV1UploadPolicyFileResponse struct {
 	NullFields []string `json:"-"`
 }
 
-func (s *GoogleChromePolicyV1UploadPolicyFileResponse) MarshalJSON() ([]byte, error) {
-	type NoMethod GoogleChromePolicyV1UploadPolicyFileResponse
+func (s *GoogleChromePolicyVersionsV1UploadPolicyFileResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromePolicyVersionsV1UploadPolicyFileResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1311,7 +2154,8 @@ type Proto2FileDescriptorProto struct {
 	Package string `json:"package,omitempty"`
 
 	// Syntax: The syntax of the proto file. The supported values are
-	// "proto2" and "proto3".
+	// "proto2", "proto3", and "editions". If `edition` is present, this
+	// value must be "editions".
 	Syntax string `json:"syntax,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "EnumType") to
@@ -1367,23 +2211,23 @@ func (s *Proto2OneofDescriptorProto) MarshalJSON() ([]byte, error) {
 // method id "chromepolicy.customers.policies.resolve":
 
 type CustomersPoliciesResolveCall struct {
-	s                                  *Service
-	customer                           string
-	googlechromepolicyv1resolverequest *GoogleChromePolicyV1ResolveRequest
-	urlParams_                         gensupport.URLParams
-	ctx_                               context.Context
-	header_                            http.Header
+	s                                          *Service
+	customer                                   string
+	googlechromepolicyversionsv1resolverequest *GoogleChromePolicyVersionsV1ResolveRequest
+	urlParams_                                 gensupport.URLParams
+	ctx_                                       context.Context
+	header_                                    http.Header
 }
 
 // Resolve: Gets the resolved policy values for a list of policies that
 // match a search query.
 //
-// - customer: ID of the G Suite account or literal "my_customer" for
-//   the customer associated to the request.
-func (r *CustomersPoliciesService) Resolve(customer string, googlechromepolicyv1resolverequest *GoogleChromePolicyV1ResolveRequest) *CustomersPoliciesResolveCall {
+//   - customer: ID of the G Suite account or literal "my_customer" for
+//     the customer associated to the request.
+func (r *CustomersPoliciesService) Resolve(customer string, googlechromepolicyversionsv1resolverequest *GoogleChromePolicyVersionsV1ResolveRequest) *CustomersPoliciesResolveCall {
 	c := &CustomersPoliciesResolveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
-	c.googlechromepolicyv1resolverequest = googlechromepolicyv1resolverequest
+	c.googlechromepolicyversionsv1resolverequest = googlechromepolicyversionsv1resolverequest
 	return c
 }
 
@@ -1420,7 +2264,7 @@ func (c *CustomersPoliciesResolveCall) doRequest(alt string) (*http.Response, er
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyv1resolverequest)
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1resolverequest)
 	if err != nil {
 		return nil, err
 	}
@@ -1441,33 +2285,34 @@ func (c *CustomersPoliciesResolveCall) doRequest(alt string) (*http.Response, er
 }
 
 // Do executes the "chromepolicy.customers.policies.resolve" call.
-// Exactly one of *GoogleChromePolicyV1ResolveResponse or error will be
-// non-nil. Any non-2xx status code is an error. Response headers are in
-// either *GoogleChromePolicyV1ResolveResponse.ServerResponse.Header or
+// Exactly one of *GoogleChromePolicyVersionsV1ResolveResponse or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromePolicyVersionsV1ResolveResponse.ServerResponse.Header or
 // (if a response was returned at all) in
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
-func (c *CustomersPoliciesResolveCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyV1ResolveResponse, error) {
+func (c *CustomersPoliciesResolveCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1ResolveResponse, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
 	res, err := c.doRequest("json")
 	if res != nil && res.StatusCode == http.StatusNotModified {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
-	ret := &GoogleChromePolicyV1ResolveResponse{
+	ret := &GoogleChromePolicyVersionsV1ResolveResponse{
 		ServerResponse: googleapi.ServerResponse{
 			Header:         res.Header,
 			HTTPStatusCode: res.StatusCode,
@@ -1497,10 +2342,10 @@ func (c *CustomersPoliciesResolveCall) Do(opts ...googleapi.CallOption) (*Google
 	//   },
 	//   "path": "v1/{+customer}/policies:resolve",
 	//   "request": {
-	//     "$ref": "GoogleChromePolicyV1ResolveRequest"
+	//     "$ref": "GoogleChromePolicyVersionsV1ResolveRequest"
 	//   },
 	//   "response": {
-	//     "$ref": "GoogleChromePolicyV1ResolveResponse"
+	//     "$ref": "GoogleChromePolicyVersionsV1ResolveResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/chrome.management.policy",
@@ -1513,9 +2358,9 @@ func (c *CustomersPoliciesResolveCall) Do(opts ...googleapi.CallOption) (*Google
 // Pages invokes f for each page of results.
 // A non-nil error returned from f will halt the iteration.
 // The provided context supersedes any context provided to the Context method.
-func (c *CustomersPoliciesResolveCall) Pages(ctx context.Context, f func(*GoogleChromePolicyV1ResolveResponse) error) error {
+func (c *CustomersPoliciesResolveCall) Pages(ctx context.Context, f func(*GoogleChromePolicyVersionsV1ResolveResponse) error) error {
 	c.ctx_ = ctx
-	defer func(pt string) { c.googlechromepolicyv1resolverequest.PageToken = pt }(c.googlechromepolicyv1resolverequest.PageToken) // reset paging to original point
+	defer func(pt string) { c.googlechromepolicyversionsv1resolverequest.PageToken = pt }(c.googlechromepolicyversionsv1resolverequest.PageToken) // reset paging to original point
 	for {
 		x, err := c.Do()
 		if err != nil {
@@ -1527,19 +2372,1188 @@ func (c *CustomersPoliciesResolveCall) Pages(ctx context.Context, f func(*Google
 		if x.NextPageToken == "" {
 			return nil
 		}
-		c.googlechromepolicyv1resolverequest.PageToken = x.NextPageToken
+		c.googlechromepolicyversionsv1resolverequest.PageToken = x.NextPageToken
 	}
+}
+
+// method id "chromepolicy.customers.policies.groups.batchDelete":
+
+type CustomersPoliciesGroupsBatchDeleteCall struct {
+	s                                                           *Service
+	customer                                                    string
+	googlechromepolicyversionsv1batchdeletegrouppoliciesrequest *GoogleChromePolicyVersionsV1BatchDeleteGroupPoliciesRequest
+	urlParams_                                                  gensupport.URLParams
+	ctx_                                                        context.Context
+	header_                                                     http.Header
+}
+
+// BatchDelete: Delete multiple policy values that are applied to a
+// specific group. All targets must have the same target format. That is
+// to say that they must point to the same target resource and must have
+// the same keys specified in `additionalTargetKeyNames`, though the
+// values for those keys may be different. On failure the request will
+// return the error details as part of the google.rpc.Status.
+//
+//   - customer: ID of the Google Workspace account or literal
+//     "my_customer" for the customer associated to the request.
+func (r *CustomersPoliciesGroupsService) BatchDelete(customer string, googlechromepolicyversionsv1batchdeletegrouppoliciesrequest *GoogleChromePolicyVersionsV1BatchDeleteGroupPoliciesRequest) *CustomersPoliciesGroupsBatchDeleteCall {
+	c := &CustomersPoliciesGroupsBatchDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1batchdeletegrouppoliciesrequest = googlechromepolicyversionsv1batchdeletegrouppoliciesrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesGroupsBatchDeleteCall) Fields(s ...googleapi.Field) *CustomersPoliciesGroupsBatchDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesGroupsBatchDeleteCall) Context(ctx context.Context) *CustomersPoliciesGroupsBatchDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesGroupsBatchDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesGroupsBatchDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1batchdeletegrouppoliciesrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/groups:batchDelete")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.groups.batchDelete" call.
+// Exactly one of *GoogleProtobufEmpty or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleProtobufEmpty.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *CustomersPoliciesGroupsBatchDeleteCall) Do(opts ...googleapi.CallOption) (*GoogleProtobufEmpty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleProtobufEmpty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Delete multiple policy values that are applied to a specific group. All targets must have the same target format. That is to say that they must point to the same target resource and must have the same keys specified in `additionalTargetKeyNames`, though the values for those keys may be different. On failure the request will return the error details as part of the google.rpc.Status.",
+	//   "flatPath": "v1/customers/{customersId}/policies/groups:batchDelete",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.groups.batchDelete",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "ID of the Google Workspace account or literal \"my_customer\" for the customer associated to the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/groups:batchDelete",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1BatchDeleteGroupPoliciesRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleProtobufEmpty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy"
+	//   ]
+	// }
+
+}
+
+// method id "chromepolicy.customers.policies.groups.batchModify":
+
+type CustomersPoliciesGroupsBatchModifyCall struct {
+	s                                                           *Service
+	customer                                                    string
+	googlechromepolicyversionsv1batchmodifygrouppoliciesrequest *GoogleChromePolicyVersionsV1BatchModifyGroupPoliciesRequest
+	urlParams_                                                  gensupport.URLParams
+	ctx_                                                        context.Context
+	header_                                                     http.Header
+}
+
+// BatchModify: Modify multiple policy values that are applied to a
+// specific group. All targets must have the same target format. That is
+// to say that they must point to the same target resource and must have
+// the same keys specified in `additionalTargetKeyNames`, though the
+// values for those keys may be different. On failure the request will
+// return the error details as part of the google.rpc.Status.
+//
+//   - customer: ID of the Google Workspace account or literal
+//     "my_customer" for the customer associated to the request.
+func (r *CustomersPoliciesGroupsService) BatchModify(customer string, googlechromepolicyversionsv1batchmodifygrouppoliciesrequest *GoogleChromePolicyVersionsV1BatchModifyGroupPoliciesRequest) *CustomersPoliciesGroupsBatchModifyCall {
+	c := &CustomersPoliciesGroupsBatchModifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1batchmodifygrouppoliciesrequest = googlechromepolicyversionsv1batchmodifygrouppoliciesrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesGroupsBatchModifyCall) Fields(s ...googleapi.Field) *CustomersPoliciesGroupsBatchModifyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesGroupsBatchModifyCall) Context(ctx context.Context) *CustomersPoliciesGroupsBatchModifyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesGroupsBatchModifyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesGroupsBatchModifyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1batchmodifygrouppoliciesrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/groups:batchModify")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.groups.batchModify" call.
+// Exactly one of *GoogleProtobufEmpty or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleProtobufEmpty.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *CustomersPoliciesGroupsBatchModifyCall) Do(opts ...googleapi.CallOption) (*GoogleProtobufEmpty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleProtobufEmpty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Modify multiple policy values that are applied to a specific group. All targets must have the same target format. That is to say that they must point to the same target resource and must have the same keys specified in `additionalTargetKeyNames`, though the values for those keys may be different. On failure the request will return the error details as part of the google.rpc.Status.",
+	//   "flatPath": "v1/customers/{customersId}/policies/groups:batchModify",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.groups.batchModify",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "ID of the Google Workspace account or literal \"my_customer\" for the customer associated to the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/groups:batchModify",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1BatchModifyGroupPoliciesRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleProtobufEmpty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy"
+	//   ]
+	// }
+
+}
+
+// method id "chromepolicy.customers.policies.groups.listGroupPriorityOrdering":
+
+type CustomersPoliciesGroupsListGroupPriorityOrderingCall struct {
+	s                                                            *Service
+	customer                                                     string
+	googlechromepolicyversionsv1listgrouppriorityorderingrequest *GoogleChromePolicyVersionsV1ListGroupPriorityOrderingRequest
+	urlParams_                                                   gensupport.URLParams
+	ctx_                                                         context.Context
+	header_                                                      http.Header
+}
+
+// ListGroupPriorityOrdering: Retrieve a group priority ordering for an
+// app. The target app must be supplied in `additionalTargetKeyNames` in
+// the PolicyTargetKey. On failure the request will return the error
+// details as part of the google.rpc.Status.
+//
+//   - customer: ID of the Google Workspace account or literal
+//     "my_customer" for the customer associated to the request.
+func (r *CustomersPoliciesGroupsService) ListGroupPriorityOrdering(customer string, googlechromepolicyversionsv1listgrouppriorityorderingrequest *GoogleChromePolicyVersionsV1ListGroupPriorityOrderingRequest) *CustomersPoliciesGroupsListGroupPriorityOrderingCall {
+	c := &CustomersPoliciesGroupsListGroupPriorityOrderingCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1listgrouppriorityorderingrequest = googlechromepolicyversionsv1listgrouppriorityorderingrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesGroupsListGroupPriorityOrderingCall) Fields(s ...googleapi.Field) *CustomersPoliciesGroupsListGroupPriorityOrderingCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesGroupsListGroupPriorityOrderingCall) Context(ctx context.Context) *CustomersPoliciesGroupsListGroupPriorityOrderingCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesGroupsListGroupPriorityOrderingCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesGroupsListGroupPriorityOrderingCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1listgrouppriorityorderingrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/groups:listGroupPriorityOrdering")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.groups.listGroupPriorityOrdering" call.
+// Exactly one of
+// *GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse.ServerR
+// esponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersPoliciesGroupsListGroupPriorityOrderingCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Retrieve a group priority ordering for an app. The target app must be supplied in `additionalTargetKeyNames` in the PolicyTargetKey. On failure the request will return the error details as part of the google.rpc.Status.",
+	//   "flatPath": "v1/customers/{customersId}/policies/groups:listGroupPriorityOrdering",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.groups.listGroupPriorityOrdering",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. ID of the Google Workspace account or literal \"my_customer\" for the customer associated to the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/groups:listGroupPriorityOrdering",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1ListGroupPriorityOrderingRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleChromePolicyVersionsV1ListGroupPriorityOrderingResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy",
+	//     "https://www.googleapis.com/auth/chrome.management.policy.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "chromepolicy.customers.policies.groups.updateGroupPriorityOrdering":
+
+type CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall struct {
+	s                                                              *Service
+	customer                                                       string
+	googlechromepolicyversionsv1updategrouppriorityorderingrequest *GoogleChromePolicyVersionsV1UpdateGroupPriorityOrderingRequest
+	urlParams_                                                     gensupport.URLParams
+	ctx_                                                           context.Context
+	header_                                                        http.Header
+}
+
+// UpdateGroupPriorityOrdering: Update a group priority ordering for an
+// app. The target app must be supplied in `additionalTargetKeyNames` in
+// the PolicyTargetKey. On failure the request will return the error
+// details as part of the google.rpc.Status.
+//
+//   - customer: ID of the Google Workspace account or literal
+//     "my_customer" for the customer associated to the request.
+func (r *CustomersPoliciesGroupsService) UpdateGroupPriorityOrdering(customer string, googlechromepolicyversionsv1updategrouppriorityorderingrequest *GoogleChromePolicyVersionsV1UpdateGroupPriorityOrderingRequest) *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall {
+	c := &CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1updategrouppriorityorderingrequest = googlechromepolicyversionsv1updategrouppriorityorderingrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall) Fields(s ...googleapi.Field) *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall) Context(ctx context.Context) *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1updategrouppriorityorderingrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/groups:updateGroupPriorityOrdering")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.groups.updateGroupPriorityOrdering" call.
+// Exactly one of *GoogleProtobufEmpty or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleProtobufEmpty.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *CustomersPoliciesGroupsUpdateGroupPriorityOrderingCall) Do(opts ...googleapi.CallOption) (*GoogleProtobufEmpty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleProtobufEmpty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Update a group priority ordering for an app. The target app must be supplied in `additionalTargetKeyNames` in the PolicyTargetKey. On failure the request will return the error details as part of the google.rpc.Status.",
+	//   "flatPath": "v1/customers/{customersId}/policies/groups:updateGroupPriorityOrdering",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.groups.updateGroupPriorityOrdering",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. ID of the Google Workspace account or literal \"my_customer\" for the customer associated to the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/groups:updateGroupPriorityOrdering",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1UpdateGroupPriorityOrderingRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleProtobufEmpty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy"
+	//   ]
+	// }
+
+}
+
+// method id "chromepolicy.customers.policies.networks.defineCertificate":
+
+type CustomersPoliciesNetworksDefineCertificateCall struct {
+	s                                                    *Service
+	customer                                             string
+	googlechromepolicyversionsv1definecertificaterequest *GoogleChromePolicyVersionsV1DefineCertificateRequest
+	urlParams_                                           gensupport.URLParams
+	ctx_                                                 context.Context
+	header_                                              http.Header
+}
+
+// DefineCertificate: Creates a certificate at a specified OU for a
+// customer.
+//
+// - customer: The customer for which the certificate will apply.
+func (r *CustomersPoliciesNetworksService) DefineCertificate(customer string, googlechromepolicyversionsv1definecertificaterequest *GoogleChromePolicyVersionsV1DefineCertificateRequest) *CustomersPoliciesNetworksDefineCertificateCall {
+	c := &CustomersPoliciesNetworksDefineCertificateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1definecertificaterequest = googlechromepolicyversionsv1definecertificaterequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesNetworksDefineCertificateCall) Fields(s ...googleapi.Field) *CustomersPoliciesNetworksDefineCertificateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesNetworksDefineCertificateCall) Context(ctx context.Context) *CustomersPoliciesNetworksDefineCertificateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesNetworksDefineCertificateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesNetworksDefineCertificateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1definecertificaterequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/networks:defineCertificate")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.networks.defineCertificate" call.
+// Exactly one of *GoogleChromePolicyVersionsV1DefineCertificateResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromePolicyVersionsV1DefineCertificateResponse.ServerResponse.
+// Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersPoliciesNetworksDefineCertificateCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1DefineCertificateResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromePolicyVersionsV1DefineCertificateResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a certificate at a specified OU for a customer.",
+	//   "flatPath": "v1/customers/{customersId}/policies/networks:defineCertificate",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.networks.defineCertificate",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer for which the certificate will apply.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/networks:defineCertificate",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1DefineCertificateRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleChromePolicyVersionsV1DefineCertificateResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy"
+	//   ]
+	// }
+
+}
+
+// method id "chromepolicy.customers.policies.networks.defineNetwork":
+
+type CustomersPoliciesNetworksDefineNetworkCall struct {
+	s                                                *Service
+	customer                                         string
+	googlechromepolicyversionsv1definenetworkrequest *GoogleChromePolicyVersionsV1DefineNetworkRequest
+	urlParams_                                       gensupport.URLParams
+	ctx_                                             context.Context
+	header_                                          http.Header
+}
+
+// DefineNetwork: Define a new network.
+//
+// - customer: The customer who will own this new network.
+func (r *CustomersPoliciesNetworksService) DefineNetwork(customer string, googlechromepolicyversionsv1definenetworkrequest *GoogleChromePolicyVersionsV1DefineNetworkRequest) *CustomersPoliciesNetworksDefineNetworkCall {
+	c := &CustomersPoliciesNetworksDefineNetworkCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1definenetworkrequest = googlechromepolicyversionsv1definenetworkrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesNetworksDefineNetworkCall) Fields(s ...googleapi.Field) *CustomersPoliciesNetworksDefineNetworkCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesNetworksDefineNetworkCall) Context(ctx context.Context) *CustomersPoliciesNetworksDefineNetworkCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesNetworksDefineNetworkCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesNetworksDefineNetworkCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1definenetworkrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/networks:defineNetwork")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.networks.defineNetwork" call.
+// Exactly one of *GoogleChromePolicyVersionsV1DefineNetworkResponse or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromePolicyVersionsV1DefineNetworkResponse.ServerResponse.Head
+// er or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersPoliciesNetworksDefineNetworkCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1DefineNetworkResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromePolicyVersionsV1DefineNetworkResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Define a new network.",
+	//   "flatPath": "v1/customers/{customersId}/policies/networks:defineNetwork",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.networks.defineNetwork",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer who will own this new network.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/networks:defineNetwork",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1DefineNetworkRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleChromePolicyVersionsV1DefineNetworkResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy"
+	//   ]
+	// }
+
+}
+
+// method id "chromepolicy.customers.policies.networks.removeCertificate":
+
+type CustomersPoliciesNetworksRemoveCertificateCall struct {
+	s                                                    *Service
+	customer                                             string
+	googlechromepolicyversionsv1removecertificaterequest *GoogleChromePolicyVersionsV1RemoveCertificateRequest
+	urlParams_                                           gensupport.URLParams
+	ctx_                                                 context.Context
+	header_                                              http.Header
+}
+
+// RemoveCertificate: Remove an existing certificate by guid.
+//
+// - customer: The customer whose certificate will be removed.
+func (r *CustomersPoliciesNetworksService) RemoveCertificate(customer string, googlechromepolicyversionsv1removecertificaterequest *GoogleChromePolicyVersionsV1RemoveCertificateRequest) *CustomersPoliciesNetworksRemoveCertificateCall {
+	c := &CustomersPoliciesNetworksRemoveCertificateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1removecertificaterequest = googlechromepolicyversionsv1removecertificaterequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesNetworksRemoveCertificateCall) Fields(s ...googleapi.Field) *CustomersPoliciesNetworksRemoveCertificateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesNetworksRemoveCertificateCall) Context(ctx context.Context) *CustomersPoliciesNetworksRemoveCertificateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesNetworksRemoveCertificateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesNetworksRemoveCertificateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1removecertificaterequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/networks:removeCertificate")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.networks.removeCertificate" call.
+// Exactly one of *GoogleChromePolicyVersionsV1RemoveCertificateResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromePolicyVersionsV1RemoveCertificateResponse.ServerResponse.
+// Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersPoliciesNetworksRemoveCertificateCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1RemoveCertificateResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromePolicyVersionsV1RemoveCertificateResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Remove an existing certificate by guid.",
+	//   "flatPath": "v1/customers/{customersId}/policies/networks:removeCertificate",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.networks.removeCertificate",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer whose certificate will be removed.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/networks:removeCertificate",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1RemoveCertificateRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleChromePolicyVersionsV1RemoveCertificateResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy"
+	//   ]
+	// }
+
+}
+
+// method id "chromepolicy.customers.policies.networks.removeNetwork":
+
+type CustomersPoliciesNetworksRemoveNetworkCall struct {
+	s                                                *Service
+	customer                                         string
+	googlechromepolicyversionsv1removenetworkrequest *GoogleChromePolicyVersionsV1RemoveNetworkRequest
+	urlParams_                                       gensupport.URLParams
+	ctx_                                             context.Context
+	header_                                          http.Header
+}
+
+// RemoveNetwork: Remove an existing network by guid.
+//
+// - customer: The customer whose network will be removed.
+func (r *CustomersPoliciesNetworksService) RemoveNetwork(customer string, googlechromepolicyversionsv1removenetworkrequest *GoogleChromePolicyVersionsV1RemoveNetworkRequest) *CustomersPoliciesNetworksRemoveNetworkCall {
+	c := &CustomersPoliciesNetworksRemoveNetworkCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	c.googlechromepolicyversionsv1removenetworkrequest = googlechromepolicyversionsv1removenetworkrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersPoliciesNetworksRemoveNetworkCall) Fields(s ...googleapi.Field) *CustomersPoliciesNetworksRemoveNetworkCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersPoliciesNetworksRemoveNetworkCall) Context(ctx context.Context) *CustomersPoliciesNetworksRemoveNetworkCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersPoliciesNetworksRemoveNetworkCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersPoliciesNetworksRemoveNetworkCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1removenetworkrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/policies/networks:removeNetwork")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromepolicy.customers.policies.networks.removeNetwork" call.
+// Exactly one of *GoogleChromePolicyVersionsV1RemoveNetworkResponse or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromePolicyVersionsV1RemoveNetworkResponse.ServerResponse.Head
+// er or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersPoliciesNetworksRemoveNetworkCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1RemoveNetworkResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromePolicyVersionsV1RemoveNetworkResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Remove an existing network by guid.",
+	//   "flatPath": "v1/customers/{customersId}/policies/networks:removeNetwork",
+	//   "httpMethod": "POST",
+	//   "id": "chromepolicy.customers.policies.networks.removeNetwork",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer whose network will be removed.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/policies/networks:removeNetwork",
+	//   "request": {
+	//     "$ref": "GoogleChromePolicyVersionsV1RemoveNetworkRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleChromePolicyVersionsV1RemoveNetworkResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.policy"
+	//   ]
+	// }
+
 }
 
 // method id "chromepolicy.customers.policies.orgunits.batchInherit":
 
 type CustomersPoliciesOrgunitsBatchInheritCall struct {
-	s                                                      *Service
-	customer                                               string
-	googlechromepolicyv1batchinheritorgunitpoliciesrequest *GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest
-	urlParams_                                             gensupport.URLParams
-	ctx_                                                   context.Context
-	header_                                                http.Header
+	s                                                              *Service
+	customer                                                       string
+	googlechromepolicyversionsv1batchinheritorgunitpoliciesrequest *GoogleChromePolicyVersionsV1BatchInheritOrgUnitPoliciesRequest
+	urlParams_                                                     gensupport.URLParams
+	ctx_                                                           context.Context
+	header_                                                        http.Header
 }
 
 // BatchInherit: Modify multiple policy values that are applied to a
@@ -1550,12 +3564,12 @@ type CustomersPoliciesOrgunitsBatchInheritCall struct {
 // the values for those keys may be different. On failure the request
 // will return the error details as part of the google.rpc.Status.
 //
-// - customer: ID of the G Suite account or literal "my_customer" for
-//   the customer associated to the request.
-func (r *CustomersPoliciesOrgunitsService) BatchInherit(customer string, googlechromepolicyv1batchinheritorgunitpoliciesrequest *GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest) *CustomersPoliciesOrgunitsBatchInheritCall {
+//   - customer: ID of the G Suite account or literal "my_customer" for
+//     the customer associated to the request.
+func (r *CustomersPoliciesOrgunitsService) BatchInherit(customer string, googlechromepolicyversionsv1batchinheritorgunitpoliciesrequest *GoogleChromePolicyVersionsV1BatchInheritOrgUnitPoliciesRequest) *CustomersPoliciesOrgunitsBatchInheritCall {
 	c := &CustomersPoliciesOrgunitsBatchInheritCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
-	c.googlechromepolicyv1batchinheritorgunitpoliciesrequest = googlechromepolicyv1batchinheritorgunitpoliciesrequest
+	c.googlechromepolicyversionsv1batchinheritorgunitpoliciesrequest = googlechromepolicyversionsv1batchinheritorgunitpoliciesrequest
 	return c
 }
 
@@ -1592,7 +3606,7 @@ func (c *CustomersPoliciesOrgunitsBatchInheritCall) doRequest(alt string) (*http
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyv1batchinheritorgunitpoliciesrequest)
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1batchinheritorgunitpoliciesrequest)
 	if err != nil {
 		return nil, err
 	}
@@ -1626,17 +3640,17 @@ func (c *CustomersPoliciesOrgunitsBatchInheritCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1668,7 +3682,7 @@ func (c *CustomersPoliciesOrgunitsBatchInheritCall) Do(opts ...googleapi.CallOpt
 	//   },
 	//   "path": "v1/{+customer}/policies/orgunits:batchInherit",
 	//   "request": {
-	//     "$ref": "GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest"
+	//     "$ref": "GoogleChromePolicyVersionsV1BatchInheritOrgUnitPoliciesRequest"
 	//   },
 	//   "response": {
 	//     "$ref": "GoogleProtobufEmpty"
@@ -1683,12 +3697,12 @@ func (c *CustomersPoliciesOrgunitsBatchInheritCall) Do(opts ...googleapi.CallOpt
 // method id "chromepolicy.customers.policies.orgunits.batchModify":
 
 type CustomersPoliciesOrgunitsBatchModifyCall struct {
-	s                                                     *Service
-	customer                                              string
-	googlechromepolicyv1batchmodifyorgunitpoliciesrequest *GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest
-	urlParams_                                            gensupport.URLParams
-	ctx_                                                  context.Context
-	header_                                               http.Header
+	s                                                             *Service
+	customer                                                      string
+	googlechromepolicyversionsv1batchmodifyorgunitpoliciesrequest *GoogleChromePolicyVersionsV1BatchModifyOrgUnitPoliciesRequest
+	urlParams_                                                    gensupport.URLParams
+	ctx_                                                          context.Context
+	header_                                                       http.Header
 }
 
 // BatchModify: Modify multiple policy values that are applied to a
@@ -1698,12 +3712,12 @@ type CustomersPoliciesOrgunitsBatchModifyCall struct {
 // the values for those keys may be different. On failure the request
 // will return the error details as part of the google.rpc.Status.
 //
-// - customer: ID of the G Suite account or literal "my_customer" for
-//   the customer associated to the request.
-func (r *CustomersPoliciesOrgunitsService) BatchModify(customer string, googlechromepolicyv1batchmodifyorgunitpoliciesrequest *GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest) *CustomersPoliciesOrgunitsBatchModifyCall {
+//   - customer: ID of the G Suite account or literal "my_customer" for
+//     the customer associated to the request.
+func (r *CustomersPoliciesOrgunitsService) BatchModify(customer string, googlechromepolicyversionsv1batchmodifyorgunitpoliciesrequest *GoogleChromePolicyVersionsV1BatchModifyOrgUnitPoliciesRequest) *CustomersPoliciesOrgunitsBatchModifyCall {
 	c := &CustomersPoliciesOrgunitsBatchModifyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
-	c.googlechromepolicyv1batchmodifyorgunitpoliciesrequest = googlechromepolicyv1batchmodifyorgunitpoliciesrequest
+	c.googlechromepolicyversionsv1batchmodifyorgunitpoliciesrequest = googlechromepolicyversionsv1batchmodifyorgunitpoliciesrequest
 	return c
 }
 
@@ -1740,7 +3754,7 @@ func (c *CustomersPoliciesOrgunitsBatchModifyCall) doRequest(alt string) (*http.
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyv1batchmodifyorgunitpoliciesrequest)
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1batchmodifyorgunitpoliciesrequest)
 	if err != nil {
 		return nil, err
 	}
@@ -1774,17 +3788,17 @@ func (c *CustomersPoliciesOrgunitsBatchModifyCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleProtobufEmpty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1816,7 +3830,7 @@ func (c *CustomersPoliciesOrgunitsBatchModifyCall) Do(opts ...googleapi.CallOpti
 	//   },
 	//   "path": "v1/{+customer}/policies/orgunits:batchModify",
 	//   "request": {
-	//     "$ref": "GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest"
+	//     "$ref": "GoogleChromePolicyVersionsV1BatchModifyOrgUnitPoliciesRequest"
 	//   },
 	//   "response": {
 	//     "$ref": "GoogleProtobufEmpty"
@@ -1911,32 +3925,34 @@ func (c *CustomersPolicySchemasGetCall) doRequest(alt string) (*http.Response, e
 }
 
 // Do executes the "chromepolicy.customers.policySchemas.get" call.
-// Exactly one of *GoogleChromePolicyV1PolicySchema or error will be
-// non-nil. Any non-2xx status code is an error. Response headers are in
-// either *GoogleChromePolicyV1PolicySchema.ServerResponse.Header or (if
-// a response was returned at all) in error.(*googleapi.Error).Header.
-// Use googleapi.IsNotModified to check whether the returned error was
-// because http.StatusNotModified was returned.
-func (c *CustomersPolicySchemasGetCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyV1PolicySchema, error) {
+// Exactly one of *GoogleChromePolicyVersionsV1PolicySchema or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromePolicyVersionsV1PolicySchema.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersPolicySchemasGetCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1PolicySchema, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
 	res, err := c.doRequest("json")
 	if res != nil && res.StatusCode == http.StatusNotModified {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
-	ret := &GoogleChromePolicyV1PolicySchema{
+	ret := &GoogleChromePolicyVersionsV1PolicySchema{
 		ServerResponse: googleapi.ServerResponse{
 			Header:         res.Header,
 			HTTPStatusCode: res.StatusCode,
@@ -1966,7 +3982,7 @@ func (c *CustomersPolicySchemasGetCall) Do(opts ...googleapi.CallOption) (*Googl
 	//   },
 	//   "path": "v1/{+name}",
 	//   "response": {
-	//     "$ref": "GoogleChromePolicyV1PolicySchema"
+	//     "$ref": "GoogleChromePolicyVersionsV1PolicySchema"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/chrome.management.policy",
@@ -2006,7 +4022,8 @@ func (c *CustomersPolicySchemasListCall) Filter(filter string) *CustomersPolicyS
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of policy schemas to return.
+// of policy schemas to return, defaults to 100 and has a maximum of
+// 1000.
 func (c *CustomersPolicySchemasListCall) PageSize(pageSize int64) *CustomersPolicySchemasListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -2081,34 +4098,34 @@ func (c *CustomersPolicySchemasListCall) doRequest(alt string) (*http.Response, 
 }
 
 // Do executes the "chromepolicy.customers.policySchemas.list" call.
-// Exactly one of *GoogleChromePolicyV1ListPolicySchemasResponse or
-// error will be non-nil. Any non-2xx status code is an error. Response
-// headers are in either
-// *GoogleChromePolicyV1ListPolicySchemasResponse.ServerResponse.Header
-// or (if a response was returned at all) in
+// Exactly one of *GoogleChromePolicyVersionsV1ListPolicySchemasResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromePolicyVersionsV1ListPolicySchemasResponse.ServerResponse.
+// Header or (if a response was returned at all) in
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
-func (c *CustomersPolicySchemasListCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyV1ListPolicySchemasResponse, error) {
+func (c *CustomersPolicySchemasListCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1ListPolicySchemasResponse, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
 	res, err := c.doRequest("json")
 	if res != nil && res.StatusCode == http.StatusNotModified {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
-	ret := &GoogleChromePolicyV1ListPolicySchemasResponse{
+	ret := &GoogleChromePolicyVersionsV1ListPolicySchemasResponse{
 		ServerResponse: googleapi.ServerResponse{
 			Header:         res.Header,
 			HTTPStatusCode: res.StatusCode,
@@ -2134,7 +4151,7 @@ func (c *CustomersPolicySchemasListCall) Do(opts ...googleapi.CallOption) (*Goog
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "The maximum number of policy schemas to return.",
+	//       "description": "The maximum number of policy schemas to return, defaults to 100 and has a maximum of 1000.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -2154,7 +4171,7 @@ func (c *CustomersPolicySchemasListCall) Do(opts ...googleapi.CallOption) (*Goog
 	//   },
 	//   "path": "v1/{+parent}/policySchemas",
 	//   "response": {
-	//     "$ref": "GoogleChromePolicyV1ListPolicySchemasResponse"
+	//     "$ref": "GoogleChromePolicyVersionsV1ListPolicySchemasResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/chrome.management.policy",
@@ -2167,7 +4184,7 @@ func (c *CustomersPolicySchemasListCall) Do(opts ...googleapi.CallOption) (*Goog
 // Pages invokes f for each page of results.
 // A non-nil error returned from f will halt the iteration.
 // The provided context supersedes any context provided to the Context method.
-func (c *CustomersPolicySchemasListCall) Pages(ctx context.Context, f func(*GoogleChromePolicyV1ListPolicySchemasResponse) error) error {
+func (c *CustomersPolicySchemasListCall) Pages(ctx context.Context, f func(*GoogleChromePolicyVersionsV1ListPolicySchemasResponse) error) error {
 	c.ctx_ = ctx
 	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
 	for {
@@ -2188,23 +4205,23 @@ func (c *CustomersPolicySchemasListCall) Pages(ctx context.Context, f func(*Goog
 // method id "chromepolicy.media.upload":
 
 type MediaUploadCall struct {
-	s                                           *Service
-	customer                                    string
-	googlechromepolicyv1uploadpolicyfilerequest *GoogleChromePolicyV1UploadPolicyFileRequest
-	urlParams_                                  gensupport.URLParams
-	mediaInfo_                                  *gensupport.MediaInfo
-	ctx_                                        context.Context
-	header_                                     http.Header
+	s                                                   *Service
+	customer                                            string
+	googlechromepolicyversionsv1uploadpolicyfilerequest *GoogleChromePolicyVersionsV1UploadPolicyFileRequest
+	urlParams_                                          gensupport.URLParams
+	mediaInfo_                                          *gensupport.MediaInfo
+	ctx_                                                context.Context
+	header_                                             http.Header
 }
 
 // Upload: Creates an enterprise file from the content provided by user.
 // Returns a public download url for end user.
 //
 // - customer: The customer for which the file upload will apply.
-func (r *MediaService) Upload(customer string, googlechromepolicyv1uploadpolicyfilerequest *GoogleChromePolicyV1UploadPolicyFileRequest) *MediaUploadCall {
+func (r *MediaService) Upload(customer string, googlechromepolicyversionsv1uploadpolicyfilerequest *GoogleChromePolicyVersionsV1UploadPolicyFileRequest) *MediaUploadCall {
 	c := &MediaUploadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
-	c.googlechromepolicyv1uploadpolicyfilerequest = googlechromepolicyv1uploadpolicyfilerequest
+	c.googlechromepolicyversionsv1uploadpolicyfilerequest = googlechromepolicyversionsv1uploadpolicyfilerequest
 	return c
 }
 
@@ -2280,7 +4297,7 @@ func (c *MediaUploadCall) doRequest(alt string) (*http.Response, error) {
 	}
 	reqHeaders.Set("User-Agent", c.s.userAgent())
 	var body io.Reader = nil
-	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyv1uploadpolicyfilerequest)
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlechromepolicyversionsv1uploadpolicyfilerequest)
 	if err != nil {
 		return nil, err
 	}
@@ -2312,32 +4329,32 @@ func (c *MediaUploadCall) doRequest(alt string) (*http.Response, error) {
 }
 
 // Do executes the "chromepolicy.media.upload" call.
-// Exactly one of *GoogleChromePolicyV1UploadPolicyFileResponse or error
-// will be non-nil. Any non-2xx status code is an error. Response
-// headers are in either
-// *GoogleChromePolicyV1UploadPolicyFileResponse.ServerResponse.Header
-// or (if a response was returned at all) in
+// Exactly one of *GoogleChromePolicyVersionsV1UploadPolicyFileResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromePolicyVersionsV1UploadPolicyFileResponse.ServerResponse.H
+// eader or (if a response was returned at all) in
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
-func (c *MediaUploadCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyV1UploadPolicyFileResponse, error) {
+func (c *MediaUploadCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyVersionsV1UploadPolicyFileResponse, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
 	res, err := c.doRequest("json")
 	if res != nil && res.StatusCode == http.StatusNotModified {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -2353,10 +4370,10 @@ func (c *MediaUploadCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyV
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
-	ret := &GoogleChromePolicyV1UploadPolicyFileResponse{
+	ret := &GoogleChromePolicyVersionsV1UploadPolicyFileResponse{
 		ServerResponse: googleapi.ServerResponse{
 			Header:         res.Header,
 			HTTPStatusCode: res.StatusCode,
@@ -2397,10 +4414,10 @@ func (c *MediaUploadCall) Do(opts ...googleapi.CallOption) (*GoogleChromePolicyV
 	//   },
 	//   "path": "v1/{+customer}/policies/files:uploadPolicyFile",
 	//   "request": {
-	//     "$ref": "GoogleChromePolicyV1UploadPolicyFileRequest"
+	//     "$ref": "GoogleChromePolicyVersionsV1UploadPolicyFileRequest"
 	//   },
 	//   "response": {
-	//     "$ref": "GoogleChromePolicyV1UploadPolicyFileResponse"
+	//     "$ref": "GoogleChromePolicyVersionsV1UploadPolicyFileResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/chrome.management.policy"

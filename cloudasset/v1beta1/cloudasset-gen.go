@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/asset-inventory/docs/quickstart
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/cloudasset/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   cloudassetService, err := cloudasset.NewService(ctx)
+//	import "google.golang.org/api/cloudasset/v1beta1"
+//	...
+//	ctx := context.Background()
+//	cloudassetService, err := cloudasset.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   cloudassetService, err := cloudasset.NewService(ctx, option.WithAPIKey("AIza..."))
+//	cloudassetService, err := cloudasset.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   cloudassetService, err := cloudasset.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	cloudassetService, err := cloudasset.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package cloudasset // import "google.golang.org/api/cloudasset/v1beta1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "cloudasset:v1beta1"
 const apiName = "cloudasset"
@@ -207,7 +208,7 @@ type ProjectsOperationsService struct {
 }
 
 // AnalyzeIamPolicyLongrunningMetadata: Represents the metadata of the
-// longrunning operation for the AnalyzeIamPolicyLongrunning rpc.
+// longrunning operation for the AnalyzeIamPolicyLongrunning RPC.
 type AnalyzeIamPolicyLongrunningMetadata struct {
 	// CreateTime: Output only. The time the operation was created.
 	CreateTime string `json:"createTime,omitempty"`
@@ -244,8 +245,8 @@ type AnalyzeIamPolicyLongrunningResponse struct {
 // Google Cloud resource hierarchy
 // (https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy),
 // a resource outside the Google Cloud resource hierarchy (such as
-// Google Kubernetes Engine clusters and objects), or a policy (e.g.
-// Cloud IAM policy). See Supported asset types
+// Google Kubernetes Engine clusters and objects), or a policy (e.g. IAM
+// policy). See Supported asset types
 // (https://cloud.google.com/asset-inventory/docs/supported-asset-types)
 // for more information.
 type Asset struct {
@@ -263,14 +264,14 @@ type Asset struct {
 	// for more information.
 	AssetType string `json:"assetType,omitempty"`
 
-	// IamPolicy: A representation of the Cloud IAM policy set on a Google
-	// Cloud resource. There can be a maximum of one Cloud IAM policy set on
-	// any given resource. In addition, Cloud IAM policies inherit their
-	// granted access scope from any policies set on parent resources in the
-	// resource hierarchy. Therefore, the effectively policy is the union of
-	// both the policy set on this resource and each policy set on all of
-	// the resource's ancestry resource levels in the hierarchy. See this
-	// topic (https://cloud.google.com/iam/docs/policies#inheritance) for
+	// IamPolicy: A representation of the IAM policy set on a Google Cloud
+	// resource. There can be a maximum of one IAM policy set on any given
+	// resource. In addition, IAM policies inherit their granted access
+	// scope from any policies set on parent resources in the resource
+	// hierarchy. Therefore, the effectively policy is the union of both the
+	// policy set on this resource and each policy set on all of the
+	// resource's ancestry resource levels in the hierarchy. See this topic
+	// (https://cloud.google.com/iam/help/allow-policies/inheritance) for
 	// more information.
 	IamPolicy *Policy `json:"iamPolicy,omitempty"`
 
@@ -463,19 +464,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -487,9 +495,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -634,15 +640,15 @@ func (s *Expr) MarshalJSON() ([]byte, error) {
 
 // GcsDestination: A Cloud Storage location.
 type GcsDestination struct {
-	// Uri: The uri of the Cloud Storage object. It's the same uri that is
+	// Uri: The URI of the Cloud Storage object. It's the same URI that is
 	// used by gsutil. For example: "gs://bucket_name/object_name". See
 	// Viewing and Editing Object Metadata
 	// (https://cloud.google.com/storage/docs/viewing-editing-metadata) for
 	// more information.
 	Uri string `json:"uri,omitempty"`
 
-	// UriPrefix: The uri prefix of all generated Cloud Storage objects. For
-	// example: "gs://bucket_name/object_name_prefix". Each object uri is in
+	// UriPrefix: The URI prefix of all generated Cloud Storage objects. For
+	// example: "gs://bucket_name/object_name_prefix". Each object URI is in
 	// format: "gs://bucket_name/object_name_prefix// and only contains
 	// assets for that type. starts from 0. For example:
 	// "gs://bucket_name/object_name_prefix/google.compute.disk/0" is the
@@ -678,8 +684,8 @@ func (s *GcsDestination) MarshalJSON() ([]byte, error) {
 // can be any resource in the Google Cloud resource hierarchy
 // (https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy),
 // a resource outside the Google Cloud resource hierarchy (such as
-// Google Kubernetes Engine clusters and objects), or a policy (e.g.
-// Cloud IAM policy). See Supported asset types
+// Google Kubernetes Engine clusters and objects), or a policy (e.g. IAM
+// policy). See Supported asset types
 // (https://cloud.google.com/asset-inventory/docs/supported-asset-types)
 // for more information.
 type GoogleCloudAssetV1p7beta1Asset struct {
@@ -707,14 +713,14 @@ type GoogleCloudAssetV1p7beta1Asset struct {
 	// for more information.
 	AssetType string `json:"assetType,omitempty"`
 
-	// IamPolicy: A representation of the Cloud IAM policy set on a Google
-	// Cloud resource. There can be a maximum of one Cloud IAM policy set on
-	// any given resource. In addition, Cloud IAM policies inherit their
-	// granted access scope from any policies set on parent resources in the
-	// resource hierarchy. Therefore, the effectively policy is the union of
-	// both the policy set on this resource and each policy set on all of
-	// the resource's ancestry resource levels in the hierarchy. See this
-	// topic (https://cloud.google.com/iam/docs/policies#inheritance) for
+	// IamPolicy: A representation of the IAM policy set on a Google Cloud
+	// resource. There can be a maximum of one IAM policy set on any given
+	// resource. In addition, IAM policies inherit their granted access
+	// scope from any policies set on parent resources in the resource
+	// hierarchy. Therefore, the effectively policy is the union of both the
+	// policy set on this resource and each policy set on all of the
+	// resource's ancestry resource levels in the hierarchy. See this topic
+	// (https://cloud.google.com/iam/help/allow-policies/inheritance) for
 	// more information.
 	IamPolicy *Policy `json:"iamPolicy,omitempty"`
 
@@ -774,8 +780,8 @@ func (s *GoogleCloudAssetV1p7beta1Asset) MarshalJSON() ([]byte, error) {
 // any resource in the Google Cloud resource hierarchy
 // (https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy),
 // a resource outside the Google Cloud resource hierarchy (such as
-// Google Kubernetes Engine clusters and objects), or a policy (e.g.
-// Cloud IAM policy). See Supported asset types
+// Google Kubernetes Engine clusters and objects), or a policy (e.g. IAM
+// policy). See Supported asset types
 // (https://cloud.google.com/asset-inventory/docs/supported-asset-types)
 // for more information.
 type GoogleCloudAssetV1p7beta1RelatedAsset struct {
@@ -927,7 +933,7 @@ type GoogleCloudAssetV1p7beta1Resource struct {
 	// Resource Names
 	// (https://cloud.google.com/apis/design/resource_names#full_resource_name)
 	// for more information. For Google Cloud assets, this value is the
-	// parent resource defined in the Cloud IAM policy hierarchy
+	// parent resource defined in the IAM policy hierarchy
 	// (https://cloud.google.com/iam/docs/overview#policy_hierarchy).
 	// Example:
 	// `//cloudresourcemanager.googleapis.com/projects/my_project_123` For
@@ -1251,11 +1257,11 @@ type GoogleIdentityAccesscontextmanagerV1AccessLevel struct {
 	// affect behavior.
 	Description string `json:"description,omitempty"`
 
-	// Name: Required. Resource name for the Access Level. The `short_name`
-	// component must begin with a letter and only include alphanumeric and
-	// '_'. Format:
+	// Name: Resource name for the `AccessLevel`. Format:
 	// `accessPolicies/{access_policy}/accessLevels/{access_level}`. The
-	// maximum length of the `access_level` component is 50 characters.
+	// `access_level` component must begin with a letter, followed by
+	// alphanumeric characters or `_`. Its maximum length is 50 characters.
+	// After you create an `AccessLevel`, you cannot change its `name`.
 	Name string `json:"name,omitempty"`
 
 	// Title: Human readable title. Must be unique within the Policy.
@@ -1718,6 +1724,15 @@ func (s *GoogleIdentityAccesscontextmanagerV1EgressPolicy) MarshalJSON() ([]byte
 // to succeed. The request must match `operations` AND `resources`
 // fields in order to be allowed egress out of the perimeter.
 type GoogleIdentityAccesscontextmanagerV1EgressTo struct {
+	// ExternalResources: A list of external resources that are allowed to
+	// be accessed. Only AWS and Azure resources are supported. For Amazon
+	// S3, the supported format is s3://BUCKET_NAME. For Azure Storage, the
+	// supported format is
+	// azure://myaccount.blob.core.windows.net/CONTAINER_NAME. A request
+	// matches if it contains an external resource in this list (Example:
+	// s3://bucket/path). Currently '*' is not allowed.
+	ExternalResources []string `json:"externalResources,omitempty"`
+
 	// Operations: A list of ApiOperations allowed to be performed by the
 	// sources specified in the corresponding EgressFrom. A request matches
 	// if it uses an operation/service in this list.
@@ -1731,20 +1746,21 @@ type GoogleIdentityAccesscontextmanagerV1EgressTo struct {
 	// perimeter.
 	Resources []string `json:"resources,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Operations") to
-	// unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "ExternalResources")
+	// to unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Operations") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "ExternalResources") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -1865,11 +1881,13 @@ type GoogleIdentityAccesscontextmanagerV1IngressSource struct {
 
 	// Resource: A Google Cloud resource that is allowed to ingress the
 	// perimeter. Requests from these resources will be allowed to access
-	// perimeter data. Currently only projects are allowed. Format:
-	// `projects/{project_number}` The project may be in any Google Cloud
-	// organization, not just the organization that the perimeter is defined
-	// in. `*` is not allowed, the case of allowing all Google Cloud
-	// resources only is not supported.
+	// perimeter data. Currently only projects and VPCs are allowed. Project
+	// format: `projects/{project_number}` VPC network format:
+	// `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}
+	// `. The project may be in any Google Cloud organization, not just the
+	// organization that the perimeter is defined in. `*` is not allowed,
+	// the case of allowing all Google Cloud resources only is not
+	// supported.
 	Resource string `json:"resource,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AccessLevel") to
@@ -2030,30 +2048,32 @@ func (s *GoogleIdentityAccesscontextmanagerV1OsConstraint) MarshalJSON() ([]byte
 // `ServicePerimeter`, the request will be blocked. Otherwise the
 // request is allowed. There are two types of Service Perimeter -
 // Regular and Bridge. Regular Service Perimeters cannot overlap, a
-// single Google Cloud project can only belong to a single regular
-// Service Perimeter. Service Perimeter Bridges can contain only Google
-// Cloud projects as members, a single Google Cloud project may belong
-// to multiple Service Perimeter Bridges.
+// single Google Cloud project or VPC network can only belong to a
+// single regular Service Perimeter. Service Perimeter Bridges can
+// contain only Google Cloud projects as members, a single Google Cloud
+// project may belong to multiple Service Perimeter Bridges.
 type GoogleIdentityAccesscontextmanagerV1ServicePerimeter struct {
 	// Description: Description of the `ServicePerimeter` and its use. Does
 	// not affect behavior.
 	Description string `json:"description,omitempty"`
 
-	// Name: Required. Resource name for the ServicePerimeter. The
-	// `short_name` component must begin with a letter and only include
-	// alphanumeric and '_'. Format:
+	// Name: Resource name for the `ServicePerimeter`. Format:
 	// `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`
+	// . The `service_perimeter` component must begin with a letter,
+	// followed by alphanumeric characters or `_`. After you create a
+	// `ServicePerimeter`, you cannot change its `name`.
 	Name string `json:"name,omitempty"`
 
-	// PerimeterType: Perimeter type indicator. A single project is allowed
-	// to be a member of single regular perimeter, but multiple service
-	// perimeter bridges. A project cannot be a included in a perimeter
-	// bridge without being included in regular perimeter. For perimeter
-	// bridges, the restricted service list as well as access level lists
-	// must be empty.
+	// PerimeterType: Perimeter type indicator. A single project or VPC
+	// network is allowed to be a member of single regular perimeter, but
+	// multiple service perimeter bridges. A project cannot be a included in
+	// a perimeter bridge without being included in regular perimeter. For
+	// perimeter bridges, the restricted service list as well as access
+	// level lists must be empty.
 	//
 	// Possible values:
-	//   "PERIMETER_TYPE_REGULAR" - Regular Perimeter.
+	//   "PERIMETER_TYPE_REGULAR" - Regular Perimeter. When no value is
+	// specified, the perimeter uses this type.
 	//   "PERIMETER_TYPE_BRIDGE" - Perimeter Bridge.
 	PerimeterType string `json:"perimeterType,omitempty"`
 
@@ -2135,8 +2155,10 @@ type GoogleIdentityAccesscontextmanagerV1ServicePerimeterConfig struct {
 	IngressPolicies []*GoogleIdentityAccesscontextmanagerV1IngressPolicy `json:"ingressPolicies,omitempty"`
 
 	// Resources: A list of Google Cloud resources that are inside of the
-	// service perimeter. Currently only projects are allowed. Format:
-	// `projects/{project_number}`
+	// service perimeter. Currently only projects and VPCs are allowed.
+	// Project format: `projects/{project_number}` VPC network format:
+	// `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}
+	// `.
 	Resources []string `json:"resources,omitempty"`
 
 	// RestrictedServices: Google Cloud services that are subject to the
@@ -2430,7 +2452,7 @@ type Resource struct {
 	// Resource Names
 	// (https://cloud.google.com/apis/design/resource_names#full_resource_name)
 	// for more information. For Google Cloud assets, this value is the
-	// parent resource defined in the Cloud IAM policy hierarchy
+	// parent resource defined in the IAM policy hierarchy
 	// (https://cloud.google.com/iam/docs/overview#policy_hierarchy).
 	// Example:
 	// `//cloudresourcemanager.googleapis.com/projects/my_project_123` For
@@ -2601,10 +2623,10 @@ type FoldersExportAssetsCall struct {
 // For regular-size resource parent, the export operation usually
 // finishes within 5 minutes.
 //
-// - parent: The relative name of the root asset. This can only be an
-//   organization number (such as "organizations/123"), a project ID
-//   (such as "projects/my-project-id"), a project number (such as
-//   "projects/12345"), or a folder number (such as "folders/123").
+//   - parent: The relative name of the root asset. This can only be an
+//     organization number (such as "organizations/123"), a project ID
+//     (such as "projects/my-project-id"), a project number (such as
+//     "projects/12345"), or a folder number (such as "folders/123").
 func (r *FoldersService) ExportAssets(parent string, exportassetsrequest *ExportAssetsRequest) *FoldersExportAssetsCall {
 	c := &FoldersExportAssetsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2679,17 +2701,17 @@ func (c *FoldersExportAssetsCall) Do(opts ...googleapi.CallOption) (*Operation, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2830,17 +2852,17 @@ func (c *FoldersOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2900,10 +2922,10 @@ type OrganizationsBatchGetAssetsHistoryCall struct {
 // specified asset does not exist, this API returns an INVALID_ARGUMENT
 // error.
 //
-// - parent: The relative name of the root asset. It can only be an
-//   organization number (such as "organizations/123"), a project ID
-//   (such as "projects/my-project-id")", or a project number (such as
-//   "projects/12345").
+//   - parent: The relative name of the root asset. It can only be an
+//     organization number (such as "organizations/123"), a project ID
+//     (such as "projects/my-project-id")", or a project number (such as
+//     "projects/12345").
 func (r *OrganizationsService) BatchGetAssetsHistory(parent string) *OrganizationsBatchGetAssetsHistoryCall {
 	c := &OrganizationsBatchGetAssetsHistoryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2926,9 +2948,10 @@ func (c *OrganizationsBatchGetAssetsHistoryCall) AssetNames(assetNames ...string
 // type.
 //
 // Possible values:
-//   "CONTENT_TYPE_UNSPECIFIED" - Unspecified content type.
-//   "RESOURCE" - Resource metadata.
-//   "IAM_POLICY" - The actual IAM policy set on a resource.
+//
+//	"CONTENT_TYPE_UNSPECIFIED" - Unspecified content type.
+//	"RESOURCE" - Resource metadata.
+//	"IAM_POLICY" - The actual IAM policy set on a resource.
 func (c *OrganizationsBatchGetAssetsHistoryCall) ContentType(contentType string) *OrganizationsBatchGetAssetsHistoryCall {
 	c.urlParams_.Set("contentType", contentType)
 	return c
@@ -3025,17 +3048,17 @@ func (c *OrganizationsBatchGetAssetsHistoryCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchGetAssetsHistoryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3128,10 +3151,10 @@ type OrganizationsExportAssetsCall struct {
 // For regular-size resource parent, the export operation usually
 // finishes within 5 minutes.
 //
-// - parent: The relative name of the root asset. This can only be an
-//   organization number (such as "organizations/123"), a project ID
-//   (such as "projects/my-project-id"), a project number (such as
-//   "projects/12345"), or a folder number (such as "folders/123").
+//   - parent: The relative name of the root asset. This can only be an
+//     organization number (such as "organizations/123"), a project ID
+//     (such as "projects/my-project-id"), a project number (such as
+//     "projects/12345"), or a folder number (such as "folders/123").
 func (r *OrganizationsService) ExportAssets(parent string, exportassetsrequest *ExportAssetsRequest) *OrganizationsExportAssetsCall {
 	c := &OrganizationsExportAssetsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3206,17 +3229,17 @@ func (c *OrganizationsExportAssetsCall) Do(opts ...googleapi.CallOption) (*Opera
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3357,17 +3380,17 @@ func (c *OrganizationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Oper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3427,10 +3450,10 @@ type ProjectsBatchGetAssetsHistoryCall struct {
 // specified asset does not exist, this API returns an INVALID_ARGUMENT
 // error.
 //
-// - parent: The relative name of the root asset. It can only be an
-//   organization number (such as "organizations/123"), a project ID
-//   (such as "projects/my-project-id")", or a project number (such as
-//   "projects/12345").
+//   - parent: The relative name of the root asset. It can only be an
+//     organization number (such as "organizations/123"), a project ID
+//     (such as "projects/my-project-id")", or a project number (such as
+//     "projects/12345").
 func (r *ProjectsService) BatchGetAssetsHistory(parent string) *ProjectsBatchGetAssetsHistoryCall {
 	c := &ProjectsBatchGetAssetsHistoryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3453,9 +3476,10 @@ func (c *ProjectsBatchGetAssetsHistoryCall) AssetNames(assetNames ...string) *Pr
 // type.
 //
 // Possible values:
-//   "CONTENT_TYPE_UNSPECIFIED" - Unspecified content type.
-//   "RESOURCE" - Resource metadata.
-//   "IAM_POLICY" - The actual IAM policy set on a resource.
+//
+//	"CONTENT_TYPE_UNSPECIFIED" - Unspecified content type.
+//	"RESOURCE" - Resource metadata.
+//	"IAM_POLICY" - The actual IAM policy set on a resource.
 func (c *ProjectsBatchGetAssetsHistoryCall) ContentType(contentType string) *ProjectsBatchGetAssetsHistoryCall {
 	c.urlParams_.Set("contentType", contentType)
 	return c
@@ -3552,17 +3576,17 @@ func (c *ProjectsBatchGetAssetsHistoryCall) Do(opts ...googleapi.CallOption) (*B
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchGetAssetsHistoryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3655,10 +3679,10 @@ type ProjectsExportAssetsCall struct {
 // For regular-size resource parent, the export operation usually
 // finishes within 5 minutes.
 //
-// - parent: The relative name of the root asset. This can only be an
-//   organization number (such as "organizations/123"), a project ID
-//   (such as "projects/my-project-id"), a project number (such as
-//   "projects/12345"), or a folder number (such as "folders/123").
+//   - parent: The relative name of the root asset. This can only be an
+//     organization number (such as "organizations/123"), a project ID
+//     (such as "projects/my-project-id"), a project number (such as
+//     "projects/12345"), or a folder number (such as "folders/123").
 func (r *ProjectsService) ExportAssets(parent string, exportassetsrequest *ExportAssetsRequest) *ProjectsExportAssetsCall {
 	c := &ProjectsExportAssetsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3733,17 +3757,17 @@ func (c *ProjectsExportAssetsCall) Do(opts ...googleapi.CallOption) (*Operation,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3884,17 +3908,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

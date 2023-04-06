@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/people/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/people/v1"
-//   ...
-//   ctx := context.Background()
-//   peopleService, err := people.NewService(ctx)
+//	import "google.golang.org/api/people/v1"
+//	...
+//	ctx := context.Background()
+//	peopleService, err := people.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   peopleService, err := people.NewService(ctx, option.WithScopes(people.UserinfoProfileScope))
+//	peopleService, err := people.NewService(ctx, option.WithScopes(people.UserinfoProfileScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   peopleService, err := people.NewService(ctx, option.WithAPIKey("AIza..."))
+//	peopleService, err := people.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   peopleService, err := people.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	peopleService, err := people.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package people // import "google.golang.org/api/people/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "people:v1"
 const apiName = "people"
@@ -2442,8 +2443,7 @@ type Person struct {
 	Residences []*Residence `json:"residences,omitempty"`
 
 	// ResourceName: The resource name for the person, assigned by the
-	// server. An ASCII string with a max length of 27 characters, in the
-	// form of `people/{person_id}`.
+	// server. An ASCII string in the form of `people/{person_id}`.
 	ResourceName string `json:"resourceName,omitempty"`
 
 	// SipAddresses: The person's SIP addresses.
@@ -3513,17 +3513,17 @@ func (c *ContactGroupsBatchGetCall) Do(opts ...googleapi.CallOption) (*BatchGetC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchGetContactGroupsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3659,17 +3659,17 @@ func (c *ContactGroupsCreateCall) Do(opts ...googleapi.CallOption) (*ContactGrou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContactGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -3794,17 +3794,17 @@ func (c *ContactGroupsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3964,17 +3964,17 @@ func (c *ContactGroupsGetCall) Do(opts ...googleapi.CallOption) (*ContactGroup, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContactGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -4152,17 +4152,17 @@ func (c *ContactGroupsListCall) Do(opts ...googleapi.CallOption) (*ListContactGr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListContactGroupsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4255,9 +4255,9 @@ type ContactGroupsUpdateCall struct {
 // name will return a HTTP 409 error. Mutate requests for the same user
 // should be sent sequentially to avoid increased latency and failures.
 //
-// - resourceName: The resource name for the contact group, assigned by
-//   the server. An ASCII string, in the form of
-//   `contactGroups/{contact_group_id}`.
+//   - resourceName: The resource name for the contact group, assigned by
+//     the server. An ASCII string, in the form of
+//     `contactGroups/{contact_group_id}`.
 func (r *ContactGroupsService) Update(resourceName string, updatecontactgrouprequest *UpdateContactGroupRequest) *ContactGroupsUpdateCall {
 	c := &ContactGroupsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resourceName = resourceName
@@ -4332,17 +4332,17 @@ func (c *ContactGroupsUpdateCall) Do(opts ...googleapi.CallOption) (*ContactGrou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ContactGroup{
 		ServerResponse: googleapi.ServerResponse{
@@ -4479,17 +4479,17 @@ func (c *ContactGroupsMembersModifyCall) Do(opts ...googleapi.CallOption) (*Modi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ModifyContactGroupMembersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4624,17 +4624,17 @@ func (c *OtherContactsCopyOtherContactToMyContactsGroupCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Person{
 		ServerResponse: googleapi.ServerResponse{
@@ -4692,18 +4692,21 @@ type OtherContactsListCall struct {
 // List: List all "Other contacts", that is contacts that are not in a
 // contact group. "Other contacts" are typically auto created contacts
 // from interactions. Sync tokens expire 7 days after the full sync. A
-// request with an expired sync token will result in a 410 error. In the
-// case of such an error clients should make a full sync request without
-// a `sync_token`. The first page of a full sync request has an
-// additional quota. If the quota is exceeded, a 429 error will be
-// returned. This quota is fixed and can not be increased. When the
-// `sync_token` is specified, resources deleted since the last sync will
-// be returned as a person with `PersonMetadata.deleted` set to true.
-// When the `page_token` or `sync_token` is specified, all other request
-// parameters must match the first call. Writes may have a propagation
-// delay of several minutes for sync requests. Incremental syncs are not
-// intended for read-after-write use cases. See example usage at List
-// the user's other contacts that have changed
+// request with an expired sync token will get an error with an
+// google.rpc.ErrorInfo
+// (https://cloud.google.com/apis/design/errors#error_info) with reason
+// "EXPIRED_SYNC_TOKEN". In the case of such an error clients should
+// make a full sync request without a `sync_token`. The first page of a
+// full sync request has an additional quota. If the quota is exceeded,
+// a 429 error will be returned. This quota is fixed and can not be
+// increased. When the `sync_token` is specified, resources deleted
+// since the last sync will be returned as a person with
+// `PersonMetadata.deleted` set to true. When the `page_token` or
+// `sync_token` is specified, all other request parameters must match
+// the first call. Writes may have a propagation delay of several
+// minutes for sync requests. Incremental syncs are not intended for
+// read-after-write use cases. See example usage at List the user's
+// other contacts that have changed
 // (/people/v1/other-contacts#list_the_users_other_contacts_that_have_cha
 // nged).
 func (r *OtherContactsService) List() *OtherContactsListCall {
@@ -4765,11 +4768,15 @@ func (c *OtherContactsListCall) RequestSyncToken(requestSyncToken bool) *OtherCo
 // is not permitted.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *OtherContactsListCall) Sources(sources ...string) *OtherContactsListCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -4859,17 +4866,17 @@ func (c *OtherContactsListCall) Do(opts ...googleapi.CallOption) (*ListOtherCont
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOtherContactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4883,7 +4890,7 @@ func (c *OtherContactsListCall) Do(opts ...googleapi.CallOption) (*ListOtherCont
 	}
 	return ret, nil
 	// {
-	//   "description": "List all \"Other contacts\", that is contacts that are not in a contact group. \"Other contacts\" are typically auto created contacts from interactions. Sync tokens expire 7 days after the full sync. A request with an expired sync token will result in a 410 error. In the case of such an error clients should make a full sync request without a `sync_token`. The first page of a full sync request has an additional quota. If the quota is exceeded, a 429 error will be returned. This quota is fixed and can not be increased. When the `sync_token` is specified, resources deleted since the last sync will be returned as a person with `PersonMetadata.deleted` set to true. When the `page_token` or `sync_token` is specified, all other request parameters must match the first call. Writes may have a propagation delay of several minutes for sync requests. Incremental syncs are not intended for read-after-write use cases. See example usage at [List the user's other contacts that have changed](/people/v1/other-contacts#list_the_users_other_contacts_that_have_changed).",
+	//   "description": "List all \"Other contacts\", that is contacts that are not in a contact group. \"Other contacts\" are typically auto created contacts from interactions. Sync tokens expire 7 days after the full sync. A request with an expired sync token will get an error with an [google.rpc.ErrorInfo](https://cloud.google.com/apis/design/errors#error_info) with reason \"EXPIRED_SYNC_TOKEN\". In the case of such an error clients should make a full sync request without a `sync_token`. The first page of a full sync request has an additional quota. If the quota is exceeded, a 429 error will be returned. This quota is fixed and can not be increased. When the `sync_token` is specified, resources deleted since the last sync will be returned as a person with `PersonMetadata.deleted` set to true. When the `page_token` or `sync_token` is specified, all other request parameters must match the first call. Writes may have a propagation delay of several minutes for sync requests. Incremental syncs are not intended for read-after-write use cases. See example usage at [List the user's other contacts that have changed](/people/v1/other-contacts#list_the_users_other_contacts_that_have_changed).",
 	//   "flatPath": "v1/otherContacts",
 	//   "httpMethod": "GET",
 	//   "id": "people.otherContacts.list",
@@ -5088,17 +5095,17 @@ func (c *OtherContactsSearchCall) Do(opts ...googleapi.CallOption) (*SearchRespo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5230,17 +5237,17 @@ func (c *PeopleBatchCreateContactsCall) Do(opts ...googleapi.CallOption) (*Batch
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchCreateContactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5357,17 +5364,17 @@ func (c *PeopleBatchDeleteContactsCall) Do(opts ...googleapi.CallOption) (*Empty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5485,17 +5492,17 @@ func (c *PeopleBatchUpdateContactsCall) Do(opts ...googleapi.CallOption) (*Batch
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchUpdateContactsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5571,11 +5578,15 @@ func (c *PeopleCreateContactCall) PersonFields(personFields string) *PeopleCreat
 // READ_SOURCE_TYPE_PROFILE if not set.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *PeopleCreateContactCall) Sources(sources ...string) *PeopleCreateContactCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -5646,17 +5657,17 @@ func (c *PeopleCreateContactCall) Do(opts ...googleapi.CallOption) (*Person, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Person{
 		ServerResponse: googleapi.ServerResponse{
@@ -5798,17 +5809,17 @@ func (c *PeopleDeleteContactCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5862,8 +5873,8 @@ type PeopleDeleteContactPhotoCall struct {
 // DeleteContactPhoto: Delete a contact's photo. Mutate requests for the
 // same user should be done sequentially to avoid // lock contention.
 //
-// - resourceName: The resource name of the contact whose photo will be
-//   deleted.
+//   - resourceName: The resource name of the contact whose photo will be
+//     deleted.
 func (r *PeopleService) DeleteContactPhoto(resourceName string) *PeopleDeleteContactPhotoCall {
 	c := &PeopleDeleteContactPhotoCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resourceName = resourceName
@@ -5890,11 +5901,15 @@ func (c *PeopleDeleteContactPhotoCall) PersonFields(personFields string) *People
 // READ_SOURCE_TYPE_PROFILE if not set.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *PeopleDeleteContactPhotoCall) Sources(sources ...string) *PeopleDeleteContactPhotoCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -5963,17 +5978,17 @@ func (c *PeopleDeleteContactPhotoCall) Do(opts ...googleapi.CallOption) (*Delete
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DeleteContactPhotoResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6053,12 +6068,12 @@ type PeopleGetCall struct {
 // name. Use `people/me` to indicate the authenticated user. The request
 // returns a 400 error if 'personFields' is not specified.
 //
-// - resourceName: The resource name of the person to provide
-//   information about. - To get information about the authenticated
-//   user, specify `people/me`. - To get information about a google
-//   account, specify `people/{account_id}`. - To get information about
-//   a contact, specify the resource name that identifies the contact as
-//   returned by `people.connections.list`.
+//   - resourceName: The resource name of the person to provide
+//     information about. - To get information about the authenticated
+//     user, specify `people/me`. - To get information about a google
+//     account, specify `people/{account_id}`. - To get information about
+//     a contact, specify the resource name that identifies the contact as
+//     returned by `people.connections.list`.
 func (r *PeopleService) Get(resourceName string) *PeopleGetCall {
 	c := &PeopleGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resourceName = resourceName
@@ -6093,11 +6108,15 @@ func (c *PeopleGetCall) RequestMaskIncludeField(requestMaskIncludeField string) 
 // READ_SOURCE_TYPE_CONTACT if not set.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *PeopleGetCall) Sources(sources ...string) *PeopleGetCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -6179,17 +6198,17 @@ func (c *PeopleGetCall) Do(opts ...googleapi.CallOption) (*Person, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Person{
 		ServerResponse: googleapi.ServerResponse{
@@ -6331,11 +6350,15 @@ func (c *PeopleGetBatchGetCall) ResourceNames(resourceNames ...string) *PeopleGe
 // READ_SOURCE_TYPE_PROFILE if not set.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *PeopleGetBatchGetCall) Sources(sources ...string) *PeopleGetBatchGetCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -6414,17 +6437,17 @@ func (c *PeopleGetBatchGetCall) Do(opts ...googleapi.CallOption) (*GetPeopleResp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GetPeopleResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6532,8 +6555,9 @@ func (r *PeopleService) ListDirectoryPeople() *PeopleListDirectoryPeopleCall {
 // through verified join keys such as email addresses or phone numbers.
 //
 // Possible values:
-//   "DIRECTORY_MERGE_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "DIRECTORY_MERGE_SOURCE_TYPE_CONTACT" - User owned contact.
+//
+//	"DIRECTORY_MERGE_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"DIRECTORY_MERGE_SOURCE_TYPE_CONTACT" - User owned contact.
 func (c *PeopleListDirectoryPeopleCall) MergeSources(mergeSources ...string) *PeopleListDirectoryPeopleCall {
 	c.urlParams_.SetMulti("mergeSources", append([]string{}, mergeSources...))
 	return c
@@ -6585,10 +6609,14 @@ func (c *PeopleListDirectoryPeopleCall) RequestSyncToken(requestSyncToken bool) 
 // sources to return.
 //
 // Possible values:
-//   "DIRECTORY_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "DIRECTORY_SOURCE_TYPE_DOMAIN_CONTACT" - Google Workspace domain
+//
+//	"DIRECTORY_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"DIRECTORY_SOURCE_TYPE_DOMAIN_CONTACT" - Google Workspace domain
+//
 // shared contact.
-//   "DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE" - Google Workspace domain
+//
+//	"DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE" - Google Workspace domain
+//
 // profile.
 func (c *PeopleListDirectoryPeopleCall) Sources(sources ...string) *PeopleListDirectoryPeopleCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -6679,17 +6707,17 @@ func (c *PeopleListDirectoryPeopleCall) Do(opts ...googleapi.CallOption) (*ListD
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDirectoryPeopleResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6857,11 +6885,15 @@ func (c *PeopleSearchContactsCall) ReadMask(readMask string) *PeopleSearchContac
 // types to return. Defaults to READ_SOURCE_TYPE_CONTACT if not set.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *PeopleSearchContactsCall) Sources(sources ...string) *PeopleSearchContactsCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -6940,17 +6972,17 @@ func (c *PeopleSearchContactsCall) Do(opts ...googleapi.CallOption) (*SearchResp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7041,8 +7073,9 @@ func (r *PeopleService) SearchDirectoryPeople() *PeopleSearchDirectoryPeopleCall
 // through verified join keys such as email addresses or phone numbers.
 //
 // Possible values:
-//   "DIRECTORY_MERGE_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "DIRECTORY_MERGE_SOURCE_TYPE_CONTACT" - User owned contact.
+//
+//	"DIRECTORY_MERGE_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"DIRECTORY_MERGE_SOURCE_TYPE_CONTACT" - User owned contact.
 func (c *PeopleSearchDirectoryPeopleCall) MergeSources(mergeSources ...string) *PeopleSearchDirectoryPeopleCall {
 	c.urlParams_.SetMulti("mergeSources", append([]string{}, mergeSources...))
 	return c
@@ -7092,10 +7125,14 @@ func (c *PeopleSearchDirectoryPeopleCall) ReadMask(readMask string) *PeopleSearc
 // sources to return.
 //
 // Possible values:
-//   "DIRECTORY_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "DIRECTORY_SOURCE_TYPE_DOMAIN_CONTACT" - Google Workspace domain
+//
+//	"DIRECTORY_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"DIRECTORY_SOURCE_TYPE_DOMAIN_CONTACT" - Google Workspace domain
+//
 // shared contact.
-//   "DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE" - Google Workspace domain
+//
+//	"DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE" - Google Workspace domain
+//
 // profile.
 func (c *PeopleSearchDirectoryPeopleCall) Sources(sources ...string) *PeopleSearchDirectoryPeopleCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -7174,17 +7211,17 @@ func (c *PeopleSearchDirectoryPeopleCall) Do(opts ...googleapi.CallOption) (*Sea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchDirectoryPeopleResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7318,9 +7355,8 @@ type PeopleUpdateContactCall struct {
 // same user should be sent sequentially to avoid increased latency and
 // failures.
 //
-// - resourceName: The resource name for the person, assigned by the
-//   server. An ASCII string with a max length of 27 characters, in the
-//   form of `people/{person_id}`.
+//   - resourceName: The resource name for the person, assigned by the
+//     server. An ASCII string in the form of `people/{person_id}`.
 func (r *PeopleService) UpdateContact(resourceName string, person *Person) *PeopleUpdateContactCall {
 	c := &PeopleUpdateContactCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resourceName = resourceName
@@ -7348,11 +7384,15 @@ func (c *PeopleUpdateContactCall) PersonFields(personFields string) *PeopleUpdat
 // READ_SOURCE_TYPE_PROFILE if not set.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *PeopleUpdateContactCall) Sources(sources ...string) *PeopleUpdateContactCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -7440,17 +7480,17 @@ func (c *PeopleUpdateContactCall) Do(opts ...googleapi.CallOption) (*Person, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Person{
 		ServerResponse: googleapi.ServerResponse{
@@ -7479,7 +7519,7 @@ func (c *PeopleUpdateContactCall) Do(opts ...googleapi.CallOption) (*Person, err
 	//       "type": "string"
 	//     },
 	//     "resourceName": {
-	//       "description": "The resource name for the person, assigned by the server. An ASCII string with a max length of 27 characters, in the form of `people/{person_id}`.",
+	//       "description": "The resource name for the person, assigned by the server. An ASCII string in the form of `people/{person_id}`.",
 	//       "location": "path",
 	//       "pattern": "^people/[^/]+$",
 	//       "required": true,
@@ -7614,17 +7654,17 @@ func (c *PeopleUpdateContactPhotoCall) Do(opts ...googleapi.CallOption) (*Update
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UpdateContactPhotoResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7681,13 +7721,15 @@ type PeopleConnectionsListCall struct {
 
 // List: Provides a list of the authenticated user's contacts. Sync
 // tokens expire 7 days after the full sync. A request with an expired
-// sync token will result in a 410 error. In the case of such an error
-// clients should make a full sync request without a `sync_token`. The
-// first page of a full sync request has an additional quota. If the
-// quota is exceeded, a 429 error will be returned. This quota is fixed
-// and can not be increased. When the `sync_token` is specified,
-// resources deleted since the last sync will be returned as a person
-// with `PersonMetadata.deleted` set to true. When the `page_token` or
+// sync token will get an error with an google.rpc.ErrorInfo
+// (https://cloud.google.com/apis/design/errors#error_info) with reason
+// "EXPIRED_SYNC_TOKEN". In the case of such an error clients should
+// make a full sync request without a `sync_token`. The first page of a
+// full sync request has an additional quota. If the quota is exceeded,
+// a 429 error will be returned. This quota is fixed and can not be
+// increased. When the `sync_token` is specified, resources deleted
+// since the last sync will be returned as a person with
+// `PersonMetadata.deleted` set to true. When the `page_token` or
 // `sync_token` is specified, all other request parameters must match
 // the first call. Writes may have a propagation delay of several
 // minutes for sync requests. Incremental syncs are not intended for
@@ -7695,8 +7737,8 @@ type PeopleConnectionsListCall struct {
 // contacts that have changed
 // (/people/v1/contacts#list_the_users_contacts_that_have_changed).
 //
-// - resourceName: The resource name to return connections for. Only
-//   `people/me` is valid.
+//   - resourceName: The resource name to return connections for. Only
+//     `people/me` is valid.
 func (r *PeopleConnectionsService) List(resourceName string) *PeopleConnectionsListCall {
 	c := &PeopleConnectionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resourceName = resourceName
@@ -7759,12 +7801,17 @@ func (c *PeopleConnectionsListCall) RequestSyncToken(requestSyncToken bool) *Peo
 // `LAST_MODIFIED_ASCENDING`.
 //
 // Possible values:
-//   "LAST_MODIFIED_ASCENDING" - Sort people by when they were changed;
+//
+//	"LAST_MODIFIED_ASCENDING" - Sort people by when they were changed;
+//
 // older entries first.
-//   "LAST_MODIFIED_DESCENDING" - Sort people by when they were changed;
+//
+//	"LAST_MODIFIED_DESCENDING" - Sort people by when they were changed;
+//
 // newer entries first.
-//   "FIRST_NAME_ASCENDING" - Sort people by first name.
-//   "LAST_NAME_ASCENDING" - Sort people by last name.
+//
+//	"FIRST_NAME_ASCENDING" - Sort people by first name.
+//	"LAST_NAME_ASCENDING" - Sort people by last name.
 func (c *PeopleConnectionsListCall) SortOrder(sortOrder string) *PeopleConnectionsListCall {
 	c.urlParams_.Set("sortOrder", sortOrder)
 	return c
@@ -7775,11 +7822,15 @@ func (c *PeopleConnectionsListCall) SortOrder(sortOrder string) *PeopleConnectio
 // READ_SOURCE_TYPE_PROFILE if not set.
 //
 // Possible values:
-//   "READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
-//   "READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
+//	"READ_SOURCE_TYPE_UNSPECIFIED" - Unspecified.
+//	"READ_SOURCE_TYPE_PROFILE" - Returns SourceType.ACCOUNT,
+//
 // SourceType.DOMAIN_PROFILE, and SourceType.PROFILE.
-//   "READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
-//   "READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
+//	"READ_SOURCE_TYPE_CONTACT" - Returns SourceType.CONTACT.
+//	"READ_SOURCE_TYPE_DOMAIN_CONTACT" - Returns
+//
 // SourceType.DOMAIN_CONTACT.
 func (c *PeopleConnectionsListCall) Sources(sources ...string) *PeopleConnectionsListCall {
 	c.urlParams_.SetMulti("sources", append([]string{}, sources...))
@@ -7872,17 +7923,17 @@ func (c *PeopleConnectionsListCall) Do(opts ...googleapi.CallOption) (*ListConne
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7896,7 +7947,7 @@ func (c *PeopleConnectionsListCall) Do(opts ...googleapi.CallOption) (*ListConne
 	}
 	return ret, nil
 	// {
-	//   "description": "Provides a list of the authenticated user's contacts. Sync tokens expire 7 days after the full sync. A request with an expired sync token will result in a 410 error. In the case of such an error clients should make a full sync request without a `sync_token`. The first page of a full sync request has an additional quota. If the quota is exceeded, a 429 error will be returned. This quota is fixed and can not be increased. When the `sync_token` is specified, resources deleted since the last sync will be returned as a person with `PersonMetadata.deleted` set to true. When the `page_token` or `sync_token` is specified, all other request parameters must match the first call. Writes may have a propagation delay of several minutes for sync requests. Incremental syncs are not intended for read-after-write use cases. See example usage at [List the user's contacts that have changed](/people/v1/contacts#list_the_users_contacts_that_have_changed).",
+	//   "description": "Provides a list of the authenticated user's contacts. Sync tokens expire 7 days after the full sync. A request with an expired sync token will get an error with an [google.rpc.ErrorInfo](https://cloud.google.com/apis/design/errors#error_info) with reason \"EXPIRED_SYNC_TOKEN\". In the case of such an error clients should make a full sync request without a `sync_token`. The first page of a full sync request has an additional quota. If the quota is exceeded, a 429 error will be returned. This quota is fixed and can not be increased. When the `sync_token` is specified, resources deleted since the last sync will be returned as a person with `PersonMetadata.deleted` set to true. When the `page_token` or `sync_token` is specified, all other request parameters must match the first call. Writes may have a propagation delay of several minutes for sync requests. Incremental syncs are not intended for read-after-write use cases. See example usage at [List the user's contacts that have changed](/people/v1/contacts#list_the_users_contacts_that_have_changed).",
 	//   "flatPath": "v1/people/{peopleId}/connections",
 	//   "httpMethod": "GET",
 	//   "id": "people.people.connections.list",

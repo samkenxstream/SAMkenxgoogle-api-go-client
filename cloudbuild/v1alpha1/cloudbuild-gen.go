@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/cloud-build/docs/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/cloudbuild/v1alpha1"
-//   ...
-//   ctx := context.Background()
-//   cloudbuildService, err := cloudbuild.NewService(ctx)
+//	import "google.golang.org/api/cloudbuild/v1alpha1"
+//	...
+//	ctx := context.Background()
+//	cloudbuildService, err := cloudbuild.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   cloudbuildService, err := cloudbuild.NewService(ctx, option.WithAPIKey("AIza..."))
+//	cloudbuildService, err := cloudbuild.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   cloudbuildService, err := cloudbuild.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	cloudbuildService, err := cloudbuild.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package cloudbuild // import "google.golang.org/api/cloudbuild/v1alpha1"
@@ -352,6 +352,14 @@ type Artifacts struct {
 	// fail to be pushed, the build is marked FAILURE.
 	Images []string `json:"images,omitempty"`
 
+	// MavenArtifacts: A list of Maven artifacts to be uploaded to Artifact
+	// Registry upon successful completion of all build steps. Artifacts in
+	// the workspace matching specified paths globs will be uploaded to the
+	// specified Artifact Registry repository using the builder service
+	// account's credentials. If any artifacts fail to be pushed, the build
+	// is marked FAILURE.
+	MavenArtifacts []*MavenArtifact `json:"mavenArtifacts,omitempty"`
+
 	// Objects: A list of objects to be uploaded to Cloud Storage upon
 	// successful completion of all build steps. Files in the workspace
 	// matching specified paths globs will be uploaded to the specified
@@ -360,6 +368,12 @@ type Artifacts struct {
 	// be stored in the Build resource's results field. If any objects fail
 	// to be pushed, the build is marked FAILURE.
 	Objects *ArtifactObjects `json:"objects,omitempty"`
+
+	// PythonPackages: A list of Python packages to be uploaded to Artifact
+	// Registry upon successful completion of all build steps. The build
+	// service account credentials will be used to perform the upload. If
+	// any objects fail to be pushed, the build is marked FAILURE.
+	PythonPackages []*PythonPackage `json:"pythonPackages,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Images") to
 	// unconditionally include in API requests. By default, fields with
@@ -452,6 +466,104 @@ type BatchCreateBitbucketServerConnectedRepositoriesResponseMetadata struct {
 
 func (s *BatchCreateBitbucketServerConnectedRepositoriesResponseMetadata) MarshalJSON() ([]byte, error) {
 	type NoMethod BatchCreateBitbucketServerConnectedRepositoriesResponseMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BatchCreateGitLabConnectedRepositoriesResponse: Response of
+// BatchCreateGitLabConnectedRepositories RPC method.
+type BatchCreateGitLabConnectedRepositoriesResponse struct {
+	// GitlabConnectedRepositories: The GitLab connected repository
+	// requests' responses.
+	GitlabConnectedRepositories []*GitLabConnectedRepository `json:"gitlabConnectedRepositories,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "GitlabConnectedRepositories") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "GitlabConnectedRepositories") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreateGitLabConnectedRepositoriesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreateGitLabConnectedRepositoriesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BatchCreateGitLabConnectedRepositoriesResponseMetadata: Metadata for
+// `BatchCreateGitLabConnectedRepositories` operation.
+type BatchCreateGitLabConnectedRepositoriesResponseMetadata struct {
+	// CompleteTime: Time the operation was completed.
+	CompleteTime string `json:"completeTime,omitempty"`
+
+	// Config: The name of the `GitLabConfig` that added connected
+	// repositories. Format:
+	// `projects/{project}/locations/{location}/gitLabConfigs/{config}`
+	Config string `json:"config,omitempty"`
+
+	// CreateTime: Time the operation was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CompleteTime") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CompleteTime") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreateGitLabConnectedRepositoriesResponseMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreateGitLabConnectedRepositoriesResponseMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BatchCreateRepositoriesResponse: Message for response of creating
+// repositories in batch.
+type BatchCreateRepositoriesResponse struct {
+	// Repositories: Repository resources created.
+	Repositories []*Repository `json:"repositories,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Repositories") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Repositories") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreateRepositoriesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreateRepositoriesResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -677,9 +789,10 @@ type Build struct {
 
 	// Timing: Output only. Stores timing information for phases of the
 	// build. Valid keys are: * BUILD: time to execute all build steps. *
-	// PUSH: time to push all specified images. * FETCHSOURCE: time to fetch
-	// source. * SETUPBUILD: time to set up build. If the build does not
-	// specify source or images, these keys will not be included.
+	// PUSH: time to push all artifacts including docker images and non
+	// docker artifacts. * FETCHSOURCE: time to fetch source. * SETUPBUILD:
+	// time to set up build. If the build does not specify source or images,
+	// these keys will not be included.
 	Timing map[string]TimeSpan `json:"timing,omitempty"`
 
 	// Warnings: Output only. Non-fatal problems encountered during the
@@ -788,7 +901,7 @@ type BuildOptions struct {
 	// operating system and build utilities. Also note that this is the
 	// minimum disk size that will be allocated for the build -- the build
 	// may run with a larger disk than requested. At present, the maximum
-	// disk size is 1000GB; builds that request more than the maximum are
+	// disk size is 2000GB; builds that request more than the maximum are
 	// rejected with an error.
 	DiskSizeGb int64 `json:"diskSizeGb,omitempty,string"`
 
@@ -853,8 +966,8 @@ type BuildOptions struct {
 	// RequestedVerifyOption: Requested verifiability options.
 	//
 	// Possible values:
-	//   "NOT_VERIFIED" - Not a verifiable build. (default)
-	//   "VERIFIED" - Verified build.
+	//   "NOT_VERIFIED" - Not a verifiable build (the default).
+	//   "VERIFIED" - Build must be verified.
 	RequestedVerifyOption string `json:"requestedVerifyOption,omitempty"`
 
 	// SecretEnv: A list of global environment variables, which are
@@ -920,6 +1033,19 @@ func (s *BuildOptions) MarshalJSON() ([]byte, error) {
 
 // BuildStep: A step in the build pipeline.
 type BuildStep struct {
+	// AllowExitCodes: Allow this build step to fail without failing the
+	// entire build if and only if the exit code is one of the specified
+	// codes. If allow_failure is also specified, this field will take
+	// precedence.
+	AllowExitCodes []int64 `json:"allowExitCodes,omitempty"`
+
+	// AllowFailure: Allow this build step to fail without failing the
+	// entire build. If false, the entire build will fail if this step
+	// fails. Otherwise, the build will succeed, but this step will still
+	// have a failure status. Error information will be reported in the
+	// failure_detail field.
+	AllowFailure bool `json:"allowFailure,omitempty"`
+
 	// Args: A list of arguments that will be presented to the step when it
 	// is started. If the image used to run the step's container has an
 	// entrypoint, the `args` are used as arguments to that entrypoint. If
@@ -945,6 +1071,9 @@ type BuildStep struct {
 	// running a step. The elements are of the form "KEY=VALUE" for the
 	// environment variable "KEY" being given the value "VALUE".
 	Env []string `json:"env,omitempty"`
+
+	// ExitCode: Output only. Return code from running the step.
+	ExitCode int64 `json:"exitCode,omitempty"`
 
 	// Id: Unique identifier for this build step, used in `wait_for` to
 	// reference this build step as a dependency.
@@ -1020,7 +1149,7 @@ type BuildStep struct {
 	// `Build.Steps` list have completed successfully.
 	WaitFor []string `json:"waitFor,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Args") to
+	// ForceSendFields is a list of field names (e.g. "AllowExitCodes") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -1028,12 +1157,13 @@ type BuildStep struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Args") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AllowExitCodes") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -1466,6 +1596,79 @@ func (s *FileHashes) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GitLabConnectedRepository: GitLabConnectedRepository represents a
+// GitLab connected repository request response.
+type GitLabConnectedRepository struct {
+	// Parent: The name of the `GitLabConfig` that added connected
+	// repository. Format:
+	// `projects/{project}/locations/{location}/gitLabConfigs/{config}`
+	Parent string `json:"parent,omitempty"`
+
+	// Repo: The GitLab repositories to connect.
+	Repo *GitLabRepositoryId `json:"repo,omitempty"`
+
+	// Status: Output only. The status of the repo connection request.
+	Status *Status `json:"status,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Parent") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Parent") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GitLabConnectedRepository) MarshalJSON() ([]byte, error) {
+	type NoMethod GitLabConnectedRepository
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GitLabRepositoryId: GitLabRepositoryId identifies a specific
+// repository hosted on GitLab.com or GitLabEnterprise
+type GitLabRepositoryId struct {
+	// Id: Required. Identifier for the repository. example:
+	// "namespace/project-slug", namespace is usually the username or group
+	// ID
+	Id string `json:"id,omitempty"`
+
+	// WebhookId: Output only. The ID of the webhook that was created for
+	// receiving events from this repo. We only create and manage a single
+	// webhook for each repo.
+	WebhookId int64 `json:"webhookId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Id") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Id") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GitLabRepositoryId) MarshalJSON() ([]byte, error) {
+	type NoMethod GitLabRepositoryId
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleDevtoolsCloudbuildV2OperationMetadata: Represents the metadata
 // of the long-running operation.
 type GoogleDevtoolsCloudbuildV2OperationMetadata struct {
@@ -1650,6 +1853,56 @@ type ListWorkerPoolsResponse struct {
 
 func (s *ListWorkerPoolsResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod ListWorkerPoolsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// MavenArtifact: A Maven artifact to upload to Artifact Registry upon
+// successful completion of all build steps.
+type MavenArtifact struct {
+	// ArtifactId: Maven `artifactId` value used when uploading the artifact
+	// to Artifact Registry.
+	ArtifactId string `json:"artifactId,omitempty"`
+
+	// GroupId: Maven `groupId` value used when uploading the artifact to
+	// Artifact Registry.
+	GroupId string `json:"groupId,omitempty"`
+
+	// Path: Path to an artifact in the build's workspace to be uploaded to
+	// Artifact Registry. This can be either an absolute path, e.g.
+	// /workspace/my-app/target/my-app-1.0.SNAPSHOT.jar or a relative path
+	// from /workspace, e.g. my-app/target/my-app-1.0.SNAPSHOT.jar.
+	Path string `json:"path,omitempty"`
+
+	// Repository: Artifact Registry repository, in the form
+	// "https://$REGION-maven.pkg.dev/$PROJECT/$REPOSITORY" Artifact in the
+	// workspace specified by path will be uploaded to Artifact Registry
+	// with this location as a prefix.
+	Repository string `json:"repository,omitempty"`
+
+	// Version: Maven `version` value used when uploading the artifact to
+	// Artifact Registry.
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ArtifactId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ArtifactId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MavenArtifact) MarshalJSON() ([]byte, error) {
+	type NoMethod MavenArtifact
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2097,6 +2350,44 @@ func (s *ProcessAppManifestCallbackOperationMetadata) MarshalJSON() ([]byte, err
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// PythonPackage: Python package to upload to Artifact Registry upon
+// successful completion of all build steps. A package can encapsulate
+// multiple objects to be uploaded to a single repository.
+type PythonPackage struct {
+	// Paths: Path globs used to match files in the build's workspace. For
+	// Python/ Twine, this is usually `dist/*`, and sometimes additionally
+	// an `.asc` file.
+	Paths []string `json:"paths,omitempty"`
+
+	// Repository: Artifact Registry repository, in the form
+	// "https://$REGION-python.pkg.dev/$PROJECT/$REPOSITORY" Files in the
+	// workspace matching any path pattern will be uploaded to Artifact
+	// Registry with this location as a prefix.
+	Repository string `json:"repository,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Paths") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Paths") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PythonPackage) MarshalJSON() ([]byte, error) {
+	type NoMethod PythonPackage
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // RepoSource: Location of the source in a Google Cloud Source
 // Repository.
 type RepoSource struct {
@@ -2157,13 +2448,63 @@ func (s *RepoSource) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Repository: A repository associated to a parent connection.
+type Repository struct {
+	// Annotations: Allows clients to store small amounts of arbitrary data.
+	Annotations map[string]string `json:"annotations,omitempty"`
+
+	// CreateTime: Output only. Server assigned timestamp for when the
+	// connection was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// Etag: This checksum is computed by the server based on the value of
+	// other fields, and may be sent on update and delete requests to ensure
+	// the client has an up-to-date value before proceeding.
+	Etag string `json:"etag,omitempty"`
+
+	// Name: Immutable. Resource name of the repository, in the format
+	// `projects/*/locations/*/connections/*/repositories/*`.
+	Name string `json:"name,omitempty"`
+
+	// RemoteUri: Required. Git Clone HTTPS URI.
+	RemoteUri string `json:"remoteUri,omitempty"`
+
+	// UpdateTime: Output only. Server assigned timestamp for when the
+	// connection was updated.
+	UpdateTime string `json:"updateTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Annotations") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Annotations") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Repository) MarshalJSON() ([]byte, error) {
+	type NoMethod Repository
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Results: Artifacts created by the build pipeline.
 type Results struct {
-	// ArtifactManifest: Path to the artifact manifest. Only populated when
-	// artifacts are uploaded.
+	// ArtifactManifest: Path to the artifact manifest for non-container
+	// artifacts uploaded to Cloud Storage. Only populated when artifacts
+	// are uploaded to Cloud Storage.
 	ArtifactManifest string `json:"artifactManifest,omitempty"`
 
-	// ArtifactTiming: Time to push all non-container artifacts.
+	// ArtifactTiming: Time to push all non-container artifacts to Cloud
+	// Storage.
 	ArtifactTiming *TimeSpan `json:"artifactTiming,omitempty"`
 
 	// BuildStepImages: List of build step digests, in the order
@@ -2180,9 +2521,17 @@ type Results struct {
 	// Images: Container images that were built as a part of the build.
 	Images []*BuiltImage `json:"images,omitempty"`
 
-	// NumArtifacts: Number of artifacts uploaded. Only populated when
-	// artifacts are uploaded.
+	// MavenArtifacts: Maven artifacts uploaded to Artifact Registry at the
+	// end of the build.
+	MavenArtifacts []*UploadedMavenArtifact `json:"mavenArtifacts,omitempty"`
+
+	// NumArtifacts: Number of non-container artifacts uploaded to Cloud
+	// Storage. Only populated when artifacts are uploaded to Cloud Storage.
 	NumArtifacts int64 `json:"numArtifacts,omitempty,string"`
+
+	// PythonPackages: Python artifacts uploaded to Artifact Registry at the
+	// end of the build.
+	PythonPackages []*UploadedPythonPackage `json:"pythonPackages,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ArtifactManifest") to
 	// unconditionally include in API requests. By default, fields with
@@ -2838,6 +3187,78 @@ func (s *UpdateWorkerPoolOperationMetadata) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// UploadedMavenArtifact: A Maven artifact uploaded using the
+// MavenArtifact directive.
+type UploadedMavenArtifact struct {
+	// FileHashes: Hash types and values of the Maven Artifact.
+	FileHashes *FileHashes `json:"fileHashes,omitempty"`
+
+	// PushTiming: Output only. Stores timing information for pushing the
+	// specified artifact.
+	PushTiming *TimeSpan `json:"pushTiming,omitempty"`
+
+	// Uri: URI of the uploaded artifact.
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FileHashes") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FileHashes") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UploadedMavenArtifact) MarshalJSON() ([]byte, error) {
+	type NoMethod UploadedMavenArtifact
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UploadedPythonPackage: Artifact uploaded using the PythonPackage
+// directive.
+type UploadedPythonPackage struct {
+	// FileHashes: Hash types and values of the Python Artifact.
+	FileHashes *FileHashes `json:"fileHashes,omitempty"`
+
+	// PushTiming: Output only. Stores timing information for pushing the
+	// specified artifact.
+	PushTiming *TimeSpan `json:"pushTiming,omitempty"`
+
+	// Uri: URI of the uploaded artifact.
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FileHashes") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FileHashes") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UploadedPythonPackage) MarshalJSON() ([]byte, error) {
+	type NoMethod UploadedPythonPackage
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Volume: Volume describes a Docker container volume which is mounted
 // into build steps in order to persist files across build step
 // execution.
@@ -3160,17 +3581,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3311,17 +3732,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3451,17 +3872,17 @@ func (c *ProjectsWorkerPoolsCreateCall) Do(opts ...googleapi.CallOption) (*Worke
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WorkerPool{
 		ServerResponse: googleapi.ServerResponse{
@@ -3517,8 +3938,8 @@ type ProjectsWorkerPoolsDeleteCall struct {
 
 // Delete: Deletes a `WorkerPool` by its project ID and WorkerPool name.
 //
-// - name: The field will contain name of the resource requested, for
-//   example: "projects/project-1/workerPools/workerpool-name".
+//   - name: The field will contain name of the resource requested, for
+//     example: "projects/project-1/workerPools/workerpool-name".
 func (r *ProjectsWorkerPoolsService) Delete(name string) *ProjectsWorkerPoolsDeleteCall {
 	c := &ProjectsWorkerPoolsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3587,17 +4008,17 @@ func (c *ProjectsWorkerPoolsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3651,8 +4072,8 @@ type ProjectsWorkerPoolsGetCall struct {
 
 // Get: Returns information about a `WorkerPool`.
 //
-// - name: The field will contain name of the resource requested, for
-//   example: "projects/project-1/workerPools/workerpool-name".
+//   - name: The field will contain name of the resource requested, for
+//     example: "projects/project-1/workerPools/workerpool-name".
 func (r *ProjectsWorkerPoolsService) Get(name string) *ProjectsWorkerPoolsGetCall {
 	c := &ProjectsWorkerPoolsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3734,17 +4155,17 @@ func (c *ProjectsWorkerPoolsGetCall) Do(opts ...googleapi.CallOption) (*WorkerPo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WorkerPool{
 		ServerResponse: googleapi.ServerResponse{
@@ -3880,17 +4301,17 @@ func (c *ProjectsWorkerPoolsListCall) Do(opts ...googleapi.CallOption) (*ListWor
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListWorkerPoolsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3944,8 +4365,8 @@ type ProjectsWorkerPoolsPatchCall struct {
 
 // Patch: Update a `WorkerPool`.
 //
-// - name: The field will contain name of the resource requested, for
-//   example: "projects/project-1/workerPools/workerpool-name".
+//   - name: The field will contain name of the resource requested, for
+//     example: "projects/project-1/workerPools/workerpool-name".
 func (r *ProjectsWorkerPoolsService) Patch(name string, workerpool *WorkerPool) *ProjectsWorkerPoolsPatchCall {
 	c := &ProjectsWorkerPoolsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4020,17 +4441,17 @@ func (c *ProjectsWorkerPoolsPatchCall) Do(opts ...googleapi.CallOption) (*Worker
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WorkerPool{
 		ServerResponse: googleapi.ServerResponse{

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/beyondcorp/v1alpha"
-//   ...
-//   ctx := context.Background()
-//   beyondcorpService, err := beyondcorp.NewService(ctx)
+//	import "google.golang.org/api/beyondcorp/v1alpha"
+//	...
+//	ctx := context.Background()
+//	beyondcorpService, err := beyondcorp.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   beyondcorpService, err := beyondcorp.NewService(ctx, option.WithAPIKey("AIza..."))
+//	beyondcorpService, err := beyondcorp.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   beyondcorpService, err := beyondcorp.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	beyondcorpService, err := beyondcorp.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package beyondcorp // import "google.golang.org/api/beyondcorp/v1alpha"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "beyondcorp:v1alpha"
 const apiName = "beyondcorp"
@@ -118,6 +119,7 @@ func New(client *http.Client) (*Service, error) {
 		return nil, errors.New("client is nil")
 	}
 	s := &Service{client: client, BasePath: basePath}
+	s.Organizations = NewOrganizationsService(s)
 	s.Projects = NewProjectsService(s)
 	return s, nil
 }
@@ -127,6 +129,8 @@ type Service struct {
 	BasePath  string // API endpoint base URL
 	UserAgent string // optional additional User-Agent fragment
 
+	Organizations *OrganizationsService
+
 	Projects *ProjectsService
 }
 
@@ -135,6 +139,51 @@ func (s *Service) userAgent() string {
 		return googleapi.UserAgent
 	}
 	return googleapi.UserAgent + " " + s.UserAgent
+}
+
+func NewOrganizationsService(s *Service) *OrganizationsService {
+	rs := &OrganizationsService{s: s}
+	rs.Locations = NewOrganizationsLocationsService(s)
+	return rs
+}
+
+type OrganizationsService struct {
+	s *Service
+
+	Locations *OrganizationsLocationsService
+}
+
+func NewOrganizationsLocationsService(s *Service) *OrganizationsLocationsService {
+	rs := &OrganizationsLocationsService{s: s}
+	rs.Insights = NewOrganizationsLocationsInsightsService(s)
+	rs.Subscriptions = NewOrganizationsLocationsSubscriptionsService(s)
+	return rs
+}
+
+type OrganizationsLocationsService struct {
+	s *Service
+
+	Insights *OrganizationsLocationsInsightsService
+
+	Subscriptions *OrganizationsLocationsSubscriptionsService
+}
+
+func NewOrganizationsLocationsInsightsService(s *Service) *OrganizationsLocationsInsightsService {
+	rs := &OrganizationsLocationsInsightsService{s: s}
+	return rs
+}
+
+type OrganizationsLocationsInsightsService struct {
+	s *Service
+}
+
+func NewOrganizationsLocationsSubscriptionsService(s *Service) *OrganizationsLocationsSubscriptionsService {
+	rs := &OrganizationsLocationsSubscriptionsService{s: s}
+	return rs
+}
+
+type OrganizationsLocationsSubscriptionsService struct {
+	s *Service
 }
 
 func NewProjectsService(s *Service) *ProjectsService {
@@ -154,10 +203,13 @@ func NewProjectsLocationsService(s *Service) *ProjectsLocationsService {
 	rs.AppConnections = NewProjectsLocationsAppConnectionsService(s)
 	rs.AppConnectors = NewProjectsLocationsAppConnectorsService(s)
 	rs.AppGateways = NewProjectsLocationsAppGatewaysService(s)
+	rs.Applications = NewProjectsLocationsApplicationsService(s)
 	rs.ClientConnectorServices = NewProjectsLocationsClientConnectorServicesService(s)
 	rs.ClientGateways = NewProjectsLocationsClientGatewaysService(s)
 	rs.Connections = NewProjectsLocationsConnectionsService(s)
 	rs.Connectors = NewProjectsLocationsConnectorsService(s)
+	rs.Insights = NewProjectsLocationsInsightsService(s)
+	rs.NetConnections = NewProjectsLocationsNetConnectionsService(s)
 	rs.Operations = NewProjectsLocationsOperationsService(s)
 	return rs
 }
@@ -171,6 +223,8 @@ type ProjectsLocationsService struct {
 
 	AppGateways *ProjectsLocationsAppGatewaysService
 
+	Applications *ProjectsLocationsApplicationsService
+
 	ClientConnectorServices *ProjectsLocationsClientConnectorServicesService
 
 	ClientGateways *ProjectsLocationsClientGatewaysService
@@ -178,6 +232,10 @@ type ProjectsLocationsService struct {
 	Connections *ProjectsLocationsConnectionsService
 
 	Connectors *ProjectsLocationsConnectorsService
+
+	Insights *ProjectsLocationsInsightsService
+
+	NetConnections *ProjectsLocationsNetConnectionsService
 
 	Operations *ProjectsLocationsOperationsService
 }
@@ -206,6 +264,15 @@ func NewProjectsLocationsAppGatewaysService(s *Service) *ProjectsLocationsAppGat
 }
 
 type ProjectsLocationsAppGatewaysService struct {
+	s *Service
+}
+
+func NewProjectsLocationsApplicationsService(s *Service) *ProjectsLocationsApplicationsService {
+	rs := &ProjectsLocationsApplicationsService{s: s}
+	return rs
+}
+
+type ProjectsLocationsApplicationsService struct {
 	s *Service
 }
 
@@ -242,6 +309,24 @@ func NewProjectsLocationsConnectorsService(s *Service) *ProjectsLocationsConnect
 }
 
 type ProjectsLocationsConnectorsService struct {
+	s *Service
+}
+
+func NewProjectsLocationsInsightsService(s *Service) *ProjectsLocationsInsightsService {
+	rs := &ProjectsLocationsInsightsService{s: s}
+	return rs
+}
+
+type ProjectsLocationsInsightsService struct {
+	s *Service
+}
+
+func NewProjectsLocationsNetConnectionsService(s *Service) *ProjectsLocationsNetConnectionsService {
+	rs := &ProjectsLocationsNetConnectionsService{s: s}
+	return rs
+}
+
+type ProjectsLocationsNetConnectionsService struct {
 	s *Service
 }
 
@@ -1402,6 +1487,58 @@ func (s *Gateway) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudBeyondcorpAppconnectionsV1AppConnectionOperationMetadata:
+// Represents the metadata of the long-running operation.
+type GoogleCloudBeyondcorpAppconnectionsV1AppConnectionOperationMetadata struct {
+	// ApiVersion: Output only. API version used to start the operation.
+	ApiVersion string `json:"apiVersion,omitempty"`
+
+	// CreateTime: Output only. The time the operation was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// EndTime: Output only. The time the operation finished running.
+	EndTime string `json:"endTime,omitempty"`
+
+	// RequestedCancellation: Output only. Identifies whether the user has
+	// requested cancellation of the operation. Operations that have
+	// successfully been cancelled have Operation.error value with a
+	// google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+	RequestedCancellation bool `json:"requestedCancellation,omitempty"`
+
+	// StatusMessage: Output only. Human-readable status of the operation,
+	// if any.
+	StatusMessage string `json:"statusMessage,omitempty"`
+
+	// Target: Output only. Server-defined resource path for the target of
+	// the operation.
+	Target string `json:"target,omitempty"`
+
+	// Verb: Output only. Name of the verb executed by the operation.
+	Verb string `json:"verb,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ApiVersion") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ApiVersion") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpAppconnectionsV1AppConnectionOperationMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpAppconnectionsV1AppConnectionOperationMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudBeyondcorpAppconnectionsV1alphaAppConnection: A BeyondCorp
 // AppConnection resource represents a BeyondCorp protected
 // AppConnection to a remote application. It creates all the necessary
@@ -1531,13 +1668,17 @@ func (s *GoogleCloudBeyondcorpAppconnectionsV1alphaAppConnectionApplicationEndpo
 // to enable connectivity.
 type GoogleCloudBeyondcorpAppconnectionsV1alphaAppConnectionGateway struct {
 	// AppGateway: Required. AppGateway name in following format:
-	// projects/{project_id}/locations/{location_id}/appgateways/{gateway_id}
+	// `projects/{project_id}/locations/{location_id}/appgateways/{gateway_id
+	// }`
 	AppGateway string `json:"appGateway,omitempty"`
 
 	// IngressPort: Output only. Ingress port reserved on the gateways for
 	// this AppConnection, if not specified or zero, the default port is
 	// 19443.
 	IngressPort int64 `json:"ingressPort,omitempty"`
+
+	// L7psc: Output only. L7 private service connection for this resource.
+	L7psc string `json:"l7psc,omitempty"`
 
 	// Type: Required. The type of hosting used by the gateway.
 	//
@@ -1717,8 +1858,8 @@ type GoogleCloudBeyondcorpAppconnectionsV1alphaResolveAppConnectionsResponseAppC
 
 	// RecentMigVms: If type=GCP_REGIONAL_MIG, contains most recent VM
 	// instances, like
-	// "https://www.googleapis.com/compute/v1/projects/{project_id}/zones/{zo
-	// ne_id}/instances/{instance_id}".
+	// `https://www.googleapis.com/compute/v1/projects/{project_id}/zones/{zo
+	// ne_id}/instances/{instance_id}`.
 	RecentMigVms []string `json:"recentMigVms,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AppConnection") to
@@ -1742,6 +1883,104 @@ func (s *GoogleCloudBeyondcorpAppconnectionsV1alphaResolveAppConnectionsResponse
 	type NoMethod GoogleCloudBeyondcorpAppconnectionsV1alphaResolveAppConnectionsResponseAppConnectionDetails
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpAppconnectorsV1AppConnectorOperationMetadata:
+// Represents the metadata of the long-running operation.
+type GoogleCloudBeyondcorpAppconnectorsV1AppConnectorOperationMetadata struct {
+	// ApiVersion: Output only. API version used to start the operation.
+	ApiVersion string `json:"apiVersion,omitempty"`
+
+	// CreateTime: Output only. The time the operation was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// EndTime: Output only. The time the operation finished running.
+	EndTime string `json:"endTime,omitempty"`
+
+	// RequestedCancellation: Output only. Identifies whether the user has
+	// requested cancellation of the operation. Operations that have
+	// successfully been cancelled have Operation.error value with a
+	// google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+	RequestedCancellation bool `json:"requestedCancellation,omitempty"`
+
+	// StatusMessage: Output only. Human-readable status of the operation,
+	// if any.
+	StatusMessage string `json:"statusMessage,omitempty"`
+
+	// Target: Output only. Server-defined resource path for the target of
+	// the operation.
+	Target string `json:"target,omitempty"`
+
+	// Verb: Output only. Name of the verb executed by the operation.
+	Verb string `json:"verb,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ApiVersion") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ApiVersion") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpAppconnectorsV1AppConnectorOperationMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpAppconnectorsV1AppConnectorOperationMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpAppconnectorsV1ContainerHealthDetails:
+// ContainerHealthDetails reflects the health details of a container.
+type GoogleCloudBeyondcorpAppconnectorsV1ContainerHealthDetails struct {
+	// CurrentConfigVersion: The version of the current config.
+	CurrentConfigVersion string `json:"currentConfigVersion,omitempty"`
+
+	// ErrorMsg: The latest error message.
+	ErrorMsg string `json:"errorMsg,omitempty"`
+
+	// ExpectedConfigVersion: The version of the expected config.
+	ExpectedConfigVersion string `json:"expectedConfigVersion,omitempty"`
+
+	// ExtendedStatus: The extended status. Such as ExitCode, StartedAt,
+	// FinishedAt, etc.
+	ExtendedStatus map[string]string `json:"extendedStatus,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "CurrentConfigVersion") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CurrentConfigVersion") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpAppconnectorsV1ContainerHealthDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpAppconnectorsV1ContainerHealthDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpAppconnectorsV1RemoteAgentDetails:
+// RemoteAgentDetails reflects the details of a remote agent.
+type GoogleCloudBeyondcorpAppconnectorsV1RemoteAgentDetails struct {
 }
 
 // GoogleCloudBeyondcorpAppconnectorsV1alphaAppConnector: A BeyondCorp
@@ -1976,15 +2215,58 @@ func (s *GoogleCloudBeyondcorpAppconnectorsV1alphaAppConnectorPrincipalInfoServi
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudBeyondcorpAppconnectorsV1alphaContainerHealthDetails:
+// ContainerHealthDetails reflects the health details of a container.
+type GoogleCloudBeyondcorpAppconnectorsV1alphaContainerHealthDetails struct {
+	// CurrentConfigVersion: The version of the current config.
+	CurrentConfigVersion string `json:"currentConfigVersion,omitempty"`
+
+	// ErrorMsg: The latest error message.
+	ErrorMsg string `json:"errorMsg,omitempty"`
+
+	// ExpectedConfigVersion: The version of the expected config.
+	ExpectedConfigVersion string `json:"expectedConfigVersion,omitempty"`
+
+	// ExtendedStatus: The extended status. Such as ExitCode, StartedAt,
+	// FinishedAt, etc.
+	ExtendedStatus map[string]string `json:"extendedStatus,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "CurrentConfigVersion") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CurrentConfigVersion") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpAppconnectorsV1alphaContainerHealthDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpAppconnectorsV1alphaContainerHealthDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudBeyondcorpAppconnectorsV1alphaImageConfig: ImageConfig
 // defines the control plane images to run.
 type GoogleCloudBeyondcorpAppconnectorsV1alphaImageConfig struct {
 	// StableImage: The stable image that the remote agent will fallback to
-	// if the target image fails.
+	// if the target image fails. Format would be a gcr image path, e.g.:
+	// gcr.io/PROJECT-ID/my-image:tag1
 	StableImage string `json:"stableImage,omitempty"`
 
 	// TargetImage: The initial image the remote agent will attempt to run
-	// for the control plane.
+	// for the control plane. Format would be a gcr image path, e.g.:
+	// gcr.io/PROJECT-ID/my-image:tag1
 	TargetImage string `json:"targetImage,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "StableImage") to
@@ -2053,8 +2335,8 @@ func (s *GoogleCloudBeyondcorpAppconnectorsV1alphaListAppConnectorsResponse) Mar
 // GoogleCloudBeyondcorpAppconnectorsV1alphaNotificationConfig:
 // NotificationConfig defines the mechanisms to notify instance agent.
 type GoogleCloudBeyondcorpAppconnectorsV1alphaNotificationConfig struct {
-	// PubsubNotification: Pub/Sub topic for AppConnector to subscribe and
-	// receive notifications from `projects/{project}/topics/{pubsub_topic}`
+	// PubsubNotification: Cloud Pub/Sub Configuration to receive
+	// notifications.
 	PubsubNotification *GoogleCloudBeyondcorpAppconnectorsV1alphaNotificationConfigCloudPubSubNotificationConfig `json:"pubsubNotification,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "PubsubNotification")
@@ -2113,6 +2395,11 @@ func (s *GoogleCloudBeyondcorpAppconnectorsV1alphaNotificationConfigCloudPubSubN
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudBeyondcorpAppconnectorsV1alphaRemoteAgentDetails:
+// RemoteAgentDetails reflects the details of a remote agent.
+type GoogleCloudBeyondcorpAppconnectorsV1alphaRemoteAgentDetails struct {
+}
+
 // GoogleCloudBeyondcorpAppconnectorsV1alphaReportStatusRequest: Request
 // report the connector status.
 type GoogleCloudBeyondcorpAppconnectorsV1alphaReportStatusRequest struct {
@@ -2121,7 +2408,7 @@ type GoogleCloudBeyondcorpAppconnectorsV1alphaReportStatusRequest struct {
 	// the server will know to ignore the request if it has already been
 	// completed. The server will guarantee that for at least 60 minutes
 	// since the first request. For example, consider a situation where you
-	// make an initial request and t he request times out. If you make the
+	// make an initial request and the request times out. If you make the
 	// request again with the same request ID, the server can check if
 	// original operation with the same request ID was received, and if so,
 	// will ignore the second request. This prevents clients from
@@ -2215,7 +2502,7 @@ type GoogleCloudBeyondcorpAppconnectorsV1alphaResourceInfo struct {
 	//   "HEALTHY" - The resource is healthy.
 	//   "UNHEALTHY" - The resource is unhealthy.
 	//   "UNRESPONSIVE" - The resource is unresponsive.
-	//   "DEGRADED" - The resource is some sub-resources are UNHEALTHY.
+	//   "DEGRADED" - Some sub-resources are UNHEALTHY.
 	Status string `json:"status,omitempty"`
 
 	// Sub: List of Info for the sub level resources.
@@ -2244,6 +2531,683 @@ type GoogleCloudBeyondcorpAppconnectorsV1alphaResourceInfo struct {
 
 func (s *GoogleCloudBeyondcorpAppconnectorsV1alphaResourceInfo) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudBeyondcorpAppconnectorsV1alphaResourceInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpAppgatewaysV1AppGatewayOperationMetadata:
+// Represents the metadata of the long-running operation.
+type GoogleCloudBeyondcorpAppgatewaysV1AppGatewayOperationMetadata struct {
+	// ApiVersion: Output only. API version used to start the operation.
+	ApiVersion string `json:"apiVersion,omitempty"`
+
+	// CreateTime: Output only. The time the operation was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// EndTime: Output only. The time the operation finished running.
+	EndTime string `json:"endTime,omitempty"`
+
+	// RequestedCancellation: Output only. Identifies whether the user has
+	// requested cancellation of the operation. Operations that have
+	// successfully been cancelled have Operation.error value with a
+	// google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+	RequestedCancellation bool `json:"requestedCancellation,omitempty"`
+
+	// StatusMessage: Output only. Human-readable status of the operation,
+	// if any.
+	StatusMessage string `json:"statusMessage,omitempty"`
+
+	// Target: Output only. Server-defined resource path for the target of
+	// the operation.
+	Target string `json:"target,omitempty"`
+
+	// Verb: Output only. Name of the verb executed by the operation.
+	Verb string `json:"verb,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ApiVersion") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ApiVersion") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpAppgatewaysV1AppGatewayOperationMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpAppgatewaysV1AppGatewayOperationMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpClientconnectorservicesV1ClientConnectorServiceOp
+// erationMetadata: Represents the metadata of the long-running
+// operation.
+type GoogleCloudBeyondcorpClientconnectorservicesV1ClientConnectorServiceOperationMetadata struct {
+	// ApiVersion: Output only. API version used to start the operation.
+	ApiVersion string `json:"apiVersion,omitempty"`
+
+	// CreateTime: Output only. The time the operation was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// EndTime: Output only. The time the operation finished running.
+	EndTime string `json:"endTime,omitempty"`
+
+	// RequestedCancellation: Output only. Identifies whether the user has
+	// requested cancellation of the operation. Operations that have
+	// successfully been cancelled have Operation.error value with a
+	// google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+	RequestedCancellation bool `json:"requestedCancellation,omitempty"`
+
+	// StatusMessage: Output only. Human-readable status of the operation,
+	// if any.
+	StatusMessage string `json:"statusMessage,omitempty"`
+
+	// Target: Output only. Server-defined resource path for the target of
+	// the operation.
+	Target string `json:"target,omitempty"`
+
+	// Verb: Output only. Name of the verb executed by the operation.
+	Verb string `json:"verb,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ApiVersion") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ApiVersion") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpClientconnectorservicesV1ClientConnectorServiceOperationMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpClientconnectorservicesV1ClientConnectorServiceOperationMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpClientgatewaysV1ClientGatewayOperationMetadata:
+// Represents the metadata of the long-running operation.
+type GoogleCloudBeyondcorpClientgatewaysV1ClientGatewayOperationMetadata struct {
+	// ApiVersion: Output only. API version used to start the operation.
+	ApiVersion string `json:"apiVersion,omitempty"`
+
+	// CreateTime: Output only. The time the operation was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// EndTime: Output only. The time the operation finished running.
+	EndTime string `json:"endTime,omitempty"`
+
+	// RequestedCancellation: Output only. Identifies whether the user has
+	// requested cancellation of the operation. Operations that have been
+	// cancelled successfully have Operation.error value with a
+	// google.rpc.Status.code of 1, corresponding to `Code.CANCELLED`.
+	RequestedCancellation bool `json:"requestedCancellation,omitempty"`
+
+	// StatusMessage: Output only. Human-readable status of the operation,
+	// if any.
+	StatusMessage string `json:"statusMessage,omitempty"`
+
+	// Target: Output only. Server-defined resource path for the target of
+	// the operation.
+	Target string `json:"target,omitempty"`
+
+	// Verb: Output only. Name of the verb executed by the operation.
+	Verb string `json:"verb,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ApiVersion") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ApiVersion") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpClientgatewaysV1ClientGatewayOperationMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpClientgatewaysV1ClientGatewayOperationMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaAppliedConfig: The
+// configuration that was applied to generate the result.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaAppliedConfig struct {
+	// Aggregation: Output only. Aggregation type applied.
+	//
+	// Possible values:
+	//   "AGGREGATION_UNSPECIFIED" - Unspecified.
+	//   "HOURLY" - Insight should be aggregated at hourly level.
+	//   "DAILY" - Insight should be aggregated at daily level.
+	//   "WEEKLY" - Insight should be aggregated at weekly level.
+	//   "MONTHLY" - Insight should be aggregated at monthly level.
+	//   "CUSTOM_DATE_RANGE" - Insight should be aggregated at the custom
+	// date range passed in as the start and end time in the request.
+	Aggregation string `json:"aggregation,omitempty"`
+
+	// CustomGrouping: Output only. Customised grouping applied.
+	CustomGrouping *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaCustomGrouping `json:"customGrouping,omitempty"`
+
+	// EndTime: Output only. Ending time for the duration for which insight
+	// was pulled.
+	EndTime string `json:"endTime,omitempty"`
+
+	// FieldFilter: Output only. Filters applied.
+	FieldFilter string `json:"fieldFilter,omitempty"`
+
+	// Group: Output only. Group id of the grouping applied.
+	Group string `json:"group,omitempty"`
+
+	// StartTime: Output only. Starting time for the duration for which
+	// insight was pulled.
+	StartTime string `json:"startTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Aggregation") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Aggregation") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaAppliedConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaAppliedConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightRespo
+// nse: The response for the configured insight.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse struct {
+	// AppliedConfig: Output only. Applied insight config to generate the
+	// result data rows.
+	AppliedConfig *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaAppliedConfig `json:"appliedConfig,omitempty"`
+
+	// NextPageToken: Output only. Next page token to be fetched. Set to
+	// empty or NULL if there are no more pages available.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// Rows: Output only. Result rows returned containing the required
+	// value(s) for configured insight.
+	Rows []*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRow `json:"rows,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "AppliedConfig") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AppliedConfig") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaCustomGrouping:
+// Customised grouping option that allows setting the group_by fields
+// and also the filters togather for a configured insight request.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaCustomGrouping struct {
+	// FieldFilter: Optional. Filterable parameters to be added to the
+	// grouping clause. Available fields could be fetched by calling insight
+	// list and get APIs in `BASIC` view. `=` is the only comparison
+	// operator supported. `AND` is the only logical operator supported.
+	// Usage: field_filter="fieldName1=fieldVal1 AND fieldName2=fieldVal2".
+	// NOTE: Only `AND` conditions are allowed. NOTE: Use the `filter_alias`
+	// from `Insight.Metadata.Field` message for the filtering the
+	// corresponding fields in this filter field. (These expressions are
+	// based on the filter language described at
+	// https://google.aip.dev/160).
+	FieldFilter string `json:"fieldFilter,omitempty"`
+
+	// GroupFields: Required. Fields to be used for grouping. NOTE: Use the
+	// `filter_alias` from `Insight.Metadata.Field` message for declaring
+	// the fields to be grouped-by here.
+	GroupFields []string `json:"groupFields,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FieldFilter") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FieldFilter") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaCustomGrouping) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaCustomGrouping
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight: The Insight
+// object with configuration that was returned and actual list of
+// records.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight struct {
+	// AppliedConfig: Output only. Applied insight config to generate the
+	// result data rows.
+	AppliedConfig *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaAppliedConfig `json:"appliedConfig,omitempty"`
+
+	// Metadata: Output only. Metadata for the Insight.
+	Metadata *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadata `json:"metadata,omitempty"`
+
+	// Name: Output only. The insight resource name. e.g.
+	// `organizations/{organization_id}/locations/{location_id}/insights/{ins
+	// ight_id}` OR
+	// `projects/{project_id}/locations/{location_id}/insights/{insight_id}`.
+	Name string `json:"name,omitempty"`
+
+	// Rows: Output only. Result rows returned containing the required
+	// value(s).
+	Rows []*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRow `json:"rows,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "AppliedConfig") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AppliedConfig") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadata:
+// Insight filters, groupings and aggregations that can be applied for
+// the insight. Examples: aggregations, groups, field filters.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadata struct {
+	// Aggregations: Output only. List of aggregation types available for
+	// insight.
+	//
+	// Possible values:
+	//   "AGGREGATION_UNSPECIFIED" - Unspecified.
+	//   "HOURLY" - Insight should be aggregated at hourly level.
+	//   "DAILY" - Insight should be aggregated at daily level.
+	//   "WEEKLY" - Insight should be aggregated at weekly level.
+	//   "MONTHLY" - Insight should be aggregated at monthly level.
+	//   "CUSTOM_DATE_RANGE" - Insight should be aggregated at the custom
+	// date range passed in as the start and end time in the request.
+	Aggregations []string `json:"aggregations,omitempty"`
+
+	// Category: Output only. Category of the insight.
+	Category string `json:"category,omitempty"`
+
+	// DisplayName: Output only. Common name of the insight.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// Fields: Output only. List of fields available for insight.
+	Fields []*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadataField `json:"fields,omitempty"`
+
+	// Groups: Output only. List of groupings available for insight.
+	Groups []string `json:"groups,omitempty"`
+
+	// SubCategory: Output only. Sub-Category of the insight.
+	SubCategory string `json:"subCategory,omitempty"`
+
+	// Type: Output only. Type of the insight. It is metadata describing
+	// whether the insight is a metric (e.g. count) or a report (e.g. list,
+	// status).
+	Type string `json:"type,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Aggregations") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Aggregations") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadata
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadataField:
+// Field metadata. Commonly understandable name and description for the
+// field. Multiple such fields constitute the Insight.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadataField struct {
+	// Description: Output only. Description of the field.
+	Description string `json:"description,omitempty"`
+
+	// DisplayName: Output only. Name of the field.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// FilterAlias: Output only. Field name to be used in filter while
+	// requesting configured insight filtered on this field.
+	FilterAlias string `json:"filterAlias,omitempty"`
+
+	// Filterable: Output only. Indicates whether the field can be used for
+	// filtering.
+	Filterable bool `json:"filterable,omitempty"`
+
+	// Groupable: Output only. Indicates whether the field can be used for
+	// grouping in custom grouping request.
+	Groupable bool `json:"groupable,omitempty"`
+
+	// Id: Output only. Field id for which this is the metadata.
+	Id string `json:"id,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Description") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Description") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadataField) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsightMetadataField
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse:
+// The response for the list of insights.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse struct {
+	// Insights: Output only. List of all insights.
+	Insights []*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight `json:"insights,omitempty"`
+
+	// NextPageToken: Output only. Next page token to be fetched. Set to
+	// empty or NULL if there are no more pages available.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Insights") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Insights") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRow: Row of the fetch
+// response consisting of a set of entries.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRow struct {
+	// FieldValues: Output only. Columns/entries/key-vals in the result.
+	FieldValues []*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRowFieldVal `json:"fieldValues,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FieldValues") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FieldValues") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRow) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRow
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRowFieldVal: Column
+// or key value pair from the request as part of key to use in query or
+// a single pair of the fetch response.
+type GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRowFieldVal struct {
+	// DisplayName: Output only. Name of the field.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// FilterAlias: Output only. Field name to be used in filter while
+	// requesting configured insight filtered on this field.
+	FilterAlias string `json:"filterAlias,omitempty"`
+
+	// Id: Output only. Field id.
+	Id string `json:"id,omitempty"`
+
+	// Value: Output only. Value of the field in string format. Acceptable
+	// values are strings or numbers.
+	Value string `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DisplayName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRowFieldVal) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformInsightsV1alphaRowFieldVal
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptions
+// Response: Response message for BeyondCorp.ListSubscriptions.
+type GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptionsResponse struct {
+	// NextPageToken: A token to retrieve the next page of results, or empty
+	// if there are no more results in the list.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// Subscriptions: A list of BeyondCorp Subscriptions in the
+	// organization.
+	Subscriptions []*GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription `json:"subscriptions,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NextPageToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NextPageToken") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptionsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptionsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription: A
+// BeyondCorp Subscription resource represents BeyondCorp Enterprise
+// Subscription. BeyondCorp Enterprise Subscription enables BeyondCorp
+// Enterprise permium features for an organization.
+type GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription struct {
+	// AutoRenewEnabled: Output only. Represents that, if subscription will
+	// renew or end when the term ends.
+	AutoRenewEnabled bool `json:"autoRenewEnabled,omitempty"`
+
+	// CreateTime: Output only. Create time of the subscription.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// EndTime: Output only. End time of the subscription.
+	EndTime string `json:"endTime,omitempty"`
+
+	// Name: Required. Unique resource name of the Subscription. The name is
+	// ignored when creating a subscription.
+	Name string `json:"name,omitempty"`
+
+	// SeatCount: Output only. Number of seats in the subscription.
+	SeatCount int64 `json:"seatCount,omitempty,string"`
+
+	// Sku: Required. SKU of subscription.
+	//
+	// Possible values:
+	//   "SKU_UNSPECIFIED" - Default value. This value is unused.
+	//   "BCE_STANDARD_SKU" - Represents BeyondCorp Standard SKU.
+	Sku string `json:"sku,omitempty"`
+
+	// StartTime: Output only. Start time of the subscription.
+	StartTime string `json:"startTime,omitempty"`
+
+	// State: Output only. The current state of the subscription.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - Default value. This value is unused.
+	//   "ACTIVE" - Represents an active subscription.
+	//   "INACTIVE" - Represents an upcomming subscription.
+	//   "COMPLETED" - Represents a completed subscription.
+	State string `json:"state,omitempty"`
+
+	// Type: Required. Type of subscription.
+	//
+	// Possible values:
+	//   "TYPE_UNSPECIFIED" - Default value. This value is unused.
+	//   "TRIAL" - Represents a trial subscription.
+	//   "PAID" - Represents a paid subscription.
+	//   "ALLOWLIST" - Reresents an allowlisted subscription.
+	Type string `json:"type,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "AutoRenewEnabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AutoRenewEnabled") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2451,19 +3415,26 @@ type GoogleIamV1Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -2475,9 +3446,7 @@ type GoogleIamV1Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -3295,7 +4264,7 @@ type ReportStatusRequest struct {
 	// the server will know to ignore the request if it has already been
 	// completed. The server will guarantee that for at least 60 minutes
 	// since the first request. For example, consider a situation where you
-	// make an initial request and t he request times out. If you make the
+	// make an initial request and the request times out. If you make the
 	// request again with the same request ID, the server can check if
 	// original operation with the same request ID was received, and if so,
 	// will ignore the second request. This prevents clients from
@@ -3428,7 +4397,7 @@ type ResourceInfo struct {
 	//   "HEALTHY" - The resource is healthy.
 	//   "UNHEALTHY" - The resource is unhealthy.
 	//   "UNRESPONSIVE" - The resource is unresponsive.
-	//   "DEGRADED" - The resource is some sub-resources are UNHEALTHY.
+	//   "DEGRADED" - Some sub-resources are UNHEALTHY.
 	Status string `json:"status,omitempty"`
 
 	// Sub: List of Info for the sub level resources.
@@ -3570,6 +4539,1299 @@ func (s *Tunnelv1ProtoTunnelerInfo) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// method id "beyondcorp.organizations.locations.insights.configuredInsight":
+
+type OrganizationsLocationsInsightsConfiguredInsightCall struct {
+	s            *Service
+	insight      string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// ConfiguredInsight: Gets the value for a selected particular insight
+// based on the provided filters. Use the organization level path for
+// fetching at org level and project level path for fetching the insight
+// value specific to a particular project.
+//
+//   - insight: The resource name of the insight using the form:
+//     `organizations/{organization_id}/locations/{location_id}/insights/{i
+//     nsight_id}`
+//     `projects/{project_id}/locations/{location_id}/insights/{insight_id}
+//     `.
+func (r *OrganizationsLocationsInsightsService) ConfiguredInsight(insight string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c := &OrganizationsLocationsInsightsConfiguredInsightCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.insight = insight
+	return c
+}
+
+// Aggregation sets the optional parameter "aggregation": Required.
+// Aggregation type. Available aggregation could be fetched by calling
+// insight list and get APIs in `BASIC` view.
+//
+// Possible values:
+//
+//	"AGGREGATION_UNSPECIFIED" - Unspecified.
+//	"HOURLY" - Insight should be aggregated at hourly level.
+//	"DAILY" - Insight should be aggregated at daily level.
+//	"WEEKLY" - Insight should be aggregated at weekly level.
+//	"MONTHLY" - Insight should be aggregated at monthly level.
+//	"CUSTOM_DATE_RANGE" - Insight should be aggregated at the custom
+//
+// date range passed in as the start and end time in the request.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) Aggregation(aggregation string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("aggregation", aggregation)
+	return c
+}
+
+// CustomGroupingFieldFilter sets the optional parameter
+// "customGrouping.fieldFilter": Filterable parameters to be added to
+// the grouping clause. Available fields could be fetched by calling
+// insight list and get APIs in `BASIC` view. `=` is the only comparison
+// operator supported. `AND` is the only logical operator supported.
+// Usage: field_filter="fieldName1=fieldVal1 AND fieldName2=fieldVal2".
+// NOTE: Only `AND` conditions are allowed. NOTE: Use the `filter_alias`
+// from `Insight.Metadata.Field` message for the filtering the
+// corresponding fields in this filter field. (These expressions are
+// based on the filter language described at
+// https://google.aip.dev/160).
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) CustomGroupingFieldFilter(customGroupingFieldFilter string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("customGrouping.fieldFilter", customGroupingFieldFilter)
+	return c
+}
+
+// CustomGroupingGroupFields sets the optional parameter
+// "customGrouping.groupFields": Required. Fields to be used for
+// grouping. NOTE: Use the `filter_alias` from `Insight.Metadata.Field`
+// message for declaring the fields to be grouped-by here.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) CustomGroupingGroupFields(customGroupingGroupFields ...string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.SetMulti("customGrouping.groupFields", append([]string{}, customGroupingGroupFields...))
+	return c
+}
+
+// EndTime sets the optional parameter "endTime": Required. Ending time
+// for the duration for which insight is to be pulled.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) EndTime(endTime string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("endTime", endTime)
+	return c
+}
+
+// FieldFilter sets the optional parameter "fieldFilter": Other
+// filterable/configurable parameters as applicable to the selected
+// insight. Available fields could be fetched by calling insight list
+// and get APIs in `BASIC` view. `=` is the only comparison operator
+// supported. `AND` is the only logical operator supported. Usage:
+// field_filter="fieldName1=fieldVal1 AND fieldName2=fieldVal2". NOTE:
+// Only `AND` conditions are allowed. NOTE: Use the `filter_alias` from
+// `Insight.Metadata.Field` message for the filtering the corresponding
+// fields in this filter field. (These expressions are based on the
+// filter language described at https://google.aip.dev/160).
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) FieldFilter(fieldFilter string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("fieldFilter", fieldFilter)
+	return c
+}
+
+// Group sets the optional parameter "group": Group id of the available
+// groupings for the insight. Available groupings could be fetched by
+// calling insight list and get APIs in `BASIC` view.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) Group(group string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("group", group)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Requested page size.
+// Server may return fewer items than requested. If unspecified, server
+// will pick an appropriate default.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) PageSize(pageSize int64) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Used to fetch the
+// page represented by the token. Fetches the first page when not set.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) PageToken(pageToken string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// StartTime sets the optional parameter "startTime": Required. Starting
+// time for the duration for which insight is to be pulled.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) StartTime(startTime string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("startTime", startTime)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) Fields(s ...googleapi.Field) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) IfNoneMatch(entityTag string) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) Context(ctx context.Context) *OrganizationsLocationsInsightsConfiguredInsightCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+insight}:configuredInsight")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"insight": c.insight,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.organizations.locations.insights.configuredInsight" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResp
+// onse or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResp
+// onse.ServerResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the value for a selected particular insight based on the provided filters. Use the organization level path for fetching at org level and project level path for fetching the insight value specific to a particular project.",
+	//   "flatPath": "v1alpha/organizations/{organizationsId}/locations/{locationsId}/insights/{insightsId}:configuredInsight",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.organizations.locations.insights.configuredInsight",
+	//   "parameterOrder": [
+	//     "insight"
+	//   ],
+	//   "parameters": {
+	//     "aggregation": {
+	//       "description": "Required. Aggregation type. Available aggregation could be fetched by calling insight list and get APIs in `BASIC` view.",
+	//       "enum": [
+	//         "AGGREGATION_UNSPECIFIED",
+	//         "HOURLY",
+	//         "DAILY",
+	//         "WEEKLY",
+	//         "MONTHLY",
+	//         "CUSTOM_DATE_RANGE"
+	//       ],
+	//       "enumDescriptions": [
+	//         "Unspecified.",
+	//         "Insight should be aggregated at hourly level.",
+	//         "Insight should be aggregated at daily level.",
+	//         "Insight should be aggregated at weekly level.",
+	//         "Insight should be aggregated at monthly level.",
+	//         "Insight should be aggregated at the custom date range passed in as the start and end time in the request."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "customGrouping.fieldFilter": {
+	//       "description": "Optional. Filterable parameters to be added to the grouping clause. Available fields could be fetched by calling insight list and get APIs in `BASIC` view. `=` is the only comparison operator supported. `AND` is the only logical operator supported. Usage: field_filter=\"fieldName1=fieldVal1 AND fieldName2=fieldVal2\". NOTE: Only `AND` conditions are allowed. NOTE: Use the `filter_alias` from `Insight.Metadata.Field` message for the filtering the corresponding fields in this filter field. (These expressions are based on the filter language described at https://google.aip.dev/160).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "customGrouping.groupFields": {
+	//       "description": "Required. Fields to be used for grouping. NOTE: Use the `filter_alias` from `Insight.Metadata.Field` message for declaring the fields to be grouped-by here.",
+	//       "location": "query",
+	//       "repeated": true,
+	//       "type": "string"
+	//     },
+	//     "endTime": {
+	//       "description": "Required. Ending time for the duration for which insight is to be pulled.",
+	//       "format": "google-datetime",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "fieldFilter": {
+	//       "description": "Optional. Other filterable/configurable parameters as applicable to the selected insight. Available fields could be fetched by calling insight list and get APIs in `BASIC` view. `=` is the only comparison operator supported. `AND` is the only logical operator supported. Usage: field_filter=\"fieldName1=fieldVal1 AND fieldName2=fieldVal2\". NOTE: Only `AND` conditions are allowed. NOTE: Use the `filter_alias` from `Insight.Metadata.Field` message for the filtering the corresponding fields in this filter field. (These expressions are based on the filter language described at https://google.aip.dev/160).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "group": {
+	//       "description": "Optional. Group id of the available groupings for the insight. Available groupings could be fetched by calling insight list and get APIs in `BASIC` view.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "insight": {
+	//       "description": "Required. The resource name of the insight using the form: `organizations/{organization_id}/locations/{location_id}/insights/{insight_id}` `projects/{project_id}/locations/{location_id}/insights/{insight_id}`.",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/locations/[^/]+/insights/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Optional. Requested page size. Server may return fewer items than requested. If unspecified, server will pick an appropriate default.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Optional. Used to fetch the page represented by the token. Fetches the first page when not set.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "startTime": {
+	//       "description": "Required. Starting time for the duration for which insight is to be pulled.",
+	//       "format": "google-datetime",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+insight}:configuredInsight",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *OrganizationsLocationsInsightsConfiguredInsightCall) Pages(ctx context.Context, f func(*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "beyondcorp.organizations.locations.insights.get":
+
+type OrganizationsLocationsInsightsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets the value for a selected particular insight with default
+// configuration. The default aggregation level is 'DAILY' and no
+// grouping will be applied or default grouping if applicable. The data
+// will be returned for recent 7 days starting the day before. The
+// insight data size will be limited to 50 rows. Use the organization
+// level path for fetching at org level and project level path for
+// fetching the insight value specific to a particular project. Setting
+// the `view` to `BASIC` will only return the metadata for the insight.
+//
+//   - name: The resource name of the insight using the form:
+//     `organizations/{organization_id}/locations/{location_id}/insights/{i
+//     nsight_id}`
+//     `projects/{project_id}/locations/{location_id}/insights/{insight_id}
+//     `.
+func (r *OrganizationsLocationsInsightsService) Get(name string) *OrganizationsLocationsInsightsGetCall {
+	c := &OrganizationsLocationsInsightsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// View sets the optional parameter "view": Required. Metadata only or
+// full data view.
+//
+// Possible values:
+//
+//	"INSIGHT_VIEW_UNSPECIFIED" - The default / unset value. The API
+//
+// will default to the BASIC view.
+//
+//	"BASIC" - Include basic metadata about the insight, but not the
+//
+// insight data. This is the default value (for both ListInsights and
+// GetInsight).
+//
+//	"FULL" - Include everything.
+func (c *OrganizationsLocationsInsightsGetCall) View(view string) *OrganizationsLocationsInsightsGetCall {
+	c.urlParams_.Set("view", view)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsLocationsInsightsGetCall) Fields(s ...googleapi.Field) *OrganizationsLocationsInsightsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsLocationsInsightsGetCall) IfNoneMatch(entityTag string) *OrganizationsLocationsInsightsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsLocationsInsightsGetCall) Context(ctx context.Context) *OrganizationsLocationsInsightsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsLocationsInsightsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsLocationsInsightsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.organizations.locations.insights.get" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight.ServerRespons
+// e.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsLocationsInsightsGetCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the value for a selected particular insight with default configuration. The default aggregation level is 'DAILY' and no grouping will be applied or default grouping if applicable. The data will be returned for recent 7 days starting the day before. The insight data size will be limited to 50 rows. Use the organization level path for fetching at org level and project level path for fetching the insight value specific to a particular project. Setting the `view` to `BASIC` will only return the metadata for the insight.",
+	//   "flatPath": "v1alpha/organizations/{organizationsId}/locations/{locationsId}/insights/{insightsId}",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.organizations.locations.insights.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the insight using the form: `organizations/{organization_id}/locations/{location_id}/insights/{insight_id}` `projects/{project_id}/locations/{location_id}/insights/{insight_id}`",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/locations/[^/]+/insights/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "view": {
+	//       "description": "Required. Metadata only or full data view.",
+	//       "enum": [
+	//         "INSIGHT_VIEW_UNSPECIFIED",
+	//         "BASIC",
+	//         "FULL"
+	//       ],
+	//       "enumDescriptions": [
+	//         "The default / unset value. The API will default to the BASIC view.",
+	//         "Include basic metadata about the insight, but not the insight data. This is the default value (for both ListInsights and GetInsight).",
+	//         "Include everything."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+name}",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "beyondcorp.organizations.locations.insights.list":
+
+type OrganizationsLocationsInsightsListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists for all the available insights that could be fetched from
+// the system. Allows to filter using category. Setting the `view` to
+// `BASIC` will let you iterate over the list of insight metadatas.
+//
+//   - parent: The resource name of InsightMetadata using the form:
+//     `organizations/{organization_id}/locations/{location}`
+//     `projects/{project_id}/locations/{location_id}`.
+func (r *OrganizationsLocationsInsightsService) List(parent string) *OrganizationsLocationsInsightsListCall {
+	c := &OrganizationsLocationsInsightsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// Filter sets the optional parameter "filter": Filter expression to
+// restrict the insights returned. Supported filter fields: * `type` *
+// `category` * `subCategory` Examples: * "category = application AND
+// type = count" * "category = application AND subCategory = iap" *
+// "type = status" Allowed values: * type: [count, latency, status,
+// list] * category: [application, device, request, security] *
+// subCategory: [iap, webprotect] NOTE: Only equality based comparison
+// is allowed. Only `AND` conjunction is allowed. NOTE: The 'AND' in the
+// filter field needs to be in capital letters only. NOTE: Just
+// filtering on `subCategory` is not allowed. It should be passed in
+// with the parent `category` too. (These expressions are based on the
+// filter language described at https://google.aip.dev/160).
+func (c *OrganizationsLocationsInsightsListCall) Filter(filter string) *OrganizationsLocationsInsightsListCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": Hint for how to order
+// the results. This is currently ignored.
+func (c *OrganizationsLocationsInsightsListCall) OrderBy(orderBy string) *OrganizationsLocationsInsightsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Requested page size.
+// Server may return fewer items than requested. If unspecified, server
+// will pick an appropriate default. NOTE: Default page size is 50.
+func (c *OrganizationsLocationsInsightsListCall) PageSize(pageSize int64) *OrganizationsLocationsInsightsListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": A token
+// identifying a page of results the server should return.
+func (c *OrganizationsLocationsInsightsListCall) PageToken(pageToken string) *OrganizationsLocationsInsightsListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// View sets the optional parameter "view": Required. List only metadata
+// or full data.
+//
+// Possible values:
+//
+//	"INSIGHT_VIEW_UNSPECIFIED" - The default / unset value. The API
+//
+// will default to the BASIC view.
+//
+//	"BASIC" - Include basic metadata about the insight, but not the
+//
+// insight data. This is the default value (for both ListInsights and
+// GetInsight).
+//
+//	"FULL" - Include everything.
+func (c *OrganizationsLocationsInsightsListCall) View(view string) *OrganizationsLocationsInsightsListCall {
+	c.urlParams_.Set("view", view)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsLocationsInsightsListCall) Fields(s ...googleapi.Field) *OrganizationsLocationsInsightsListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsLocationsInsightsListCall) IfNoneMatch(entityTag string) *OrganizationsLocationsInsightsListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsLocationsInsightsListCall) Context(ctx context.Context) *OrganizationsLocationsInsightsListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsLocationsInsightsListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsLocationsInsightsListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+parent}/insights")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.organizations.locations.insights.list" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse.
+// ServerResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsLocationsInsightsListCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists for all the available insights that could be fetched from the system. Allows to filter using category. Setting the `view` to `BASIC` will let you iterate over the list of insight metadatas.",
+	//   "flatPath": "v1alpha/organizations/{organizationsId}/locations/{locationsId}/insights",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.organizations.locations.insights.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "filter": {
+	//       "description": "Optional. Filter expression to restrict the insights returned. Supported filter fields: * `type` * `category` * `subCategory` Examples: * \"category = application AND type = count\" * \"category = application AND subCategory = iap\" * \"type = status\" Allowed values: * type: [count, latency, status, list] * category: [application, device, request, security] * subCategory: [iap, webprotect] NOTE: Only equality based comparison is allowed. Only `AND` conjunction is allowed. NOTE: The 'AND' in the filter field needs to be in capital letters only. NOTE: Just filtering on `subCategory` is not allowed. It should be passed in with the parent `category` too. (These expressions are based on the filter language described at https://google.aip.dev/160).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "Optional. Hint for how to order the results. This is currently ignored.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Optional. Requested page size. Server may return fewer items than requested. If unspecified, server will pick an appropriate default. NOTE: Default page size is 50.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Optional. A token identifying a page of results the server should return.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. The resource name of InsightMetadata using the form: `organizations/{organization_id}/locations/{location}` `projects/{project_id}/locations/{location_id}`",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/locations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "view": {
+	//       "description": "Required. List only metadata or full data.",
+	//       "enum": [
+	//         "INSIGHT_VIEW_UNSPECIFIED",
+	//         "BASIC",
+	//         "FULL"
+	//       ],
+	//       "enumDescriptions": [
+	//         "The default / unset value. The API will default to the BASIC view.",
+	//         "Include basic metadata about the insight, but not the insight data. This is the default value (for both ListInsights and GetInsight).",
+	//         "Include everything."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+parent}/insights",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *OrganizationsLocationsInsightsListCall) Pages(ctx context.Context, f func(*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "beyondcorp.organizations.locations.subscriptions.create":
+
+type OrganizationsLocationsSubscriptionsCreateCall struct {
+	s                                                                 *Service
+	parent                                                            string
+	googlecloudbeyondcorpsaasplatformsubscriptionsv1alphasubscription *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription
+	urlParams_                                                        gensupport.URLParams
+	ctx_                                                              context.Context
+	header_                                                           http.Header
+}
+
+// Create: Creates a new BeyondCorp Enterprise Subscription in a given
+// organization. Location will always be global as BeyondCorp
+// subscriptions are per organization.
+//
+//   - parent: The resource name of the subscription location using the
+//     form: `organizations/{organization_id}/locations/{location}`.
+func (r *OrganizationsLocationsSubscriptionsService) Create(parent string, googlecloudbeyondcorpsaasplatformsubscriptionsv1alphasubscription *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription) *OrganizationsLocationsSubscriptionsCreateCall {
+	c := &OrganizationsLocationsSubscriptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.googlecloudbeyondcorpsaasplatformsubscriptionsv1alphasubscription = googlecloudbeyondcorpsaasplatformsubscriptionsv1alphasubscription
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsLocationsSubscriptionsCreateCall) Fields(s ...googleapi.Field) *OrganizationsLocationsSubscriptionsCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsLocationsSubscriptionsCreateCall) Context(ctx context.Context) *OrganizationsLocationsSubscriptionsCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsLocationsSubscriptionsCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsLocationsSubscriptionsCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlecloudbeyondcorpsaasplatformsubscriptionsv1alphasubscription)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+parent}/subscriptions")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.organizations.locations.subscriptions.create" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription.Ser
+// verResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsLocationsSubscriptionsCreateCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a new BeyondCorp Enterprise Subscription in a given organization. Location will always be global as BeyondCorp subscriptions are per organization.",
+	//   "flatPath": "v1alpha/organizations/{organizationsId}/locations/{locationsId}/subscriptions",
+	//   "httpMethod": "POST",
+	//   "id": "beyondcorp.organizations.locations.subscriptions.create",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Required. The resource name of the subscription location using the form: `organizations/{organization_id}/locations/{location}`",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/locations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+parent}/subscriptions",
+	//   "request": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription"
+	//   }
+	// }
+
+}
+
+// method id "beyondcorp.organizations.locations.subscriptions.get":
+
+type OrganizationsLocationsSubscriptionsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets details of a single Subscription.
+//
+//   - name: The resource name of Subscription using the form:
+//     `organizations/{organization_id}/locations/{location}/subscriptions/
+//     {subscription_id}`.
+func (r *OrganizationsLocationsSubscriptionsService) Get(name string) *OrganizationsLocationsSubscriptionsGetCall {
+	c := &OrganizationsLocationsSubscriptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsLocationsSubscriptionsGetCall) Fields(s ...googleapi.Field) *OrganizationsLocationsSubscriptionsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsLocationsSubscriptionsGetCall) IfNoneMatch(entityTag string) *OrganizationsLocationsSubscriptionsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsLocationsSubscriptionsGetCall) Context(ctx context.Context) *OrganizationsLocationsSubscriptionsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsLocationsSubscriptionsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsLocationsSubscriptionsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.organizations.locations.subscriptions.get" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription.Ser
+// verResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsLocationsSubscriptionsGetCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets details of a single Subscription.",
+	//   "flatPath": "v1alpha/organizations/{organizationsId}/locations/{locationsId}/subscriptions/{subscriptionsId}",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.organizations.locations.subscriptions.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of Subscription using the form: `organizations/{organization_id}/locations/{location}/subscriptions/{subscription_id}`",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/locations/[^/]+/subscriptions/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+name}",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaSubscription"
+	//   }
+	// }
+
+}
+
+// method id "beyondcorp.organizations.locations.subscriptions.list":
+
+type OrganizationsLocationsSubscriptionsListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists Subscriptions in a given organization and location.
+//
+//   - parent: The resource name of Subscription using the form:
+//     `organizations/{organization_id}/locations/{location}`.
+func (r *OrganizationsLocationsSubscriptionsService) List(parent string) *OrganizationsLocationsSubscriptionsListCall {
+	c := &OrganizationsLocationsSubscriptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": The maximum number
+// of items to return. If not specified, a default value of 50 will be
+// used by the service. Regardless of the page_size value, the response
+// may include a partial list and a caller should only rely on
+// response's next_page_token to determine if there are more instances
+// left to be queried.
+func (c *OrganizationsLocationsSubscriptionsListCall) PageSize(pageSize int64) *OrganizationsLocationsSubscriptionsListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": The
+// next_page_token value returned from a previous
+// ListSubscriptionsRequest, if any.
+func (c *OrganizationsLocationsSubscriptionsListCall) PageToken(pageToken string) *OrganizationsLocationsSubscriptionsListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsLocationsSubscriptionsListCall) Fields(s ...googleapi.Field) *OrganizationsLocationsSubscriptionsListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsLocationsSubscriptionsListCall) IfNoneMatch(entityTag string) *OrganizationsLocationsSubscriptionsListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsLocationsSubscriptionsListCall) Context(ctx context.Context) *OrganizationsLocationsSubscriptionsListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsLocationsSubscriptionsListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsLocationsSubscriptionsListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+parent}/subscriptions")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.organizations.locations.subscriptions.list" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscription
+// sResponse or error will be non-nil. Any non-2xx status code is an
+// error. Response headers are in either
+// *GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscription
+// sResponse.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *OrganizationsLocationsSubscriptionsListCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptionsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptionsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists Subscriptions in a given organization and location.",
+	//   "flatPath": "v1alpha/organizations/{organizationsId}/locations/{locationsId}/subscriptions",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.organizations.locations.subscriptions.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "pageSize": {
+	//       "description": "Optional. The maximum number of items to return. If not specified, a default value of 50 will be used by the service. Regardless of the page_size value, the response may include a partial list and a caller should only rely on response's next_page_token to determine if there are more instances left to be queried.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Optional. The next_page_token value returned from a previous ListSubscriptionsRequest, if any.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. The resource name of Subscription using the form: `organizations/{organization_id}/locations/{location}`",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/locations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+parent}/subscriptions",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptionsResponse"
+	//   }
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *OrganizationsLocationsSubscriptionsListCall) Pages(ctx context.Context, f func(*GoogleCloudBeyondcorpSaasplatformSubscriptionsV1alphaListSubscriptionsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
 // method id "beyondcorp.projects.locations.get":
 
 type ProjectsLocationsGetCall struct {
@@ -3665,17 +5927,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*GoogleClou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudLocationLocation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3730,8 +5992,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3839,17 +6101,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*GoogleClo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudLocationListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3940,8 +6202,8 @@ type ProjectsLocationsAppConnectionsCreateCall struct {
 
 // Create: Creates a new AppConnection in a given project and location.
 //
-// - parent: The resource project name of the AppConnection location
-//   using the form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource project name of the AppConnection location
+//     using the form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsAppConnectionsService) Create(parent string, googlecloudbeyondcorpappconnectionsv1alphaappconnection *GoogleCloudBeyondcorpAppconnectionsV1alphaAppConnection) *ProjectsLocationsAppConnectionsCreateCall {
 	c := &ProjectsLocationsAppConnectionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3951,7 +6213,7 @@ func (r *ProjectsLocationsAppConnectionsService) Create(parent string, googleclo
 
 // AppConnectionId sets the optional parameter "appConnectionId":
 // User-settable AppConnection resource ID. * Must start with a letter.
-// * Must contain between 4-63 characters from (/a-z-/). * Must end with
+// * Must contain between 4-63 characters from `/a-z-/`. * Must end with
 // a number or a letter.
 func (c *ProjectsLocationsAppConnectionsCreateCall) AppConnectionId(appConnectionId string) *ProjectsLocationsAppConnectionsCreateCall {
 	c.urlParams_.Set("appConnectionId", appConnectionId)
@@ -3963,7 +6225,7 @@ func (c *ProjectsLocationsAppConnectionsCreateCall) AppConnectionId(appConnectio
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -4051,17 +6313,17 @@ func (c *ProjectsLocationsAppConnectionsCreateCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4084,7 +6346,7 @@ func (c *ProjectsLocationsAppConnectionsCreateCall) Do(opts ...googleapi.CallOpt
 	//   ],
 	//   "parameters": {
 	//     "appConnectionId": {
-	//       "description": "Optional. User-settable AppConnection resource ID. * Must start with a letter. * Must contain between 4-63 characters from (/a-z-/). * Must end with a number or a letter.",
+	//       "description": "Optional. User-settable AppConnection resource ID. * Must start with a letter. * Must contain between 4-63 characters from `/a-z-/`. * Must end with a number or a letter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -4096,7 +6358,7 @@ func (c *ProjectsLocationsAppConnectionsCreateCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -4132,9 +6394,9 @@ type ProjectsLocationsAppConnectionsDeleteCall struct {
 
 // Delete: Deletes a single AppConnection.
 //
-// - name: BeyondCorp Connector name using the form:
-//   `projects/{project_id}/locations/{location_id}/appConnections/{app_c
-//   onnection_id}`.
+//   - name: BeyondCorp Connector name using the form:
+//     `projects/{project_id}/locations/{location_id}/appConnections/{app_c
+//     onnection_id}`.
 func (r *ProjectsLocationsAppConnectionsService) Delete(name string) *ProjectsLocationsAppConnectionsDeleteCall {
 	c := &ProjectsLocationsAppConnectionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4146,7 +6408,7 @@ func (r *ProjectsLocationsAppConnectionsService) Delete(name string) *ProjectsLo
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes after the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -4229,17 +6491,17 @@ func (c *ProjectsLocationsAppConnectionsDeleteCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4269,7 +6531,7 @@ func (c *ProjectsLocationsAppConnectionsDeleteCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -4303,9 +6565,9 @@ type ProjectsLocationsAppConnectionsGetCall struct {
 
 // Get: Gets details of a single AppConnection.
 //
-// - name: BeyondCorp AppConnection name using the form:
-//   `projects/{project_id}/locations/{location_id}/appConnections/{app_c
-//   onnection_id}`.
+//   - name: BeyondCorp AppConnection name using the form:
+//     `projects/{project_id}/locations/{location_id}/appConnections/{app_c
+//     onnection_id}`.
 func (r *ProjectsLocationsAppConnectionsService) Get(name string) *ProjectsLocationsAppConnectionsGetCall {
 	c := &ProjectsLocationsAppConnectionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4390,17 +6652,17 @@ func (c *ProjectsLocationsAppConnectionsGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudBeyondcorpAppconnectionsV1alphaAppConnection{
 		ServerResponse: googleapi.ServerResponse{
@@ -4456,10 +6718,10 @@ type ProjectsLocationsAppConnectionsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppConnectionsService) GetIamPolicy(resource string) *ProjectsLocationsAppConnectionsGetIamPolicyCall {
 	c := &ProjectsLocationsAppConnectionsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4559,17 +6821,17 @@ func (c *ProjectsLocationsAppConnectionsGetIamPolicyCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4629,8 +6891,8 @@ type ProjectsLocationsAppConnectionsListCall struct {
 
 // List: Lists AppConnections in a given project and location.
 //
-// - parent: The resource name of the AppConnection location using the
-//   form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource name of the AppConnection location using the
+//     form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsAppConnectionsService) List(parent string) *ProjectsLocationsAppConnectionsListCall {
 	c := &ProjectsLocationsAppConnectionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4750,17 +7012,17 @@ func (c *ProjectsLocationsAppConnectionsListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudBeyondcorpAppconnectionsV1alphaListAppConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4856,8 +7118,8 @@ type ProjectsLocationsAppConnectionsPatchCall struct {
 
 // Patch: Updates the parameters of a single AppConnection.
 //
-// - name: Unique resource name of the AppConnection. The name is
-//   ignored when creating a AppConnection.
+//   - name: Unique resource name of the AppConnection. The name is
+//     ignored when creating a AppConnection.
 func (r *ProjectsLocationsAppConnectionsService) Patch(name string, googlecloudbeyondcorpappconnectionsv1alphaappconnection *GoogleCloudBeyondcorpAppconnectionsV1alphaAppConnection) *ProjectsLocationsAppConnectionsPatchCall {
 	c := &ProjectsLocationsAppConnectionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4877,7 +7139,7 @@ func (c *ProjectsLocationsAppConnectionsPatchCall) AllowMissing(allowMissing boo
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -4975,17 +7237,17 @@ func (c *ProjectsLocationsAppConnectionsPatchCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5020,7 +7282,7 @@ func (c *ProjectsLocationsAppConnectionsPatchCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -5065,8 +7327,8 @@ type ProjectsLocationsAppConnectionsResolveCall struct {
 // internal method called by a connector to find AppConnections to
 // connect to.
 //
-// - parent: The resource name of the AppConnection location using the
-//   form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource name of the AppConnection location using the
+//     form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsAppConnectionsService) Resolve(parent string) *ProjectsLocationsAppConnectionsResolveCall {
 	c := &ProjectsLocationsAppConnectionsResolveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5180,17 +7442,17 @@ func (c *ProjectsLocationsAppConnectionsResolveCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudBeyondcorpAppconnectionsV1alphaResolveAppConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5283,10 +7545,10 @@ type ProjectsLocationsAppConnectionsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppConnectionsService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsAppConnectionsSetIamPolicyCall {
 	c := &ProjectsLocationsAppConnectionsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5361,17 +7623,17 @@ func (c *ProjectsLocationsAppConnectionsSetIamPolicyCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5433,10 +7695,10 @@ type ProjectsLocationsAppConnectionsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppConnectionsService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsAppConnectionsTestIamPermissionsCall {
 	c := &ProjectsLocationsAppConnectionsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5512,17 +7774,17 @@ func (c *ProjectsLocationsAppConnectionsTestIamPermissionsCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5579,8 +7841,8 @@ type ProjectsLocationsAppConnectorsCreateCall struct {
 
 // Create: Creates a new AppConnector in a given project and location.
 //
-// - parent: The resource project name of the AppConnector location
-//   using the form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource project name of the AppConnector location
+//     using the form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsAppConnectorsService) Create(parent string, googlecloudbeyondcorpappconnectorsv1alphaappconnector *GoogleCloudBeyondcorpAppconnectorsV1alphaAppConnector) *ProjectsLocationsAppConnectorsCreateCall {
 	c := &ProjectsLocationsAppConnectorsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5590,7 +7852,7 @@ func (r *ProjectsLocationsAppConnectorsService) Create(parent string, googleclou
 
 // AppConnectorId sets the optional parameter "appConnectorId":
 // User-settable AppConnector resource ID. * Must start with a letter. *
-// Must contain between 4-63 characters from (/a-z-/). * Must end with a
+// Must contain between 4-63 characters from `/a-z-/`. * Must end with a
 // number or a letter.
 func (c *ProjectsLocationsAppConnectorsCreateCall) AppConnectorId(appConnectorId string) *ProjectsLocationsAppConnectorsCreateCall {
 	c.urlParams_.Set("appConnectorId", appConnectorId)
@@ -5602,7 +7864,7 @@ func (c *ProjectsLocationsAppConnectorsCreateCall) AppConnectorId(appConnectorId
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -5690,17 +7952,17 @@ func (c *ProjectsLocationsAppConnectorsCreateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5723,7 +7985,7 @@ func (c *ProjectsLocationsAppConnectorsCreateCall) Do(opts ...googleapi.CallOpti
 	//   ],
 	//   "parameters": {
 	//     "appConnectorId": {
-	//       "description": "Optional. User-settable AppConnector resource ID. * Must start with a letter. * Must contain between 4-63 characters from (/a-z-/). * Must end with a number or a letter.",
+	//       "description": "Optional. User-settable AppConnector resource ID. * Must start with a letter. * Must contain between 4-63 characters from `/a-z-/`. * Must end with a number or a letter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -5735,7 +7997,7 @@ func (c *ProjectsLocationsAppConnectorsCreateCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -5771,9 +8033,9 @@ type ProjectsLocationsAppConnectorsDeleteCall struct {
 
 // Delete: Deletes a single AppConnector.
 //
-// - name: BeyondCorp AppConnector name using the form:
-//   `projects/{project_id}/locations/{location_id}/appConnectors/{app_co
-//   nnector_id}`.
+//   - name: BeyondCorp AppConnector name using the form:
+//     `projects/{project_id}/locations/{location_id}/appConnectors/{app_co
+//     nnector_id}`.
 func (r *ProjectsLocationsAppConnectorsService) Delete(name string) *ProjectsLocationsAppConnectorsDeleteCall {
 	c := &ProjectsLocationsAppConnectorsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5785,7 +8047,7 @@ func (r *ProjectsLocationsAppConnectorsService) Delete(name string) *ProjectsLoc
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes after the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -5868,17 +8130,17 @@ func (c *ProjectsLocationsAppConnectorsDeleteCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5908,7 +8170,7 @@ func (c *ProjectsLocationsAppConnectorsDeleteCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -5942,9 +8204,9 @@ type ProjectsLocationsAppConnectorsGetCall struct {
 
 // Get: Gets details of a single AppConnector.
 //
-// - name: BeyondCorp AppConnector name using the form:
-//   `projects/{project_id}/locations/{location_id}/appConnectors/{app_co
-//   nnector_id}`.
+//   - name: BeyondCorp AppConnector name using the form:
+//     `projects/{project_id}/locations/{location_id}/appConnectors/{app_co
+//     nnector_id}`.
 func (r *ProjectsLocationsAppConnectorsService) Get(name string) *ProjectsLocationsAppConnectorsGetCall {
 	c := &ProjectsLocationsAppConnectorsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6028,17 +8290,17 @@ func (c *ProjectsLocationsAppConnectorsGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudBeyondcorpAppconnectorsV1alphaAppConnector{
 		ServerResponse: googleapi.ServerResponse{
@@ -6094,10 +8356,10 @@ type ProjectsLocationsAppConnectorsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppConnectorsService) GetIamPolicy(resource string) *ProjectsLocationsAppConnectorsGetIamPolicyCall {
 	c := &ProjectsLocationsAppConnectorsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6197,17 +8459,17 @@ func (c *ProjectsLocationsAppConnectorsGetIamPolicyCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6267,8 +8529,8 @@ type ProjectsLocationsAppConnectorsListCall struct {
 
 // List: Lists AppConnectors in a given project and location.
 //
-// - parent: The resource name of the AppConnector location using the
-//   form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource name of the AppConnector location using the
+//     form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsAppConnectorsService) List(parent string) *ProjectsLocationsAppConnectorsListCall {
 	c := &ProjectsLocationsAppConnectorsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6388,17 +8650,17 @@ func (c *ProjectsLocationsAppConnectorsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudBeyondcorpAppconnectorsV1alphaListAppConnectorsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6494,8 +8756,8 @@ type ProjectsLocationsAppConnectorsPatchCall struct {
 
 // Patch: Updates the parameters of a single AppConnector.
 //
-// - name: Unique resource name of the AppConnector. The name is ignored
-//   when creating a AppConnector.
+//   - name: Unique resource name of the AppConnector. The name is ignored
+//     when creating a AppConnector.
 func (r *ProjectsLocationsAppConnectorsService) Patch(name string, googlecloudbeyondcorpappconnectorsv1alphaappconnector *GoogleCloudBeyondcorpAppconnectorsV1alphaAppConnector) *ProjectsLocationsAppConnectorsPatchCall {
 	c := &ProjectsLocationsAppConnectorsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6508,7 +8770,7 @@ func (r *ProjectsLocationsAppConnectorsService) Patch(name string, googlecloudbe
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -6606,17 +8868,17 @@ func (c *ProjectsLocationsAppConnectorsPatchCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6646,7 +8908,7 @@ func (c *ProjectsLocationsAppConnectorsPatchCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -6689,9 +8951,9 @@ type ProjectsLocationsAppConnectorsReportStatusCall struct {
 
 // ReportStatus: Report status for a given connector.
 //
-// - appConnector: BeyondCorp Connector name using the form:
-//   `projects/{project_id}/locations/{location_id}/connectors/{connector
-//   }`.
+//   - appConnector: BeyondCorp Connector name using the form:
+//     `projects/{project_id}/locations/{location_id}/connectors/{connector
+//     }`.
 func (r *ProjectsLocationsAppConnectorsService) ReportStatus(appConnector string, googlecloudbeyondcorpappconnectorsv1alphareportstatusrequest *GoogleCloudBeyondcorpAppconnectorsV1alphaReportStatusRequest) *ProjectsLocationsAppConnectorsReportStatusCall {
 	c := &ProjectsLocationsAppConnectorsReportStatusCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appConnector = appConnector
@@ -6766,17 +9028,17 @@ func (c *ProjectsLocationsAppConnectorsReportStatusCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6831,13 +9093,13 @@ type ProjectsLocationsAppConnectorsResolveInstanceConfigCall struct {
 	header_      http.Header
 }
 
-// ResolveInstanceConfig: Get instance config for a given AppConnector.
-// An internal method called by a AppConnector to get its container
-// config.
+// ResolveInstanceConfig: Gets instance configuration for a given
+// AppConnector. An internal method called by a AppConnector to get its
+// container config.
 //
-// - appConnector: BeyondCorp AppConnector name using the form:
-//   `projects/{project_id}/locations/{location_id}/appConnectors/{app_co
-//   nnector}`.
+//   - appConnector: BeyondCorp AppConnector name using the form:
+//     `projects/{project_id}/locations/{location_id}/appConnectors/{app_co
+//     nnector}`.
 func (r *ProjectsLocationsAppConnectorsService) ResolveInstanceConfig(appConnector string) *ProjectsLocationsAppConnectorsResolveInstanceConfigCall {
 	c := &ProjectsLocationsAppConnectorsResolveInstanceConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.appConnector = appConnector
@@ -6922,17 +9184,17 @@ func (c *ProjectsLocationsAppConnectorsResolveInstanceConfigCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudBeyondcorpAppconnectorsV1alphaResolveInstanceConfigResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6946,7 +9208,7 @@ func (c *ProjectsLocationsAppConnectorsResolveInstanceConfigCall) Do(opts ...goo
 	}
 	return ret, nil
 	// {
-	//   "description": "Get instance config for a given AppConnector. An internal method called by a AppConnector to get its container config.",
+	//   "description": "Gets instance configuration for a given AppConnector. An internal method called by a AppConnector to get its container config.",
 	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/appConnectors/{appConnectorsId}:resolveInstanceConfig",
 	//   "httpMethod": "GET",
 	//   "id": "beyondcorp.projects.locations.appConnectors.resolveInstanceConfig",
@@ -6988,10 +9250,10 @@ type ProjectsLocationsAppConnectorsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppConnectorsService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsAppConnectorsSetIamPolicyCall {
 	c := &ProjectsLocationsAppConnectorsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7066,17 +9328,17 @@ func (c *ProjectsLocationsAppConnectorsSetIamPolicyCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7138,10 +9400,10 @@ type ProjectsLocationsAppConnectorsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppConnectorsService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsAppConnectorsTestIamPermissionsCall {
 	c := &ProjectsLocationsAppConnectorsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7217,17 +9479,17 @@ func (c *ProjectsLocationsAppConnectorsTestIamPermissionsCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7284,8 +9546,8 @@ type ProjectsLocationsAppGatewaysCreateCall struct {
 
 // Create: Creates a new AppGateway in a given project and location.
 //
-// - parent: The resource project name of the AppGateway location using
-//   the form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource project name of the AppGateway location using
+//     the form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsAppGatewaysService) Create(parent string, appgateway *AppGateway) *ProjectsLocationsAppGatewaysCreateCall {
 	c := &ProjectsLocationsAppGatewaysCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7295,7 +9557,7 @@ func (r *ProjectsLocationsAppGatewaysService) Create(parent string, appgateway *
 
 // AppGatewayId sets the optional parameter "appGatewayId":
 // User-settable AppGateway resource ID. * Must start with a letter. *
-// Must contain between 4-63 characters from (/a-z-/). * Must end with a
+// Must contain between 4-63 characters from `/a-z-/`. * Must end with a
 // number or a letter.
 func (c *ProjectsLocationsAppGatewaysCreateCall) AppGatewayId(appGatewayId string) *ProjectsLocationsAppGatewaysCreateCall {
 	c.urlParams_.Set("appGatewayId", appGatewayId)
@@ -7307,7 +9569,7 @@ func (c *ProjectsLocationsAppGatewaysCreateCall) AppGatewayId(appGatewayId strin
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -7395,17 +9657,17 @@ func (c *ProjectsLocationsAppGatewaysCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7428,7 +9690,7 @@ func (c *ProjectsLocationsAppGatewaysCreateCall) Do(opts ...googleapi.CallOption
 	//   ],
 	//   "parameters": {
 	//     "appGatewayId": {
-	//       "description": "Optional. User-settable AppGateway resource ID. * Must start with a letter. * Must contain between 4-63 characters from (/a-z-/). * Must end with a number or a letter.",
+	//       "description": "Optional. User-settable AppGateway resource ID. * Must start with a letter. * Must contain between 4-63 characters from `/a-z-/`. * Must end with a number or a letter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7440,7 +9702,7 @@ func (c *ProjectsLocationsAppGatewaysCreateCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7476,9 +9738,9 @@ type ProjectsLocationsAppGatewaysDeleteCall struct {
 
 // Delete: Deletes a single AppGateway.
 //
-// - name: BeyondCorp AppGateway name using the form:
-//   `projects/{project_id}/locations/{location_id}/appGateways/{app_gate
-//   way_id}`.
+//   - name: BeyondCorp AppGateway name using the form:
+//     `projects/{project_id}/locations/{location_id}/appGateways/{app_gate
+//     way_id}`.
 func (r *ProjectsLocationsAppGatewaysService) Delete(name string) *ProjectsLocationsAppGatewaysDeleteCall {
 	c := &ProjectsLocationsAppGatewaysDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7490,7 +9752,7 @@ func (r *ProjectsLocationsAppGatewaysService) Delete(name string) *ProjectsLocat
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes after the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -7573,17 +9835,17 @@ func (c *ProjectsLocationsAppGatewaysDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7613,7 +9875,7 @@ func (c *ProjectsLocationsAppGatewaysDeleteCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7647,9 +9909,9 @@ type ProjectsLocationsAppGatewaysGetCall struct {
 
 // Get: Gets details of a single AppGateway.
 //
-// - name: BeyondCorp AppGateway name using the form:
-//   `projects/{project_id}/locations/{location_id}/appGateways/{app_gate
-//   way_id}`.
+//   - name: BeyondCorp AppGateway name using the form:
+//     `projects/{project_id}/locations/{location_id}/appGateways/{app_gate
+//     way_id}`.
 func (r *ProjectsLocationsAppGatewaysService) Get(name string) *ProjectsLocationsAppGatewaysGetCall {
 	c := &ProjectsLocationsAppGatewaysGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7731,17 +9993,17 @@ func (c *ProjectsLocationsAppGatewaysGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppGateway{
 		ServerResponse: googleapi.ServerResponse{
@@ -7797,10 +10059,10 @@ type ProjectsLocationsAppGatewaysGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppGatewaysService) GetIamPolicy(resource string) *ProjectsLocationsAppGatewaysGetIamPolicyCall {
 	c := &ProjectsLocationsAppGatewaysGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7900,17 +10162,17 @@ func (c *ProjectsLocationsAppGatewaysGetIamPolicyCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7970,8 +10232,8 @@ type ProjectsLocationsAppGatewaysListCall struct {
 
 // List: Lists AppGateways in a given project and location.
 //
-// - parent: The resource name of the AppGateway location using the
-//   form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource name of the AppGateway location using the
+//     form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsAppGatewaysService) List(parent string) *ProjectsLocationsAppGatewaysListCall {
 	c := &ProjectsLocationsAppGatewaysListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8088,17 +10350,17 @@ func (c *ProjectsLocationsAppGatewaysListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAppGatewaysResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8196,10 +10458,10 @@ type ProjectsLocationsAppGatewaysSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppGatewaysService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsAppGatewaysSetIamPolicyCall {
 	c := &ProjectsLocationsAppGatewaysSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8274,17 +10536,17 @@ func (c *ProjectsLocationsAppGatewaysSetIamPolicyCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8346,10 +10608,10 @@ type ProjectsLocationsAppGatewaysTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAppGatewaysService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsAppGatewaysTestIamPermissionsCall {
 	c := &ProjectsLocationsAppGatewaysTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8425,17 +10687,17 @@ func (c *ProjectsLocationsAppGatewaysTestIamPermissionsCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8479,6 +10741,479 @@ func (c *ProjectsLocationsAppGatewaysTestIamPermissionsCall) Do(opts ...googleap
 
 }
 
+// method id "beyondcorp.projects.locations.applications.getIamPolicy":
+
+type ProjectsLocationsApplicationsGetIamPolicyCall struct {
+	s            *Service
+	resource     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetIamPolicy: Gets the access control policy for a resource. Returns
+// an empty policy if the resource exists and does not have a policy
+// set.
+//
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
+func (r *ProjectsLocationsApplicationsService) GetIamPolicy(resource string) *ProjectsLocationsApplicationsGetIamPolicyCall {
+	c := &ProjectsLocationsApplicationsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	return c
+}
+
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The maximum policy version that
+// will be used to format the policy. Valid values are 0, 1, and 3.
+// Requests specifying an invalid value will be rejected. Requests for
+// policies with any conditional role bindings must specify version 3.
+// Policies with no conditional role bindings may specify any valid
+// value or leave the field unset. The policy in the response might use
+// the policy version that you specified, or it might use a lower policy
+// version. For example, if you specify version 3, but the policy has no
+// conditional role bindings, the response uses version 1. To learn
+// which resources support conditions in their IAM policies, see the IAM
+// documentation
+// (https://cloud.google.com/iam/help/conditions/resource-policies).
+func (c *ProjectsLocationsApplicationsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsLocationsApplicationsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsApplicationsGetIamPolicyCall) Fields(s ...googleapi.Field) *ProjectsLocationsApplicationsGetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsApplicationsGetIamPolicyCall) IfNoneMatch(entityTag string) *ProjectsLocationsApplicationsGetIamPolicyCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsApplicationsGetIamPolicyCall) Context(ctx context.Context) *ProjectsLocationsApplicationsGetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsApplicationsGetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsApplicationsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+resource}:getIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.applications.getIamPolicy" call.
+// Exactly one of *GoogleIamV1Policy or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleIamV1Policy.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsApplicationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleIamV1Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}:getIamPolicy",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.projects.locations.applications.getIamPolicy",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The maximum policy version that will be used to format the policy. Valid values are 0, 1, and 3. Requests specifying an invalid value will be rejected. Requests for policies with any conditional role bindings must specify version 3. Policies with no conditional role bindings may specify any valid value or leave the field unset. The policy in the response might use the policy version that you specified, or it might use a lower policy version. For example, if you specify version 3, but the policy has no conditional role bindings, the response uses version 1. To learn which resources support conditions in their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/applications/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+resource}:getIamPolicy",
+	//   "response": {
+	//     "$ref": "GoogleIamV1Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "beyondcorp.projects.locations.applications.setIamPolicy":
+
+type ProjectsLocationsApplicationsSetIamPolicyCall struct {
+	s                              *Service
+	resource                       string
+	googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest
+	urlParams_                     gensupport.URLParams
+	ctx_                           context.Context
+	header_                        http.Header
+}
+
+// SetIamPolicy: Sets the access control policy on the specified
+// resource. Replaces any existing policy. Can return `NOT_FOUND`,
+// `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
+//
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
+func (r *ProjectsLocationsApplicationsService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsApplicationsSetIamPolicyCall {
+	c := &ProjectsLocationsApplicationsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	c.googleiamv1setiampolicyrequest = googleiamv1setiampolicyrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsApplicationsSetIamPolicyCall) Fields(s ...googleapi.Field) *ProjectsLocationsApplicationsSetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsApplicationsSetIamPolicyCall) Context(ctx context.Context) *ProjectsLocationsApplicationsSetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsApplicationsSetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsApplicationsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleiamv1setiampolicyrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+resource}:setIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.applications.setIamPolicy" call.
+// Exactly one of *GoogleIamV1Policy or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleIamV1Policy.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsApplicationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleIamV1Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Sets the access control policy on the specified resource. Replaces any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}:setIamPolicy",
+	//   "httpMethod": "POST",
+	//   "id": "beyondcorp.projects.locations.applications.setIamPolicy",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/applications/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+resource}:setIamPolicy",
+	//   "request": {
+	//     "$ref": "GoogleIamV1SetIamPolicyRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleIamV1Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "beyondcorp.projects.locations.applications.testIamPermissions":
+
+type ProjectsLocationsApplicationsTestIamPermissionsCall struct {
+	s                                    *Service
+	resource                             string
+	googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest
+	urlParams_                           gensupport.URLParams
+	ctx_                                 context.Context
+	header_                              http.Header
+}
+
+// TestIamPermissions: Returns permissions that a caller has on the
+// specified resource. If the resource does not exist, this will return
+// an empty set of permissions, not a `NOT_FOUND` error. Note: This
+// operation is designed to be used for building permission-aware UIs
+// and command-line tools, not for authorization checking. This
+// operation may "fail open" without warning.
+//
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
+func (r *ProjectsLocationsApplicationsService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsApplicationsTestIamPermissionsCall {
+	c := &ProjectsLocationsApplicationsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	c.googleiamv1testiampermissionsrequest = googleiamv1testiampermissionsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsApplicationsTestIamPermissionsCall) Fields(s ...googleapi.Field) *ProjectsLocationsApplicationsTestIamPermissionsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsApplicationsTestIamPermissionsCall) Context(ctx context.Context) *ProjectsLocationsApplicationsTestIamPermissionsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsApplicationsTestIamPermissionsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsApplicationsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleiamv1testiampermissionsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+resource}:testIamPermissions")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.applications.testIamPermissions" call.
+// Exactly one of *GoogleIamV1TestIamPermissionsResponse or error will
+// be non-nil. Any non-2xx status code is an error. Response headers are
+// in either
+// *GoogleIamV1TestIamPermissionsResponse.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsApplicationsTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1TestIamPermissionsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleIamV1TestIamPermissionsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a `NOT_FOUND` error. Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may \"fail open\" without warning.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/applications/{applicationsId}:testIamPermissions",
+	//   "httpMethod": "POST",
+	//   "id": "beyondcorp.projects.locations.applications.testIamPermissions",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/applications/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+resource}:testIamPermissions",
+	//   "request": {
+	//     "$ref": "GoogleIamV1TestIamPermissionsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleIamV1TestIamPermissionsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "beyondcorp.projects.locations.clientConnectorServices.create":
 
 type ProjectsLocationsClientConnectorServicesCreateCall struct {
@@ -8504,7 +11239,7 @@ func (r *ProjectsLocationsClientConnectorServicesService) Create(parent string, 
 // ClientConnectorServiceId sets the optional parameter
 // "clientConnectorServiceId": User-settable client connector service
 // resource ID. * Must start with a letter. * Must contain between 4-63
-// characters from (/a-z-/). * Must end with a number or a letter. A
+// characters from `/a-z-/`. * Must end with a number or a letter. A
 // random system generated name will be assigned if not specified by the
 // user.
 func (c *ProjectsLocationsClientConnectorServicesCreateCall) ClientConnectorServiceId(clientConnectorServiceId string) *ProjectsLocationsClientConnectorServicesCreateCall {
@@ -8517,7 +11252,7 @@ func (c *ProjectsLocationsClientConnectorServicesCreateCall) ClientConnectorServ
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -8605,17 +11340,17 @@ func (c *ProjectsLocationsClientConnectorServicesCreateCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8638,7 +11373,7 @@ func (c *ProjectsLocationsClientConnectorServicesCreateCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "clientConnectorServiceId": {
-	//       "description": "Optional. User-settable client connector service resource ID. * Must start with a letter. * Must contain between 4-63 characters from (/a-z-/). * Must end with a number or a letter. A random system generated name will be assigned if not specified by the user.",
+	//       "description": "Optional. User-settable client connector service resource ID. * Must start with a letter. * Must contain between 4-63 characters from `/a-z-/`. * Must end with a number or a letter. A random system generated name will be assigned if not specified by the user.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8650,7 +11385,7 @@ func (c *ProjectsLocationsClientConnectorServicesCreateCall) Do(opts ...googleap
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8698,7 +11433,7 @@ func (r *ProjectsLocationsClientConnectorServicesService) Delete(name string) *P
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes after the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -8781,17 +11516,17 @@ func (c *ProjectsLocationsClientConnectorServicesDeleteCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8821,7 +11556,7 @@ func (c *ProjectsLocationsClientConnectorServicesDeleteCall) Do(opts ...googleap
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8937,17 +11672,17 @@ func (c *ProjectsLocationsClientConnectorServicesGetCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientConnectorService{
 		ServerResponse: googleapi.ServerResponse{
@@ -9003,10 +11738,10 @@ type ProjectsLocationsClientConnectorServicesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientConnectorServicesService) GetIamPolicy(resource string) *ProjectsLocationsClientConnectorServicesGetIamPolicyCall {
 	c := &ProjectsLocationsClientConnectorServicesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9106,17 +11841,17 @@ func (c *ProjectsLocationsClientConnectorServicesGetIamPolicyCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9287,17 +12022,17 @@ func (c *ProjectsLocationsClientConnectorServicesListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientConnectorServicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9413,7 +12148,7 @@ func (c *ProjectsLocationsClientConnectorServicesPatchCall) AllowMissing(allowMi
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -9432,7 +12167,7 @@ func (c *ProjectsLocationsClientConnectorServicesPatchCall) RequestId(requestId 
 // in the update_mask are relative to the resource, not the full
 // request. A field will be overwritten if it is in the mask. If the
 // user does not provide a mask then all fields will be overwritten.
-// Mutable fields: display_name.
+// Mutable fields: display_name, ingress.config.destination_routes.
 func (c *ProjectsLocationsClientConnectorServicesPatchCall) UpdateMask(updateMask string) *ProjectsLocationsClientConnectorServicesPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -9513,17 +12248,17 @@ func (c *ProjectsLocationsClientConnectorServicesPatchCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9558,12 +12293,12 @@ func (c *ProjectsLocationsClientConnectorServicesPatchCall) Do(opts ...googleapi
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Required. Field mask is used to specify the fields to be overwritten in the ClientConnectorService resource by the update. The fields specified in the update_mask are relative to the resource, not the full request. A field will be overwritten if it is in the mask. If the user does not provide a mask then all fields will be overwritten. Mutable fields: display_name.",
+	//       "description": "Required. Field mask is used to specify the fields to be overwritten in the ClientConnectorService resource by the update. The fields specified in the update_mask are relative to the resource, not the full request. A field will be overwritten if it is in the mask. If the user does not provide a mask then all fields will be overwritten. Mutable fields: display_name, ingress.config.destination_routes.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -9603,10 +12338,10 @@ type ProjectsLocationsClientConnectorServicesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientConnectorServicesService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsClientConnectorServicesSetIamPolicyCall {
 	c := &ProjectsLocationsClientConnectorServicesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9681,17 +12416,17 @@ func (c *ProjectsLocationsClientConnectorServicesSetIamPolicyCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9753,10 +12488,10 @@ type ProjectsLocationsClientConnectorServicesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientConnectorServicesService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsClientConnectorServicesTestIamPermissionsCall {
 	c := &ProjectsLocationsClientConnectorServicesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9832,17 +12567,17 @@ func (c *ProjectsLocationsClientConnectorServicesTestIamPermissionsCall) Do(opts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9909,7 +12644,7 @@ func (r *ProjectsLocationsClientGatewaysService) Create(parent string, clientgat
 
 // ClientGatewayId sets the optional parameter "clientGatewayId":
 // User-settable client gateway resource ID. * Must start with a letter.
-// * Must contain between 4-63 characters from (/a-z-/). * Must end with
+// * Must contain between 4-63 characters from `/a-z-/`. * Must end with
 // a number or a letter.
 func (c *ProjectsLocationsClientGatewaysCreateCall) ClientGatewayId(clientGatewayId string) *ProjectsLocationsClientGatewaysCreateCall {
 	c.urlParams_.Set("clientGatewayId", clientGatewayId)
@@ -9921,7 +12656,7 @@ func (c *ProjectsLocationsClientGatewaysCreateCall) ClientGatewayId(clientGatewa
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -10009,17 +12744,17 @@ func (c *ProjectsLocationsClientGatewaysCreateCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -10042,7 +12777,7 @@ func (c *ProjectsLocationsClientGatewaysCreateCall) Do(opts ...googleapi.CallOpt
 	//   ],
 	//   "parameters": {
 	//     "clientGatewayId": {
-	//       "description": "Optional. User-settable client gateway resource ID. * Must start with a letter. * Must contain between 4-63 characters from (/a-z-/). * Must end with a number or a letter.",
+	//       "description": "Optional. User-settable client gateway resource ID. * Must start with a letter. * Must contain between 4-63 characters from `/a-z-/`. * Must end with a number or a letter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -10054,7 +12789,7 @@ func (c *ProjectsLocationsClientGatewaysCreateCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -10102,7 +12837,7 @@ func (r *ProjectsLocationsClientGatewaysService) Delete(name string) *ProjectsLo
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes after the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -10185,17 +12920,17 @@ func (c *ProjectsLocationsClientGatewaysDeleteCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -10225,7 +12960,7 @@ func (c *ProjectsLocationsClientGatewaysDeleteCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -10341,17 +13076,17 @@ func (c *ProjectsLocationsClientGatewaysGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientGateway{
 		ServerResponse: googleapi.ServerResponse{
@@ -10407,10 +13142,10 @@ type ProjectsLocationsClientGatewaysGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientGatewaysService) GetIamPolicy(resource string) *ProjectsLocationsClientGatewaysGetIamPolicyCall {
 	c := &ProjectsLocationsClientGatewaysGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10510,17 +13245,17 @@ func (c *ProjectsLocationsClientGatewaysGetIamPolicyCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -10690,17 +13425,17 @@ func (c *ProjectsLocationsClientGatewaysListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientGatewaysResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10798,10 +13533,10 @@ type ProjectsLocationsClientGatewaysSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientGatewaysService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsClientGatewaysSetIamPolicyCall {
 	c := &ProjectsLocationsClientGatewaysSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10876,17 +13611,17 @@ func (c *ProjectsLocationsClientGatewaysSetIamPolicyCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -10948,10 +13683,10 @@ type ProjectsLocationsClientGatewaysTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientGatewaysService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsClientGatewaysTestIamPermissionsCall {
 	c := &ProjectsLocationsClientGatewaysTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -11027,17 +13762,17 @@ func (c *ProjectsLocationsClientGatewaysTestIamPermissionsCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11094,8 +13829,8 @@ type ProjectsLocationsConnectionsCreateCall struct {
 
 // Create: Creates a new Connection in a given project and location.
 //
-// - parent: The resource project name of the connection location using
-//   the form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource project name of the connection location using
+//     the form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsConnectionsService) Create(parent string, connection *Connection) *ProjectsLocationsConnectionsCreateCall {
 	c := &ProjectsLocationsConnectionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -11105,7 +13840,7 @@ func (r *ProjectsLocationsConnectionsService) Create(parent string, connection *
 
 // ConnectionId sets the optional parameter "connectionId":
 // User-settable connection resource ID. * Must start with a letter. *
-// Must contain between 4-63 characters from (/a-z-/). * Must end with a
+// Must contain between 4-63 characters from `/a-z-/`. * Must end with a
 // number or a letter.
 func (c *ProjectsLocationsConnectionsCreateCall) ConnectionId(connectionId string) *ProjectsLocationsConnectionsCreateCall {
 	c.urlParams_.Set("connectionId", connectionId)
@@ -11117,7 +13852,7 @@ func (c *ProjectsLocationsConnectionsCreateCall) ConnectionId(connectionId strin
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -11205,17 +13940,17 @@ func (c *ProjectsLocationsConnectionsCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -11238,7 +13973,7 @@ func (c *ProjectsLocationsConnectionsCreateCall) Do(opts ...googleapi.CallOption
 	//   ],
 	//   "parameters": {
 	//     "connectionId": {
-	//       "description": "Optional. User-settable connection resource ID. * Must start with a letter. * Must contain between 4-63 characters from (/a-z-/). * Must end with a number or a letter.",
+	//       "description": "Optional. User-settable connection resource ID. * Must start with a letter. * Must contain between 4-63 characters from `/a-z-/`. * Must end with a number or a letter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -11250,7 +13985,7 @@ func (c *ProjectsLocationsConnectionsCreateCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -11286,9 +14021,9 @@ type ProjectsLocationsConnectionsDeleteCall struct {
 
 // Delete: Deletes a single Connection.
 //
-// - name: BeyondCorp Connector name using the form:
-//   `projects/{project_id}/locations/{location_id}/connections/{connecti
-//   on_id}`.
+//   - name: BeyondCorp Connector name using the form:
+//     `projects/{project_id}/locations/{location_id}/connections/{connecti
+//     on_id}`.
 func (r *ProjectsLocationsConnectionsService) Delete(name string) *ProjectsLocationsConnectionsDeleteCall {
 	c := &ProjectsLocationsConnectionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11300,7 +14035,7 @@ func (r *ProjectsLocationsConnectionsService) Delete(name string) *ProjectsLocat
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes after the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -11383,17 +14118,17 @@ func (c *ProjectsLocationsConnectionsDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -11423,7 +14158,7 @@ func (c *ProjectsLocationsConnectionsDeleteCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -11457,9 +14192,9 @@ type ProjectsLocationsConnectionsGetCall struct {
 
 // Get: Gets details of a single Connection.
 //
-// - name: BeyondCorp Connection name using the form:
-//   `projects/{project_id}/locations/{location_id}/connections/{connecti
-//   on_id}`.
+//   - name: BeyondCorp Connection name using the form:
+//     `projects/{project_id}/locations/{location_id}/connections/{connecti
+//     on_id}`.
 func (r *ProjectsLocationsConnectionsService) Get(name string) *ProjectsLocationsConnectionsGetCall {
 	c := &ProjectsLocationsConnectionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11541,17 +14276,17 @@ func (c *ProjectsLocationsConnectionsGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Connection{
 		ServerResponse: googleapi.ServerResponse{
@@ -11607,10 +14342,10 @@ type ProjectsLocationsConnectionsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsConnectionsService) GetIamPolicy(resource string) *ProjectsLocationsConnectionsGetIamPolicyCall {
 	c := &ProjectsLocationsConnectionsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -11710,17 +14445,17 @@ func (c *ProjectsLocationsConnectionsGetIamPolicyCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -11780,8 +14515,8 @@ type ProjectsLocationsConnectionsListCall struct {
 
 // List: Lists Connections in a given project and location.
 //
-// - parent: The resource name of the connection location using the
-//   form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource name of the connection location using the
+//     form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsConnectionsService) List(parent string) *ProjectsLocationsConnectionsListCall {
 	c := &ProjectsLocationsConnectionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -11898,17 +14633,17 @@ func (c *ProjectsLocationsConnectionsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12004,8 +14739,8 @@ type ProjectsLocationsConnectionsPatchCall struct {
 
 // Patch: Updates the parameters of a single Connection.
 //
-// - name: Unique resource name of the connection. The name is ignored
-//   when creating a connection.
+//   - name: Unique resource name of the connection. The name is ignored
+//     when creating a connection.
 func (r *ProjectsLocationsConnectionsService) Patch(name string, connection *Connection) *ProjectsLocationsConnectionsPatchCall {
 	c := &ProjectsLocationsConnectionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12025,7 +14760,7 @@ func (c *ProjectsLocationsConnectionsPatchCall) AllowMissing(allowMissing bool) 
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -12123,17 +14858,17 @@ func (c *ProjectsLocationsConnectionsPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -12168,7 +14903,7 @@ func (c *ProjectsLocationsConnectionsPatchCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -12213,8 +14948,8 @@ type ProjectsLocationsConnectionsResolveCall struct {
 // internal method called by a connector to find connections to connect
 // to.
 //
-// - parent: The resource name of the connection location using the
-//   form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource name of the connection location using the
+//     form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsConnectionsService) Resolve(parent string) *ProjectsLocationsConnectionsResolveCall {
 	c := &ProjectsLocationsConnectionsResolveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12325,17 +15060,17 @@ func (c *ProjectsLocationsConnectionsResolveCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResolveConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12428,10 +15163,10 @@ type ProjectsLocationsConnectionsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsConnectionsService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsConnectionsSetIamPolicyCall {
 	c := &ProjectsLocationsConnectionsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -12506,17 +15241,17 @@ func (c *ProjectsLocationsConnectionsSetIamPolicyCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -12578,10 +15313,10 @@ type ProjectsLocationsConnectionsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsConnectionsService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsConnectionsTestIamPermissionsCall {
 	c := &ProjectsLocationsConnectionsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -12657,17 +15392,17 @@ func (c *ProjectsLocationsConnectionsTestIamPermissionsCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12724,8 +15459,8 @@ type ProjectsLocationsConnectorsCreateCall struct {
 
 // Create: Creates a new Connector in a given project and location.
 //
-// - parent: The resource project name of the connector location using
-//   the form: `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource project name of the connector location using
+//     the form: `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsConnectorsService) Create(parent string, connector *Connector) *ProjectsLocationsConnectorsCreateCall {
 	c := &ProjectsLocationsConnectorsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12735,7 +15470,7 @@ func (r *ProjectsLocationsConnectorsService) Create(parent string, connector *Co
 
 // ConnectorId sets the optional parameter "connectorId": User-settable
 // connector resource ID. * Must start with a letter. * Must contain
-// between 4-63 characters from (/a-z-/). * Must end with a number or a
+// between 4-63 characters from `/a-z-/`. * Must end with a number or a
 // letter.
 func (c *ProjectsLocationsConnectorsCreateCall) ConnectorId(connectorId string) *ProjectsLocationsConnectorsCreateCall {
 	c.urlParams_.Set("connectorId", connectorId)
@@ -12747,7 +15482,7 @@ func (c *ProjectsLocationsConnectorsCreateCall) ConnectorId(connectorId string) 
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -12835,17 +15570,17 @@ func (c *ProjectsLocationsConnectorsCreateCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -12868,7 +15603,7 @@ func (c *ProjectsLocationsConnectorsCreateCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "connectorId": {
-	//       "description": "Optional. User-settable connector resource ID. * Must start with a letter. * Must contain between 4-63 characters from (/a-z-/). * Must end with a number or a letter.",
+	//       "description": "Optional. User-settable connector resource ID. * Must start with a letter. * Must contain between 4-63 characters from `/a-z-/`. * Must end with a number or a letter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -12880,7 +15615,7 @@ func (c *ProjectsLocationsConnectorsCreateCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -12916,9 +15651,9 @@ type ProjectsLocationsConnectorsDeleteCall struct {
 
 // Delete: Deletes a single Connector.
 //
-// - name: BeyondCorp Connector name using the form:
-//   `projects/{project_id}/locations/{location_id}/connectors/{connector
-//   _id}`.
+//   - name: BeyondCorp Connector name using the form:
+//     `projects/{project_id}/locations/{location_id}/connectors/{connector
+//     _id}`.
 func (r *ProjectsLocationsConnectorsService) Delete(name string) *ProjectsLocationsConnectorsDeleteCall {
 	c := &ProjectsLocationsConnectorsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12930,7 +15665,7 @@ func (r *ProjectsLocationsConnectorsService) Delete(name string) *ProjectsLocati
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes after the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -13013,17 +15748,17 @@ func (c *ProjectsLocationsConnectorsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -13053,7 +15788,7 @@ func (c *ProjectsLocationsConnectorsDeleteCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes after the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -13087,9 +15822,9 @@ type ProjectsLocationsConnectorsGetCall struct {
 
 // Get: Gets details of a single Connector.
 //
-// - name: BeyondCorp Connector name using the form:
-//   `projects/{project_id}/locations/{location_id}/connectors/{connector
-//   _id}`.
+//   - name: BeyondCorp Connector name using the form:
+//     `projects/{project_id}/locations/{location_id}/connectors/{connector
+//     _id}`.
 func (r *ProjectsLocationsConnectorsService) Get(name string) *ProjectsLocationsConnectorsGetCall {
 	c := &ProjectsLocationsConnectorsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13171,17 +15906,17 @@ func (c *ProjectsLocationsConnectorsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Connector{
 		ServerResponse: googleapi.ServerResponse{
@@ -13237,10 +15972,10 @@ type ProjectsLocationsConnectorsGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsConnectorsService) GetIamPolicy(resource string) *ProjectsLocationsConnectorsGetIamPolicyCall {
 	c := &ProjectsLocationsConnectorsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -13340,17 +16075,17 @@ func (c *ProjectsLocationsConnectorsGetIamPolicyCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -13410,8 +16145,8 @@ type ProjectsLocationsConnectorsListCall struct {
 
 // List: Lists Connectors in a given project and location.
 //
-// - parent: The resource name of the connector location using the form:
-//   `projects/{project_id}/locations/{location_id}`.
+//   - parent: The resource name of the connector location using the form:
+//     `projects/{project_id}/locations/{location_id}`.
 func (r *ProjectsLocationsConnectorsService) List(parent string) *ProjectsLocationsConnectorsListCall {
 	c := &ProjectsLocationsConnectorsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -13528,17 +16263,17 @@ func (c *ProjectsLocationsConnectorsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConnectorsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13634,8 +16369,8 @@ type ProjectsLocationsConnectorsPatchCall struct {
 
 // Patch: Updates the parameters of a single Connector.
 //
-// - name: Unique resource name of the connector. The name is ignored
-//   when creating a connector.
+//   - name: Unique resource name of the connector. The name is ignored
+//     when creating a connector.
 func (r *ProjectsLocationsConnectorsService) Patch(name string, connector *Connector) *ProjectsLocationsConnectorsPatchCall {
 	c := &ProjectsLocationsConnectorsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13648,7 +16383,7 @@ func (r *ProjectsLocationsConnectorsService) Patch(name string, connector *Conne
 // if you must retry your request, the server will know to ignore the
 // request if it has already been completed. The server will guarantee
 // that for at least 60 minutes since the first request. For example,
-// consider a situation where you make an initial request and t he
+// consider a situation where you make an initial request and the
 // request times out. If you make the request again with the same
 // request ID, the server can check if original operation with the same
 // request ID was received, and if so, will ignore the second request.
@@ -13745,17 +16480,17 @@ func (c *ProjectsLocationsConnectorsPatchCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -13785,7 +16520,7 @@ func (c *ProjectsLocationsConnectorsPatchCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "requestId": {
-	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and t he request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "description": "Optional. An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed. The server will guarantee that for at least 60 minutes since the first request. For example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments. The request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -13828,9 +16563,9 @@ type ProjectsLocationsConnectorsReportStatusCall struct {
 
 // ReportStatus: Report status for a given connector.
 //
-// - connector: BeyondCorp Connector name using the form:
-//   `projects/{project_id}/locations/{location_id}/connectors/{connector
-//   }`.
+//   - connector: BeyondCorp Connector name using the form:
+//     `projects/{project_id}/locations/{location_id}/connectors/{connector
+//     }`.
 func (r *ProjectsLocationsConnectorsService) ReportStatus(connector string, reportstatusrequest *ReportStatusRequest) *ProjectsLocationsConnectorsReportStatusCall {
 	c := &ProjectsLocationsConnectorsReportStatusCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.connector = connector
@@ -13905,17 +16640,17 @@ func (c *ProjectsLocationsConnectorsReportStatusCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -13970,12 +16705,13 @@ type ProjectsLocationsConnectorsResolveInstanceConfigCall struct {
 	header_      http.Header
 }
 
-// ResolveInstanceConfig: Get instance config for a given connector. An
-// internal method called by a connector to get its container config.
+// ResolveInstanceConfig: Gets instance configuration for a given
+// connector. An internal method called by a connector to get its
+// container config.
 //
-// - connector: BeyondCorp Connector name using the form:
-//   `projects/{project_id}/locations/{location_id}/connectors/{connector
-//   }`.
+//   - connector: BeyondCorp Connector name using the form:
+//     `projects/{project_id}/locations/{location_id}/connectors/{connector
+//     }`.
 func (r *ProjectsLocationsConnectorsService) ResolveInstanceConfig(connector string) *ProjectsLocationsConnectorsResolveInstanceConfigCall {
 	c := &ProjectsLocationsConnectorsResolveInstanceConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.connector = connector
@@ -14057,17 +16793,17 @@ func (c *ProjectsLocationsConnectorsResolveInstanceConfigCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResolveInstanceConfigResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14081,7 +16817,7 @@ func (c *ProjectsLocationsConnectorsResolveInstanceConfigCall) Do(opts ...google
 	}
 	return ret, nil
 	// {
-	//   "description": "Get instance config for a given connector. An internal method called by a connector to get its container config.",
+	//   "description": "Gets instance configuration for a given connector. An internal method called by a connector to get its container config.",
 	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/connectors/{connectorsId}:resolveInstanceConfig",
 	//   "httpMethod": "GET",
 	//   "id": "beyondcorp.projects.locations.connectors.resolveInstanceConfig",
@@ -14123,10 +16859,10 @@ type ProjectsLocationsConnectorsSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsConnectorsService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsConnectorsSetIamPolicyCall {
 	c := &ProjectsLocationsConnectorsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -14201,17 +16937,17 @@ func (c *ProjectsLocationsConnectorsSetIamPolicyCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -14273,10 +17009,10 @@ type ProjectsLocationsConnectorsTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsConnectorsService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsConnectorsTestIamPermissionsCall {
 	c := &ProjectsLocationsConnectorsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -14352,17 +17088,17 @@ func (c *ProjectsLocationsConnectorsTestIamPermissionsCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14388,6 +17124,1281 @@ func (c *ProjectsLocationsConnectorsTestIamPermissionsCall) Do(opts ...googleapi
 	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/connectors/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+resource}:testIamPermissions",
+	//   "request": {
+	//     "$ref": "GoogleIamV1TestIamPermissionsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleIamV1TestIamPermissionsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "beyondcorp.projects.locations.insights.configuredInsight":
+
+type ProjectsLocationsInsightsConfiguredInsightCall struct {
+	s            *Service
+	insight      string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// ConfiguredInsight: Gets the value for a selected particular insight
+// based on the provided filters. Use the organization level path for
+// fetching at org level and project level path for fetching the insight
+// value specific to a particular project.
+//
+//   - insight: The resource name of the insight using the form:
+//     `organizations/{organization_id}/locations/{location_id}/insights/{i
+//     nsight_id}`
+//     `projects/{project_id}/locations/{location_id}/insights/{insight_id}
+//     `.
+func (r *ProjectsLocationsInsightsService) ConfiguredInsight(insight string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c := &ProjectsLocationsInsightsConfiguredInsightCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.insight = insight
+	return c
+}
+
+// Aggregation sets the optional parameter "aggregation": Required.
+// Aggregation type. Available aggregation could be fetched by calling
+// insight list and get APIs in `BASIC` view.
+//
+// Possible values:
+//
+//	"AGGREGATION_UNSPECIFIED" - Unspecified.
+//	"HOURLY" - Insight should be aggregated at hourly level.
+//	"DAILY" - Insight should be aggregated at daily level.
+//	"WEEKLY" - Insight should be aggregated at weekly level.
+//	"MONTHLY" - Insight should be aggregated at monthly level.
+//	"CUSTOM_DATE_RANGE" - Insight should be aggregated at the custom
+//
+// date range passed in as the start and end time in the request.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) Aggregation(aggregation string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("aggregation", aggregation)
+	return c
+}
+
+// CustomGroupingFieldFilter sets the optional parameter
+// "customGrouping.fieldFilter": Filterable parameters to be added to
+// the grouping clause. Available fields could be fetched by calling
+// insight list and get APIs in `BASIC` view. `=` is the only comparison
+// operator supported. `AND` is the only logical operator supported.
+// Usage: field_filter="fieldName1=fieldVal1 AND fieldName2=fieldVal2".
+// NOTE: Only `AND` conditions are allowed. NOTE: Use the `filter_alias`
+// from `Insight.Metadata.Field` message for the filtering the
+// corresponding fields in this filter field. (These expressions are
+// based on the filter language described at
+// https://google.aip.dev/160).
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) CustomGroupingFieldFilter(customGroupingFieldFilter string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("customGrouping.fieldFilter", customGroupingFieldFilter)
+	return c
+}
+
+// CustomGroupingGroupFields sets the optional parameter
+// "customGrouping.groupFields": Required. Fields to be used for
+// grouping. NOTE: Use the `filter_alias` from `Insight.Metadata.Field`
+// message for declaring the fields to be grouped-by here.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) CustomGroupingGroupFields(customGroupingGroupFields ...string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.SetMulti("customGrouping.groupFields", append([]string{}, customGroupingGroupFields...))
+	return c
+}
+
+// EndTime sets the optional parameter "endTime": Required. Ending time
+// for the duration for which insight is to be pulled.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) EndTime(endTime string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("endTime", endTime)
+	return c
+}
+
+// FieldFilter sets the optional parameter "fieldFilter": Other
+// filterable/configurable parameters as applicable to the selected
+// insight. Available fields could be fetched by calling insight list
+// and get APIs in `BASIC` view. `=` is the only comparison operator
+// supported. `AND` is the only logical operator supported. Usage:
+// field_filter="fieldName1=fieldVal1 AND fieldName2=fieldVal2". NOTE:
+// Only `AND` conditions are allowed. NOTE: Use the `filter_alias` from
+// `Insight.Metadata.Field` message for the filtering the corresponding
+// fields in this filter field. (These expressions are based on the
+// filter language described at https://google.aip.dev/160).
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) FieldFilter(fieldFilter string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("fieldFilter", fieldFilter)
+	return c
+}
+
+// Group sets the optional parameter "group": Group id of the available
+// groupings for the insight. Available groupings could be fetched by
+// calling insight list and get APIs in `BASIC` view.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) Group(group string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("group", group)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Requested page size.
+// Server may return fewer items than requested. If unspecified, server
+// will pick an appropriate default.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) PageSize(pageSize int64) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Used to fetch the
+// page represented by the token. Fetches the first page when not set.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) PageToken(pageToken string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// StartTime sets the optional parameter "startTime": Required. Starting
+// time for the duration for which insight is to be pulled.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) StartTime(startTime string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("startTime", startTime)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) Fields(s ...googleapi.Field) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) IfNoneMatch(entityTag string) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) Context(ctx context.Context) *ProjectsLocationsInsightsConfiguredInsightCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+insight}:configuredInsight")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"insight": c.insight,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.insights.configuredInsight" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResp
+// onse or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResp
+// onse.ServerResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the value for a selected particular insight based on the provided filters. Use the organization level path for fetching at org level and project level path for fetching the insight value specific to a particular project.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/insights/{insightsId}:configuredInsight",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.projects.locations.insights.configuredInsight",
+	//   "parameterOrder": [
+	//     "insight"
+	//   ],
+	//   "parameters": {
+	//     "aggregation": {
+	//       "description": "Required. Aggregation type. Available aggregation could be fetched by calling insight list and get APIs in `BASIC` view.",
+	//       "enum": [
+	//         "AGGREGATION_UNSPECIFIED",
+	//         "HOURLY",
+	//         "DAILY",
+	//         "WEEKLY",
+	//         "MONTHLY",
+	//         "CUSTOM_DATE_RANGE"
+	//       ],
+	//       "enumDescriptions": [
+	//         "Unspecified.",
+	//         "Insight should be aggregated at hourly level.",
+	//         "Insight should be aggregated at daily level.",
+	//         "Insight should be aggregated at weekly level.",
+	//         "Insight should be aggregated at monthly level.",
+	//         "Insight should be aggregated at the custom date range passed in as the start and end time in the request."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "customGrouping.fieldFilter": {
+	//       "description": "Optional. Filterable parameters to be added to the grouping clause. Available fields could be fetched by calling insight list and get APIs in `BASIC` view. `=` is the only comparison operator supported. `AND` is the only logical operator supported. Usage: field_filter=\"fieldName1=fieldVal1 AND fieldName2=fieldVal2\". NOTE: Only `AND` conditions are allowed. NOTE: Use the `filter_alias` from `Insight.Metadata.Field` message for the filtering the corresponding fields in this filter field. (These expressions are based on the filter language described at https://google.aip.dev/160).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "customGrouping.groupFields": {
+	//       "description": "Required. Fields to be used for grouping. NOTE: Use the `filter_alias` from `Insight.Metadata.Field` message for declaring the fields to be grouped-by here.",
+	//       "location": "query",
+	//       "repeated": true,
+	//       "type": "string"
+	//     },
+	//     "endTime": {
+	//       "description": "Required. Ending time for the duration for which insight is to be pulled.",
+	//       "format": "google-datetime",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "fieldFilter": {
+	//       "description": "Optional. Other filterable/configurable parameters as applicable to the selected insight. Available fields could be fetched by calling insight list and get APIs in `BASIC` view. `=` is the only comparison operator supported. `AND` is the only logical operator supported. Usage: field_filter=\"fieldName1=fieldVal1 AND fieldName2=fieldVal2\". NOTE: Only `AND` conditions are allowed. NOTE: Use the `filter_alias` from `Insight.Metadata.Field` message for the filtering the corresponding fields in this filter field. (These expressions are based on the filter language described at https://google.aip.dev/160).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "group": {
+	//       "description": "Optional. Group id of the available groupings for the insight. Available groupings could be fetched by calling insight list and get APIs in `BASIC` view.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "insight": {
+	//       "description": "Required. The resource name of the insight using the form: `organizations/{organization_id}/locations/{location_id}/insights/{insight_id}` `projects/{project_id}/locations/{location_id}/insights/{insight_id}`.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/insights/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Optional. Requested page size. Server may return fewer items than requested. If unspecified, server will pick an appropriate default.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Optional. Used to fetch the page represented by the token. Fetches the first page when not set.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "startTime": {
+	//       "description": "Required. Starting time for the duration for which insight is to be pulled.",
+	//       "format": "google-datetime",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+insight}:configuredInsight",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *ProjectsLocationsInsightsConfiguredInsightCall) Pages(ctx context.Context, f func(*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaConfiguredInsightResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "beyondcorp.projects.locations.insights.get":
+
+type ProjectsLocationsInsightsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets the value for a selected particular insight with default
+// configuration. The default aggregation level is 'DAILY' and no
+// grouping will be applied or default grouping if applicable. The data
+// will be returned for recent 7 days starting the day before. The
+// insight data size will be limited to 50 rows. Use the organization
+// level path for fetching at org level and project level path for
+// fetching the insight value specific to a particular project. Setting
+// the `view` to `BASIC` will only return the metadata for the insight.
+//
+//   - name: The resource name of the insight using the form:
+//     `organizations/{organization_id}/locations/{location_id}/insights/{i
+//     nsight_id}`
+//     `projects/{project_id}/locations/{location_id}/insights/{insight_id}
+//     `.
+func (r *ProjectsLocationsInsightsService) Get(name string) *ProjectsLocationsInsightsGetCall {
+	c := &ProjectsLocationsInsightsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// View sets the optional parameter "view": Required. Metadata only or
+// full data view.
+//
+// Possible values:
+//
+//	"INSIGHT_VIEW_UNSPECIFIED" - The default / unset value. The API
+//
+// will default to the BASIC view.
+//
+//	"BASIC" - Include basic metadata about the insight, but not the
+//
+// insight data. This is the default value (for both ListInsights and
+// GetInsight).
+//
+//	"FULL" - Include everything.
+func (c *ProjectsLocationsInsightsGetCall) View(view string) *ProjectsLocationsInsightsGetCall {
+	c.urlParams_.Set("view", view)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsInsightsGetCall) Fields(s ...googleapi.Field) *ProjectsLocationsInsightsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsInsightsGetCall) IfNoneMatch(entityTag string) *ProjectsLocationsInsightsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsInsightsGetCall) Context(ctx context.Context) *ProjectsLocationsInsightsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsInsightsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsInsightsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.insights.get" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight.ServerRespons
+// e.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsLocationsInsightsGetCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the value for a selected particular insight with default configuration. The default aggregation level is 'DAILY' and no grouping will be applied or default grouping if applicable. The data will be returned for recent 7 days starting the day before. The insight data size will be limited to 50 rows. Use the organization level path for fetching at org level and project level path for fetching the insight value specific to a particular project. Setting the `view` to `BASIC` will only return the metadata for the insight.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/insights/{insightsId}",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.projects.locations.insights.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name of the insight using the form: `organizations/{organization_id}/locations/{location_id}/insights/{insight_id}` `projects/{project_id}/locations/{location_id}/insights/{insight_id}`",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/insights/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "view": {
+	//       "description": "Required. Metadata only or full data view.",
+	//       "enum": [
+	//         "INSIGHT_VIEW_UNSPECIFIED",
+	//         "BASIC",
+	//         "FULL"
+	//       ],
+	//       "enumDescriptions": [
+	//         "The default / unset value. The API will default to the BASIC view.",
+	//         "Include basic metadata about the insight, but not the insight data. This is the default value (for both ListInsights and GetInsight).",
+	//         "Include everything."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+name}",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformInsightsV1alphaInsight"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "beyondcorp.projects.locations.insights.list":
+
+type ProjectsLocationsInsightsListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists for all the available insights that could be fetched from
+// the system. Allows to filter using category. Setting the `view` to
+// `BASIC` will let you iterate over the list of insight metadatas.
+//
+//   - parent: The resource name of InsightMetadata using the form:
+//     `organizations/{organization_id}/locations/{location}`
+//     `projects/{project_id}/locations/{location_id}`.
+func (r *ProjectsLocationsInsightsService) List(parent string) *ProjectsLocationsInsightsListCall {
+	c := &ProjectsLocationsInsightsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// Filter sets the optional parameter "filter": Filter expression to
+// restrict the insights returned. Supported filter fields: * `type` *
+// `category` * `subCategory` Examples: * "category = application AND
+// type = count" * "category = application AND subCategory = iap" *
+// "type = status" Allowed values: * type: [count, latency, status,
+// list] * category: [application, device, request, security] *
+// subCategory: [iap, webprotect] NOTE: Only equality based comparison
+// is allowed. Only `AND` conjunction is allowed. NOTE: The 'AND' in the
+// filter field needs to be in capital letters only. NOTE: Just
+// filtering on `subCategory` is not allowed. It should be passed in
+// with the parent `category` too. (These expressions are based on the
+// filter language described at https://google.aip.dev/160).
+func (c *ProjectsLocationsInsightsListCall) Filter(filter string) *ProjectsLocationsInsightsListCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": Hint for how to order
+// the results. This is currently ignored.
+func (c *ProjectsLocationsInsightsListCall) OrderBy(orderBy string) *ProjectsLocationsInsightsListCall {
+	c.urlParams_.Set("orderBy", orderBy)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Requested page size.
+// Server may return fewer items than requested. If unspecified, server
+// will pick an appropriate default. NOTE: Default page size is 50.
+func (c *ProjectsLocationsInsightsListCall) PageSize(pageSize int64) *ProjectsLocationsInsightsListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": A token
+// identifying a page of results the server should return.
+func (c *ProjectsLocationsInsightsListCall) PageToken(pageToken string) *ProjectsLocationsInsightsListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// View sets the optional parameter "view": Required. List only metadata
+// or full data.
+//
+// Possible values:
+//
+//	"INSIGHT_VIEW_UNSPECIFIED" - The default / unset value. The API
+//
+// will default to the BASIC view.
+//
+//	"BASIC" - Include basic metadata about the insight, but not the
+//
+// insight data. This is the default value (for both ListInsights and
+// GetInsight).
+//
+//	"FULL" - Include everything.
+func (c *ProjectsLocationsInsightsListCall) View(view string) *ProjectsLocationsInsightsListCall {
+	c.urlParams_.Set("view", view)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsInsightsListCall) Fields(s ...googleapi.Field) *ProjectsLocationsInsightsListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsInsightsListCall) IfNoneMatch(entityTag string) *ProjectsLocationsInsightsListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsInsightsListCall) Context(ctx context.Context) *ProjectsLocationsInsightsListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsInsightsListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsInsightsListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+parent}/insights")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.insights.list" call.
+// Exactly one of
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse.
+// ServerResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsLocationsInsightsListCall) Do(opts ...googleapi.CallOption) (*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists for all the available insights that could be fetched from the system. Allows to filter using category. Setting the `view` to `BASIC` will let you iterate over the list of insight metadatas.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/insights",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.projects.locations.insights.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "filter": {
+	//       "description": "Optional. Filter expression to restrict the insights returned. Supported filter fields: * `type` * `category` * `subCategory` Examples: * \"category = application AND type = count\" * \"category = application AND subCategory = iap\" * \"type = status\" Allowed values: * type: [count, latency, status, list] * category: [application, device, request, security] * subCategory: [iap, webprotect] NOTE: Only equality based comparison is allowed. Only `AND` conjunction is allowed. NOTE: The 'AND' in the filter field needs to be in capital letters only. NOTE: Just filtering on `subCategory` is not allowed. It should be passed in with the parent `category` too. (These expressions are based on the filter language described at https://google.aip.dev/160).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "Optional. Hint for how to order the results. This is currently ignored.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Optional. Requested page size. Server may return fewer items than requested. If unspecified, server will pick an appropriate default. NOTE: Default page size is 50.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Optional. A token identifying a page of results the server should return.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. The resource name of InsightMetadata using the form: `organizations/{organization_id}/locations/{location}` `projects/{project_id}/locations/{location_id}`",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "view": {
+	//       "description": "Required. List only metadata or full data.",
+	//       "enum": [
+	//         "INSIGHT_VIEW_UNSPECIFIED",
+	//         "BASIC",
+	//         "FULL"
+	//       ],
+	//       "enumDescriptions": [
+	//         "The default / unset value. The API will default to the BASIC view.",
+	//         "Include basic metadata about the insight, but not the insight data. This is the default value (for both ListInsights and GetInsight).",
+	//         "Include everything."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+parent}/insights",
+	//   "response": {
+	//     "$ref": "GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *ProjectsLocationsInsightsListCall) Pages(ctx context.Context, f func(*GoogleCloudBeyondcorpSaasplatformInsightsV1alphaListInsightsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "beyondcorp.projects.locations.netConnections.getIamPolicy":
+
+type ProjectsLocationsNetConnectionsGetIamPolicyCall struct {
+	s            *Service
+	resource     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetIamPolicy: Gets the access control policy for a resource. Returns
+// an empty policy if the resource exists and does not have a policy
+// set.
+//
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
+func (r *ProjectsLocationsNetConnectionsService) GetIamPolicy(resource string) *ProjectsLocationsNetConnectionsGetIamPolicyCall {
+	c := &ProjectsLocationsNetConnectionsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	return c
+}
+
+// OptionsRequestedPolicyVersion sets the optional parameter
+// "options.requestedPolicyVersion": The maximum policy version that
+// will be used to format the policy. Valid values are 0, 1, and 3.
+// Requests specifying an invalid value will be rejected. Requests for
+// policies with any conditional role bindings must specify version 3.
+// Policies with no conditional role bindings may specify any valid
+// value or leave the field unset. The policy in the response might use
+// the policy version that you specified, or it might use a lower policy
+// version. For example, if you specify version 3, but the policy has no
+// conditional role bindings, the response uses version 1. To learn
+// which resources support conditions in their IAM policies, see the IAM
+// documentation
+// (https://cloud.google.com/iam/help/conditions/resource-policies).
+func (c *ProjectsLocationsNetConnectionsGetIamPolicyCall) OptionsRequestedPolicyVersion(optionsRequestedPolicyVersion int64) *ProjectsLocationsNetConnectionsGetIamPolicyCall {
+	c.urlParams_.Set("options.requestedPolicyVersion", fmt.Sprint(optionsRequestedPolicyVersion))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsNetConnectionsGetIamPolicyCall) Fields(s ...googleapi.Field) *ProjectsLocationsNetConnectionsGetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsLocationsNetConnectionsGetIamPolicyCall) IfNoneMatch(entityTag string) *ProjectsLocationsNetConnectionsGetIamPolicyCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsNetConnectionsGetIamPolicyCall) Context(ctx context.Context) *ProjectsLocationsNetConnectionsGetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsNetConnectionsGetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsNetConnectionsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+resource}:getIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.netConnections.getIamPolicy" call.
+// Exactly one of *GoogleIamV1Policy or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleIamV1Policy.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsNetConnectionsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleIamV1Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/netConnections/{netConnectionsId}:getIamPolicy",
+	//   "httpMethod": "GET",
+	//   "id": "beyondcorp.projects.locations.netConnections.getIamPolicy",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "options.requestedPolicyVersion": {
+	//       "description": "Optional. The maximum policy version that will be used to format the policy. Valid values are 0, 1, and 3. Requests specifying an invalid value will be rejected. Requests for policies with any conditional role bindings must specify version 3. Policies with no conditional role bindings may specify any valid value or leave the field unset. The policy in the response might use the policy version that you specified, or it might use a lower policy version. For example, if you specify version 3, but the policy has no conditional role bindings, the response uses version 1. To learn which resources support conditions in their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/netConnections/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+resource}:getIamPolicy",
+	//   "response": {
+	//     "$ref": "GoogleIamV1Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "beyondcorp.projects.locations.netConnections.setIamPolicy":
+
+type ProjectsLocationsNetConnectionsSetIamPolicyCall struct {
+	s                              *Service
+	resource                       string
+	googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest
+	urlParams_                     gensupport.URLParams
+	ctx_                           context.Context
+	header_                        http.Header
+}
+
+// SetIamPolicy: Sets the access control policy on the specified
+// resource. Replaces any existing policy. Can return `NOT_FOUND`,
+// `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
+//
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
+func (r *ProjectsLocationsNetConnectionsService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsNetConnectionsSetIamPolicyCall {
+	c := &ProjectsLocationsNetConnectionsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	c.googleiamv1setiampolicyrequest = googleiamv1setiampolicyrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsNetConnectionsSetIamPolicyCall) Fields(s ...googleapi.Field) *ProjectsLocationsNetConnectionsSetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsNetConnectionsSetIamPolicyCall) Context(ctx context.Context) *ProjectsLocationsNetConnectionsSetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsNetConnectionsSetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsNetConnectionsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleiamv1setiampolicyrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+resource}:setIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.netConnections.setIamPolicy" call.
+// Exactly one of *GoogleIamV1Policy or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleIamV1Policy.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsNetConnectionsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleIamV1Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Sets the access control policy on the specified resource. Replaces any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/netConnections/{netConnectionsId}:setIamPolicy",
+	//   "httpMethod": "POST",
+	//   "id": "beyondcorp.projects.locations.netConnections.setIamPolicy",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/netConnections/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1alpha/{+resource}:setIamPolicy",
+	//   "request": {
+	//     "$ref": "GoogleIamV1SetIamPolicyRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleIamV1Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "beyondcorp.projects.locations.netConnections.testIamPermissions":
+
+type ProjectsLocationsNetConnectionsTestIamPermissionsCall struct {
+	s                                    *Service
+	resource                             string
+	googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest
+	urlParams_                           gensupport.URLParams
+	ctx_                                 context.Context
+	header_                              http.Header
+}
+
+// TestIamPermissions: Returns permissions that a caller has on the
+// specified resource. If the resource does not exist, this will return
+// an empty set of permissions, not a `NOT_FOUND` error. Note: This
+// operation is designed to be used for building permission-aware UIs
+// and command-line tools, not for authorization checking. This
+// operation may "fail open" without warning.
+//
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
+func (r *ProjectsLocationsNetConnectionsService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsNetConnectionsTestIamPermissionsCall {
+	c := &ProjectsLocationsNetConnectionsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	c.googleiamv1testiampermissionsrequest = googleiamv1testiampermissionsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsNetConnectionsTestIamPermissionsCall) Fields(s ...googleapi.Field) *ProjectsLocationsNetConnectionsTestIamPermissionsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsNetConnectionsTestIamPermissionsCall) Context(ctx context.Context) *ProjectsLocationsNetConnectionsTestIamPermissionsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsNetConnectionsTestIamPermissionsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsNetConnectionsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleiamv1testiampermissionsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1alpha/{+resource}:testIamPermissions")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "beyondcorp.projects.locations.netConnections.testIamPermissions" call.
+// Exactly one of *GoogleIamV1TestIamPermissionsResponse or error will
+// be non-nil. Any non-2xx status code is an error. Response headers are
+// in either
+// *GoogleIamV1TestIamPermissionsResponse.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsLocationsNetConnectionsTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1TestIamPermissionsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleIamV1TestIamPermissionsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a `NOT_FOUND` error. Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may \"fail open\" without warning.",
+	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/netConnections/{netConnectionsId}:testIamPermissions",
+	//   "httpMethod": "POST",
+	//   "id": "beyondcorp.projects.locations.netConnections.testIamPermissions",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/netConnections/[^/]+$",
 	//       "required": true,
 	//       "type": "string"
 	//     }
@@ -14503,17 +18514,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -14641,17 +18652,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -14789,17 +18800,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14853,14 +18864,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -14966,17 +18970,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14990,7 +18994,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1alpha/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "beyondcorp.projects.locations.operations.list",

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://firebase.google.com/docs/cloud-messaging
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/fcm/v1"
-//   ...
-//   ctx := context.Background()
-//   fcmService, err := fcm.NewService(ctx)
+//	import "google.golang.org/api/fcm/v1"
+//	...
+//	ctx := context.Background()
+//	fcmService, err := fcm.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   fcmService, err := fcm.NewService(ctx, option.WithScopes(fcm.FirebaseMessagingScope))
+//	fcmService, err := fcm.NewService(ctx, option.WithScopes(fcm.FirebaseMessagingScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   fcmService, err := fcm.NewService(ctx, option.WithAPIKey("AIza..."))
+//	fcmService, err := fcm.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   fcmService, err := fcm.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	fcmService, err := fcm.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package fcm // import "google.golang.org/api/fcm/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "fcm:v1"
 const apiName = "fcm"
@@ -518,15 +519,15 @@ type ApnsConfig struct {
 	// Service. Refer to APNs request headers
 	// (https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns)
 	// for supported headers such as `apns-expiration` and `apns-priority`.
+	// The backend sets a default value for `apns-expiration` of 30 days and
+	// a default value for `apns-priority` of 10 if not explicitly set.
 	Headers map[string]string `json:"headers,omitempty"`
 
 	// Payload: APNs payload as a JSON object, including both `aps`
 	// dictionary and custom payload. See Payload Key Reference
 	// (https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification).
 	// If present, it overrides google.firebase.fcm.v1.Notification.title
-	// and google.firebase.fcm.v1.Notification.body. The backend sets a
-	// default value for `apns-expiration` of 30 days and a default value
-	// for `apns-priority` of 10 if not explicitly set.
+	// and google.firebase.fcm.v1.Notification.body.
 	Payload googleapi.RawMessage `json:"payload,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "FcmOptions") to
@@ -632,12 +633,12 @@ func (s *ApnsFcmOptions) MarshalJSON() ([]byte, error) {
 // if (!('alpha' in rgb_color)) { return rgbToCssColor(red, green,
 // blue); } var alphaFrac = rgb_color.alpha.value || 0.0; var rgbParams
 // = [red, green, blue].join(','); return ['rgba(', rgbParams, ',',
-// alphaFrac, ')'].join(''); }; var rgbToCssColor = function(red, green,
+// alphaFrac, ')'].join(”); }; var rgbToCssColor = function(red, green,
 // blue) { var rgbNumber = new Number((red << 16) | (green << 8) |
 // blue); var hexString = rgbNumber.toString(16); var missingZeros = 6 -
 // hexString.length; var resultBuilder = ['#']; for (var i = 0; i <
 // missingZeros; i++) { resultBuilder.push('0'); }
-// resultBuilder.push(hexString); return resultBuilder.join(''); }; //
+// resultBuilder.push(hexString); return resultBuilder.join(”); }; //
 // ...
 type Color struct {
 	// Alpha: The fraction of this color that should be applied to the
@@ -1015,11 +1016,11 @@ type ProjectsMessagesSendCall struct {
 // Send: Send a message to specified target (a registration token, topic
 // or condition).
 //
-// - parent: It contains the Firebase project id (i.e. the unique
-//   identifier for your Firebase project), in the format of
-//   `projects/{project_id}`. For legacy support, the numeric project
-//   number with no padding is also supported in the format of
-//   `projects/{project_number}`.
+//   - parent: It contains the Firebase project id (i.e. the unique
+//     identifier for your Firebase project), in the format of
+//     `projects/{project_id}`. For legacy support, the numeric project
+//     number with no padding is also supported in the format of
+//     `projects/{project_number}`.
 func (r *ProjectsMessagesService) Send(parentid string, sendmessagerequest *SendMessageRequest) *ProjectsMessagesSendCall {
 	c := &ProjectsMessagesSendCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parentid = parentid
@@ -1094,17 +1095,17 @@ func (c *ProjectsMessagesSendCall) Do(opts ...googleapi.CallOption) (*Message, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Message{
 		ServerResponse: googleapi.ServerResponse{

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://ads.google.com/local-services-ads/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/localservices/v1"
-//   ...
-//   ctx := context.Background()
-//   localservicesService, err := localservices.NewService(ctx)
+//	import "google.golang.org/api/localservices/v1"
+//	...
+//	ctx := context.Background()
+//	localservicesService, err := localservices.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   localservicesService, err := localservices.NewService(ctx, option.WithAPIKey("AIza..."))
+//	localservicesService, err := localservices.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   localservicesService, err := localservices.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	localservicesService, err := localservices.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package localservices // import "google.golang.org/api/localservices/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "localservices:v1"
 const apiName = "localservices"
@@ -80,7 +81,7 @@ const mtlsBasePath = "https://localservices.mtls.googleapis.com/"
 
 // OAuth2 scopes used by this API.
 const (
-	// Manage your AdWords campaigns
+	// See, edit, create, and delete your Google Ads accounts and data.
 	AdwordsScope = "https://www.googleapis.com/auth/adwords"
 )
 
@@ -575,7 +576,9 @@ func (s *GoogleAdsHomeservicesLocalservicesV1SearchAccountReportsResponse) Marsh
 }
 
 // GoogleAdsHomeservicesLocalservicesV1SearchDetailedLeadReportsResponse:
-//  A page of the response received from the SearchDetailedLeadReports
+//
+//	A page of the response received from the SearchDetailedLeadReports
+//
 // method. A paginated response where more pages are available has
 // `next_page_token` set. This token can be used in a subsequent request
 // to retrieve the next request page.
@@ -822,17 +825,17 @@ func (c *AccountReportsSearchCall) Do(opts ...googleapi.CallOption) (*GoogleAdsH
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleAdsHomeservicesLocalservicesV1SearchAccountReportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1096,7 +1099,9 @@ func (c *DetailedLeadReportsSearchCall) doRequest(alt string) (*http.Response, e
 // Do executes the "localservices.detailedLeadReports.search" call.
 // Exactly one of
 // *GoogleAdsHomeservicesLocalservicesV1SearchDetailedLeadReportsResponse
-//  or error will be non-nil. Any non-2xx status code is an error.
+//
+//	or error will be non-nil. Any non-2xx status code is an error.
+//
 // Response headers are in either
 // *GoogleAdsHomeservicesLocalservicesV1SearchDetailedLeadReportsResponse
 // .ServerResponse.Header or (if a response was returned at all) in
@@ -1110,17 +1115,17 @@ func (c *DetailedLeadReportsSearchCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleAdsHomeservicesLocalservicesV1SearchDetailedLeadReportsResponse{
 		ServerResponse: googleapi.ServerResponse{

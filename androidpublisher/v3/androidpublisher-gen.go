@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/android-publisher
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/androidpublisher/v3"
-//   ...
-//   ctx := context.Background()
-//   androidpublisherService, err := androidpublisher.NewService(ctx)
+//	import "google.golang.org/api/androidpublisher/v3"
+//	...
+//	ctx := context.Background()
+//	androidpublisherService, err := androidpublisher.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   androidpublisherService, err := androidpublisher.NewService(ctx, option.WithAPIKey("AIza..."))
+//	androidpublisherService, err := androidpublisher.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   androidpublisherService, err := androidpublisher.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	androidpublisherService, err := androidpublisher.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package androidpublisher // import "google.golang.org/api/androidpublisher/v3"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "androidpublisher:v3"
 const apiName = "androidpublisher"
@@ -813,11 +814,21 @@ type AutoRenewingBasePlanType struct {
 	// default value will be used based on the recurring period duration.
 	GracePeriodDuration string `json:"gracePeriodDuration,omitempty"`
 
-	// LegacyCompatible: Whether the renewing base plan is compatible with
-	// legacy version of the Play Billing Library (prior to version 3) or
-	// not. Only one renewing base plan can be marked as legacy compatible
-	// for a given subscription.
+	// LegacyCompatible: Whether the renewing base plan is backward
+	// compatible. The backward compatible base plan is returned by the
+	// Google Play Billing Library deprecated method querySkuDetailsAsync().
+	// Only one renewing base plan can be marked as legacy compatible for a
+	// given subscription.
 	LegacyCompatible bool `json:"legacyCompatible,omitempty"`
+
+	// LegacyCompatibleSubscriptionOfferId: Subscription offer id which is
+	// legacy compatible. The backward compatible subscription offer is
+	// returned by the Google Play Billing Library deprecated method
+	// querySkuDetailsAsync(). Only one subscription offer can be marked as
+	// legacy compatible for a given renewing base plan. To have no
+	// Subscription offer as legacy compatible set this field as empty
+	// string.
+	LegacyCompatibleSubscriptionOfferId string `json:"legacyCompatibleSubscriptionOfferId,omitempty"`
 
 	// ProrationMode: The proration mode for the base plan determines what
 	// happens when a user switches to this plan from another base plan. If
@@ -874,6 +885,10 @@ type AutoRenewingPlan struct {
 	// AutoRenewEnabled: If the subscription is currently set to auto-renew,
 	// e.g. the user has not canceled the subscription
 	AutoRenewEnabled bool `json:"autoRenewEnabled,omitempty"`
+
+	// PriceChangeDetails: The information of the last price change for the
+	// item since subscription signup.
+	PriceChangeDetails *SubscriptionItemPriceChangeDetails `json:"priceChangeDetails,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AutoRenewEnabled") to
 	// unconditionally include in API requests. By default, fields with
@@ -1452,9 +1467,9 @@ func (s *DeveloperComment) MarshalJSON() ([]byte, error) {
 type DeveloperInitiatedCancellation struct {
 }
 
-// DeviceGroup: LINT.IfChange A group of devices. A group is defined by
-// a set of device selectors. A device belongs to the group if it
-// matches any selector (logical OR).
+// DeviceGroup: A group of devices. A group is defined by a set of
+// device selectors. A device belongs to the group if it matches any
+// selector (logical OR).
 type DeviceGroup struct {
 	// DeviceSelectors: Device selectors for this group. A device matching
 	// any of the selectors is included in this group.
@@ -1739,8 +1754,8 @@ func (s *DeviceTier) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// DeviceTierConfig: LINT.IfChange Configuration describing device
-// targeting criteria for the content of an app.
+// DeviceTierConfig: Configuration describing device targeting criteria
+// for the content of an app.
 type DeviceTierConfig struct {
 	// DeviceGroups: Definition of device groups for the app.
 	DeviceGroups []*DeviceGroup `json:"deviceGroups,omitempty"`
@@ -1750,6 +1765,9 @@ type DeviceTierConfig struct {
 
 	// DeviceTierSet: Definition of the set of device tiers for the app.
 	DeviceTierSet *DeviceTierSet `json:"deviceTierSet,omitempty"`
+
+	// UserCountrySets: Definition of user country sets for the app.
+	UserCountrySets []*UserCountrySet `json:"userCountrySets,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -3090,6 +3108,42 @@ func (s *Money) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// OfferDetails: Offer details information related to a purchase line
+// item.
+type OfferDetails struct {
+	// BasePlanId: The base plan ID. Present for all base plan and offers.
+	BasePlanId string `json:"basePlanId,omitempty"`
+
+	// OfferId: The offer ID. Only present for discounted offers.
+	OfferId string `json:"offerId,omitempty"`
+
+	// OfferTags: The latest offer tags associated with the offer. It
+	// includes tags inherited from the base plan.
+	OfferTags []string `json:"offerTags,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "BasePlanId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "BasePlanId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *OfferDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod OfferDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // OfferTag: Represents a custom tag specified for base plans and
 // subscription offers.
 type OfferTag struct {
@@ -3411,9 +3465,9 @@ func (s *PrepaidBasePlanType) MarshalJSON() ([]byte, error) {
 
 // PrepaidPlan: Information related to a prepaid plan.
 type PrepaidPlan struct {
-	// AllowExtendAfterTime: After this time, the subscription is allowed
-	// for a new top-up purchase. Not present if the subscription is already
-	// extended by a top-up purchase.
+	// AllowExtendAfterTime: If present, this is the time after which top up
+	// purchases are allowed for the prepaid plan. Will not be present for
+	// expired prepaid plans.
 	AllowExtendAfterTime string `json:"allowExtendAfterTime,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -3800,6 +3854,33 @@ type RegionalTaxRateInfo struct {
 	// sales tax. Field only supported in United States.
 	EligibleForStreamingServiceTaxRate bool `json:"eligibleForStreamingServiceTaxRate,omitempty"`
 
+	// StreamingTaxType: To collect communications or amusement taxes in the
+	// United States, choose the appropriate tax category. Learn more
+	// (https://support.google.com/googleplay/android-developer/answer/10463498#streaming_tax).
+	//
+	// Possible values:
+	//   "STREAMING_TAX_TYPE_UNSPECIFIED" - No telecommunications tax
+	// collected.
+	//   "STREAMING_TAX_TYPE_TELCO_VIDEO_RENTAL" - US-specific
+	// telecommunications tax tier for video streaming, on demand, rentals /
+	// subscriptions / pay-per-view.
+	//   "STREAMING_TAX_TYPE_TELCO_VIDEO_SALES" - US-specific
+	// telecommunications tax tier for video streaming of pre-recorded
+	// content like movies, tv shows.
+	//   "STREAMING_TAX_TYPE_TELCO_VIDEO_MULTI_CHANNEL" - US-specific
+	// telecommunications tax tier for video streaming of multi-channel
+	// programming.
+	//   "STREAMING_TAX_TYPE_TELCO_AUDIO_RENTAL" - US-specific
+	// telecommunications tax tier for audio streaming, rental /
+	// subscription.
+	//   "STREAMING_TAX_TYPE_TELCO_AUDIO_SALES" - US-specific
+	// telecommunications tax tier for audio streaming, sale / permanent
+	// download.
+	//   "STREAMING_TAX_TYPE_TELCO_AUDIO_MULTI_CHANNEL" - US-specific
+	// telecommunications tax tier for multi channel audio streaming like
+	// radio.
+	StreamingTaxType string `json:"streamingTaxType,omitempty"`
+
 	// TaxTier: Tax tier to specify reduced tax rate. Developers who sell
 	// digital news, magazines, newspapers, books, or audiobooks in various
 	// regions may be eligible for reduced tax rates. Learn more
@@ -3843,7 +3924,8 @@ func (s *RegionalTaxRateInfo) MarshalJSON() ([]byte, error) {
 // the specified resource.
 type RegionsVersion struct {
 	// Version: Required. A string representing version of the available
-	// regions being used for the specified resource.
+	// regions being used for the specified resource. The current version is
+	// 2022/02.
 	Version string `json:"version,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Version") to
@@ -4225,6 +4307,65 @@ func (s *SubscriptionDeferralInfo) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// SubscriptionItemPriceChangeDetails: Price change related information
+// of a subscription item.
+type SubscriptionItemPriceChangeDetails struct {
+	// ExpectedNewPriceChargeTime: The renewal time at which the price
+	// change will become effective for the user. This is subject to
+	// change(to a future time) due to cases where the renewal time shifts
+	// like pause.
+	ExpectedNewPriceChargeTime string `json:"expectedNewPriceChargeTime,omitempty"`
+
+	// NewPrice: New recurring price for the subscription item.
+	NewPrice *Money `json:"newPrice,omitempty"`
+
+	// PriceChangeMode: Price change mode specifies how the subscription
+	// item price is changing.
+	//
+	// Possible values:
+	//   "PRICE_CHANGE_MODE_UNSPECIFIED" - Price change mode unspecified.
+	// This value should never be set.
+	//   "PRICE_DECREASE" - If the subscription price is decreasing.
+	//   "PRICE_INCREASE" - If the subscription price is increasing and the
+	// user needs to accept it.
+	PriceChangeMode string `json:"priceChangeMode,omitempty"`
+
+	// PriceChangeState: State the price change is currently in.
+	//
+	// Possible values:
+	//   "PRICE_CHANGE_STATE_UNSPECIFIED" - Price change state unspecified.
+	// This value should not be used.
+	//   "OUTSTANDING" - Waiting for the user to agree for the price change.
+	//   "CONFIRMED" - The price change is confirmed to happen for the user.
+	//   "APPLIED" - The price change is applied, i.e. the user has started
+	// being charged the new price.
+	PriceChangeState string `json:"priceChangeState,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "ExpectedNewPriceChargeTime") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "ExpectedNewPriceChargeTime") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SubscriptionItemPriceChangeDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod SubscriptionItemPriceChangeDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SubscriptionListing: The consumer-visible metadata of a subscription.
 type SubscriptionListing struct {
 	// Benefits: A list of benefits shown to the user on platforms such as
@@ -4580,7 +4721,7 @@ type SubscriptionPurchase struct {
 	// are: 0. Payment pending 1. Payment received 2. Free trial 3. Pending
 	// deferred upgrade/downgrade Not present for canceled, expired
 	// subscriptions.
-	PaymentState int64 `json:"paymentState,omitempty"`
+	PaymentState *int64 `json:"paymentState,omitempty"`
 
 	// PriceAmountMicros: Price of the subscription, For tax exclusive
 	// countries, the price doesn't include tax. For tax inclusive
@@ -4675,6 +4816,9 @@ type SubscriptionPurchaseLineItem struct {
 	// ExpiryTime: Time at which the subscription expired or will expire
 	// unless the access is extended (ex. renews).
 	ExpiryTime string `json:"expiryTime,omitempty"`
+
+	// OfferDetails: The offer details for this item.
+	OfferDetails *OfferDetails `json:"offerDetails,omitempty"`
 
 	// PrepaidPlan: The item is prepaid.
 	PrepaidPlan *PrepaidPlan `json:"prepaidPlan,omitempty"`
@@ -5191,7 +5335,10 @@ type Track struct {
 	// track. In an update request, represents desired changes.
 	Releases []*TrackRelease `json:"releases,omitempty"`
 
-	// Track: Identifier of the track.
+	// Track: Identifier of the track. Form factor tracks have a special
+	// prefix as an identifier, for example `wear:production`,
+	// `automotive:production`. More on track name
+	// (https://developers.google.com/android-publisher/tracks#ff-track-name)
 	Track string `json:"track,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -5631,6 +5778,40 @@ func (s *UserComment) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// UserCountrySet: A set of user countries. A country set determines
+// what variation of app content gets served to a specific location.
+type UserCountrySet struct {
+	// CountryCodes: List of country codes representing countries. A Country
+	// code is represented in ISO 3166 alpha-2 format. For Example:- "IT"
+	// for Italy, "GE" for Georgia.
+	CountryCodes []string `json:"countryCodes,omitempty"`
+
+	// Name: Country set name.
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CountryCodes") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CountryCodes") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UserCountrySet) MarshalJSON() ([]byte, error) {
+	type NoMethod UserCountrySet
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // UserInitiatedCancellation: Information specific to cancellations
 // initiated by users.
 type UserInitiatedCancellation struct {
@@ -5929,17 +6110,17 @@ func (c *ApplicationsDeviceTierConfigsCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DeviceTierConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6086,17 +6267,17 @@ func (c *ApplicationsDeviceTierConfigsGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DeviceTierConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6259,17 +6440,17 @@ func (c *ApplicationsDeviceTierConfigsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDeviceTierConfigsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6436,17 +6617,17 @@ func (c *EditsCommitCall) Do(opts ...googleapi.CallOption) (*AppEdit, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppEdit{
 		ServerResponse: googleapi.ServerResponse{
@@ -6578,7 +6759,7 @@ func (c *EditsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -6711,17 +6892,17 @@ func (c *EditsGetCall) Do(opts ...googleapi.CallOption) (*AppEdit, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppEdit{
 		ServerResponse: googleapi.ServerResponse{
@@ -6856,17 +7037,17 @@ func (c *EditsInsertCall) Do(opts ...googleapi.CallOption) (*AppEdit, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppEdit{
 		ServerResponse: googleapi.ServerResponse{
@@ -6994,17 +7175,17 @@ func (c *EditsValidateCall) Do(opts ...googleapi.CallOption) (*AppEdit, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppEdit{
 		ServerResponse: googleapi.ServerResponse{
@@ -7147,17 +7328,17 @@ func (c *EditsApksAddexternallyhostedCall) Do(opts ...googleapi.CallOption) (*Ap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApksAddExternallyHostedResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7306,17 +7487,17 @@ func (c *EditsApksListCall) Do(opts ...googleapi.CallOption) (*ApksListResponse,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ApksListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7499,17 +7680,17 @@ func (c *EditsApksUploadCall) Do(opts ...googleapi.CallOption) (*Apk, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -7525,7 +7706,7 @@ func (c *EditsApksUploadCall) Do(opts ...googleapi.CallOption) (*Apk, error) {
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &Apk{
@@ -7690,17 +7871,17 @@ func (c *EditsBundlesListCall) Do(opts ...googleapi.CallOption) (*BundlesListRes
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BundlesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7781,6 +7962,14 @@ func (r *EditsBundlesService) Upload(packageName string, editId string) *EditsBu
 // installation size may be over a threshold, typically 100 MB).
 func (c *EditsBundlesUploadCall) AckBundleInstallationWarning(ackBundleInstallationWarning bool) *EditsBundlesUploadCall {
 	c.urlParams_.Set("ackBundleInstallationWarning", fmt.Sprint(ackBundleInstallationWarning))
+	return c
+}
+
+// DeviceTierConfigId sets the optional parameter "deviceTierConfigId":
+// Device tier config (DTC) to be used for generating deliverables
+// (APKs). Contains id of the DTC or "LATEST" for last uploaded DTC.
+func (c *EditsBundlesUploadCall) DeviceTierConfigId(deviceTierConfigId string) *EditsBundlesUploadCall {
+	c.urlParams_.Set("deviceTierConfigId", deviceTierConfigId)
 	return c
 }
 
@@ -7897,17 +8086,17 @@ func (c *EditsBundlesUploadCall) Do(opts ...googleapi.CallOption) (*Bundle, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -7923,7 +8112,7 @@ func (c *EditsBundlesUploadCall) Do(opts ...googleapi.CallOption) (*Bundle, erro
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &Bundle{
@@ -7967,6 +8156,11 @@ func (c *EditsBundlesUploadCall) Do(opts ...googleapi.CallOption) (*Bundle, erro
 	//       "description": "Must be set to true if the app bundle installation may trigger a warning on user devices (for example, if installation size may be over a threshold, typically 100 MB).",
 	//       "location": "query",
 	//       "type": "boolean"
+	//     },
+	//     "deviceTierConfigId": {
+	//       "description": "Device tier config (DTC) to be used for generating deliverables (APKs). Contains id of the DTC or \"LATEST\" for last uploaded DTC.",
+	//       "location": "query",
+	//       "type": "string"
 	//     },
 	//     "editId": {
 	//       "description": "Identifier of the edit.",
@@ -8096,17 +8290,17 @@ func (c *EditsCountryavailabilityGetCall) Do(opts ...googleapi.CallOption) (*Tra
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TrackCountryAvailability{
 		ServerResponse: googleapi.ServerResponse{
@@ -8177,11 +8371,11 @@ type EditsDeobfuscationfilesUploadCall struct {
 // Upload: Uploads a new deobfuscation file and attaches to the
 // specified APK.
 //
-// - apkVersionCode: The version code of the APK whose Deobfuscation
-//   File is being uploaded.
-// - deobfuscationFileType: The type of the deobfuscation file.
-// - editId: Unique identifier for this edit.
-// - packageName: Unique identifier for the Android app.
+//   - apkVersionCode: The version code of the APK whose Deobfuscation
+//     File is being uploaded.
+//   - deobfuscationFileType: The type of the deobfuscation file.
+//   - editId: Unique identifier for this edit.
+//   - packageName: Unique identifier for the Android app.
 func (r *EditsDeobfuscationfilesService) Upload(packageNameid string, editId string, apkVersionCode int64, deobfuscationFileType string) *EditsDeobfuscationfilesUploadCall {
 	c := &EditsDeobfuscationfilesUploadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageNameid = packageNameid
@@ -8306,17 +8500,17 @@ func (c *EditsDeobfuscationfilesUploadCall) Do(opts ...googleapi.CallOption) (*D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -8332,7 +8526,7 @@ func (c *EditsDeobfuscationfilesUploadCall) Do(opts ...googleapi.CallOption) (*D
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &DeobfuscationFilesUploadResponse{
@@ -8355,7 +8549,7 @@ func (c *EditsDeobfuscationfilesUploadCall) Do(opts ...googleapi.CallOption) (*D
 	//     "accept": [
 	//       "application/octet-stream"
 	//     ],
-	//     "maxSize": "629145600",
+	//     "maxSize": "838860800",
 	//     "protocols": {
 	//       "resumable": {
 	//         "multipart": true,
@@ -8521,17 +8715,17 @@ func (c *EditsDetailsGetCall) Do(opts ...googleapi.CallOption) (*AppDetails, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppDetails{
 		ServerResponse: googleapi.ServerResponse{
@@ -8670,17 +8864,17 @@ func (c *EditsDetailsPatchCall) Do(opts ...googleapi.CallOption) (*AppDetails, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppDetails{
 		ServerResponse: googleapi.ServerResponse{
@@ -8822,17 +9016,17 @@ func (c *EditsDetailsUpdateCall) Do(opts ...googleapi.CallOption) (*AppDetails, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppDetails{
 		ServerResponse: googleapi.ServerResponse{
@@ -8898,12 +9092,12 @@ type EditsExpansionfilesGetCall struct {
 
 // Get: Fetches the expansion file configuration for the specified APK.
 //
-// - apkVersionCode: The version code of the APK whose expansion file
-//   configuration is being read or modified.
-// - editId: Identifier of the edit.
-// - expansionFileType: The file type of the file configuration which is
-//   being read or modified.
-// - packageName: Package name of the app.
+//   - apkVersionCode: The version code of the APK whose expansion file
+//     configuration is being read or modified.
+//   - editId: Identifier of the edit.
+//   - expansionFileType: The file type of the file configuration which is
+//     being read or modified.
+//   - packageName: Package name of the app.
 func (r *EditsExpansionfilesService) Get(packageName string, editId string, apkVersionCode int64, expansionFileType string) *EditsExpansionfilesGetCall {
 	c := &EditsExpansionfilesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -8991,17 +9185,17 @@ func (c *EditsExpansionfilesGetCall) Do(opts ...googleapi.CallOption) (*Expansio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ExpansionFile{
 		ServerResponse: googleapi.ServerResponse{
@@ -9091,12 +9285,12 @@ type EditsExpansionfilesPatchCall struct {
 // another APK's expansion file. To add a new expansion file use the
 // Upload method.
 //
-// - apkVersionCode: The version code of the APK whose expansion file
-//   configuration is being read or modified.
-// - editId: Identifier of the edit.
-// - expansionFileType: The file type of the expansion file
-//   configuration which is being updated.
-// - packageName: Package name of the app.
+//   - apkVersionCode: The version code of the APK whose expansion file
+//     configuration is being read or modified.
+//   - editId: Identifier of the edit.
+//   - expansionFileType: The file type of the expansion file
+//     configuration which is being updated.
+//   - packageName: Package name of the app.
 func (r *EditsExpansionfilesService) Patch(packageName string, editId string, apkVersionCode int64, expansionFileType string, expansionfile *ExpansionFile) *EditsExpansionfilesPatchCall {
 	c := &EditsExpansionfilesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -9177,17 +9371,17 @@ func (c *EditsExpansionfilesPatchCall) Do(opts ...googleapi.CallOption) (*Expans
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ExpansionFile{
 		ServerResponse: googleapi.ServerResponse{
@@ -9280,12 +9474,12 @@ type EditsExpansionfilesUpdateCall struct {
 // another APK's expansion file. To add a new expansion file use the
 // Upload method.
 //
-// - apkVersionCode: The version code of the APK whose expansion file
-//   configuration is being read or modified.
-// - editId: Identifier of the edit.
-// - expansionFileType: The file type of the file configuration which is
-//   being read or modified.
-// - packageName: Package name of the app.
+//   - apkVersionCode: The version code of the APK whose expansion file
+//     configuration is being read or modified.
+//   - editId: Identifier of the edit.
+//   - expansionFileType: The file type of the file configuration which is
+//     being read or modified.
+//   - packageName: Package name of the app.
 func (r *EditsExpansionfilesService) Update(packageName string, editId string, apkVersionCode int64, expansionFileType string, expansionfile *ExpansionFile) *EditsExpansionfilesUpdateCall {
 	c := &EditsExpansionfilesUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -9366,17 +9560,17 @@ func (c *EditsExpansionfilesUpdateCall) Do(opts ...googleapi.CallOption) (*Expan
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ExpansionFile{
 		ServerResponse: googleapi.ServerResponse{
@@ -9468,12 +9662,12 @@ type EditsExpansionfilesUploadCall struct {
 // Upload: Uploads a new expansion file and attaches to the specified
 // APK.
 //
-// - apkVersionCode: The version code of the APK whose expansion file
-//   configuration is being read or modified.
-// - editId: Identifier of the edit.
-// - expansionFileType: The file type of the expansion file
-//   configuration which is being updated.
-// - packageName: Package name of the app.
+//   - apkVersionCode: The version code of the APK whose expansion file
+//     configuration is being read or modified.
+//   - editId: Identifier of the edit.
+//   - expansionFileType: The file type of the expansion file
+//     configuration which is being updated.
+//   - packageName: Package name of the app.
 func (r *EditsExpansionfilesService) Upload(packageName string, editId string, apkVersionCode int64, expansionFileType string) *EditsExpansionfilesUploadCall {
 	c := &EditsExpansionfilesUploadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -9598,17 +9792,17 @@ func (c *EditsExpansionfilesUploadCall) Do(opts ...googleapi.CallOption) (*Expan
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -9624,7 +9818,7 @@ func (c *EditsExpansionfilesUploadCall) Do(opts ...googleapi.CallOption) (*Expan
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &ExpansionFilesUploadResponse{
@@ -9730,13 +9924,13 @@ type EditsImagesDeleteCall struct {
 
 // Delete: Deletes the image (specified by id) from the edit.
 //
-// - editId: Identifier of the edit.
-// - imageId: Unique identifier an image within the set of images
-//   attached to this edit.
-// - imageType: Type of the Image.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German).
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - imageId: Unique identifier an image within the set of images
+//     attached to this edit.
+//   - imageType: Type of the Image.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German).
+//   - packageName: Package name of the app.
 func (r *EditsImagesService) Delete(packageName string, editId string, language string, imageType string, imageId string) *EditsImagesDeleteCall {
 	c := &EditsImagesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -9808,7 +10002,7 @@ func (c *EditsImagesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -9901,13 +10095,13 @@ type EditsImagesDeleteallCall struct {
 // Deleteall: Deletes all images for the specified language and image
 // type. Returns an empty response if no images are found.
 //
-// - editId: Identifier of the edit.
-// - imageType: Type of the Image. Providing an image type that refers
-//   to no images is a no-op.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German). Providing a language that is
-//   not supported by the App is a no-op.
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - imageType: Type of the Image. Providing an image type that refers
+//     to no images is a no-op.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German). Providing a language that is
+//     not supported by the App is a no-op.
+//   - packageName: Package name of the app.
 func (r *EditsImagesService) Deleteall(packageName string, editId string, language string, imageType string) *EditsImagesDeleteallCall {
 	c := &EditsImagesDeleteallCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -9982,17 +10176,17 @@ func (c *EditsImagesDeleteallCall) Do(opts ...googleapi.CallOption) (*ImagesDele
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ImagesDeleteAllResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10091,13 +10285,13 @@ type EditsImagesListCall struct {
 
 // List: Lists all images. The response may be empty.
 //
-// - editId: Identifier of the edit.
-// - imageType: Type of the Image. Providing an image type that refers
-//   to no images will return an empty response.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German). There must be a store
-//   listing for the specified language.
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - imageType: Type of the Image. Providing an image type that refers
+//     to no images will return an empty response.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German). There must be a store
+//     listing for the specified language.
+//   - packageName: Package name of the app.
 func (r *EditsImagesService) List(packageName string, editId string, language string, imageType string) *EditsImagesListCall {
 	c := &EditsImagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -10185,17 +10379,17 @@ func (c *EditsImagesListCall) Do(opts ...googleapi.CallOption) (*ImagesListRespo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ImagesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10295,12 +10489,12 @@ type EditsImagesUploadCall struct {
 // Upload: Uploads an image of the specified language and image type,
 // and adds to the edit.
 //
-// - editId: Identifier of the edit.
-// - imageType: Type of the Image.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German). Providing a language that is
-//   not supported by the App is a no-op.
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - imageType: Type of the Image.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German). Providing a language that is
+//     not supported by the App is a no-op.
+//   - packageName: Package name of the app.
 func (r *EditsImagesService) Upload(packageName string, editId string, language string, imageType string) *EditsImagesUploadCall {
 	c := &EditsImagesUploadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -10425,17 +10619,17 @@ func (c *EditsImagesUploadCall) Do(opts ...googleapi.CallOption) (*ImagesUploadR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -10451,7 +10645,7 @@ func (c *EditsImagesUploadCall) Do(opts ...googleapi.CallOption) (*ImagesUploadR
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &ImagesUploadResponse{
@@ -10566,10 +10760,10 @@ type EditsListingsDeleteCall struct {
 
 // Delete: Deletes a localized store listing.
 //
-// - editId: Identifier of the edit.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German).
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German).
+//   - packageName: Package name of the app.
 func (r *EditsListingsService) Delete(packageName string, editId string, language string) *EditsListingsDeleteCall {
 	c := &EditsListingsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -10637,7 +10831,7 @@ func (c *EditsListingsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -10758,7 +10952,7 @@ func (c *EditsListingsDeleteallCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -10807,10 +11001,10 @@ type EditsListingsGetCall struct {
 
 // Get: Gets a localized store listing.
 //
-// - editId: Identifier of the edit.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German).
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German).
+//   - packageName: Package name of the app.
 func (r *EditsListingsService) Get(packageName string, editId string, language string) *EditsListingsGetCall {
 	c := &EditsListingsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -10896,17 +11090,17 @@ func (c *EditsListingsGetCall) Do(opts ...googleapi.CallOption) (*Listing, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Listing{
 		ServerResponse: googleapi.ServerResponse{
@@ -11059,17 +11253,17 @@ func (c *EditsListingsListCall) Do(opts ...googleapi.CallOption) (*ListingsListR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListingsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11131,10 +11325,10 @@ type EditsListingsPatchCall struct {
 
 // Patch: Patches a localized store listing.
 //
-// - editId: Identifier of the edit.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German).
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German).
+//   - packageName: Package name of the app.
 func (r *EditsListingsService) Patch(packageName string, editId string, language string, listing *Listing) *EditsListingsPatchCall {
 	c := &EditsListingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -11213,17 +11407,17 @@ func (c *EditsListingsPatchCall) Do(opts ...googleapi.CallOption) (*Listing, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Listing{
 		ServerResponse: googleapi.ServerResponse{
@@ -11295,10 +11489,10 @@ type EditsListingsUpdateCall struct {
 
 // Update: Creates or updates a localized store listing.
 //
-// - editId: Identifier of the edit.
-// - language: Language localization code (a BCP-47 language tag; for
-//   example, "de-AT" for Austrian German).
-// - packageName: Package name of the app.
+//   - editId: Identifier of the edit.
+//   - language: Language localization code (a BCP-47 language tag; for
+//     example, "de-AT" for Austrian German).
+//   - packageName: Package name of the app.
 func (r *EditsListingsService) Update(packageName string, editId string, language string, listing *Listing) *EditsListingsUpdateCall {
 	c := &EditsListingsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -11377,17 +11571,17 @@ func (c *EditsListingsUpdateCall) Do(opts ...googleapi.CallOption) (*Listing, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Listing{
 		ServerResponse: googleapi.ServerResponse{
@@ -11548,17 +11742,17 @@ func (c *EditsTestersGetCall) Do(opts ...googleapi.CallOption) (*Testers, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Testers{
 		ServerResponse: googleapi.ServerResponse{
@@ -11709,17 +11903,17 @@ func (c *EditsTestersPatchCall) Do(opts ...googleapi.CallOption) (*Testers, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Testers{
 		ServerResponse: googleapi.ServerResponse{
@@ -11873,17 +12067,17 @@ func (c *EditsTestersUpdateCall) Do(opts ...googleapi.CallOption) (*Testers, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Testers{
 		ServerResponse: googleapi.ServerResponse{
@@ -11955,9 +12149,10 @@ type EditsTracksGetCall struct {
 
 // Get: Gets a track.
 //
-// - editId: Identifier of the edit.
-// - packageName: Package name of the app.
-// - track: Identifier of the track.
+//   - editId: Identifier of the edit.
+//   - packageName: Package name of the app.
+//   - track: Identifier of the track. More on track name
+//     (https://developers.google.com/android-publisher/tracks#ff-track-name).
 func (r *EditsTracksService) Get(packageName string, editId string, track string) *EditsTracksGetCall {
 	c := &EditsTracksGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -12043,17 +12238,17 @@ func (c *EditsTracksGetCall) Do(opts ...googleapi.CallOption) (*Track, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Track{
 		ServerResponse: googleapi.ServerResponse{
@@ -12090,7 +12285,7 @@ func (c *EditsTracksGetCall) Do(opts ...googleapi.CallOption) (*Track, error) {
 	//       "type": "string"
 	//     },
 	//     "track": {
-	//       "description": "Identifier of the track.",
+	//       "description": "Identifier of the track. [More on track name](https://developers.google.com/android-publisher/tracks#ff-track-name)",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -12206,17 +12401,17 @@ func (c *EditsTracksListCall) Do(opts ...googleapi.CallOption) (*TracksListRespo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TracksListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12278,9 +12473,10 @@ type EditsTracksPatchCall struct {
 
 // Patch: Patches a track.
 //
-// - editId: Identifier of the edit.
-// - packageName: Package name of the app.
-// - track: Identifier of the track.
+//   - editId: Identifier of the edit.
+//   - packageName: Package name of the app.
+//   - track: Identifier of the track. More on track name
+//     (https://developers.google.com/android-publisher/tracks#ff-track-name).
 func (r *EditsTracksService) Patch(packageName string, editId string, track string, track2 *Track) *EditsTracksPatchCall {
 	c := &EditsTracksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -12359,17 +12555,17 @@ func (c *EditsTracksPatchCall) Do(opts ...googleapi.CallOption) (*Track, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Track{
 		ServerResponse: googleapi.ServerResponse{
@@ -12406,7 +12602,7 @@ func (c *EditsTracksPatchCall) Do(opts ...googleapi.CallOption) (*Track, error) 
 	//       "type": "string"
 	//     },
 	//     "track": {
-	//       "description": "Identifier of the track.",
+	//       "description": "Identifier of the track. [More on track name](https://developers.google.com/android-publisher/tracks#ff-track-name)",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -12441,9 +12637,10 @@ type EditsTracksUpdateCall struct {
 
 // Update: Updates a track.
 //
-// - editId: Identifier of the edit.
-// - packageName: Package name of the app.
-// - track: Identifier of the track.
+//   - editId: Identifier of the edit.
+//   - packageName: Package name of the app.
+//   - track: Identifier of the track. More on track name
+//     (https://developers.google.com/android-publisher/tracks#ff-track-name).
 func (r *EditsTracksService) Update(packageName string, editId string, track string, track2 *Track) *EditsTracksUpdateCall {
 	c := &EditsTracksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -12522,17 +12719,17 @@ func (c *EditsTracksUpdateCall) Do(opts ...googleapi.CallOption) (*Track, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Track{
 		ServerResponse: googleapi.ServerResponse{
@@ -12569,7 +12766,7 @@ func (c *EditsTracksUpdateCall) Do(opts ...googleapi.CallOption) (*Track, error)
 	//       "type": "string"
 	//     },
 	//     "track": {
-	//       "description": "Identifier of the track.",
+	//       "description": "Identifier of the track. [More on track name](https://developers.google.com/android-publisher/tracks#ff-track-name)",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -12604,11 +12801,11 @@ type GeneratedapksDownloadCall struct {
 
 // Download: Downloads a single signed APK generated from an app bundle.
 //
-// - downloadId: Download ID, which uniquely identifies the APK to
-//   download. Can be obtained from the response of `generatedapks.list`
-//   method.
-// - packageName: Package name of the app.
-// - versionCode: Version code of the app bundle.
+//   - downloadId: Download ID, which uniquely identifies the APK to
+//     download. Can be obtained from the response of `generatedapks.list`
+//     method.
+//   - packageName: Package name of the app.
+//   - versionCode: Version code of the app bundle.
 func (r *GeneratedapksService) Download(packageName string, versionCode int64, downloadId string) *GeneratedapksDownloadCall {
 	c := &GeneratedapksDownloadCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -12691,7 +12888,7 @@ func (c *GeneratedapksDownloadCall) Download(opts ...googleapi.CallOption) (*htt
 	}
 	if err := googleapi.CheckResponse(res); err != nil {
 		res.Body.Close()
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	return res, nil
 }
@@ -12705,7 +12902,7 @@ func (c *GeneratedapksDownloadCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -12849,17 +13046,17 @@ func (c *GeneratedapksListCall) Do(opts ...googleapi.CallOption) (*GeneratedApks
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GeneratedApksListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12920,8 +13117,8 @@ type GrantsCreateCall struct {
 
 // Create: Grant access for a user to the given package.
 //
-// - parent: The user which needs permission. Format:
-//   developers/{developer}/users/{user}.
+//   - parent: The user which needs permission. Format:
+//     developers/{developer}/users/{user}.
 func (r *GrantsService) Create(parent string, grant *Grant) *GrantsCreateCall {
 	c := &GrantsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12996,17 +13193,17 @@ func (c *GrantsCreateCall) Do(opts ...googleapi.CallOption) (*Grant, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Grant{
 		ServerResponse: googleapi.ServerResponse{
@@ -13063,8 +13260,8 @@ type GrantsDeleteCall struct {
 // Delete: Removes all access for the user to the given package or
 // developer account.
 //
-// - name: The name of the grant to delete. Format:
-//   developers/{developer}/users/{email}/grants/{package_name}.
+//   - name: The name of the grant to delete. Format:
+//     developers/{developer}/users/{email}/grants/{package_name}.
 func (r *GrantsService) Delete(name string) *GrantsDeleteCall {
 	c := &GrantsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13128,7 +13325,7 @@ func (c *GrantsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13169,10 +13366,10 @@ type GrantsPatchCall struct {
 
 // Patch: Updates access for the user to the given package.
 //
-// - name: Resource name for this grant, following the pattern
-//   "developers/{developer}/users/{email}/grants/{package_name}". If
-//   this grant is for a draft app, the app ID will be used in this
-//   resource name instead of the package name.
+//   - name: Resource name for this grant, following the pattern
+//     "developers/{developer}/users/{email}/grants/{package_name}". If
+//     this grant is for a draft app, the app ID will be used in this
+//     resource name instead of the package name.
 func (r *GrantsService) Patch(name string, grant *Grant) *GrantsPatchCall {
 	c := &GrantsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13254,17 +13451,17 @@ func (c *GrantsPatchCall) Do(opts ...googleapi.CallOption) (*Grant, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Grant{
 		ServerResponse: googleapi.ServerResponse{
@@ -13395,7 +13592,7 @@ func (c *InappproductsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13529,17 +13726,17 @@ func (c *InappproductsGetCall) Do(opts ...googleapi.CallOption) (*InAppProduct, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InAppProduct{
 		ServerResponse: googleapi.ServerResponse{
@@ -13685,17 +13882,17 @@ func (c *InappproductsInsertCall) Do(opts ...googleapi.CallOption) (*InAppProduc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InAppProduct{
 		ServerResponse: googleapi.ServerResponse{
@@ -13864,17 +14061,17 @@ func (c *InappproductsListCall) Do(opts ...googleapi.CallOption) (*Inappproducts
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InappproductsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14034,17 +14231,17 @@ func (c *InappproductsPatchCall) Do(opts ...googleapi.CallOption) (*InAppProduct
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InAppProduct{
 		ServerResponse: googleapi.ServerResponse{
@@ -14210,17 +14407,17 @@ func (c *InappproductsUpdateCall) Do(opts ...googleapi.CallOption) (*InAppProduc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InAppProduct{
 		ServerResponse: googleapi.ServerResponse{
@@ -14417,17 +14614,17 @@ func (c *InternalappsharingartifactsUploadapkCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -14443,7 +14640,7 @@ func (c *InternalappsharingartifactsUploadapkCall) Do(opts ...googleapi.CallOpti
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &InternalAppSharingArtifact{
@@ -14639,17 +14836,17 @@ func (c *InternalappsharingartifactsUploadbundleCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
 	if rx != nil {
@@ -14665,7 +14862,7 @@ func (c *InternalappsharingartifactsUploadbundleCall) Do(opts ...googleapi.CallO
 		}
 		defer res.Body.Close()
 		if err := googleapi.CheckResponse(res); err != nil {
-			return nil, err
+			return nil, gensupport.WrapError(err)
 		}
 	}
 	ret := &InternalAppSharingArtifact{
@@ -14813,17 +15010,17 @@ func (c *MonetizationConvertRegionPricesCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConvertRegionPricesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14883,9 +15080,9 @@ type MonetizationSubscriptionsArchiveCall struct {
 // new or existing subscribers currently. This action is irreversible,
 // and the subscription ID will remain reserved.
 //
-// - packageName: The parent app (package name) of the app of the
-//   subscription to delete.
-// - productId: The unique product ID of the subscription to delete.
+//   - packageName: The parent app (package name) of the app of the
+//     subscription to delete.
+//   - productId: The unique product ID of the subscription to delete.
 func (r *MonetizationSubscriptionsService) Archive(packageName string, productId string, archivesubscriptionrequest *ArchiveSubscriptionRequest) *MonetizationSubscriptionsArchiveCall {
 	c := &MonetizationSubscriptionsArchiveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -14962,17 +15159,17 @@ func (c *MonetizationSubscriptionsArchiveCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -15036,9 +15233,9 @@ type MonetizationSubscriptionsCreateCall struct {
 // Create: Creates a new subscription. Newly added base plans will
 // remain in draft state until activated.
 //
-// - packageName: The parent app (package name) for which the
-//   subscription should be created. Must be equal to the package_name
-//   field on the Subscription resource.
+//   - packageName: The parent app (package name) for which the
+//     subscription should be created. Must be equal to the package_name
+//     field on the Subscription resource.
 func (r *MonetizationSubscriptionsService) Create(packageName string, subscription *Subscription) *MonetizationSubscriptionsCreateCall {
 	c := &MonetizationSubscriptionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -15057,7 +15254,8 @@ func (c *MonetizationSubscriptionsCreateCall) ProductId(productId string) *Monet
 
 // RegionsVersionVersion sets the optional parameter
 // "regionsVersion.version": Required. A string representing version of
-// the available regions being used for the specified resource.
+// the available regions being used for the specified resource. The
+// current version is 2022/02.
 func (c *MonetizationSubscriptionsCreateCall) RegionsVersionVersion(regionsVersionVersion string) *MonetizationSubscriptionsCreateCall {
 	c.urlParams_.Set("regionsVersion.version", regionsVersionVersion)
 	return c
@@ -15130,17 +15328,17 @@ func (c *MonetizationSubscriptionsCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -15174,7 +15372,7 @@ func (c *MonetizationSubscriptionsCreateCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "regionsVersion.version": {
-	//       "description": "Required. A string representing version of the available regions being used for the specified resource.",
+	//       "description": "Required. A string representing version of the available regions being used for the specified resource. The current version is 2022/02.",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -15207,9 +15405,9 @@ type MonetizationSubscriptionsDeleteCall struct {
 // Delete: Deletes a subscription. A subscription can only be deleted if
 // it has never had a base plan published.
 //
-// - packageName: The parent app (package name) of the app of the
-//   subscription to delete.
-// - productId: The unique product ID of the subscription to delete.
+//   - packageName: The parent app (package name) of the app of the
+//     subscription to delete.
+//   - productId: The unique product ID of the subscription to delete.
 func (r *MonetizationSubscriptionsService) Delete(packageName string, productId string) *MonetizationSubscriptionsDeleteCall {
 	c := &MonetizationSubscriptionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -15275,7 +15473,7 @@ func (c *MonetizationSubscriptionsDeleteCall) Do(opts ...googleapi.CallOption) e
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -15323,9 +15521,9 @@ type MonetizationSubscriptionsGetCall struct {
 
 // Get: Reads a single subscription.
 //
-// - packageName: The parent app (package name) of the subscription to
-//   get.
-// - productId: The unique product ID of the subscription to get.
+//   - packageName: The parent app (package name) of the subscription to
+//     get.
+//   - productId: The unique product ID of the subscription to get.
 func (r *MonetizationSubscriptionsService) Get(packageName string, productId string) *MonetizationSubscriptionsGetCall {
 	c := &MonetizationSubscriptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -15409,17 +15607,17 @@ func (c *MonetizationSubscriptionsGetCall) Do(opts ...googleapi.CallOption) (*Su
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -15479,8 +15677,8 @@ type MonetizationSubscriptionsListCall struct {
 
 // List: Lists all subscriptions under a given app.
 //
-// - packageName: The parent app (package name) for which the
-//   subscriptions should be read.
+//   - packageName: The parent app (package name) for which the
+//     subscriptions should be read.
 func (r *MonetizationSubscriptionsService) List(packageName string) *MonetizationSubscriptionsListCall {
 	c := &MonetizationSubscriptionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -15589,17 +15787,17 @@ func (c *MonetizationSubscriptionsListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSubscriptionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15690,12 +15888,12 @@ type MonetizationSubscriptionsPatchCall struct {
 
 // Patch: Updates an existing subscription.
 //
-// - packageName: Immutable. Package name of the parent app.
-// - productId: Immutable. Unique product ID of the product. Unique
-//   within the parent app. Product IDs must be composed of lower-case
-//   letters (a-z), numbers (0-9), underscores (_) and dots (.). It must
-//   start with a lower-case letter or number, and be between 1 and 40
-//   (inclusive) characters in length.
+//   - packageName: Immutable. Package name of the parent app.
+//   - productId: Immutable. Unique product ID of the product. Unique
+//     within the parent app. Product IDs must be composed of lower-case
+//     letters (a-z), numbers (0-9), underscores (_) and dots (.). It must
+//     start with a lower-case letter or number, and be between 1 and 40
+//     (inclusive) characters in length.
 func (r *MonetizationSubscriptionsService) Patch(packageName string, productId string, subscription *Subscription) *MonetizationSubscriptionsPatchCall {
 	c := &MonetizationSubscriptionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -15706,7 +15904,8 @@ func (r *MonetizationSubscriptionsService) Patch(packageName string, productId s
 
 // RegionsVersionVersion sets the optional parameter
 // "regionsVersion.version": Required. A string representing version of
-// the available regions being used for the specified resource.
+// the available regions being used for the specified resource. The
+// current version is 2022/02.
 func (c *MonetizationSubscriptionsPatchCall) RegionsVersionVersion(regionsVersionVersion string) *MonetizationSubscriptionsPatchCall {
 	c.urlParams_.Set("regionsVersion.version", regionsVersionVersion)
 	return c
@@ -15787,17 +15986,17 @@ func (c *MonetizationSubscriptionsPatchCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -15833,7 +16032,7 @@ func (c *MonetizationSubscriptionsPatchCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "regionsVersion.version": {
-	//       "description": "Required. A string representing version of the available regions being used for the specified resource.",
+	//       "description": "Required. A string representing version of the available regions being used for the specified resource. The current version is 2022/02.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -15874,11 +16073,11 @@ type MonetizationSubscriptionsBasePlansActivateCall struct {
 // Activate: Activates a base plan. Once activated, base plans will be
 // available to new subscribers.
 //
-// - basePlanId: The unique base plan ID of the base plan to activate.
-// - packageName: The parent app (package name) of the base plan to
-//   activate.
-// - productId: The parent subscription (ID) of the base plan to
-//   activate.
+//   - basePlanId: The unique base plan ID of the base plan to activate.
+//   - packageName: The parent app (package name) of the base plan to
+//     activate.
+//   - productId: The parent subscription (ID) of the base plan to
+//     activate.
 func (r *MonetizationSubscriptionsBasePlansService) Activate(packageName string, productId string, basePlanId string, activatebaseplanrequest *ActivateBasePlanRequest) *MonetizationSubscriptionsBasePlansActivateCall {
 	c := &MonetizationSubscriptionsBasePlansActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -15957,17 +16156,17 @@ func (c *MonetizationSubscriptionsBasePlansActivateCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -16041,11 +16240,11 @@ type MonetizationSubscriptionsBasePlansDeactivateCall struct {
 // will become unavailable to new subscribers, but existing subscribers
 // will maintain their subscription
 //
-// - basePlanId: The unique base plan ID of the base plan to deactivate.
-// - packageName: The parent app (package name) of the base plan to
-//   deactivate.
-// - productId: The parent subscription (ID) of the base plan to
-//   deactivate.
+//   - basePlanId: The unique base plan ID of the base plan to deactivate.
+//   - packageName: The parent app (package name) of the base plan to
+//     deactivate.
+//   - productId: The parent subscription (ID) of the base plan to
+//     deactivate.
 func (r *MonetizationSubscriptionsBasePlansService) Deactivate(packageName string, productId string, basePlanId string, deactivatebaseplanrequest *DeactivateBasePlanRequest) *MonetizationSubscriptionsBasePlansDeactivateCall {
 	c := &MonetizationSubscriptionsBasePlansDeactivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -16124,17 +16323,17 @@ func (c *MonetizationSubscriptionsBasePlansDeactivateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -16206,10 +16405,10 @@ type MonetizationSubscriptionsBasePlansDeleteCall struct {
 // Delete: Deletes a base plan. Can only be done for draft base plans.
 // This action is irreversible.
 //
-// - basePlanId: The unique offer ID of the base plan to delete.
-// - packageName: The parent app (package name) of the base plan to
-//   delete.
-// - productId: The parent subscription (ID) of the base plan to delete.
+//   - basePlanId: The unique offer ID of the base plan to delete.
+//   - packageName: The parent app (package name) of the base plan to
+//     delete.
+//   - productId: The parent subscription (ID) of the base plan to delete.
 func (r *MonetizationSubscriptionsBasePlansService) Delete(packageName string, productId string, basePlanId string) *MonetizationSubscriptionsBasePlansDeleteCall {
 	c := &MonetizationSubscriptionsBasePlansDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -16277,7 +16476,7 @@ func (c *MonetizationSubscriptionsBasePlansDeleteCall) Do(opts ...googleapi.Call
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -16338,12 +16537,12 @@ type MonetizationSubscriptionsBasePlansMigratePricesCall struct {
 // supplied timestamp. Subscribers who do not agree to the new price
 // will have their subscription ended at the next renewal.
 //
-// - basePlanId: The unique base plan ID of the base plan to update
-//   prices on.
-// - packageName: Package name of the parent app. Must be equal to the
-//   package_name field on the Subscription resource.
-// - productId: The ID of the subscription to update. Must be equal to
-//   the product_id field on the Subscription resource.
+//   - basePlanId: The unique base plan ID of the base plan to update
+//     prices on.
+//   - packageName: Package name of the parent app. Must be equal to the
+//     package_name field on the Subscription resource.
+//   - productId: The ID of the subscription to update. Must be equal to
+//     the product_id field on the Subscription resource.
 func (r *MonetizationSubscriptionsBasePlansService) MigratePrices(packageName string, productId string, basePlanId string, migratebaseplanpricesrequest *MigrateBasePlanPricesRequest) *MonetizationSubscriptionsBasePlansMigratePricesCall {
 	c := &MonetizationSubscriptionsBasePlansMigratePricesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -16422,17 +16621,17 @@ func (c *MonetizationSubscriptionsBasePlansMigratePricesCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &MigrateBasePlanPricesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16506,11 +16705,11 @@ type MonetizationSubscriptionsBasePlansOffersActivateCall struct {
 // Activate: Activates a subscription offer. Once activated,
 // subscription offers will be available to new subscribers.
 //
-// - basePlanId: The parent base plan (ID) of the offer to activate.
-// - offerId: The unique offer ID of the offer to activate.
-// - packageName: The parent app (package name) of the offer to
-//   activate.
-// - productId: The parent subscription (ID) of the offer to activate.
+//   - basePlanId: The parent base plan (ID) of the offer to activate.
+//   - offerId: The unique offer ID of the offer to activate.
+//   - packageName: The parent app (package name) of the offer to
+//     activate.
+//   - productId: The parent subscription (ID) of the offer to activate.
 func (r *MonetizationSubscriptionsBasePlansOffersService) Activate(packageName string, productId string, basePlanId string, offerId string, activatesubscriptionofferrequest *ActivateSubscriptionOfferRequest) *MonetizationSubscriptionsBasePlansOffersActivateCall {
 	c := &MonetizationSubscriptionsBasePlansOffersActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -16591,17 +16790,17 @@ func (c *MonetizationSubscriptionsBasePlansOffersActivateCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionOffer{
 		ServerResponse: googleapi.ServerResponse{
@@ -16682,15 +16881,15 @@ type MonetizationSubscriptionsBasePlansOffersCreateCall struct {
 // plans can have subscription offers. The offer state will be DRAFT
 // until it is activated.
 //
-// - basePlanId: The parent base plan (ID) for which the offer should be
-//   created. Must be equal to the base_plan_id field on the
-//   SubscriptionOffer resource.
-// - packageName: The parent app (package name) for which the offer
-//   should be created. Must be equal to the package_name field on the
-//   Subscription resource.
-// - productId: The parent subscription (ID) for which the offer should
-//   be created. Must be equal to the product_id field on the
-//   SubscriptionOffer resource.
+//   - basePlanId: The parent base plan (ID) for which the offer should be
+//     created. Must be equal to the base_plan_id field on the
+//     SubscriptionOffer resource.
+//   - packageName: The parent app (package name) for which the offer
+//     should be created. Must be equal to the package_name field on the
+//     Subscription resource.
+//   - productId: The parent subscription (ID) for which the offer should
+//     be created. Must be equal to the product_id field on the
+//     SubscriptionOffer resource.
 func (r *MonetizationSubscriptionsBasePlansOffersService) Create(packageName string, productId string, basePlanId string, subscriptionoffer *SubscriptionOffer) *MonetizationSubscriptionsBasePlansOffersCreateCall {
 	c := &MonetizationSubscriptionsBasePlansOffersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -16711,7 +16910,8 @@ func (c *MonetizationSubscriptionsBasePlansOffersCreateCall) OfferId(offerId str
 
 // RegionsVersionVersion sets the optional parameter
 // "regionsVersion.version": Required. A string representing version of
-// the available regions being used for the specified resource.
+// the available regions being used for the specified resource. The
+// current version is 2022/02.
 func (c *MonetizationSubscriptionsBasePlansOffersCreateCall) RegionsVersionVersion(regionsVersionVersion string) *MonetizationSubscriptionsBasePlansOffersCreateCall {
 	c.urlParams_.Set("regionsVersion.version", regionsVersionVersion)
 	return c
@@ -16786,17 +16986,17 @@ func (c *MonetizationSubscriptionsBasePlansOffersCreateCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionOffer{
 		ServerResponse: googleapi.ServerResponse{
@@ -16844,7 +17044,7 @@ func (c *MonetizationSubscriptionsBasePlansOffersCreateCall) Do(opts ...googleap
 	//       "type": "string"
 	//     },
 	//     "regionsVersion.version": {
-	//       "description": "Required. A string representing version of the available regions being used for the specified resource.",
+	//       "description": "Required. A string representing version of the available regions being used for the specified resource. The current version is 2022/02.",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -16881,11 +17081,11 @@ type MonetizationSubscriptionsBasePlansOffersDeactivateCall struct {
 // existing subscribers will maintain their subscription, but the offer
 // will become unavailable to new subscribers.
 //
-// - basePlanId: The parent base plan (ID) of the offer to deactivate.
-// - offerId: The unique offer ID of the offer to deactivate.
-// - packageName: The parent app (package name) of the offer to
-//   deactivate.
-// - productId: The parent subscription (ID) of the offer to deactivate.
+//   - basePlanId: The parent base plan (ID) of the offer to deactivate.
+//   - offerId: The unique offer ID of the offer to deactivate.
+//   - packageName: The parent app (package name) of the offer to
+//     deactivate.
+//   - productId: The parent subscription (ID) of the offer to deactivate.
 func (r *MonetizationSubscriptionsBasePlansOffersService) Deactivate(packageName string, productId string, basePlanId string, offerId string, deactivatesubscriptionofferrequest *DeactivateSubscriptionOfferRequest) *MonetizationSubscriptionsBasePlansOffersDeactivateCall {
 	c := &MonetizationSubscriptionsBasePlansOffersDeactivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -16966,17 +17166,17 @@ func (c *MonetizationSubscriptionsBasePlansOffersDeactivateCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionOffer{
 		ServerResponse: googleapi.ServerResponse{
@@ -17129,7 +17329,7 @@ func (c *MonetizationSubscriptionsBasePlansOffersDeleteCall) Do(opts ...googleap
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17284,17 +17484,17 @@ func (c *MonetizationSubscriptionsBasePlansOffersGetCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionOffer{
 		ServerResponse: googleapi.ServerResponse{
@@ -17370,13 +17570,13 @@ type MonetizationSubscriptionsBasePlansOffersListCall struct {
 
 // List: Lists all offers under a given subscription.
 //
-// - basePlanId: The parent base plan (ID) for which the offers should
-//   be read. May be specified as '-' to read all offers under a
-//   subscription.
-// - packageName: The parent app (package name) for which the
-//   subscriptions should be read.
-// - productId: The parent subscription (ID) for which the offers should
-//   be read.
+//   - basePlanId: The parent base plan (ID) for which the offers should
+//     be read. May be specified as '-' to read all offers under a
+//     subscription.
+//   - packageName: The parent app (package name) for which the
+//     subscriptions should be read.
+//   - productId: The parent subscription (ID) for which the offers should
+//     be read.
 func (r *MonetizationSubscriptionsBasePlansOffersService) List(packageName string, productId string, basePlanId string) *MonetizationSubscriptionsBasePlansOffersListCall {
 	c := &MonetizationSubscriptionsBasePlansOffersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -17481,17 +17681,17 @@ func (c *MonetizationSubscriptionsBasePlansOffersListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSubscriptionOffersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17593,14 +17793,14 @@ type MonetizationSubscriptionsBasePlansOffersPatchCall struct {
 
 // Patch: Updates an existing subscription offer.
 //
-// - basePlanId: Immutable. The ID of the base plan to which this offer
-//   is an extension.
-// - offerId: Immutable. Unique ID of this subscription offer. Must be
-//   unique within the base plan.
-// - packageName: Immutable. The package name of the app the parent
-//   subscription belongs to.
-// - productId: Immutable. The ID of the parent subscription this offer
-//   belongs to.
+//   - basePlanId: Immutable. The ID of the base plan to which this offer
+//     is an extension.
+//   - offerId: Immutable. Unique ID of this subscription offer. Must be
+//     unique within the base plan.
+//   - packageName: Immutable. The package name of the app the parent
+//     subscription belongs to.
+//   - productId: Immutable. The ID of the parent subscription this offer
+//     belongs to.
 func (r *MonetizationSubscriptionsBasePlansOffersService) Patch(packageName string, productId string, basePlanId string, offerId string, subscriptionoffer *SubscriptionOffer) *MonetizationSubscriptionsBasePlansOffersPatchCall {
 	c := &MonetizationSubscriptionsBasePlansOffersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -17613,7 +17813,8 @@ func (r *MonetizationSubscriptionsBasePlansOffersService) Patch(packageName stri
 
 // RegionsVersionVersion sets the optional parameter
 // "regionsVersion.version": Required. A string representing version of
-// the available regions being used for the specified resource.
+// the available regions being used for the specified resource. The
+// current version is 2022/02.
 func (c *MonetizationSubscriptionsBasePlansOffersPatchCall) RegionsVersionVersion(regionsVersionVersion string) *MonetizationSubscriptionsBasePlansOffersPatchCall {
 	c.urlParams_.Set("regionsVersion.version", regionsVersionVersion)
 	return c
@@ -17696,17 +17897,17 @@ func (c *MonetizationSubscriptionsBasePlansOffersPatchCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionOffer{
 		ServerResponse: googleapi.ServerResponse{
@@ -17756,7 +17957,7 @@ func (c *MonetizationSubscriptionsBasePlansOffersPatchCall) Do(opts ...googleapi
 	//       "type": "string"
 	//     },
 	//     "regionsVersion.version": {
-	//       "description": "Required. A string representing version of the available regions being used for the specified resource.",
+	//       "description": "Required. A string representing version of the available regions being used for the specified resource. The current version is 2022/02.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -17795,11 +17996,11 @@ type OrdersRefundCall struct {
 // Refund: Refunds a user's subscription or in-app purchase order.
 // Orders older than 1 year cannot be refunded.
 //
-// - orderId: The order ID provided to the user when the subscription or
-//   in-app order was purchased.
-// - packageName: The package name of the application for which this
-//   subscription or in-app item was purchased (for example,
-//   'com.some.thing').
+//   - orderId: The order ID provided to the user when the subscription or
+//     in-app order was purchased.
+//   - packageName: The package name of the application for which this
+//     subscription or in-app item was purchased (for example,
+//     'com.some.thing').
 func (r *OrdersService) Refund(packageName string, orderId string) *OrdersRefundCall {
 	c := &OrdersRefundCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -17875,7 +18076,7 @@ func (c *OrdersRefundCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17929,12 +18130,12 @@ type PurchasesProductsAcknowledgeCall struct {
 
 // Acknowledge: Acknowledges a purchase of an inapp item.
 //
-// - packageName: The package name of the application the inapp product
-//   was sold in (for example, 'com.some.thing').
-// - productId: The inapp product SKU (for example,
-//   'com.some.thing.inapp1').
-// - token: The token provided to the user's device when the inapp
-//   product was purchased.
+//   - packageName: The package name of the application the inapp product
+//     was sold in (for example, 'com.some.thing').
+//   - productId: The inapp product SKU (for example,
+//     'com.some.thing.inapp1').
+//   - token: The token provided to the user's device when the inapp
+//     product was purchased.
 func (r *PurchasesProductsService) Acknowledge(packageName string, productId string, token string, productpurchasesacknowledgerequest *ProductPurchasesAcknowledgeRequest) *PurchasesProductsAcknowledgeCall {
 	c := &PurchasesProductsAcknowledgeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -18008,7 +18209,7 @@ func (c *PurchasesProductsAcknowledgeCall) Do(opts ...googleapi.CallOption) erro
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -18052,6 +18253,134 @@ func (c *PurchasesProductsAcknowledgeCall) Do(opts ...googleapi.CallOption) erro
 
 }
 
+// method id "androidpublisher.purchases.products.consume":
+
+type PurchasesProductsConsumeCall struct {
+	s           *Service
+	packageName string
+	productId   string
+	token       string
+	urlParams_  gensupport.URLParams
+	ctx_        context.Context
+	header_     http.Header
+}
+
+// Consume: Consumes a purchase for an inapp item.
+//
+//   - packageName: The package name of the application the inapp product
+//     was sold in (for example, 'com.some.thing').
+//   - productId: The inapp product SKU (for example,
+//     'com.some.thing.inapp1').
+//   - token: The token provided to the user's device when the inapp
+//     product was purchased.
+func (r *PurchasesProductsService) Consume(packageName string, productId string, token string) *PurchasesProductsConsumeCall {
+	c := &PurchasesProductsConsumeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.packageName = packageName
+	c.productId = productId
+	c.token = token
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *PurchasesProductsConsumeCall) Fields(s ...googleapi.Field) *PurchasesProductsConsumeCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *PurchasesProductsConsumeCall) Context(ctx context.Context) *PurchasesProductsConsumeCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *PurchasesProductsConsumeCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *PurchasesProductsConsumeCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "androidpublisher/v3/applications/{packageName}/purchases/products/{productId}/tokens/{token}:consume")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"packageName": c.packageName,
+		"productId":   c.productId,
+		"token":       c.token,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "androidpublisher.purchases.products.consume" call.
+func (c *PurchasesProductsConsumeCall) Do(opts ...googleapi.CallOption) error {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if err != nil {
+		return err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return gensupport.WrapError(err)
+	}
+	return nil
+	// {
+	//   "description": "Consumes a purchase for an inapp item.",
+	//   "flatPath": "androidpublisher/v3/applications/{packageName}/purchases/products/{productId}/tokens/{token}:consume",
+	//   "httpMethod": "POST",
+	//   "id": "androidpublisher.purchases.products.consume",
+	//   "parameterOrder": [
+	//     "packageName",
+	//     "productId",
+	//     "token"
+	//   ],
+	//   "parameters": {
+	//     "packageName": {
+	//       "description": "The package name of the application the inapp product was sold in (for example, 'com.some.thing').",
+	//       "location": "path",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "productId": {
+	//       "description": "The inapp product SKU (for example, 'com.some.thing.inapp1').",
+	//       "location": "path",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "token": {
+	//       "description": "The token provided to the user's device when the inapp product was purchased.",
+	//       "location": "path",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "androidpublisher/v3/applications/{packageName}/purchases/products/{productId}/tokens/{token}:consume",
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/androidpublisher"
+	//   ]
+	// }
+
+}
+
 // method id "androidpublisher.purchases.products.get":
 
 type PurchasesProductsGetCall struct {
@@ -18067,12 +18396,12 @@ type PurchasesProductsGetCall struct {
 
 // Get: Checks the purchase and consumption status of an inapp item.
 //
-// - packageName: The package name of the application the inapp product
-//   was sold in (for example, 'com.some.thing').
-// - productId: The inapp product SKU (for example,
-//   'com.some.thing.inapp1').
-// - token: The token provided to the user's device when the inapp
-//   product was purchased.
+//   - packageName: The package name of the application the inapp product
+//     was sold in (for example, 'com.some.thing').
+//   - productId: The inapp product SKU (for example,
+//     'com.some.thing.inapp1').
+//   - token: The token provided to the user's device when the inapp
+//     product was purchased.
 func (r *PurchasesProductsService) Get(packageName string, productId string, token string) *PurchasesProductsGetCall {
 	c := &PurchasesProductsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -18158,17 +18487,17 @@ func (c *PurchasesProductsGetCall) Do(opts ...googleapi.CallOption) (*ProductPur
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductPurchase{
 		ServerResponse: googleapi.ServerResponse{
@@ -18237,12 +18566,12 @@ type PurchasesSubscriptionsAcknowledgeCall struct {
 
 // Acknowledge: Acknowledges a subscription purchase.
 //
-// - packageName: The package name of the application for which this
-//   subscription was purchased (for example, 'com.some.thing').
-// - subscriptionId: The purchased subscription ID (for example,
-//   'monthly001').
-// - token: The token provided to the user's device when the
-//   subscription was purchased.
+//   - packageName: The package name of the application for which this
+//     subscription was purchased (for example, 'com.some.thing').
+//   - subscriptionId: The purchased subscription ID (for example,
+//     'monthly001').
+//   - token: The token provided to the user's device when the
+//     subscription was purchased.
 func (r *PurchasesSubscriptionsService) Acknowledge(packageName string, subscriptionId string, token string, subscriptionpurchasesacknowledgerequest *SubscriptionPurchasesAcknowledgeRequest) *PurchasesSubscriptionsAcknowledgeCall {
 	c := &PurchasesSubscriptionsAcknowledgeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -18316,7 +18645,7 @@ func (c *PurchasesSubscriptionsAcknowledgeCall) Do(opts ...googleapi.CallOption)
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -18375,12 +18704,12 @@ type PurchasesSubscriptionsCancelCall struct {
 // Cancel: Cancels a user's subscription purchase. The subscription
 // remains valid until its expiration time.
 //
-// - packageName: The package name of the application for which this
-//   subscription was purchased (for example, 'com.some.thing').
-// - subscriptionId: The purchased subscription ID (for example,
-//   'monthly001').
-// - token: The token provided to the user's device when the
-//   subscription was purchased.
+//   - packageName: The package name of the application for which this
+//     subscription was purchased (for example, 'com.some.thing').
+//   - subscriptionId: The purchased subscription ID (for example,
+//     'monthly001').
+//   - token: The token provided to the user's device when the
+//     subscription was purchased.
 func (r *PurchasesSubscriptionsService) Cancel(packageName string, subscriptionId string, token string) *PurchasesSubscriptionsCancelCall {
 	c := &PurchasesSubscriptionsCancelCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -18448,7 +18777,7 @@ func (c *PurchasesSubscriptionsCancelCall) Do(opts ...googleapi.CallOption) erro
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -18505,12 +18834,12 @@ type PurchasesSubscriptionsDeferCall struct {
 // Defer: Defers a user's subscription purchase until a specified future
 // expiration time.
 //
-// - packageName: The package name of the application for which this
-//   subscription was purchased (for example, 'com.some.thing').
-// - subscriptionId: The purchased subscription ID (for example,
-//   'monthly001').
-// - token: The token provided to the user's device when the
-//   subscription was purchased.
+//   - packageName: The package name of the application for which this
+//     subscription was purchased (for example, 'com.some.thing').
+//   - subscriptionId: The purchased subscription ID (for example,
+//     'monthly001').
+//   - token: The token provided to the user's device when the
+//     subscription was purchased.
 func (r *PurchasesSubscriptionsService) Defer(packageName string, subscriptionId string, token string, subscriptionpurchasesdeferrequest *SubscriptionPurchasesDeferRequest) *PurchasesSubscriptionsDeferCall {
 	c := &PurchasesSubscriptionsDeferCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -18590,17 +18919,17 @@ func (c *PurchasesSubscriptionsDeferCall) Do(opts ...googleapi.CallOption) (*Sub
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionPurchasesDeferResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18673,12 +19002,12 @@ type PurchasesSubscriptionsGetCall struct {
 // Get: Checks whether a user's subscription purchase is valid and
 // returns its expiry time.
 //
-// - packageName: The package name of the application for which this
-//   subscription was purchased (for example, 'com.some.thing').
-// - subscriptionId: The purchased subscription ID (for example,
-//   'monthly001').
-// - token: The token provided to the user's device when the
-//   subscription was purchased.
+//   - packageName: The package name of the application for which this
+//     subscription was purchased (for example, 'com.some.thing').
+//   - subscriptionId: The purchased subscription ID (for example,
+//     'monthly001').
+//   - token: The token provided to the user's device when the
+//     subscription was purchased.
 func (r *PurchasesSubscriptionsService) Get(packageName string, subscriptionId string, token string) *PurchasesSubscriptionsGetCall {
 	c := &PurchasesSubscriptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -18764,17 +19093,17 @@ func (c *PurchasesSubscriptionsGetCall) Do(opts ...googleapi.CallOption) (*Subsc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionPurchase{
 		ServerResponse: googleapi.ServerResponse{
@@ -18844,12 +19173,12 @@ type PurchasesSubscriptionsRefundCall struct {
 // remains valid until its expiration time and it will continue to
 // recur.
 //
-// - packageName: The package name of the application for which this
-//   subscription was purchased (for example, 'com.some.thing').
-// - subscriptionId: "The purchased subscription ID (for example,
-//   'monthly001').
-// - token: The token provided to the user's device when the
-//   subscription was purchased.
+//   - packageName: The package name of the application for which this
+//     subscription was purchased (for example, 'com.some.thing').
+//   - subscriptionId: "The purchased subscription ID (for example,
+//     'monthly001').
+//   - token: The token provided to the user's device when the
+//     subscription was purchased.
 func (r *PurchasesSubscriptionsService) Refund(packageName string, subscriptionId string, token string) *PurchasesSubscriptionsRefundCall {
 	c := &PurchasesSubscriptionsRefundCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -18917,7 +19246,7 @@ func (c *PurchasesSubscriptionsRefundCall) Do(opts ...googleapi.CallOption) erro
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -18974,12 +19303,12 @@ type PurchasesSubscriptionsRevokeCall struct {
 // purchase. Access to the subscription will be terminated immediately
 // and it will stop recurring.
 //
-// - packageName: The package name of the application for which this
-//   subscription was purchased (for example, 'com.some.thing').
-// - subscriptionId: The purchased subscription ID (for example,
-//   'monthly001').
-// - token: The token provided to the user's device when the
-//   subscription was purchased.
+//   - packageName: The package name of the application for which this
+//     subscription was purchased (for example, 'com.some.thing').
+//   - subscriptionId: The purchased subscription ID (for example,
+//     'monthly001').
+//   - token: The token provided to the user's device when the
+//     subscription was purchased.
 func (r *PurchasesSubscriptionsService) Revoke(packageName string, subscriptionId string, token string) *PurchasesSubscriptionsRevokeCall {
 	c := &PurchasesSubscriptionsRevokeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -19047,7 +19376,7 @@ func (c *PurchasesSubscriptionsRevokeCall) Do(opts ...googleapi.CallOption) erro
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -19102,10 +19431,10 @@ type PurchasesSubscriptionsv2GetCall struct {
 
 // Get: Get metadata about a subscription
 //
-// - packageName: The package of the application for which this
-//   subscription was purchased (for example, 'com.some.thing').
-// - token: The token provided to the user's device when the
-//   subscription was purchased.
+//   - packageName: The package of the application for which this
+//     subscription was purchased (for example, 'com.some.thing').
+//   - token: The token provided to the user's device when the
+//     subscription was purchased.
 func (r *PurchasesSubscriptionsv2Service) Get(packageName string, token string) *PurchasesSubscriptionsv2GetCall {
 	c := &PurchasesSubscriptionsv2GetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -19189,17 +19518,17 @@ func (c *PurchasesSubscriptionsv2GetCall) Do(opts ...googleapi.CallOption) (*Sub
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SubscriptionPurchaseV2{
 		ServerResponse: googleapi.ServerResponse{
@@ -19260,8 +19589,8 @@ type PurchasesVoidedpurchasesListCall struct {
 // List: Lists the purchases that were canceled, refunded or
 // charged-back.
 //
-// - packageName: The package name of the application for which voided
-//   purchases need to be returned (for example, 'com.some.thing').
+//   - packageName: The package name of the application for which voided
+//     purchases need to be returned (for example, 'com.some.thing').
 func (r *PurchasesVoidedpurchasesService) List(packageName string) *PurchasesVoidedpurchasesListCall {
 	c := &PurchasesVoidedpurchasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.packageName = packageName
@@ -19406,17 +19735,17 @@ func (c *PurchasesVoidedpurchasesListCall) Do(opts ...googleapi.CallOption) (*Vo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VoidedPurchasesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19597,17 +19926,17 @@ func (c *ReviewsGetCall) Do(opts ...googleapi.CallOption) (*Review, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Review{
 		ServerResponse: googleapi.ServerResponse{
@@ -19782,17 +20111,17 @@ func (c *ReviewsListCall) Do(opts ...googleapi.CallOption) (*ReviewsListResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReviewsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19946,17 +20275,17 @@ func (c *ReviewsReplyCall) Do(opts ...googleapi.CallOption) (*ReviewsReplyRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReviewsReplyResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20099,17 +20428,17 @@ func (c *SystemapksVariantsCreateCall) Do(opts ...googleapi.CallOption) (*Varian
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Variant{
 		ServerResponse: googleapi.ServerResponse{
@@ -20261,7 +20590,7 @@ func (c *SystemapksVariantsDownloadCall) Download(opts ...googleapi.CallOption) 
 	}
 	if err := googleapi.CheckResponse(res); err != nil {
 		res.Body.Close()
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	return res, nil
 }
@@ -20275,7 +20604,7 @@ func (c *SystemapksVariantsDownloadCall) Do(opts ...googleapi.CallOption) error 
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -20423,17 +20752,17 @@ func (c *SystemapksVariantsGetCall) Do(opts ...googleapi.CallOption) (*Variant, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Variant{
 		ServerResponse: googleapi.ServerResponse{
@@ -20588,17 +20917,17 @@ func (c *SystemapksVariantsListCall) Do(opts ...googleapi.CallOption) (*SystemAp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SystemApksListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -20659,8 +20988,8 @@ type UsersCreateCall struct {
 
 // Create: Grant access for a user to the given developer account.
 //
-// - parent: The developer account to add the user to. Format:
-//   developers/{developer}.
+//   - parent: The developer account to add the user to. Format:
+//     developers/{developer}.
 func (r *UsersService) Create(parent string, user *User) *UsersCreateCall {
 	c := &UsersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -20735,17 +21064,17 @@ func (c *UsersCreateCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -20802,8 +21131,8 @@ type UsersDeleteCall struct {
 // Delete: Removes all access for the user to the given developer
 // account.
 //
-// - name: The name of the user to delete. Format:
-//   developers/{developer}/users/{email}.
+//   - name: The name of the user to delete. Format:
+//     developers/{developer}/users/{email}.
 func (r *UsersService) Delete(name string) *UsersDeleteCall {
 	c := &UsersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -20867,7 +21196,7 @@ func (c *UsersDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -20908,8 +21237,8 @@ type UsersListCall struct {
 
 // List: Lists all users with access to a developer account.
 //
-// - parent: The developer account to fetch users from. Format:
-//   developers/{developer}.
+//   - parent: The developer account to fetch users from. Format:
+//     developers/{developer}.
 func (r *UsersService) List(parent string) *UsersListCall {
 	c := &UsersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -21006,17 +21335,17 @@ func (c *UsersListCall) Do(opts ...googleapi.CallOption) (*ListUsersResponse, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListUsersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -21102,8 +21431,8 @@ type UsersPatchCall struct {
 
 // Patch: Updates access for the user to the developer account.
 //
-// - name: Resource name for this user, following the pattern
-//   "developers/{developer}/users/{email}".
+//   - name: Resource name for this user, following the pattern
+//     "developers/{developer}/users/{email}".
 func (r *UsersService) Patch(name string, user *User) *UsersPatchCall {
 	c := &UsersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -21185,17 +21514,17 @@ func (c *UsersPatchCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{

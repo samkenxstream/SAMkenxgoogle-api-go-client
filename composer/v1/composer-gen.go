@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/composer/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/composer/v1"
-//   ...
-//   ctx := context.Background()
-//   composerService, err := composer.NewService(ctx)
+//	import "google.golang.org/api/composer/v1"
+//	...
+//	ctx := context.Background()
+//	composerService, err := composer.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   composerService, err := composer.NewService(ctx, option.WithAPIKey("AIza..."))
+//	composerService, err := composer.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   composerService, err := composer.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	composerService, err := composer.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package composer // import "google.golang.org/api/composer/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "composer:v1"
 const apiName = "composer"
@@ -283,6 +284,37 @@ func (s *CheckUpgradeResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// CidrBlock: CIDR block with an optional name.
+type CidrBlock struct {
+	// CidrBlock: CIDR block that must be specified in CIDR notation.
+	CidrBlock string `json:"cidrBlock,omitempty"`
+
+	// DisplayName: User-defined name that identifies the CIDR block.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CidrBlock") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CidrBlock") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CidrBlock) MarshalJSON() ([]byte, error) {
+	type NoMethod CidrBlock
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // DatabaseConfig: The configuration of Cloud SQL instance that is used
 // by the Apache Airflow software.
 type DatabaseConfig struct {
@@ -484,6 +516,15 @@ func (s *Environment) MarshalJSON() ([]byte, error) {
 
 // EnvironmentConfig: Configuration information for an environment.
 type EnvironmentConfig struct {
+	// AirflowByoidUri: Output only. The 'bring your own identity' variant
+	// of the URI of the Apache Airflow Web UI hosted within this
+	// environment, to be accessed with external identities using workforce
+	// identity federation (see Access environments with workforce identity
+	// federation
+	// (/composer/docs/composer-2/access-environments-with-workforce-identity
+	// -federation)).
+	AirflowByoidUri string `json:"airflowByoidUri,omitempty"`
+
 	// AirflowUri: Output only. The URI of the Apache Airflow Web UI hosted
 	// within this environment (see Airflow web interface
 	// (/composer/docs/how-to/accessing/airflow-web-interface)).
@@ -532,6 +573,13 @@ type EnvironmentConfig struct {
 	// The default value is Saturday and Sunday 00-06 GMT.
 	MaintenanceWindow *MaintenanceWindow `json:"maintenanceWindow,omitempty"`
 
+	// MasterAuthorizedNetworksConfig: Optional. The configuration options
+	// for GKE cluster master authorized networks. By default master
+	// authorized networks feature is: - in case of private environment:
+	// enabled with no external networks allowlisted. - in case of public
+	// environment: disabled.
+	MasterAuthorizedNetworksConfig *MasterAuthorizedNetworksConfig `json:"masterAuthorizedNetworksConfig,omitempty"`
+
 	// NodeConfig: The configuration used for the Kubernetes Engine cluster.
 	NodeConfig *NodeConfig `json:"nodeConfig,omitempty"`
 
@@ -543,6 +591,11 @@ type EnvironmentConfig struct {
 	// PrivateEnvironmentConfig: The configuration used for the Private IP
 	// Cloud Composer environment.
 	PrivateEnvironmentConfig *PrivateEnvironmentConfig `json:"privateEnvironmentConfig,omitempty"`
+
+	// RecoveryConfig: Optional. The Recovery settings configuration of an
+	// environment. This field is supported for Cloud Composer environments
+	// in versions composer-2.*.*-airflow-*.*.* and newer.
+	RecoveryConfig *RecoveryConfig `json:"recoveryConfig,omitempty"`
 
 	// SoftwareConfig: The configuration settings for software inside the
 	// environment.
@@ -564,7 +617,7 @@ type EnvironmentConfig struct {
 	// composer-2.*.*-airflow-*.*.* and newer.
 	WorkloadsConfig *WorkloadsConfig `json:"workloadsConfig,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "AirflowUri") to
+	// ForceSendFields is a list of field names (e.g. "AirflowByoidUri") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -572,12 +625,13 @@ type EnvironmentConfig struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "AirflowUri") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AirflowByoidUri") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -817,6 +871,58 @@ func (s *ListOperationsResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// LoadSnapshotRequest: Request to load a snapshot into a Cloud Composer
+// environment.
+type LoadSnapshotRequest struct {
+	// SkipAirflowOverridesSetting: Whether or not to skip setting Airflow
+	// overrides when loading the environment's state.
+	SkipAirflowOverridesSetting bool `json:"skipAirflowOverridesSetting,omitempty"`
+
+	// SkipEnvironmentVariablesSetting: Whether or not to skip setting
+	// environment variables when loading the environment's state.
+	SkipEnvironmentVariablesSetting bool `json:"skipEnvironmentVariablesSetting,omitempty"`
+
+	// SkipGcsDataCopying: Whether or not to skip copying Cloud Storage data
+	// when loading the environment's state.
+	SkipGcsDataCopying bool `json:"skipGcsDataCopying,omitempty"`
+
+	// SkipPypiPackagesInstallation: Whether or not to skip installing Pypi
+	// packages when loading the environment's state.
+	SkipPypiPackagesInstallation bool `json:"skipPypiPackagesInstallation,omitempty"`
+
+	// SnapshotPath: A Cloud Storage path to a snapshot to load, e.g.:
+	// "gs://my-bucket/snapshots/project_location_environment_timestamp".
+	SnapshotPath string `json:"snapshotPath,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "SkipAirflowOverridesSetting") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "SkipAirflowOverridesSetting") to include in API requests with the
+	// JSON null value. By default, fields with empty values are omitted
+	// from API requests. However, any field with an empty value appearing
+	// in NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *LoadSnapshotRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod LoadSnapshotRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// LoadSnapshotResponse: Response to LoadSnapshotRequest.
+type LoadSnapshotResponse struct {
+}
+
 // MaintenanceWindow: The configuration settings for Cloud Composer
 // maintenance window. The following example: ``` {
 // "startTime":"2019-08-01T01:00:00Z" "endTime":"2019-08-01T07:00:00Z"
@@ -863,6 +969,84 @@ func (s *MaintenanceWindow) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// MasterAuthorizedNetworksConfig: Configuration options for the master
+// authorized networks feature. Enabled master authorized networks will
+// disallow all external traffic to access Kubernetes master through
+// HTTPS except traffic from the given CIDR blocks, Google Compute
+// Engine Public IPs and Google Prod IPs.
+type MasterAuthorizedNetworksConfig struct {
+	// CidrBlocks: Up to 50 external networks that could access Kubernetes
+	// master through HTTPS.
+	CidrBlocks []*CidrBlock `json:"cidrBlocks,omitempty"`
+
+	// Enabled: Whether or not master authorized networks feature is
+	// enabled.
+	Enabled bool `json:"enabled,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CidrBlocks") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CidrBlocks") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MasterAuthorizedNetworksConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod MasterAuthorizedNetworksConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// NetworkingConfig: Configuration options for networking connections in
+// the Composer 2 environment.
+type NetworkingConfig struct {
+	// ConnectionType: Optional. Indicates the user requested specifc
+	// connection type between Tenant and Customer projects. You cannot set
+	// networking connection type in public IP environment.
+	//
+	// Possible values:
+	//   "CONNECTION_TYPE_UNSPECIFIED" - No specific connection type was
+	// requested, so the environment uses the default value corresponding to
+	// the rest of its configuration.
+	//   "VPC_PEERING" - Requests the use of VPC peerings for connecting the
+	// Customer and Tenant projects.
+	//   "PRIVATE_SERVICE_CONNECT" - Requests the use of Private Service
+	// Connect for connecting the Customer and Tenant projects.
+	ConnectionType string `json:"connectionType,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ConnectionType") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ConnectionType") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *NetworkingConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod NetworkingConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // NodeConfig: The configuration information for the Kubernetes Engine
 // nodes running the Apache Airflow software.
 type NodeConfig struct {
@@ -871,6 +1055,13 @@ type NodeConfig struct {
 	// This field is supported for Cloud Composer environments in versions
 	// composer-1.*.*-airflow-*.*.*.
 	DiskSizeGb int64 `json:"diskSizeGb,omitempty"`
+
+	// EnableIpMasqAgent: Optional. Deploys 'ip-masq-agent' daemon set in
+	// the GKE cluster and defines nonMasqueradeCIDRs equals to pod IP range
+	// so IP masquerading is used for all destination addresses, except
+	// between pods traffic. See:
+	// https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent
+	EnableIpMasqAgent bool `json:"enableIpMasqAgent,omitempty"`
 
 	// IpAllocationPolicy: Optional. The configuration for controlling how
 	// IPs are allocated in the GKE cluster.
@@ -948,9 +1139,7 @@ type NodeConfig struct {
 	// Tags: Optional. The list of instance tags applied to all node VMs.
 	// Tags are used to identify valid sources or targets for network
 	// firewalls. Each tag within the list must comply with RFC1035
-	// (https://www.ietf.org/rfc/rfc1035.txt). Cannot be updated. This field
-	// is supported for Cloud Composer environments in versions
-	// composer-1.*.*-airflow-*.*.*.
+	// (https://www.ietf.org/rfc/rfc1035.txt). Cannot be updated.
 	Tags []string `json:"tags,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DiskSizeGb") to
@@ -1182,6 +1371,16 @@ type PrivateEnvironmentConfig struct {
 	// Composer environments in versions composer-1.*.*-airflow-*.*.*.
 	EnablePrivateEnvironment bool `json:"enablePrivateEnvironment,omitempty"`
 
+	// EnablePrivatelyUsedPublicIps: Optional. When enabled, IPs from public
+	// (non-RFC1918) ranges can be used for
+	// `IPAllocationPolicy.cluster_ipv4_cidr_block` and
+	// `IPAllocationPolicy.service_ipv4_cidr_block`.
+	EnablePrivatelyUsedPublicIps bool `json:"enablePrivatelyUsedPublicIps,omitempty"`
+
+	// NetworkingConfig: Optional. Configuration for the network connections
+	// configuration in the environment.
+	NetworkingConfig *NetworkingConfig `json:"networkingConfig,omitempty"`
+
 	// PrivateClusterConfig: Optional. Configuration for the private GKE
 	// cluster for a Private IP Cloud Composer environment.
 	PrivateClusterConfig *PrivateClusterConfig `json:"privateClusterConfig,omitempty"`
@@ -1219,6 +1418,141 @@ type PrivateEnvironmentConfig struct {
 
 func (s *PrivateEnvironmentConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod PrivateEnvironmentConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// RecoveryConfig: The Recovery settings of an environment.
+type RecoveryConfig struct {
+	// ScheduledSnapshotsConfig: Optional. The configuration for scheduled
+	// snapshot creation mechanism.
+	ScheduledSnapshotsConfig *ScheduledSnapshotsConfig `json:"scheduledSnapshotsConfig,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "ScheduledSnapshotsConfig") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ScheduledSnapshotsConfig")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RecoveryConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod RecoveryConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// SaveSnapshotRequest: Request to create a snapshot of a Cloud Composer
+// environment.
+type SaveSnapshotRequest struct {
+	// SnapshotLocation: Location in a Cloud Storage where the snapshot is
+	// going to be stored, e.g.: "gs://my-bucket/snapshots".
+	SnapshotLocation string `json:"snapshotLocation,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "SnapshotLocation") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "SnapshotLocation") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SaveSnapshotRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod SaveSnapshotRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// SaveSnapshotResponse: Response to SaveSnapshotRequest.
+type SaveSnapshotResponse struct {
+	// SnapshotPath: The fully-resolved Cloud Storage path of the created
+	// snapshot, e.g.:
+	// "gs://my-bucket/snapshots/project_location_environment_timestamp".
+	// This field is populated only if the snapshot creation was successful.
+	SnapshotPath string `json:"snapshotPath,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "SnapshotPath") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "SnapshotPath") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SaveSnapshotResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod SaveSnapshotResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ScheduledSnapshotsConfig: The configuration for scheduled snapshot
+// creation mechanism.
+type ScheduledSnapshotsConfig struct {
+	// Enabled: Optional. Whether scheduled snapshots creation is enabled.
+	Enabled bool `json:"enabled,omitempty"`
+
+	// SnapshotCreationSchedule: Optional. The cron expression representing
+	// the time when snapshots creation mechanism runs. This field is
+	// subject to additional validation around frequency of execution.
+	SnapshotCreationSchedule string `json:"snapshotCreationSchedule,omitempty"`
+
+	// SnapshotLocation: Optional. The Cloud Storage location for storing
+	// automatically created snapshots.
+	SnapshotLocation string `json:"snapshotLocation,omitempty"`
+
+	// TimeZone: Optional. Time zone that sets the context to interpret
+	// snapshot_creation_schedule.
+	TimeZone string `json:"timeZone,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Enabled") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Enabled") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ScheduledSnapshotsConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod ScheduledSnapshotsConfig
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1658,8 +1992,8 @@ type ProjectsLocationsEnvironmentsCreateCall struct {
 
 // Create: Create a new environment.
 //
-// - parent: The parent must be of the form
-//   "projects/{projectId}/locations/{locationId}".
+//   - parent: The parent must be of the form
+//     "projects/{projectId}/locations/{locationId}".
 func (r *ProjectsLocationsEnvironmentsService) Create(parent string, environment *Environment) *ProjectsLocationsEnvironmentsCreateCall {
 	c := &ProjectsLocationsEnvironmentsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1734,17 +2068,17 @@ func (c *ProjectsLocationsEnvironmentsCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1800,9 +2134,9 @@ type ProjectsLocationsEnvironmentsDeleteCall struct {
 
 // Delete: Delete an environment.
 //
-// - name: The environment to delete, in the form:
-//   "projects/{projectId}/locations/{locationId}/environments/{environme
-//   ntId}".
+//   - name: The environment to delete, in the form:
+//     "projects/{projectId}/locations/{locationId}/environments/{environme
+//     ntId}".
 func (r *ProjectsLocationsEnvironmentsService) Delete(name string) *ProjectsLocationsEnvironmentsDeleteCall {
 	c := &ProjectsLocationsEnvironmentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1871,17 +2205,17 @@ func (c *ProjectsLocationsEnvironmentsDeleteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1935,9 +2269,9 @@ type ProjectsLocationsEnvironmentsGetCall struct {
 
 // Get: Get an existing environment.
 //
-// - name: The resource name of the environment to get, in the form:
-//   "projects/{projectId}/locations/{locationId}/environments/{environme
-//   ntId}".
+//   - name: The resource name of the environment to get, in the form:
+//     "projects/{projectId}/locations/{locationId}/environments/{environme
+//     ntId}".
 func (r *ProjectsLocationsEnvironmentsService) Get(name string) *ProjectsLocationsEnvironmentsGetCall {
 	c := &ProjectsLocationsEnvironmentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2019,17 +2353,17 @@ func (c *ProjectsLocationsEnvironmentsGetCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Environment{
 		ServerResponse: googleapi.ServerResponse{
@@ -2083,8 +2417,8 @@ type ProjectsLocationsEnvironmentsListCall struct {
 
 // List: List environments.
 //
-// - parent: List environments in the given project and location, in the
-//   form: "projects/{projectId}/locations/{locationId}".
+//   - parent: List environments in the given project and location, in the
+//     form: "projects/{projectId}/locations/{locationId}".
 func (r *ProjectsLocationsEnvironmentsService) List(parent string) *ProjectsLocationsEnvironmentsListCall {
 	c := &ProjectsLocationsEnvironmentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2180,17 +2514,17 @@ func (c *ProjectsLocationsEnvironmentsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListEnvironmentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2263,6 +2597,153 @@ func (c *ProjectsLocationsEnvironmentsListCall) Pages(ctx context.Context, f fun
 	}
 }
 
+// method id "composer.projects.locations.environments.loadSnapshot":
+
+type ProjectsLocationsEnvironmentsLoadSnapshotCall struct {
+	s                   *Service
+	environment         string
+	loadsnapshotrequest *LoadSnapshotRequest
+	urlParams_          gensupport.URLParams
+	ctx_                context.Context
+	header_             http.Header
+}
+
+// LoadSnapshot: Loads a snapshot of a Cloud Composer environment. As a
+// result of this operation, a snapshot of environment's specified in
+// LoadSnapshotRequest is loaded into the environment.
+//
+//   - environment: The resource name of the target environment in the
+//     form:
+//     "projects/{projectId}/locations/{locationId}/environments/{environme
+//     ntId}".
+func (r *ProjectsLocationsEnvironmentsService) LoadSnapshot(environment string, loadsnapshotrequest *LoadSnapshotRequest) *ProjectsLocationsEnvironmentsLoadSnapshotCall {
+	c := &ProjectsLocationsEnvironmentsLoadSnapshotCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.environment = environment
+	c.loadsnapshotrequest = loadsnapshotrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsEnvironmentsLoadSnapshotCall) Fields(s ...googleapi.Field) *ProjectsLocationsEnvironmentsLoadSnapshotCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsEnvironmentsLoadSnapshotCall) Context(ctx context.Context) *ProjectsLocationsEnvironmentsLoadSnapshotCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsEnvironmentsLoadSnapshotCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsEnvironmentsLoadSnapshotCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.loadsnapshotrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+environment}:loadSnapshot")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"environment": c.environment,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "composer.projects.locations.environments.loadSnapshot" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsLocationsEnvironmentsLoadSnapshotCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Loads a snapshot of a Cloud Composer environment. As a result of this operation, a snapshot of environment's specified in LoadSnapshotRequest is loaded into the environment.",
+	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/environments/{environmentsId}:loadSnapshot",
+	//   "httpMethod": "POST",
+	//   "id": "composer.projects.locations.environments.loadSnapshot",
+	//   "parameterOrder": [
+	//     "environment"
+	//   ],
+	//   "parameters": {
+	//     "environment": {
+	//       "description": "The resource name of the target environment in the form: \"projects/{projectId}/locations/{locationId}/environments/{environmentId}\"",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/environments/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+environment}:loadSnapshot",
+	//   "request": {
+	//     "$ref": "LoadSnapshotRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "composer.projects.locations.environments.patch":
 
 type ProjectsLocationsEnvironmentsPatchCall struct {
@@ -2276,10 +2757,10 @@ type ProjectsLocationsEnvironmentsPatchCall struct {
 
 // Patch: Update an environment.
 //
-// - name: The relative resource name of the environment to update, in
-//   the form:
-//   "projects/{projectId}/locations/{locationId}/environments/{environme
-//   ntId}".
+//   - name: The relative resource name of the environment to update, in
+//     the form:
+//     "projects/{projectId}/locations/{locationId}/environments/{environme
+//     ntId}".
 func (r *ProjectsLocationsEnvironmentsService) Patch(name string, environment *Environment) *ProjectsLocationsEnvironmentsPatchCall {
 	c := &ProjectsLocationsEnvironmentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2355,9 +2836,7 @@ func (r *ProjectsLocationsEnvironmentsService) Patch(name string, environment *E
 // `config.softwareConfig.airflowConfigOverrides` mask. *
 // `config.softwareConfig.envVariables` * Replace all environment
 // variables. If a replacement environment variable map is not included
-// in `environment`, all custom environment variables are cleared. It is
-// an error to provide both this mask and a mask specifying one or more
-// individual environment variables. *
+// in `environment`, all custom environment variables are cleared. *
 // `config.softwareConfig.schedulerCount` * Horizontally scale the
 // number of schedulers in Airflow. A positive integer not greater than
 // the number of nodes must be provided in the
@@ -2444,17 +2923,17 @@ func (c *ProjectsLocationsEnvironmentsPatchCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2484,7 +2963,7 @@ func (c *ProjectsLocationsEnvironmentsPatchCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Required. A comma-separated list of paths, relative to `Environment`, of fields to update. For example, to set the version of scikit-learn to install in the environment to 0.19.0 and to remove an existing installation of numpy, the `updateMask` parameter would include the following two `paths` values: \"config.softwareConfig.pypiPackages.scikit-learn\" and \"config.softwareConfig.pypiPackages.numpy\". The included patch environment would specify the scikit-learn version as follows: { \"config\":{ \"softwareConfig\":{ \"pypiPackages\":{ \"scikit-learn\":\"==0.19.0\" } } } } Note that in the above example, any existing PyPI packages other than scikit-learn and numpy will be unaffected. Only one update type may be included in a single request's `updateMask`. For example, one cannot update both the PyPI packages and labels in the same request. However, it is possible to update multiple members of a map field simultaneously in the same request. For example, to set the labels \"label1\" and \"label2\" while clearing \"label3\" (assuming it already exists), one can provide the paths \"labels.label1\", \"labels.label2\", and \"labels.label3\" and populate the patch environment as follows: { \"labels\":{ \"label1\":\"new-label1-value\" \"label2\":\"new-label2-value\" } } Note that in the above example, any existing labels that are not included in the `updateMask` will be unaffected. It is also possible to replace an entire map field by providing the map field's path in the `updateMask`. The new value of the field will be that which is provided in the patch environment. For example, to delete all pre-existing user-specified PyPI packages and install botocore at version 1.7.14, the `updateMask` would contain the path \"config.softwareConfig.pypiPackages\", and the patch environment would be the following: { \"config\":{ \"softwareConfig\":{ \"pypiPackages\":{ \"botocore\":\"==1.7.14\" } } } } **Note:** Only the following fields can be updated: * `config.softwareConfig.pypiPackages` * Replace all custom custom PyPI packages. If a replacement package map is not included in `environment`, all custom PyPI packages are cleared. It is an error to provide both this mask and a mask specifying an individual package. * `config.softwareConfig.pypiPackages.`packagename * Update the custom PyPI package *packagename*, preserving other packages. To delete the package, include it in `updateMask`, and omit the mapping for it in `environment.config.softwareConfig.pypiPackages`. It is an error to provide both a mask of this form and the `config.softwareConfig.pypiPackages` mask. * `labels` * Replace all environment labels. If a replacement labels map is not included in `environment`, all labels are cleared. It is an error to provide both this mask and a mask specifying one or more individual labels. * `labels.`labelName * Set the label named *labelName*, while preserving other labels. To delete the label, include it in `updateMask` and omit its mapping in `environment.labels`. It is an error to provide both a mask of this form and the `labels` mask. * `config.nodeCount` * Horizontally scale the number of nodes in the environment. An integer greater than or equal to 3 must be provided in the `config.nodeCount` field. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*. * `config.webServerNetworkAccessControl` * Replace the environment's current `WebServerNetworkAccessControl`. * `config.softwareConfig.airflowConfigOverrides` * Replace all Apache Airflow config overrides. If a replacement config overrides map is not included in `environment`, all config overrides are cleared. It is an error to provide both this mask and a mask specifying one or more individual config overrides. * `config.softwareConfig.airflowConfigOverrides.`section-name * Override the Apache Airflow config property *name* in the section named *section*, preserving other properties. To delete the property override, include it in `updateMask` and omit its mapping in `environment.config.softwareConfig.airflowConfigOverrides`. It is an error to provide both a mask of this form and the `config.softwareConfig.airflowConfigOverrides` mask. * `config.softwareConfig.envVariables` * Replace all environment variables. If a replacement environment variable map is not included in `environment`, all custom environment variables are cleared. It is an error to provide both this mask and a mask specifying one or more individual environment variables. * `config.softwareConfig.schedulerCount` * Horizontally scale the number of schedulers in Airflow. A positive integer not greater than the number of nodes must be provided in the `config.softwareConfig.schedulerCount` field. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-2.*.*. * `config.databaseConfig.machineType` * Cloud SQL machine type used by Airflow database. It has to be one of: db-n1-standard-2, db-n1-standard-4, db-n1-standard-8 or db-n1-standard-16. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*. * `config.webServerConfig.machineType` * Machine type on which Airflow web server is running. It has to be one of: composer-n1-webserver-2, composer-n1-webserver-4 or composer-n1-webserver-8. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.",
+	//       "description": "Required. A comma-separated list of paths, relative to `Environment`, of fields to update. For example, to set the version of scikit-learn to install in the environment to 0.19.0 and to remove an existing installation of numpy, the `updateMask` parameter would include the following two `paths` values: \"config.softwareConfig.pypiPackages.scikit-learn\" and \"config.softwareConfig.pypiPackages.numpy\". The included patch environment would specify the scikit-learn version as follows: { \"config\":{ \"softwareConfig\":{ \"pypiPackages\":{ \"scikit-learn\":\"==0.19.0\" } } } } Note that in the above example, any existing PyPI packages other than scikit-learn and numpy will be unaffected. Only one update type may be included in a single request's `updateMask`. For example, one cannot update both the PyPI packages and labels in the same request. However, it is possible to update multiple members of a map field simultaneously in the same request. For example, to set the labels \"label1\" and \"label2\" while clearing \"label3\" (assuming it already exists), one can provide the paths \"labels.label1\", \"labels.label2\", and \"labels.label3\" and populate the patch environment as follows: { \"labels\":{ \"label1\":\"new-label1-value\" \"label2\":\"new-label2-value\" } } Note that in the above example, any existing labels that are not included in the `updateMask` will be unaffected. It is also possible to replace an entire map field by providing the map field's path in the `updateMask`. The new value of the field will be that which is provided in the patch environment. For example, to delete all pre-existing user-specified PyPI packages and install botocore at version 1.7.14, the `updateMask` would contain the path \"config.softwareConfig.pypiPackages\", and the patch environment would be the following: { \"config\":{ \"softwareConfig\":{ \"pypiPackages\":{ \"botocore\":\"==1.7.14\" } } } } **Note:** Only the following fields can be updated: * `config.softwareConfig.pypiPackages` * Replace all custom custom PyPI packages. If a replacement package map is not included in `environment`, all custom PyPI packages are cleared. It is an error to provide both this mask and a mask specifying an individual package. * `config.softwareConfig.pypiPackages.`packagename * Update the custom PyPI package *packagename*, preserving other packages. To delete the package, include it in `updateMask`, and omit the mapping for it in `environment.config.softwareConfig.pypiPackages`. It is an error to provide both a mask of this form and the `config.softwareConfig.pypiPackages` mask. * `labels` * Replace all environment labels. If a replacement labels map is not included in `environment`, all labels are cleared. It is an error to provide both this mask and a mask specifying one or more individual labels. * `labels.`labelName * Set the label named *labelName*, while preserving other labels. To delete the label, include it in `updateMask` and omit its mapping in `environment.labels`. It is an error to provide both a mask of this form and the `labels` mask. * `config.nodeCount` * Horizontally scale the number of nodes in the environment. An integer greater than or equal to 3 must be provided in the `config.nodeCount` field. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*. * `config.webServerNetworkAccessControl` * Replace the environment's current `WebServerNetworkAccessControl`. * `config.softwareConfig.airflowConfigOverrides` * Replace all Apache Airflow config overrides. If a replacement config overrides map is not included in `environment`, all config overrides are cleared. It is an error to provide both this mask and a mask specifying one or more individual config overrides. * `config.softwareConfig.airflowConfigOverrides.`section-name * Override the Apache Airflow config property *name* in the section named *section*, preserving other properties. To delete the property override, include it in `updateMask` and omit its mapping in `environment.config.softwareConfig.airflowConfigOverrides`. It is an error to provide both a mask of this form and the `config.softwareConfig.airflowConfigOverrides` mask. * `config.softwareConfig.envVariables` * Replace all environment variables. If a replacement environment variable map is not included in `environment`, all custom environment variables are cleared. * `config.softwareConfig.schedulerCount` * Horizontally scale the number of schedulers in Airflow. A positive integer not greater than the number of nodes must be provided in the `config.softwareConfig.schedulerCount` field. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-2.*.*. * `config.databaseConfig.machineType` * Cloud SQL machine type used by Airflow database. It has to be one of: db-n1-standard-2, db-n1-standard-4, db-n1-standard-8 or db-n1-standard-16. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*. * `config.webServerConfig.machineType` * Machine type on which Airflow web server is running. It has to be one of: composer-n1-webserver-2, composer-n1-webserver-4 or composer-n1-webserver-8. Supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -2493,6 +2972,153 @@ func (c *ProjectsLocationsEnvironmentsPatchCall) Do(opts ...googleapi.CallOption
 	//   "path": "v1/{+name}",
 	//   "request": {
 	//     "$ref": "Environment"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "composer.projects.locations.environments.saveSnapshot":
+
+type ProjectsLocationsEnvironmentsSaveSnapshotCall struct {
+	s                   *Service
+	environment         string
+	savesnapshotrequest *SaveSnapshotRequest
+	urlParams_          gensupport.URLParams
+	ctx_                context.Context
+	header_             http.Header
+}
+
+// SaveSnapshot: Creates a snapshots of a Cloud Composer environment. As
+// a result of this operation, snapshot of environment's state is stored
+// in a location specified in the SaveSnapshotRequest.
+//
+//   - environment: The resource name of the source environment in the
+//     form:
+//     "projects/{projectId}/locations/{locationId}/environments/{environme
+//     ntId}".
+func (r *ProjectsLocationsEnvironmentsService) SaveSnapshot(environment string, savesnapshotrequest *SaveSnapshotRequest) *ProjectsLocationsEnvironmentsSaveSnapshotCall {
+	c := &ProjectsLocationsEnvironmentsSaveSnapshotCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.environment = environment
+	c.savesnapshotrequest = savesnapshotrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsEnvironmentsSaveSnapshotCall) Fields(s ...googleapi.Field) *ProjectsLocationsEnvironmentsSaveSnapshotCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsEnvironmentsSaveSnapshotCall) Context(ctx context.Context) *ProjectsLocationsEnvironmentsSaveSnapshotCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsEnvironmentsSaveSnapshotCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsEnvironmentsSaveSnapshotCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.savesnapshotrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+environment}:saveSnapshot")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"environment": c.environment,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "composer.projects.locations.environments.saveSnapshot" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ProjectsLocationsEnvironmentsSaveSnapshotCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a snapshots of a Cloud Composer environment. As a result of this operation, snapshot of environment's state is stored in a location specified in the SaveSnapshotRequest.",
+	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/environments/{environmentsId}:saveSnapshot",
+	//   "httpMethod": "POST",
+	//   "id": "composer.projects.locations.environments.saveSnapshot",
+	//   "parameterOrder": [
+	//     "environment"
+	//   ],
+	//   "parameters": {
+	//     "environment": {
+	//       "description": "The resource name of the source environment in the form: \"projects/{projectId}/locations/{locationId}/environments/{environmentId}\"",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/environments/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+environment}:saveSnapshot",
+	//   "request": {
+	//     "$ref": "SaveSnapshotRequest"
 	//   },
 	//   "response": {
 	//     "$ref": "Operation"
@@ -2517,8 +3143,8 @@ type ProjectsLocationsImageVersionsListCall struct {
 
 // List: List ImageVersions for provided location.
 //
-// - parent: List ImageVersions in the given project and location, in
-//   the form: "projects/{projectId}/locations/{locationId}".
+//   - parent: List ImageVersions in the given project and location, in
+//     the form: "projects/{projectId}/locations/{locationId}".
 func (r *ProjectsLocationsImageVersionsService) List(parent string) *ProjectsLocationsImageVersionsListCall {
 	c := &ProjectsLocationsImageVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2622,17 +3248,17 @@ func (c *ProjectsLocationsImageVersionsListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListImageVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2794,17 +3420,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2942,17 +3568,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3006,14 +3632,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -3118,17 +3737,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3142,7 +3761,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "composer.projects.locations.operations.list",

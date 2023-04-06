@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/recommender/docs/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/recommender/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   recommenderService, err := recommender.NewService(ctx)
+//	import "google.golang.org/api/recommender/v1beta1"
+//	...
+//	ctx := context.Background()
+//	recommenderService, err := recommender.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   recommenderService, err := recommender.NewService(ctx, option.WithAPIKey("AIza..."))
+//	recommenderService, err := recommender.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   recommenderService, err := recommender.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	recommenderService, err := recommender.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package recommender // import "google.golang.org/api/recommender/v1beta1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "recommender:v1beta1"
 const apiName = "recommender"
@@ -475,10 +476,15 @@ type GoogleCloudRecommenderV1beta1Impact struct {
 	// manageability.
 	//   "SUSTAINABILITY" - Indicates a potential increase or decrease in
 	// sustainability.
+	//   "RELIABILITY" - Indicates a potential increase or decrease in
+	// reliability.
 	Category string `json:"category,omitempty"`
 
 	// CostProjection: Use with CategoryType.COST
 	CostProjection *GoogleCloudRecommenderV1beta1CostProjection `json:"costProjection,omitempty"`
+
+	// ReliabilityProjection: Use with CategoryType.RELIABILITY
+	ReliabilityProjection *GoogleCloudRecommenderV1beta1ReliabilityProjection `json:"reliabilityProjection,omitempty"`
 
 	// SecurityProjection: Use with CategoryType.SECURITY
 	SecurityProjection *GoogleCloudRecommenderV1beta1SecurityProjection `json:"securityProjection,omitempty"`
@@ -511,7 +517,7 @@ func (s *GoogleCloudRecommenderV1beta1Impact) MarshalJSON() ([]byte, error) {
 
 // GoogleCloudRecommenderV1beta1Insight: An insight along with the
 // information used to derive the insight. The insight may have
-// associated recomendations as well.
+// associated recommendations as well.
 type GoogleCloudRecommenderV1beta1Insight struct {
 	// AssociatedRecommendations: Recommendations derived from this insight.
 	AssociatedRecommendations []*GoogleCloudRecommenderV1beta1InsightRecommendationReference `json:"associatedRecommendations,omitempty"`
@@ -524,6 +530,8 @@ type GoogleCloudRecommenderV1beta1Insight struct {
 	//   "SECURITY" - The insight is related to security.
 	//   "PERFORMANCE" - The insight is related to performance.
 	//   "MANAGEABILITY" - This insight is related to manageability.
+	//   "SUSTAINABILITY" - The insight is related to sustainability.
+	//   "RELIABILITY" - The insight is related to reliability.
 	Category string `json:"category,omitempty"`
 
 	// Content: A struct of custom fields to explain the insight. Example:
@@ -915,6 +923,35 @@ type GoogleCloudRecommenderV1beta1MarkRecommendationClaimedRequest struct {
 
 func (s *GoogleCloudRecommenderV1beta1MarkRecommendationClaimedRequest) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleCloudRecommenderV1beta1MarkRecommendationClaimedRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest:
+// Request for the `MarkRecommendationDismissed` Method.
+type GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest struct {
+	// Etag: Fingerprint of the Recommendation. Provides optimistic locking.
+	Etag string `json:"etag,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Etag") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Etag") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1422,6 +1459,46 @@ func (s *GoogleCloudRecommenderV1beta1RecommenderGenerationConfig) MarshalJSON()
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudRecommenderV1beta1ReliabilityProjection: Contains
+// information on the impact of a reliability recommendation.
+type GoogleCloudRecommenderV1beta1ReliabilityProjection struct {
+	// Details: Per-recommender projection.
+	Details googleapi.RawMessage `json:"details,omitempty"`
+
+	// Risks: Reliability risks mitigated by this recommendation.
+	//
+	// Possible values:
+	//   "RISK_TYPE_UNSPECIFIED" - Default unspecified risk. Don't use
+	// directly.
+	//   "SERVICE_DISRUPTION" - Potential service downtime.
+	//   "DATA_LOSS" - Potential data loss.
+	//   "ACCESS_DENY" - Potential access denial. The service is still up
+	// but some or all clients can't access it.
+	Risks []string `json:"risks,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Details") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Details") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudRecommenderV1beta1ReliabilityProjection) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudRecommenderV1beta1ReliabilityProjection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudRecommenderV1beta1SecurityProjection: Contains various
 // ways of describing the impact on Security.
 type GoogleCloudRecommenderV1beta1SecurityProjection struct {
@@ -1574,6 +1651,336 @@ func (s *GoogleTypeMoney) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// method id "recommender.billingAccounts.locations.insightTypes.getConfig":
+
+type BillingAccountsLocationsInsightTypesGetConfigCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetConfig: Gets the requested InsightTypeConfig. There is only one
+// instance of the config for each InsightType.
+//
+//   - name: Name of the InsightTypeConfig to get. Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
+//     T_TYPE_ID]/config` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
+//     PE_ID]/config` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
+//     INSIGHT_TYPE_ID]/config` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
+//     pes/[INSIGHT_TYPE_ID]/config`.
+func (r *BillingAccountsLocationsInsightTypesService) GetConfig(name string) *BillingAccountsLocationsInsightTypesGetConfigCall {
+	c := &BillingAccountsLocationsInsightTypesGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *BillingAccountsLocationsInsightTypesGetConfigCall) Fields(s ...googleapi.Field) *BillingAccountsLocationsInsightTypesGetConfigCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *BillingAccountsLocationsInsightTypesGetConfigCall) IfNoneMatch(entityTag string) *BillingAccountsLocationsInsightTypesGetConfigCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *BillingAccountsLocationsInsightTypesGetConfigCall) Context(ctx context.Context) *BillingAccountsLocationsInsightTypesGetConfigCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *BillingAccountsLocationsInsightTypesGetConfigCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *BillingAccountsLocationsInsightTypesGetConfigCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.billingAccounts.locations.insightTypes.getConfig" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1InsightTypeConfig or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1InsightTypeConfig.ServerResponse.Header
+// or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *BillingAccountsLocationsInsightTypesGetConfigCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1InsightTypeConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1InsightTypeConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the requested InsightTypeConfig. There is only one instance of the config for each InsightType.",
+	//   "flatPath": "v1beta1/billingAccounts/{billingAccountsId}/locations/{locationsId}/insightTypes/{insightTypesId}/config",
+	//   "httpMethod": "GET",
+	//   "id": "recommender.billingAccounts.locations.insightTypes.getConfig",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Name of the InsightTypeConfig to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config`",
+	//       "location": "path",
+	//       "pattern": "^billingAccounts/[^/]+/locations/[^/]+/insightTypes/[^/]+/config$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1InsightTypeConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "recommender.billingAccounts.locations.insightTypes.updateConfig":
+
+type BillingAccountsLocationsInsightTypesUpdateConfigCall struct {
+	s                                              *Service
+	name                                           string
+	googlecloudrecommenderv1beta1insighttypeconfig *GoogleCloudRecommenderV1beta1InsightTypeConfig
+	urlParams_                                     gensupport.URLParams
+	ctx_                                           context.Context
+	header_                                        http.Header
+}
+
+// UpdateConfig: Updates an InsightTypeConfig change. This will create a
+// new revision of the config.
+//
+//   - name: Name of insight type config. Eg,
+//     projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT
+//     _TYPE_ID]/config.
+func (r *BillingAccountsLocationsInsightTypesService) UpdateConfig(name string, googlecloudrecommenderv1beta1insighttypeconfig *GoogleCloudRecommenderV1beta1InsightTypeConfig) *BillingAccountsLocationsInsightTypesUpdateConfigCall {
+	c := &BillingAccountsLocationsInsightTypesUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.googlecloudrecommenderv1beta1insighttypeconfig = googlecloudrecommenderv1beta1insighttypeconfig
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The list of
+// fields to be updated.
+func (c *BillingAccountsLocationsInsightTypesUpdateConfigCall) UpdateMask(updateMask string) *BillingAccountsLocationsInsightTypesUpdateConfigCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// ValidateOnly sets the optional parameter "validateOnly": If true,
+// validate the request and preview the change, but do not actually
+// update it.
+func (c *BillingAccountsLocationsInsightTypesUpdateConfigCall) ValidateOnly(validateOnly bool) *BillingAccountsLocationsInsightTypesUpdateConfigCall {
+	c.urlParams_.Set("validateOnly", fmt.Sprint(validateOnly))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *BillingAccountsLocationsInsightTypesUpdateConfigCall) Fields(s ...googleapi.Field) *BillingAccountsLocationsInsightTypesUpdateConfigCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *BillingAccountsLocationsInsightTypesUpdateConfigCall) Context(ctx context.Context) *BillingAccountsLocationsInsightTypesUpdateConfigCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *BillingAccountsLocationsInsightTypesUpdateConfigCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *BillingAccountsLocationsInsightTypesUpdateConfigCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlecloudrecommenderv1beta1insighttypeconfig)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.billingAccounts.locations.insightTypes.updateConfig" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1InsightTypeConfig or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1InsightTypeConfig.ServerResponse.Header
+// or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *BillingAccountsLocationsInsightTypesUpdateConfigCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1InsightTypeConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1InsightTypeConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates an InsightTypeConfig change. This will create a new revision of the config.",
+	//   "flatPath": "v1beta1/billingAccounts/{billingAccountsId}/locations/{locationsId}/insightTypes/{insightTypesId}/config",
+	//   "httpMethod": "PATCH",
+	//   "id": "recommender.billingAccounts.locations.insightTypes.updateConfig",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of insight type config. Eg, projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config",
+	//       "location": "path",
+	//       "pattern": "^billingAccounts/[^/]+/locations/[^/]+/insightTypes/[^/]+/config$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The list of fields to be updated.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "validateOnly": {
+	//       "description": "If true, validate the request and preview the change, but do not actually update it.",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "request": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1InsightTypeConfig"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1InsightTypeConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "recommender.billingAccounts.locations.insightTypes.insights.get":
 
 type BillingAccountsLocationsInsightTypesInsightsGetCall struct {
@@ -1671,17 +2078,17 @@ func (c *BillingAccountsLocationsInsightTypesInsightsGetCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -1736,21 +2143,21 @@ type BillingAccountsLocationsInsightTypesInsightsListCall struct {
 // List: Lists insights for the specified Cloud Resource. Requires the
 // recommender.*.list IAM permission for the specified insight type.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
-//   T_TYPE_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
-//   PE_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
-//   pes/[INSIGHT_TYPE_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
-//   _ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
-//   INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
-//   supported insight types:
-//   https://cloud.google.com/recommender/docs/insights/insight-types.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
+//     T_TYPE_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
+//     PE_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
+//     pes/[INSIGHT_TYPE_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
+//     _ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
+//     INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
+//     supported insight types:
+//     https://cloud.google.com/recommender/docs/insights/insight-types.
 func (r *BillingAccountsLocationsInsightTypesInsightsService) List(parent string) *BillingAccountsLocationsInsightTypesInsightsListCall {
 	c := &BillingAccountsLocationsInsightTypesInsightsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1866,17 +2273,17 @@ func (c *BillingAccountsLocationsInsightTypesInsightsListCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListInsightsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2048,17 +2455,17 @@ func (c *BillingAccountsLocationsInsightTypesInsightsMarkAcceptedCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -2094,6 +2501,337 @@ func (c *BillingAccountsLocationsInsightTypesInsightsMarkAcceptedCall) Do(opts .
 	//   },
 	//   "response": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1Insight"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "recommender.billingAccounts.locations.recommenders.getConfig":
+
+type BillingAccountsLocationsRecommendersGetConfigCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetConfig: Gets the requested Recommender Config. There is only one
+// instance of the config for each Recommender.
+//
+//   - name: Name of the Recommendation Config to get. Acceptable formats:
+//     *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
+//     ENDER_ID]/config` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+//     R_ID]/config` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
+//     RECOMMENDER_ID]/config` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
+//     ers/[RECOMMENDER_ID]/config`.
+func (r *BillingAccountsLocationsRecommendersService) GetConfig(name string) *BillingAccountsLocationsRecommendersGetConfigCall {
+	c := &BillingAccountsLocationsRecommendersGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *BillingAccountsLocationsRecommendersGetConfigCall) Fields(s ...googleapi.Field) *BillingAccountsLocationsRecommendersGetConfigCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *BillingAccountsLocationsRecommendersGetConfigCall) IfNoneMatch(entityTag string) *BillingAccountsLocationsRecommendersGetConfigCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *BillingAccountsLocationsRecommendersGetConfigCall) Context(ctx context.Context) *BillingAccountsLocationsRecommendersGetConfigCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *BillingAccountsLocationsRecommendersGetConfigCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *BillingAccountsLocationsRecommendersGetConfigCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.billingAccounts.locations.recommenders.getConfig" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1RecommenderConfig or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1RecommenderConfig.ServerResponse.Header
+// or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *BillingAccountsLocationsRecommendersGetConfigCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1RecommenderConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1RecommenderConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the requested Recommender Config. There is only one instance of the config for each Recommender.",
+	//   "flatPath": "v1beta1/billingAccounts/{billingAccountsId}/locations/{locationsId}/recommenders/{recommendersId}/config",
+	//   "httpMethod": "GET",
+	//   "id": "recommender.billingAccounts.locations.recommenders.getConfig",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Name of the Recommendation Config to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config`",
+	//       "location": "path",
+	//       "pattern": "^billingAccounts/[^/]+/locations/[^/]+/recommenders/[^/]+/config$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1RecommenderConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "recommender.billingAccounts.locations.recommenders.updateConfig":
+
+type BillingAccountsLocationsRecommendersUpdateConfigCall struct {
+	s                                              *Service
+	name                                           string
+	googlecloudrecommenderv1beta1recommenderconfig *GoogleCloudRecommenderV1beta1RecommenderConfig
+	urlParams_                                     gensupport.URLParams
+	ctx_                                           context.Context
+	header_                                        http.Header
+}
+
+// UpdateConfig: Updates a Recommender Config. This will create a new
+// revision of the config.
+//
+//   - name: Name of recommender config. Eg,
+//     projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMME
+//     NDER_ID]/config.
+func (r *BillingAccountsLocationsRecommendersService) UpdateConfig(name string, googlecloudrecommenderv1beta1recommenderconfig *GoogleCloudRecommenderV1beta1RecommenderConfig) *BillingAccountsLocationsRecommendersUpdateConfigCall {
+	c := &BillingAccountsLocationsRecommendersUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.googlecloudrecommenderv1beta1recommenderconfig = googlecloudrecommenderv1beta1recommenderconfig
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The list of
+// fields to be updated.
+func (c *BillingAccountsLocationsRecommendersUpdateConfigCall) UpdateMask(updateMask string) *BillingAccountsLocationsRecommendersUpdateConfigCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// ValidateOnly sets the optional parameter "validateOnly": If true,
+// validate the request and preview the change, but do not actually
+// update it.
+func (c *BillingAccountsLocationsRecommendersUpdateConfigCall) ValidateOnly(validateOnly bool) *BillingAccountsLocationsRecommendersUpdateConfigCall {
+	c.urlParams_.Set("validateOnly", fmt.Sprint(validateOnly))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *BillingAccountsLocationsRecommendersUpdateConfigCall) Fields(s ...googleapi.Field) *BillingAccountsLocationsRecommendersUpdateConfigCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *BillingAccountsLocationsRecommendersUpdateConfigCall) Context(ctx context.Context) *BillingAccountsLocationsRecommendersUpdateConfigCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *BillingAccountsLocationsRecommendersUpdateConfigCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *BillingAccountsLocationsRecommendersUpdateConfigCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlecloudrecommenderv1beta1recommenderconfig)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.billingAccounts.locations.recommenders.updateConfig" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1RecommenderConfig or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1RecommenderConfig.ServerResponse.Header
+// or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *BillingAccountsLocationsRecommendersUpdateConfigCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1RecommenderConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1RecommenderConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates a Recommender Config. This will create a new revision of the config.",
+	//   "flatPath": "v1beta1/billingAccounts/{billingAccountsId}/locations/{locationsId}/recommenders/{recommendersId}/config",
+	//   "httpMethod": "PATCH",
+	//   "id": "recommender.billingAccounts.locations.recommenders.updateConfig",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of recommender config. Eg, projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config",
+	//       "location": "path",
+	//       "pattern": "^billingAccounts/[^/]+/locations/[^/]+/recommenders/[^/]+/config$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The list of fields to be updated.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "validateOnly": {
+	//       "description": "If true, validate the request and preview the change, but do not actually update it.",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "request": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1RecommenderConfig"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1RecommenderConfig"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform"
@@ -2200,17 +2938,17 @@ func (c *BillingAccountsLocationsRecommendersRecommendationsGetCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2266,21 +3004,21 @@ type BillingAccountsLocationsRecommendersRecommendationsListCall struct {
 // Requires the recommender.*.list IAM permission for the specified
 // recommender.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
-//   ENDER_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
-//   R_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
-//   ers/[RECOMMENDER_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
-//   ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
-//   RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
-//   supported recommenders:
-//   https://cloud.google.com/recommender/docs/recommenders.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
+//     ENDER_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+//     R_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
+//     ers/[RECOMMENDER_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
+//     ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
+//     RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
+//     supported recommenders:
+//     https://cloud.google.com/recommender/docs/recommenders.
 func (r *BillingAccountsLocationsRecommendersRecommendationsService) List(parent string) *BillingAccountsLocationsRecommendersRecommendationsListCall {
 	c := &BillingAccountsLocationsRecommendersRecommendationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2397,17 +3135,17 @@ func (c *BillingAccountsLocationsRecommendersRecommendationsListCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListRecommendationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2581,17 +3319,17 @@ func (c *BillingAccountsLocationsRecommendersRecommendationsMarkClaimedCall) Do(
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2624,6 +3362,155 @@ func (c *BillingAccountsLocationsRecommendersRecommendationsMarkClaimedCall) Do(
 	//   "path": "v1beta1/{+name}:markClaimed",
 	//   "request": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationClaimedRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "recommender.billingAccounts.locations.recommenders.recommendations.markDismissed":
+
+type BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall struct {
+	s                                                               *Service
+	name                                                            string
+	googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest
+	urlParams_                                                      gensupport.URLParams
+	ctx_                                                            context.Context
+	header_                                                         http.Header
+}
+
+// MarkDismissed: Mark the Recommendation State as Dismissed. Users can
+// use this method to indicate to the Recommender API that an ACTIVE
+// recommendation has to be marked back as DISMISSED.
+// MarkRecommendationDismissed can be applied to recommendations in
+// ACTIVE state. Requires the recommender.*.update IAM permission for
+// the specified recommender.
+//
+// - name: Name of the recommendation.
+func (r *BillingAccountsLocationsRecommendersRecommendationsService) MarkDismissed(name string, googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest) *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c := &BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest = googlecloudrecommenderv1beta1markrecommendationdismissedrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall) Fields(s ...googleapi.Field) *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall) Context(ctx context.Context) *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:markDismissed")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.billingAccounts.locations.recommenders.recommendations.markDismissed" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1Recommendation or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1Recommendation.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *BillingAccountsLocationsRecommendersRecommendationsMarkDismissedCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1Recommendation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1Recommendation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Mark the Recommendation State as Dismissed. Users can use this method to indicate to the Recommender API that an ACTIVE recommendation has to be marked back as DISMISSED. MarkRecommendationDismissed can be applied to recommendations in ACTIVE state. Requires the recommender.*.update IAM permission for the specified recommender.",
+	//   "flatPath": "v1beta1/billingAccounts/{billingAccountsId}/locations/{locationsId}/recommenders/{recommendersId}/recommendations/{recommendationsId}:markDismissed",
+	//   "httpMethod": "POST",
+	//   "id": "recommender.billingAccounts.locations.recommenders.recommendations.markDismissed",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of the recommendation.",
+	//       "location": "path",
+	//       "pattern": "^billingAccounts/[^/]+/locations/[^/]+/recommenders/[^/]+/recommendations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:markDismissed",
+	//   "request": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest"
 	//   },
 	//   "response": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
@@ -2732,17 +3619,17 @@ func (c *BillingAccountsLocationsRecommendersRecommendationsMarkFailedCall) Do(o
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2883,17 +3770,17 @@ func (c *BillingAccountsLocationsRecommendersRecommendationsMarkSucceededCall) D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3034,17 +3921,17 @@ func (c *FoldersLocationsInsightTypesInsightsGetCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -3099,21 +3986,21 @@ type FoldersLocationsInsightTypesInsightsListCall struct {
 // List: Lists insights for the specified Cloud Resource. Requires the
 // recommender.*.list IAM permission for the specified insight type.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
-//   T_TYPE_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
-//   PE_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
-//   pes/[INSIGHT_TYPE_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
-//   _ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
-//   INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
-//   supported insight types:
-//   https://cloud.google.com/recommender/docs/insights/insight-types.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
+//     T_TYPE_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
+//     PE_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
+//     pes/[INSIGHT_TYPE_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
+//     _ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
+//     INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
+//     supported insight types:
+//     https://cloud.google.com/recommender/docs/insights/insight-types.
 func (r *FoldersLocationsInsightTypesInsightsService) List(parent string) *FoldersLocationsInsightTypesInsightsListCall {
 	c := &FoldersLocationsInsightTypesInsightsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3229,17 +4116,17 @@ func (c *FoldersLocationsInsightTypesInsightsListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListInsightsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3411,17 +4298,17 @@ func (c *FoldersLocationsInsightTypesInsightsMarkAcceptedCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -3563,17 +4450,17 @@ func (c *FoldersLocationsRecommendersRecommendationsGetCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3629,21 +4516,21 @@ type FoldersLocationsRecommendersRecommendationsListCall struct {
 // Requires the recommender.*.list IAM permission for the specified
 // recommender.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
-//   ENDER_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
-//   R_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
-//   ers/[RECOMMENDER_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
-//   ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
-//   RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
-//   supported recommenders:
-//   https://cloud.google.com/recommender/docs/recommenders.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
+//     ENDER_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+//     R_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
+//     ers/[RECOMMENDER_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
+//     ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
+//     RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
+//     supported recommenders:
+//     https://cloud.google.com/recommender/docs/recommenders.
 func (r *FoldersLocationsRecommendersRecommendationsService) List(parent string) *FoldersLocationsRecommendersRecommendationsListCall {
 	c := &FoldersLocationsRecommendersRecommendationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3760,17 +4647,17 @@ func (c *FoldersLocationsRecommendersRecommendationsListCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListRecommendationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3944,17 +4831,17 @@ func (c *FoldersLocationsRecommendersRecommendationsMarkClaimedCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3987,6 +4874,155 @@ func (c *FoldersLocationsRecommendersRecommendationsMarkClaimedCall) Do(opts ...
 	//   "path": "v1beta1/{+name}:markClaimed",
 	//   "request": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationClaimedRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "recommender.folders.locations.recommenders.recommendations.markDismissed":
+
+type FoldersLocationsRecommendersRecommendationsMarkDismissedCall struct {
+	s                                                               *Service
+	name                                                            string
+	googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest
+	urlParams_                                                      gensupport.URLParams
+	ctx_                                                            context.Context
+	header_                                                         http.Header
+}
+
+// MarkDismissed: Mark the Recommendation State as Dismissed. Users can
+// use this method to indicate to the Recommender API that an ACTIVE
+// recommendation has to be marked back as DISMISSED.
+// MarkRecommendationDismissed can be applied to recommendations in
+// ACTIVE state. Requires the recommender.*.update IAM permission for
+// the specified recommender.
+//
+// - name: Name of the recommendation.
+func (r *FoldersLocationsRecommendersRecommendationsService) MarkDismissed(name string, googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest) *FoldersLocationsRecommendersRecommendationsMarkDismissedCall {
+	c := &FoldersLocationsRecommendersRecommendationsMarkDismissedCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest = googlecloudrecommenderv1beta1markrecommendationdismissedrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersLocationsRecommendersRecommendationsMarkDismissedCall) Fields(s ...googleapi.Field) *FoldersLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersLocationsRecommendersRecommendationsMarkDismissedCall) Context(ctx context.Context) *FoldersLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersLocationsRecommendersRecommendationsMarkDismissedCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersLocationsRecommendersRecommendationsMarkDismissedCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:markDismissed")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.folders.locations.recommenders.recommendations.markDismissed" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1Recommendation or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1Recommendation.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *FoldersLocationsRecommendersRecommendationsMarkDismissedCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1Recommendation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1Recommendation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Mark the Recommendation State as Dismissed. Users can use this method to indicate to the Recommender API that an ACTIVE recommendation has to be marked back as DISMISSED. MarkRecommendationDismissed can be applied to recommendations in ACTIVE state. Requires the recommender.*.update IAM permission for the specified recommender.",
+	//   "flatPath": "v1beta1/folders/{foldersId}/locations/{locationsId}/recommenders/{recommendersId}/recommendations/{recommendationsId}:markDismissed",
+	//   "httpMethod": "POST",
+	//   "id": "recommender.folders.locations.recommenders.recommendations.markDismissed",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of the recommendation.",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+/locations/[^/]+/recommenders/[^/]+/recommendations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:markDismissed",
+	//   "request": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest"
 	//   },
 	//   "response": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
@@ -4095,17 +5131,17 @@ func (c *FoldersLocationsRecommendersRecommendationsMarkFailedCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4246,17 +5282,17 @@ func (c *FoldersLocationsRecommendersRecommendationsMarkSucceededCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4314,13 +5350,15 @@ type OrganizationsLocationsInsightTypesGetConfigCall struct {
 // GetConfig: Gets the requested InsightTypeConfig. There is only one
 // instance of the config for each InsightType.
 //
-// - name: Name of the InsightTypeConfig to get. Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/global/recommenders/[INSIGHT_TY
-//   PE_ID]/config` *
-//   `projects/[PROJECT_ID]/locations/global/recommenders/[INSIGHT_TYPE_I
-//   D]/config` *
-//   `organizations/[ORGANIZATION_ID]/locations/global/recommenders/[INSI
-//   GHT_TYPE_ID]/config`.
+//   - name: Name of the InsightTypeConfig to get. Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
+//     T_TYPE_ID]/config` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
+//     PE_ID]/config` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
+//     INSIGHT_TYPE_ID]/config` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
+//     pes/[INSIGHT_TYPE_ID]/config`.
 func (r *OrganizationsLocationsInsightTypesService) GetConfig(name string) *OrganizationsLocationsInsightTypesGetConfigCall {
 	c := &OrganizationsLocationsInsightTypesGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4404,17 +5442,17 @@ func (c *OrganizationsLocationsInsightTypesGetConfigCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1InsightTypeConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -4437,7 +5475,7 @@ func (c *OrganizationsLocationsInsightTypesGetConfigCall) Do(opts ...googleapi.C
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the InsightTypeConfig to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/global/recommenders/[INSIGHT_TYPE_ID]/config` * `projects/[PROJECT_ID]/locations/global/recommenders/[INSIGHT_TYPE_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/global/recommenders/[INSIGHT_TYPE_ID]/config`",
+	//       "description": "Required. Name of the InsightTypeConfig to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config`",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/locations/[^/]+/insightTypes/[^/]+/config$",
 	//       "required": true,
@@ -4469,9 +5507,9 @@ type OrganizationsLocationsInsightTypesUpdateConfigCall struct {
 // UpdateConfig: Updates an InsightTypeConfig change. This will create a
 // new revision of the config.
 //
-// - name: Name of insight type config. Eg,
-//   projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT
-//   _TYPE_ID]/config.
+//   - name: Name of insight type config. Eg,
+//     projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT
+//     _TYPE_ID]/config.
 func (r *OrganizationsLocationsInsightTypesService) UpdateConfig(name string, googlecloudrecommenderv1beta1insighttypeconfig *GoogleCloudRecommenderV1beta1InsightTypeConfig) *OrganizationsLocationsInsightTypesUpdateConfigCall {
 	c := &OrganizationsLocationsInsightTypesUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4563,17 +5601,17 @@ func (c *OrganizationsLocationsInsightTypesUpdateConfigCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1InsightTypeConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -4725,17 +5763,17 @@ func (c *OrganizationsLocationsInsightTypesInsightsGetCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -4790,21 +5828,21 @@ type OrganizationsLocationsInsightTypesInsightsListCall struct {
 // List: Lists insights for the specified Cloud Resource. Requires the
 // recommender.*.list IAM permission for the specified insight type.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
-//   T_TYPE_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
-//   PE_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
-//   pes/[INSIGHT_TYPE_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
-//   _ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
-//   INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
-//   supported insight types:
-//   https://cloud.google.com/recommender/docs/insights/insight-types.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
+//     T_TYPE_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
+//     PE_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
+//     pes/[INSIGHT_TYPE_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
+//     _ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
+//     INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
+//     supported insight types:
+//     https://cloud.google.com/recommender/docs/insights/insight-types.
 func (r *OrganizationsLocationsInsightTypesInsightsService) List(parent string) *OrganizationsLocationsInsightTypesInsightsListCall {
 	c := &OrganizationsLocationsInsightTypesInsightsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4920,17 +5958,17 @@ func (c *OrganizationsLocationsInsightTypesInsightsListCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListInsightsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5102,17 +6140,17 @@ func (c *OrganizationsLocationsInsightTypesInsightsMarkAcceptedCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -5170,14 +6208,16 @@ type OrganizationsLocationsRecommendersGetConfigCall struct {
 // GetConfig: Gets the requested Recommender Config. There is only one
 // instance of the config for each Recommender.
 //
-// - name: Name of the Recommendation Config to get. Acceptable formats:
-//   *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
-//   ENDER_ID]/config` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
-//   R_ID]/config` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
-//   RECOMMENDER_ID]/config`.
+//   - name: Name of the Recommendation Config to get. Acceptable formats:
+//     *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
+//     ENDER_ID]/config` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+//     R_ID]/config` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
+//     RECOMMENDER_ID]/config` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
+//     ers/[RECOMMENDER_ID]/config`.
 func (r *OrganizationsLocationsRecommendersService) GetConfig(name string) *OrganizationsLocationsRecommendersGetConfigCall {
 	c := &OrganizationsLocationsRecommendersGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5261,17 +6301,17 @@ func (c *OrganizationsLocationsRecommendersGetConfigCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1RecommenderConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5294,7 +6334,7 @@ func (c *OrganizationsLocationsRecommendersGetConfigCall) Do(opts ...googleapi.C
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the Recommendation Config to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config`",
+	//       "description": "Required. Name of the Recommendation Config to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config`",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/locations/[^/]+/recommenders/[^/]+/config$",
 	//       "required": true,
@@ -5326,9 +6366,9 @@ type OrganizationsLocationsRecommendersUpdateConfigCall struct {
 // UpdateConfig: Updates a Recommender Config. This will create a new
 // revision of the config.
 //
-// - name: Name of recommender config. Eg,
-//   projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMME
-//   NDER_ID]/config.
+//   - name: Name of recommender config. Eg,
+//     projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMME
+//     NDER_ID]/config.
 func (r *OrganizationsLocationsRecommendersService) UpdateConfig(name string, googlecloudrecommenderv1beta1recommenderconfig *GoogleCloudRecommenderV1beta1RecommenderConfig) *OrganizationsLocationsRecommendersUpdateConfigCall {
 	c := &OrganizationsLocationsRecommendersUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5420,17 +6460,17 @@ func (c *OrganizationsLocationsRecommendersUpdateConfigCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1RecommenderConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5583,17 +6623,17 @@ func (c *OrganizationsLocationsRecommendersRecommendationsGetCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5649,21 +6689,21 @@ type OrganizationsLocationsRecommendersRecommendationsListCall struct {
 // Requires the recommender.*.list IAM permission for the specified
 // recommender.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
-//   ENDER_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
-//   R_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
-//   ers/[RECOMMENDER_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
-//   ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
-//   RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
-//   supported recommenders:
-//   https://cloud.google.com/recommender/docs/recommenders.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
+//     ENDER_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+//     R_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
+//     ers/[RECOMMENDER_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
+//     ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
+//     RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
+//     supported recommenders:
+//     https://cloud.google.com/recommender/docs/recommenders.
 func (r *OrganizationsLocationsRecommendersRecommendationsService) List(parent string) *OrganizationsLocationsRecommendersRecommendationsListCall {
 	c := &OrganizationsLocationsRecommendersRecommendationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5780,17 +6820,17 @@ func (c *OrganizationsLocationsRecommendersRecommendationsListCall) Do(opts ...g
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListRecommendationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5964,17 +7004,17 @@ func (c *OrganizationsLocationsRecommendersRecommendationsMarkClaimedCall) Do(op
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6007,6 +7047,155 @@ func (c *OrganizationsLocationsRecommendersRecommendationsMarkClaimedCall) Do(op
 	//   "path": "v1beta1/{+name}:markClaimed",
 	//   "request": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationClaimedRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "recommender.organizations.locations.recommenders.recommendations.markDismissed":
+
+type OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall struct {
+	s                                                               *Service
+	name                                                            string
+	googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest
+	urlParams_                                                      gensupport.URLParams
+	ctx_                                                            context.Context
+	header_                                                         http.Header
+}
+
+// MarkDismissed: Mark the Recommendation State as Dismissed. Users can
+// use this method to indicate to the Recommender API that an ACTIVE
+// recommendation has to be marked back as DISMISSED.
+// MarkRecommendationDismissed can be applied to recommendations in
+// ACTIVE state. Requires the recommender.*.update IAM permission for
+// the specified recommender.
+//
+// - name: Name of the recommendation.
+func (r *OrganizationsLocationsRecommendersRecommendationsService) MarkDismissed(name string, googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest) *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c := &OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest = googlecloudrecommenderv1beta1markrecommendationdismissedrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall) Fields(s ...googleapi.Field) *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall) Context(ctx context.Context) *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:markDismissed")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.organizations.locations.recommenders.recommendations.markDismissed" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1Recommendation or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1Recommendation.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *OrganizationsLocationsRecommendersRecommendationsMarkDismissedCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1Recommendation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1Recommendation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Mark the Recommendation State as Dismissed. Users can use this method to indicate to the Recommender API that an ACTIVE recommendation has to be marked back as DISMISSED. MarkRecommendationDismissed can be applied to recommendations in ACTIVE state. Requires the recommender.*.update IAM permission for the specified recommender.",
+	//   "flatPath": "v1beta1/organizations/{organizationsId}/locations/{locationsId}/recommenders/{recommendersId}/recommendations/{recommendationsId}:markDismissed",
+	//   "httpMethod": "POST",
+	//   "id": "recommender.organizations.locations.recommenders.recommendations.markDismissed",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of the recommendation.",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+/locations/[^/]+/recommenders/[^/]+/recommendations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:markDismissed",
+	//   "request": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest"
 	//   },
 	//   "response": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
@@ -6115,17 +7304,17 @@ func (c *OrganizationsLocationsRecommendersRecommendationsMarkFailedCall) Do(opt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6266,17 +7455,17 @@ func (c *OrganizationsLocationsRecommendersRecommendationsMarkSucceededCall) Do(
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6334,13 +7523,15 @@ type ProjectsLocationsInsightTypesGetConfigCall struct {
 // GetConfig: Gets the requested InsightTypeConfig. There is only one
 // instance of the config for each InsightType.
 //
-// - name: Name of the InsightTypeConfig to get. Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/global/recommenders/[INSIGHT_TY
-//   PE_ID]/config` *
-//   `projects/[PROJECT_ID]/locations/global/recommenders/[INSIGHT_TYPE_I
-//   D]/config` *
-//   `organizations/[ORGANIZATION_ID]/locations/global/recommenders/[INSI
-//   GHT_TYPE_ID]/config`.
+//   - name: Name of the InsightTypeConfig to get. Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
+//     T_TYPE_ID]/config` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
+//     PE_ID]/config` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
+//     INSIGHT_TYPE_ID]/config` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
+//     pes/[INSIGHT_TYPE_ID]/config`.
 func (r *ProjectsLocationsInsightTypesService) GetConfig(name string) *ProjectsLocationsInsightTypesGetConfigCall {
 	c := &ProjectsLocationsInsightTypesGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6424,17 +7615,17 @@ func (c *ProjectsLocationsInsightTypesGetConfigCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1InsightTypeConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6457,7 +7648,7 @@ func (c *ProjectsLocationsInsightTypesGetConfigCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the InsightTypeConfig to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/global/recommenders/[INSIGHT_TYPE_ID]/config` * `projects/[PROJECT_ID]/locations/global/recommenders/[INSIGHT_TYPE_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/global/recommenders/[INSIGHT_TYPE_ID]/config`",
+	//       "description": "Required. Name of the InsightTypeConfig to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config` * `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/config`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/insightTypes/[^/]+/config$",
 	//       "required": true,
@@ -6489,9 +7680,9 @@ type ProjectsLocationsInsightTypesUpdateConfigCall struct {
 // UpdateConfig: Updates an InsightTypeConfig change. This will create a
 // new revision of the config.
 //
-// - name: Name of insight type config. Eg,
-//   projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT
-//   _TYPE_ID]/config.
+//   - name: Name of insight type config. Eg,
+//     projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT
+//     _TYPE_ID]/config.
 func (r *ProjectsLocationsInsightTypesService) UpdateConfig(name string, googlecloudrecommenderv1beta1insighttypeconfig *GoogleCloudRecommenderV1beta1InsightTypeConfig) *ProjectsLocationsInsightTypesUpdateConfigCall {
 	c := &ProjectsLocationsInsightTypesUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6583,17 +7774,17 @@ func (c *ProjectsLocationsInsightTypesUpdateConfigCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1InsightTypeConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6745,17 +7936,17 @@ func (c *ProjectsLocationsInsightTypesInsightsGetCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -6810,21 +8001,21 @@ type ProjectsLocationsInsightTypesInsightsListCall struct {
 // List: Lists insights for the specified Cloud Resource. Requires the
 // recommender.*.list IAM permission for the specified insight type.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
-//   T_TYPE_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
-//   PE_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
-//   pes/[INSIGHT_TYPE_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
-//   _ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
-//   INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
-//   supported insight types:
-//   https://cloud.google.com/recommender/docs/insights/insight-types.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGH
+//     T_TYPE_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TY
+//     PE_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/insightTy
+//     pes/[INSIGHT_TYPE_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE
+//     _ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/insightTypes/[
+//     INSIGHT_TYPE_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ INSIGHT_TYPE_ID refers to
+//     supported insight types:
+//     https://cloud.google.com/recommender/docs/insights/insight-types.
 func (r *ProjectsLocationsInsightTypesInsightsService) List(parent string) *ProjectsLocationsInsightTypesInsightsListCall {
 	c := &ProjectsLocationsInsightTypesInsightsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6940,17 +8131,17 @@ func (c *ProjectsLocationsInsightTypesInsightsListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListInsightsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7122,17 +8313,17 @@ func (c *ProjectsLocationsInsightTypesInsightsMarkAcceptedCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Insight{
 		ServerResponse: googleapi.ServerResponse{
@@ -7190,14 +8381,16 @@ type ProjectsLocationsRecommendersGetConfigCall struct {
 // GetConfig: Gets the requested Recommender Config. There is only one
 // instance of the config for each Recommender.
 //
-// - name: Name of the Recommendation Config to get. Acceptable formats:
-//   *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
-//   ENDER_ID]/config` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
-//   R_ID]/config` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
-//   RECOMMENDER_ID]/config`.
+//   - name: Name of the Recommendation Config to get. Acceptable formats:
+//     *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
+//     ENDER_ID]/config` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+//     R_ID]/config` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
+//     RECOMMENDER_ID]/config` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
+//     ers/[RECOMMENDER_ID]/config`.
 func (r *ProjectsLocationsRecommendersService) GetConfig(name string) *ProjectsLocationsRecommendersGetConfigCall {
 	c := &ProjectsLocationsRecommendersGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7281,17 +8474,17 @@ func (c *ProjectsLocationsRecommendersGetConfigCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1RecommenderConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -7314,7 +8507,7 @@ func (c *ProjectsLocationsRecommendersGetConfigCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the Recommendation Config to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config`",
+	//       "description": "Required. Name of the Recommendation Config to get. Acceptable formats: * `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config` * `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]/config`",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/recommenders/[^/]+/config$",
 	//       "required": true,
@@ -7346,9 +8539,9 @@ type ProjectsLocationsRecommendersUpdateConfigCall struct {
 // UpdateConfig: Updates a Recommender Config. This will create a new
 // revision of the config.
 //
-// - name: Name of recommender config. Eg,
-//   projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMME
-//   NDER_ID]/config.
+//   - name: Name of recommender config. Eg,
+//     projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMME
+//     NDER_ID]/config.
 func (r *ProjectsLocationsRecommendersService) UpdateConfig(name string, googlecloudrecommenderv1beta1recommenderconfig *GoogleCloudRecommenderV1beta1RecommenderConfig) *ProjectsLocationsRecommendersUpdateConfigCall {
 	c := &ProjectsLocationsRecommendersUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7440,17 +8633,17 @@ func (c *ProjectsLocationsRecommendersUpdateConfigCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1RecommenderConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -7603,17 +8796,17 @@ func (c *ProjectsLocationsRecommendersRecommendationsGetCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7669,21 +8862,21 @@ type ProjectsLocationsRecommendersRecommendationsListCall struct {
 // Requires the recommender.*.list IAM permission for the specified
 // recommender.
 //
-// - parent: The container resource on which to execute the request.
-//   Acceptable formats: *
-//   `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
-//   ENDER_ID]` *
-//   `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
-//   R_ID]` *
-//   `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
-//   ers/[RECOMMENDER_ID]` *
-//   `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
-//   ID]` *
-//   `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
-//   RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
-//   https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
-//   supported recommenders:
-//   https://cloud.google.com/recommender/docs/recommenders.
+//   - parent: The container resource on which to execute the request.
+//     Acceptable formats: *
+//     `projects/[PROJECT_NUMBER]/locations/[LOCATION]/recommenders/[RECOMM
+//     ENDER_ID]` *
+//     `projects/[PROJECT_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+//     R_ID]` *
+//     `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION]/recommend
+//     ers/[RECOMMENDER_ID]` *
+//     `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_
+//     ID]` *
+//     `organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[
+//     RECOMMENDER_ID]` LOCATION here refers to GCP Locations:
+//     https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to
+//     supported recommenders:
+//     https://cloud.google.com/recommender/docs/recommenders.
 func (r *ProjectsLocationsRecommendersRecommendationsService) List(parent string) *ProjectsLocationsRecommendersRecommendationsListCall {
 	c := &ProjectsLocationsRecommendersRecommendationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7800,17 +8993,17 @@ func (c *ProjectsLocationsRecommendersRecommendationsListCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1ListRecommendationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7984,17 +9177,17 @@ func (c *ProjectsLocationsRecommendersRecommendationsMarkClaimedCall) Do(opts ..
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8027,6 +9220,155 @@ func (c *ProjectsLocationsRecommendersRecommendationsMarkClaimedCall) Do(opts ..
 	//   "path": "v1beta1/{+name}:markClaimed",
 	//   "request": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationClaimedRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "recommender.projects.locations.recommenders.recommendations.markDismissed":
+
+type ProjectsLocationsRecommendersRecommendationsMarkDismissedCall struct {
+	s                                                               *Service
+	name                                                            string
+	googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest
+	urlParams_                                                      gensupport.URLParams
+	ctx_                                                            context.Context
+	header_                                                         http.Header
+}
+
+// MarkDismissed: Mark the Recommendation State as Dismissed. Users can
+// use this method to indicate to the Recommender API that an ACTIVE
+// recommendation has to be marked back as DISMISSED.
+// MarkRecommendationDismissed can be applied to recommendations in
+// ACTIVE state. Requires the recommender.*.update IAM permission for
+// the specified recommender.
+//
+// - name: Name of the recommendation.
+func (r *ProjectsLocationsRecommendersRecommendationsService) MarkDismissed(name string, googlecloudrecommenderv1beta1markrecommendationdismissedrequest *GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest) *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c := &ProjectsLocationsRecommendersRecommendationsMarkDismissedCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest = googlecloudrecommenderv1beta1markrecommendationdismissedrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall) Fields(s ...googleapi.Field) *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall) Context(ctx context.Context) *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlecloudrecommenderv1beta1markrecommendationdismissedrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:markDismissed")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "recommender.projects.locations.recommenders.recommendations.markDismissed" call.
+// Exactly one of *GoogleCloudRecommenderV1beta1Recommendation or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleCloudRecommenderV1beta1Recommendation.ServerResponse.Header or
+// (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *ProjectsLocationsRecommendersRecommendationsMarkDismissedCall) Do(opts ...googleapi.CallOption) (*GoogleCloudRecommenderV1beta1Recommendation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleCloudRecommenderV1beta1Recommendation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Mark the Recommendation State as Dismissed. Users can use this method to indicate to the Recommender API that an ACTIVE recommendation has to be marked back as DISMISSED. MarkRecommendationDismissed can be applied to recommendations in ACTIVE state. Requires the recommender.*.update IAM permission for the specified recommender.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/locations/{locationsId}/recommenders/{recommendersId}/recommendations/{recommendationsId}:markDismissed",
+	//   "httpMethod": "POST",
+	//   "id": "recommender.projects.locations.recommenders.recommendations.markDismissed",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Name of the recommendation.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/locations/[^/]+/recommenders/[^/]+/recommendations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}:markDismissed",
+	//   "request": {
+	//     "$ref": "GoogleCloudRecommenderV1beta1MarkRecommendationDismissedRequest"
 	//   },
 	//   "response": {
 	//     "$ref": "GoogleCloudRecommenderV1beta1Recommendation"
@@ -8135,17 +9477,17 @@ func (c *ProjectsLocationsRecommendersRecommendationsMarkFailedCall) Do(opts ...
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8286,17 +9628,17 @@ func (c *ProjectsLocationsRecommendersRecommendationsMarkSucceededCall) Do(opts 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudRecommenderV1beta1Recommendation{
 		ServerResponse: googleapi.ServerResponse{

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/authorized-buyers/apis/reference/rest/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/adexchangebuyer2/v2beta1"
-//   ...
-//   ctx := context.Background()
-//   adexchangebuyer2Service, err := adexchangebuyer2.NewService(ctx)
+//	import "google.golang.org/api/adexchangebuyer2/v2beta1"
+//	...
+//	ctx := context.Background()
+//	adexchangebuyer2Service, err := adexchangebuyer2.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   adexchangebuyer2Service, err := adexchangebuyer2.NewService(ctx, option.WithAPIKey("AIza..."))
+//	adexchangebuyer2Service, err := adexchangebuyer2.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   adexchangebuyer2Service, err := adexchangebuyer2.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	adexchangebuyer2Service, err := adexchangebuyer2.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package adexchangebuyer2 // import "google.golang.org/api/adexchangebuyer2/v2beta1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "adexchangebuyer2:v2beta1"
 const apiName = "adexchangebuyer2"
@@ -624,7 +625,7 @@ type AdSize struct {
 	// pixels.
 	//   "INTERSTITIAL" - Special size to describe an interstitial ad slot.
 	//   "NATIVE" - Native (mobile) ads rendered by the publisher.
-	//   "FLUID" - Fluid size (i.e., responsive size) can be resized
+	//   "FLUID" - Fluid size (for example, responsive size) can be resized
 	// automatically with the change of outside environment.
 	SizeType string `json:"sizeType,omitempty"`
 
@@ -1144,8 +1145,8 @@ func (s *Client) MarshalJSON() ([]byte, error) {
 // ClientUser: A client user is created under a client buyer and has
 // restricted access to the Marketplace and certain other sections of
 // the Authorized Buyers UI based on the role granted to the associated
-// client buyer. The only way a new client user can be created is via
-// accepting an email invitation (see the
+// client buyer. The only way a new client user can be created is
+// through accepting an email invitation (see the
 // accounts.clients.invitations.create method). All fields are required
 // unless otherwise specified.
 type ClientUser struct {
@@ -1369,7 +1370,7 @@ type Creative struct {
 	AgencyId int64 `json:"agencyId,omitempty,string"`
 
 	// ApiUpdateTime: Output only. The last update timestamp of the creative
-	// via API.
+	// through the API.
 	ApiUpdateTime string `json:"apiUpdateTime,omitempty"`
 
 	// Attributes: All attributes for the ads that may be shown from this
@@ -1537,7 +1538,7 @@ type Creative struct {
 	// ServingRestrictions: Output only. The granular status of this ad in
 	// specific contexts. A context here relates to where something
 	// ultimately serves (for example, a physical location, a platform, an
-	// HTTPS vs HTTP request, or the type of auction).
+	// HTTPS versus HTTP request, or the type of auction).
 	ServingRestrictions []*ServingRestriction `json:"servingRestrictions,omitempty"`
 
 	// VendorIds: All vendor IDs for the ads that may be shown from this
@@ -2013,8 +2014,8 @@ type Deal struct {
 	// AvailableStartTime: Optional. Proposed flight start time of the deal.
 	// This will generally be stored in the granularity of one second since
 	// deal serving starts at seconds boundary. Any time specified with more
-	// granularity (e.g., in milliseconds) will be truncated towards the
-	// start of time in seconds.
+	// granularity (for example, in milliseconds) will be truncated towards
+	// the start of time in seconds.
 	AvailableStartTime string `json:"availableStartTime,omitempty"`
 
 	// BuyerPrivateData: Buyer private data (hidden from seller).
@@ -2050,7 +2051,7 @@ type Deal struct {
 	CreativePreApprovalPolicy string `json:"creativePreApprovalPolicy,omitempty"`
 
 	// CreativeRestrictions: Output only. Restricitions about the creatives
-	// associated with the deal (i.e., size) This is available for
+	// associated with the deal (for example, size) This is available for
 	// Programmatic Guaranteed/Preferred Deals in Ad Manager.
 	CreativeRestrictions *CreativeRestrictions `json:"creativeRestrictions,omitempty"`
 
@@ -2251,8 +2252,9 @@ func (s *DealServingMetadata) MarshalJSON() ([]byte, error) {
 }
 
 // DealTerms: The deal terms specify the details of a Product/deal. They
-// specify things like price per buyer, the type of pricing model (e.g.,
-// fixed price, auction) and expected impressions from the publisher.
+// specify things like price per buyer, the type of pricing model (for
+// example, fixed price, auction) and expected impressions from the
+// publisher.
 type DealTerms struct {
 	// BrandingType: Visibility of the URL in bid requests. (default:
 	// BRANDED)
@@ -2583,8 +2585,8 @@ type Empty struct {
 // FilterSet: A set of filters that is applied to a request for data.
 // Within a filter set, an AND operation is performed across the filters
 // represented by each field. An OR operation is performed across the
-// filters represented by the multiple values of a repeated field, e.g.,
-// "format=VIDEO AND deal_id=12 AND (seller_network_id=34 OR
+// filters represented by the multiple values of a repeated field, for
+// example, "format=VIDEO AND deal_id=12 AND (seller_network_id=34 OR
 // seller_network_id=56)".
 type FilterSet struct {
 	// AbsoluteDateRange: An absolute date range, defined by a start date
@@ -2605,13 +2607,13 @@ type FilterSet struct {
 
 	// CreativeId: The ID of the creative on which to filter; optional. This
 	// field may be set only for a filter set that accesses account-level
-	// troubleshooting data, i.e., one whose name matches the
+	// troubleshooting data, for example, one whose name matches the
 	// `bidders/*/accounts/*/filterSets/*` pattern.
 	CreativeId string `json:"creativeId,omitempty"`
 
 	// DealId: The ID of the deal on which to filter; optional. This field
 	// may be set only for a filter set that accesses account-level
-	// troubleshooting data, i.e., one whose name matches the
+	// troubleshooting data, for example, one whose name matches the
 	// `bidders/*/accounts/*/filterSets/*` pattern.
 	DealId int64 `json:"dealId,omitempty,string"`
 
@@ -2630,11 +2632,11 @@ type FilterSet struct {
 	//   "FORMAT_UNSPECIFIED" - A placeholder for an undefined format;
 	// indicates that no format filter will be applied.
 	//   "NATIVE_DISPLAY" - The ad impression is a native ad, and display
-	// (i.e., image) format.
+	// (for example, image) format.
 	//   "NATIVE_VIDEO" - The ad impression is a native ad, and video
 	// format.
 	//   "NON_NATIVE_DISPLAY" - The ad impression is not a native ad, and
-	// display (i.e., image) format.
+	// display (for example, image) format.
 	//   "NON_NATIVE_VIDEO" - The ad impression is not a native ad, and
 	// video format.
 	Format string `json:"format,omitempty"`
@@ -2648,11 +2650,11 @@ type FilterSet struct {
 	//   "FORMAT_UNSPECIFIED" - A placeholder for an undefined format;
 	// indicates that no format filter will be applied.
 	//   "NATIVE_DISPLAY" - The ad impression is a native ad, and display
-	// (i.e., image) format.
+	// (for example, image) format.
 	//   "NATIVE_VIDEO" - The ad impression is a native ad, and video
 	// format.
 	//   "NON_NATIVE_DISPLAY" - The ad impression is not a native ad, and
-	// display (i.e., image) format.
+	// display (for example, image) format.
 	//   "NON_NATIVE_VIDEO" - The ad impression is not a native ad, and
 	// video format.
 	Formats []string `json:"formats,omitempty"`
@@ -2666,8 +2668,8 @@ type FilterSet struct {
 	Name string `json:"name,omitempty"`
 
 	// Platforms: The list of platforms on which to filter; may be empty.
-	// The filters represented by multiple platforms are ORed together
-	// (i.e., if non-empty, results must match any one of the platforms).
+	// The filters represented by multiple platforms are ORed together (for
+	// example, if non-empty, results must match any one of the platforms).
 	//
 	// Possible values:
 	//   "PLATFORM_UNSPECIFIED" - A placeholder for an undefined platform;
@@ -2693,14 +2695,14 @@ type FilterSet struct {
 	// SellerNetworkIds: For Authorized Buyers only. The list of IDs of the
 	// seller (publisher) networks on which to filter; may be empty. The
 	// filters represented by multiple seller network IDs are ORed together
-	// (i.e., if non-empty, results must match any one of the publisher
-	// networks). See seller-network-ids
+	// (for example, if non-empty, results must match any one of the
+	// publisher networks). See seller-network-ids
 	// (https://developers.google.com/authorized-buyers/rtb/downloads/seller-network-ids)
 	// file for the set of existing seller network IDs.
 	SellerNetworkIds []int64 `json:"sellerNetworkIds,omitempty"`
 
 	// TimeSeriesGranularity: The granularity of time intervals if a time
-	// series breakdown is desired; optional.
+	// series breakdown is preferred; optional.
 	//
 	// Possible values:
 	//   "TIME_SERIES_GRANULARITY_UNSPECIFIED" - A placeholder for an
@@ -2776,7 +2778,8 @@ func (s *FilteredBidCreativeRow) MarshalJSON() ([]byte, error) {
 
 // FilteredBidDetailRow: The number of filtered bids with the specified
 // dimension values, among those filtered due to the requested filtering
-// reason (i.e. creative status), that have the specified detail.
+// reason (for example, creative status), that have the specified
+// detail.
 type FilteredBidDetailRow struct {
 	// BidCount: The number of bids with the specified detail.
 	BidCount *MetricValue `json:"bidCount,omitempty"`
@@ -3657,7 +3660,7 @@ func (s *ListFilteredBidRequestsResponse) MarshalJSON() ([]byte, error) {
 // that bids were filtered from the auction.
 type ListFilteredBidsResponse struct {
 	// CreativeStatusRows: List of rows, with counts of filtered bids
-	// aggregated by filtering reason (i.e. creative status).
+	// aggregated by filtering reason (for example, creative status).
 	CreativeStatusRows []*CreativeStatusRow `json:"creativeStatusRows,omitempty"`
 
 	// NextPageToken: A token to retrieve the next page of results. Pass
@@ -3740,7 +3743,7 @@ func (s *ListImpressionMetricsResponse) MarshalJSON() ([]byte, error) {
 // bids lost in the auction.
 type ListLosingBidsResponse struct {
 	// CreativeStatusRows: List of rows, with counts of losing bids
-	// aggregated by loss reason (i.e. creative status).
+	// aggregated by loss reason (for example, creative status).
 	CreativeStatusRows []*CreativeStatusRow `json:"creativeStatusRows,omitempty"`
 
 	// NextPageToken: A token to retrieve the next page of results. Pass
@@ -3930,7 +3933,7 @@ func (s *ListPublisherProfilesResponse) MarshalJSON() ([]byte, error) {
 // applies to.
 type LocationContext struct {
 	// GeoCriteriaIds: IDs representing the geo location for this context.
-	// Please refer to the geo-table.csv
+	// Refer to the geo-table.csv
 	// (https://storage.googleapis.com/adx-rtb-dictionaries/geo-table.csv)
 	// file for different geo criteria IDs.
 	GeoCriteriaIds []int64 `json:"geoCriteriaIds,omitempty"`
@@ -3971,11 +3974,11 @@ type MarketplaceTargeting struct {
 	// InventorySizeTargeting: Inventory sizes to be included/excluded.
 	InventorySizeTargeting *InventorySizeTargeting `json:"inventorySizeTargeting,omitempty"`
 
-	// PlacementTargeting: Placement targeting information, e.g., URL,
-	// mobile applications.
+	// PlacementTargeting: Placement targeting information, for example,
+	// URL, mobile applications.
 	PlacementTargeting *PlacementTargeting `json:"placementTargeting,omitempty"`
 
-	// TechnologyTargeting: Technology targeting information, e.g.,
+	// TechnologyTargeting: Technology targeting information, for example,
 	// operating system, device category.
 	TechnologyTargeting *TechnologyTargeting `json:"technologyTargeting,omitempty"`
 
@@ -4006,19 +4009,19 @@ func (s *MarketplaceTargeting) MarshalJSON() ([]byte, error) {
 }
 
 // MetricValue: A metric value, with an expected value and a variance;
-// represents a count that may be either exact or estimated (i.e. when
-// sampled).
+// represents a count that may be either exact or estimated (for
+// example, when sampled).
 type MetricValue struct {
 	// Value: The expected value of the metric.
 	Value int64 `json:"value,omitempty,string"`
 
-	// Variance: The variance (i.e. square of the standard deviation) of the
-	// metric value. If value is exact, variance is 0. Can be used to
-	// calculate margin of error as a percentage of value, using the
-	// following formula, where Z is the standard constant that depends on
-	// the desired size of the confidence interval (e.g. for 90% confidence
-	// interval, use Z = 1.645): marginOfError = 100 * Z * sqrt(variance) /
-	// value
+	// Variance: The variance (for example, square of the standard
+	// deviation) of the metric value. If value is exact, variance is 0. Can
+	// be used to calculate margin of error as a percentage of value, using
+	// the following formula, where Z is the standard constant that depends
+	// on the preferred size of the confidence interval (for example, for
+	// 90% confidence interval, use Z = 1.645): marginOfError = 100 * Z *
+	// sqrt(variance) / value
 	Variance int64 `json:"variance,omitempty,string"`
 
 	// ForceSendFields is a list of field names (e.g. "Value") to
@@ -4472,7 +4475,7 @@ func (s *PauseProposalRequest) MarshalJSON() ([]byte, error) {
 }
 
 // PlacementTargeting: Represents targeting about where the ads can
-// appear, e.g., certain sites or mobile applications. Different
+// appear, for example, certain sites or mobile applications. Different
 // placement targeting types will be logically OR'ed.
 type PlacementTargeting struct {
 	// MobileApplicationTargeting: Mobile application targeting information
@@ -4653,7 +4656,7 @@ func (s *PrivateData) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Product: A product is a segment of inventory that a seller wishes to
+// Product: A product is a segment of inventory that a seller wants to
 // sell. It is associated with certain terms and targeting information
 // which helps the buyer know more about the inventory.
 type Product struct {
@@ -5073,17 +5076,17 @@ func (s *RealtimeTimeRange) MarshalJSON() ([]byte, error) {
 
 // RelativeDateRange: A relative date range, specified by an offset and
 // a duration. The supported range of dates begins 30 days before today
-// and ends today, i.e., the limits for these values are: offset_days >=
-// 0 duration_days >= 1 offset_days + duration_days <= 30
+// and ends today, for example, the limits for these values are:
+// offset_days >= 0 duration_days >= 1 offset_days + duration_days <= 30
 type RelativeDateRange struct {
-	// DurationDays: The number of days in the requested date range, e.g.,
-	// for a range spanning today: 1. For a range spanning the last 7 days:
-	// 7.
+	// DurationDays: The number of days in the requested date range, for
+	// example, for a range spanning today: 1. For a range spanning the last
+	// 7 days: 7.
 	DurationDays int64 `json:"durationDays,omitempty"`
 
 	// OffsetDays: The end date of the filter set, specified as the number
-	// of days before today, e.g., for a range where the last date is today:
-	// 0.
+	// of days before today, for example, for a range where the last date is
+	// today: 0.
 	OffsetDays int64 `json:"offsetDays,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DurationDays") to
@@ -5329,7 +5332,7 @@ func (s *ServingContext) MarshalJSON() ([]byte, error) {
 // ServingRestriction: Output only. A representation of the status of an
 // ad in a specific context. A context here relates to where something
 // ultimately serves (for example, a user or publisher geo, a platform,
-// an HTTPS vs HTTP request, or the type of auction).
+// an HTTPS versus HTTP request, or the type of auction).
 type ServingRestriction struct {
 	// Contexts: The contexts for the restriction.
 	Contexts []*ServingContext `json:"contexts,omitempty"`
@@ -5341,8 +5344,7 @@ type ServingRestriction struct {
 
 	// DisapprovalReasons: Any disapprovals bound to this restriction. Only
 	// present if status=DISAPPROVED. Can be used to filter the response of
-	// the creatives.list method. Deprecated; please use disapproval field
-	// instead.
+	// the creatives.list method. Deprecated; use disapproval field instead.
 	DisapprovalReasons []*Disapproval `json:"disapprovalReasons,omitempty"`
 
 	// Status: The status of the creative in this context (for example, it
@@ -5616,9 +5618,9 @@ func (s *TimeOfDay) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// UrlTargeting: Represents a list of targeted and excluded URLs (e.g.,
-// google.com). For Private Auction and AdX Preferred Deals, URLs are
-// either included or excluded. For Programmatic Guaranteed and
+// UrlTargeting: Represents a list of targeted and excluded URLs (for
+// example, google.com). For Private Auction and AdX Preferred Deals,
+// URLs are either included or excluded. For Programmatic Guaranteed and
 // Preferred Deals, this doesn't apply.
 type UrlTargeting struct {
 	// ExcludedUrls: A list of URLs to be excluded.
@@ -5778,9 +5780,9 @@ type AccountsClientsCreateCall struct {
 
 // Create: Creates a new client buyer.
 //
-// - accountId: Unique numerical account ID for the buyer of which the
-//   client buyer is a customer; the sponsor buyer to create a client
-//   for. (required).
+//   - accountId: Unique numerical account ID for the buyer of which the
+//     client buyer is a customer; the sponsor buyer to create a client
+//     for. (required).
 func (r *AccountsClientsService) Create(accountId int64, client *Client) *AccountsClientsCreateCall {
 	c := &AccountsClientsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -5855,17 +5857,17 @@ func (c *AccountsClientsCreateCall) Do(opts ...googleapi.CallOption) (*Client, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -5923,10 +5925,10 @@ type AccountsClientsGetCall struct {
 
 // Get: Gets a client buyer with a given client account ID.
 //
-// - accountId: Numerical account ID of the client's sponsor buyer.
-//   (required).
-// - clientAccountId: Numerical account ID of the client buyer to
-//   retrieve. (required).
+//   - accountId: Numerical account ID of the client's sponsor buyer.
+//     (required).
+//   - clientAccountId: Numerical account ID of the client buyer to
+//     retrieve. (required).
 func (r *AccountsClientsService) Get(accountId int64, clientAccountId int64) *AccountsClientsGetCall {
 	c := &AccountsClientsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -6010,17 +6012,17 @@ func (c *AccountsClientsGetCall) Do(opts ...googleapi.CallOption) (*Client, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -6082,8 +6084,8 @@ type AccountsClientsListCall struct {
 
 // List: Lists all the clients for the current sponsor buyer.
 //
-// - accountId: Unique numerical account ID of the sponsor buyer to list
-//   the clients for.
+//   - accountId: Unique numerical account ID of the sponsor buyer to list
+//     the clients for.
 func (r *AccountsClientsService) List(accountId int64) *AccountsClientsListCall {
 	c := &AccountsClientsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -6191,17 +6193,17 @@ func (c *AccountsClientsListCall) Do(opts ...googleapi.CallOption) (*ListClients
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6293,11 +6295,11 @@ type AccountsClientsUpdateCall struct {
 
 // Update: Updates an existing client buyer.
 //
-// - accountId: Unique numerical account ID for the buyer of which the
-//   client buyer is a customer; the sponsor buyer to update a client
-//   for. (required).
-// - clientAccountId: Unique numerical account ID of the client to
-//   update. (required).
+//   - accountId: Unique numerical account ID for the buyer of which the
+//     client buyer is a customer; the sponsor buyer to update a client
+//     for. (required).
+//   - clientAccountId: Unique numerical account ID of the client to
+//     update. (required).
 func (r *AccountsClientsService) Update(accountId int64, clientAccountId int64, client *Client) *AccountsClientsUpdateCall {
 	c := &AccountsClientsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -6374,17 +6376,17 @@ func (c *AccountsClientsUpdateCall) Do(opts ...googleapi.CallOption) (*Client, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Client{
 		ServerResponse: googleapi.ServerResponse{
@@ -6451,10 +6453,10 @@ type AccountsClientsInvitationsCreateCall struct {
 // Create: Creates and sends out an email invitation to access an Ad
 // Exchange client buyer account.
 //
-// - accountId: Numerical account ID of the client's sponsor buyer.
-//   (required).
-// - clientAccountId: Numerical account ID of the client buyer that the
-//   user should be associated with. (required).
+//   - accountId: Numerical account ID of the client's sponsor buyer.
+//     (required).
+//   - clientAccountId: Numerical account ID of the client buyer that the
+//     user should be associated with. (required).
 func (r *AccountsClientsInvitationsService) Create(accountId int64, clientAccountId int64, clientuserinvitation *ClientUserInvitation) *AccountsClientsInvitationsCreateCall {
 	c := &AccountsClientsInvitationsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -6531,17 +6533,17 @@ func (c *AccountsClientsInvitationsCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUserInvitation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6608,12 +6610,12 @@ type AccountsClientsInvitationsGetCall struct {
 
 // Get: Retrieves an existing client user invitation.
 //
-// - accountId: Numerical account ID of the client's sponsor buyer.
-//   (required).
-// - clientAccountId: Numerical account ID of the client buyer that the
-//   user invitation to be retrieved is associated with. (required).
-// - invitationId: Numerical identifier of the user invitation to
-//   retrieve. (required).
+//   - accountId: Numerical account ID of the client's sponsor buyer.
+//     (required).
+//   - clientAccountId: Numerical account ID of the client buyer that the
+//     user invitation to be retrieved is associated with. (required).
+//   - invitationId: Numerical identifier of the user invitation to
+//     retrieve. (required).
 func (r *AccountsClientsInvitationsService) Get(accountId int64, clientAccountId int64, invitationId int64) *AccountsClientsInvitationsGetCall {
 	c := &AccountsClientsInvitationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -6699,17 +6701,17 @@ func (c *AccountsClientsInvitationsGetCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUserInvitation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6781,13 +6783,13 @@ type AccountsClientsInvitationsListCall struct {
 // List: Lists all the client users invitations for a client with a
 // given account ID.
 //
-// - accountId: Numerical account ID of the client's sponsor buyer.
-//   (required).
-// - clientAccountId: Numerical account ID of the client buyer to list
-//   invitations for. (required) You must either specify a string
-//   representation of a numerical account identifier or the `-`
-//   character to list all the invitations for all the clients of a
-//   given sponsor buyer.
+//   - accountId: Numerical account ID of the client's sponsor buyer.
+//     (required).
+//   - clientAccountId: Numerical account ID of the client buyer to list
+//     invitations for. (required) You must either specify a string
+//     representation of a numerical account identifier or the `-`
+//     character to list all the invitations for all the clients of a
+//     given sponsor buyer.
 func (r *AccountsClientsInvitationsService) List(accountId int64, clientAccountId string) *AccountsClientsInvitationsListCall {
 	c := &AccountsClientsInvitationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -6890,17 +6892,17 @@ func (c *AccountsClientsInvitationsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientUserInvitationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6995,11 +6997,11 @@ type AccountsClientsUsersGetCall struct {
 
 // Get: Retrieves an existing client user.
 //
-// - accountId: Numerical account ID of the client's sponsor buyer.
-//   (required).
-// - clientAccountId: Numerical account ID of the client buyer that the
-//   user to be retrieved is associated with. (required).
-// - userId: Numerical identifier of the user to retrieve. (required).
+//   - accountId: Numerical account ID of the client's sponsor buyer.
+//     (required).
+//   - clientAccountId: Numerical account ID of the client buyer that the
+//     user to be retrieved is associated with. (required).
+//   - userId: Numerical identifier of the user to retrieve. (required).
 func (r *AccountsClientsUsersService) Get(accountId int64, clientAccountId int64, userId int64) *AccountsClientsUsersGetCall {
 	c := &AccountsClientsUsersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -7085,17 +7087,17 @@ func (c *AccountsClientsUsersGetCall) Do(opts ...googleapi.CallOption) (*ClientU
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUser{
 		ServerResponse: googleapi.ServerResponse{
@@ -7167,12 +7169,12 @@ type AccountsClientsUsersListCall struct {
 // List: Lists all the known client users for a specified sponsor buyer
 // account ID.
 //
-// - accountId: Numerical account ID of the sponsor buyer of the client
-//   to list users for. (required).
-// - clientAccountId: The account ID of the client buyer to list users
-//   for. (required) You must specify either a string representation of
-//   a numerical account identifier or the `-` character to list all the
-//   client users for all the clients of a given sponsor buyer.
+//   - accountId: Numerical account ID of the sponsor buyer of the client
+//     to list users for. (required).
+//   - clientAccountId: The account ID of the client buyer to list users
+//     for. (required) You must specify either a string representation of
+//     a numerical account identifier or the `-` character to list all the
+//     client users for all the clients of a given sponsor buyer.
 func (r *AccountsClientsUsersService) List(accountId int64, clientAccountId string) *AccountsClientsUsersListCall {
 	c := &AccountsClientsUsersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -7273,17 +7275,17 @@ func (c *AccountsClientsUsersListCall) Do(opts ...googleapi.CallOption) (*ListCl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientUsersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7379,11 +7381,11 @@ type AccountsClientsUsersUpdateCall struct {
 // Update: Updates an existing client user. Only the user status can be
 // changed on update.
 //
-// - accountId: Numerical account ID of the client's sponsor buyer.
-//   (required).
-// - clientAccountId: Numerical account ID of the client buyer that the
-//   user to be retrieved is associated with. (required).
-// - userId: Numerical identifier of the user to retrieve. (required).
+//   - accountId: Numerical account ID of the client's sponsor buyer.
+//     (required).
+//   - clientAccountId: Numerical account ID of the client buyer that the
+//     user to be retrieved is associated with. (required).
+//   - userId: Numerical identifier of the user to retrieve. (required).
 func (r *AccountsClientsUsersService) Update(accountId int64, clientAccountId int64, userId int64, clientuser *ClientUser) *AccountsClientsUsersUpdateCall {
 	c := &AccountsClientsUsersUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -7462,17 +7464,17 @@ func (c *AccountsClientsUsersUpdateCall) Do(opts ...googleapi.CallOption) (*Clie
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientUser{
 		ServerResponse: googleapi.ServerResponse{
@@ -7545,8 +7547,8 @@ type AccountsCreativesCreateCall struct {
 
 // Create: Creates a creative.
 //
-// - accountId: The account that this creative belongs to. Can be used
-//   to filter the response of the creatives.list method.
+//   - accountId: The account that this creative belongs to. Can be used
+//     to filter the response of the creatives.list method.
 func (r *AccountsCreativesService) Create(accountId string, creative *Creative) *AccountsCreativesCreateCall {
 	c := &AccountsCreativesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -7559,9 +7561,13 @@ func (r *AccountsCreativesService) Create(accountId string, creative *Creative) 
 // NO_DUPLICATES (one ID per creative).
 //
 // Possible values:
-//   "NO_DUPLICATES" - Recommended. This means that an ID will be unique
+//
+//	"NO_DUPLICATES" - Recommended. This means that an ID will be unique
+//
 // to a single creative. Multiple creatives will not share an ID.
-//   "FORCE_ENABLE_DUPLICATE_IDS" - Not recommended. Using this option
+//
+//	"FORCE_ENABLE_DUPLICATE_IDS" - Not recommended. Using this option
+//
 // will allow multiple creatives to share the same ID. Get and Update
 // requests will not be possible for any ID that has more than one
 // creative associated. (List will still function.) This is only
@@ -7639,17 +7645,17 @@ func (c *AccountsCreativesCreateCall) Do(opts ...googleapi.CallOption) (*Creativ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -7804,17 +7810,17 @@ func (c *AccountsCreativesGetCall) Do(opts ...googleapi.CallOption) (*Creative, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -7874,8 +7880,8 @@ type AccountsCreativesListCall struct {
 
 // List: Lists creatives.
 //
-// - accountId: The account to list the creatives from. Specify "-" to
-//   list all creatives the current user has access to.
+//   - accountId: The account to list the creatives from. Specify "-" to
+//     list all creatives the current user has access to.
 func (r *AccountsCreativesService) List(accountId string) *AccountsCreativesListCall {
 	c := &AccountsCreativesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -7884,7 +7890,7 @@ func (r *AccountsCreativesService) List(accountId string) *AccountsCreativesList
 
 // PageSize sets the optional parameter "pageSize": Requested page size.
 // The server may return fewer creatives than requested (due to timeout
-// constraint) even if more are available via another call. If
+// constraint) even if more are available through another call. If
 // unspecified, server will pick an appropriate default. Acceptable
 // values are 1 to 1000, inclusive.
 func (c *AccountsCreativesListCall) PageSize(pageSize int64) *AccountsCreativesListCall {
@@ -7992,17 +7998,17 @@ func (c *AccountsCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8031,7 +8037,7 @@ func (c *AccountsCreativesListCall) Do(opts ...googleapi.CallOption) (*ListCreat
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Requested page size. The server may return fewer creatives than requested (due to timeout constraint) even if more are available via another call. If unspecified, server will pick an appropriate default. Acceptable values are 1 to 1000, inclusive.",
+	//       "description": "Requested page size. The server may return fewer creatives than requested (due to timeout constraint) even if more are available through another call. If unspecified, server will pick an appropriate default. Acceptable values are 1 to 1000, inclusive.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -8094,9 +8100,9 @@ type AccountsCreativesStopWatchingCall struct {
 // StopWatching: Stops watching a creative. Will stop push notifications
 // being sent to the topics when the creative changes status.
 //
-// - accountId: The account of the creative to stop notifications for.
-// - creativeId: The creative ID of the creative to stop notifications
-//   for. Specify "-" to specify stopping account level notifications.
+//   - accountId: The account of the creative to stop notifications for.
+//   - creativeId: The creative ID of the creative to stop notifications
+//     for. Specify "-" to specify stopping account level notifications.
 func (r *AccountsCreativesService) StopWatching(accountId string, creativeId string, stopwatchingcreativerequest *StopWatchingCreativeRequest) *AccountsCreativesStopWatchingCall {
 	c := &AccountsCreativesStopWatchingCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8173,17 +8179,17 @@ func (c *AccountsCreativesStopWatchingCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8247,10 +8253,10 @@ type AccountsCreativesUpdateCall struct {
 
 // Update: Updates a creative.
 //
-// - accountId: The account that this creative belongs to. Can be used
-//   to filter the response of the creatives.list method.
-// - creativeId: The buyer-defined creative ID of this creative. Can be
-//   used to filter the response of the creatives.list method.
+//   - accountId: The account that this creative belongs to. Can be used
+//     to filter the response of the creatives.list method.
+//   - creativeId: The buyer-defined creative ID of this creative. Can be
+//     used to filter the response of the creatives.list method.
 func (r *AccountsCreativesService) Update(accountId string, creativeId string, creative *Creative) *AccountsCreativesUpdateCall {
 	c := &AccountsCreativesUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8327,17 +8333,17 @@ func (c *AccountsCreativesUpdateCall) Do(opts ...googleapi.CallOption) (*Creativ
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Creative{
 		ServerResponse: googleapi.ServerResponse{
@@ -8402,12 +8408,12 @@ type AccountsCreativesWatchCall struct {
 // Watch: Watches a creative. Will result in push notifications being
 // sent to the topic when the creative changes status.
 //
-// - accountId: The account of the creative to watch.
-// - creativeId: The creative ID to watch for status changes. Specify
-//   "-" to watch all creatives under the above account. If both
-//   creative-level and account-level notifications are sent, only a
-//   single notification will be sent to the creative-level notification
-//   topic.
+//   - accountId: The account of the creative to watch.
+//   - creativeId: The creative ID to watch for status changes. Specify
+//     "-" to watch all creatives under the above account. If both
+//     creative-level and account-level notifications are sent, only a
+//     single notification will be sent to the creative-level notification
+//     topic.
 func (r *AccountsCreativesService) Watch(accountId string, creativeId string, watchcreativerequest *WatchCreativeRequest) *AccountsCreativesWatchCall {
 	c := &AccountsCreativesWatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8484,17 +8490,17 @@ func (c *AccountsCreativesWatchCall) Do(opts ...googleapi.CallOption) (*Empty, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8636,17 +8642,17 @@ func (c *AccountsCreativesDealAssociationsAddCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8710,10 +8716,10 @@ type AccountsCreativesDealAssociationsListCall struct {
 
 // List: List all creative-deal associations.
 //
-// - accountId: The account to list the associations from. Specify "-"
-//   to list all creatives the current user has access to.
-// - creativeId: The creative ID to list the associations from. Specify
-//   "-" to list all creatives under the above account.
+//   - accountId: The account to list the associations from. Specify "-"
+//     to list all creatives the current user has access to.
+//   - creativeId: The creative ID to list the associations from. Specify
+//     "-" to list all creatives under the above account.
 func (r *AccountsCreativesDealAssociationsService) List(accountId string, creativeId string) *AccountsCreativesDealAssociationsListCall {
 	c := &AccountsCreativesDealAssociationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.accountId = accountId
@@ -8827,17 +8833,17 @@ func (c *AccountsCreativesDealAssociationsListCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDealAssociationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9013,17 +9019,17 @@ func (c *AccountsCreativesDealAssociationsRemoveCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -9108,12 +9114,18 @@ func (c *AccountsFinalizedProposalsListCall) Filter(filter string) *AccountsFina
 // the future it will be LIST_FILTER.
 //
 // Possible values:
-//   "FILTER_SYNTAX_UNSPECIFIED" - A placeholder for an undefined filter
+//
+//	"FILTER_SYNTAX_UNSPECIFIED" - A placeholder for an undefined filter
+//
 // syntax.
-//   "PQL" - PQL query syntax. Visit
+//
+//	"PQL" - PQL query syntax. Visit
+//
 // https://developers.google.com/ad-manager/api/pqlreference for PQL
 // documentation and examples.
-//   "LIST_FILTER" - API list filtering syntax. Read about syntax and
+//
+//	"LIST_FILTER" - API list filtering syntax. Read about syntax and
+//
 // usage at
 // https://developers.google.com/authorized-buyers/apis/guides/v2/list-filters.
 func (c *AccountsFinalizedProposalsListCall) FilterSyntax(filterSyntax string) *AccountsFinalizedProposalsListCall {
@@ -9211,17 +9223,17 @@ func (c *AccountsFinalizedProposalsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProposalsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9328,7 +9340,7 @@ type AccountsFinalizedProposalsPauseCall struct {
 // Pause: Update given deals to pause serving. This method will set the
 // `DealServingMetadata.DealPauseStatus.has_buyer_paused` bit to true
 // for all listed deals in the request. Currently, this method only
-// applies to PG and PD deals. For PA deals, please call
+// applies to PG and PD deals. For PA deals, call
 // accounts.proposals.pause endpoint. It is a no-op to pause
 // already-paused deals. It is an error to call PauseProposalDeals for
 // deals which are not part of the proposal of proposal_id or which are
@@ -9412,17 +9424,17 @@ func (c *AccountsFinalizedProposalsPauseCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -9436,7 +9448,7 @@ func (c *AccountsFinalizedProposalsPauseCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Update given deals to pause serving. This method will set the `DealServingMetadata.DealPauseStatus.has_buyer_paused` bit to true for all listed deals in the request. Currently, this method only applies to PG and PD deals. For PA deals, please call accounts.proposals.pause endpoint. It is a no-op to pause already-paused deals. It is an error to call PauseProposalDeals for deals which are not part of the proposal of proposal_id or which are not finalized or renegotiating.",
+	//   "description": "Update given deals to pause serving. This method will set the `DealServingMetadata.DealPauseStatus.has_buyer_paused` bit to true for all listed deals in the request. Currently, this method only applies to PG and PD deals. For PA deals, call accounts.proposals.pause endpoint. It is a no-op to pause already-paused deals. It is an error to call PauseProposalDeals for deals which are not part of the proposal of proposal_id or which are not finalized or renegotiating.",
 	//   "flatPath": "v2beta1/accounts/{accountId}/finalizedProposals/{proposalId}:pause",
 	//   "httpMethod": "POST",
 	//   "id": "adexchangebuyer2.accounts.finalizedProposals.pause",
@@ -9487,7 +9499,7 @@ type AccountsFinalizedProposalsResumeCall struct {
 // Resume: Update given deals to resume serving. This method will set
 // the `DealServingMetadata.DealPauseStatus.has_buyer_paused` bit to
 // false for all listed deals in the request. Currently, this method
-// only applies to PG and PD deals. For PA deals, please call
+// only applies to PG and PD deals. For PA deals, call
 // accounts.proposals.resume endpoint. It is a no-op to resume running
 // deals or deals paused by the other party. It is an error to call
 // ResumeProposalDeals for deals which are not part of the proposal of
@@ -9571,17 +9583,17 @@ func (c *AccountsFinalizedProposalsResumeCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -9595,7 +9607,7 @@ func (c *AccountsFinalizedProposalsResumeCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Update given deals to resume serving. This method will set the `DealServingMetadata.DealPauseStatus.has_buyer_paused` bit to false for all listed deals in the request. Currently, this method only applies to PG and PD deals. For PA deals, please call accounts.proposals.resume endpoint. It is a no-op to resume running deals or deals paused by the other party. It is an error to call ResumeProposalDeals for deals which are not part of the proposal of proposal_id or which are not finalized or renegotiating.",
+	//   "description": "Update given deals to resume serving. This method will set the `DealServingMetadata.DealPauseStatus.has_buyer_paused` bit to false for all listed deals in the request. Currently, this method only applies to PG and PD deals. For PA deals, call accounts.proposals.resume endpoint. It is a no-op to resume running deals or deals paused by the other party. It is an error to call ResumeProposalDeals for deals which are not part of the proposal of proposal_id or which are not finalized or renegotiating.",
 	//   "flatPath": "v2beta1/accounts/{accountId}/finalizedProposals/{proposalId}:resume",
 	//   "httpMethod": "POST",
 	//   "id": "adexchangebuyer2.accounts.finalizedProposals.resume",
@@ -9730,17 +9742,17 @@ func (c *AccountsProductsGetCall) Do(opts ...googleapi.CallOption) (*Product, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Product{
 		ServerResponse: googleapi.ServerResponse{
@@ -9908,17 +9920,17 @@ func (c *AccountsProductsListCall) Do(opts ...googleapi.CallOption) (*ListProduc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProductsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10093,17 +10105,17 @@ func (c *AccountsProposalsAcceptCall) Do(opts ...googleapi.CallOption) (*Proposa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -10247,17 +10259,17 @@ func (c *AccountsProposalsAddNoteCall) Do(opts ...googleapi.CallOption) (*Note, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Note{
 		ServerResponse: googleapi.ServerResponse{
@@ -10401,17 +10413,17 @@ func (c *AccountsProposalsCancelNegotiationCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -10473,13 +10485,16 @@ type AccountsProposalsCompleteSetupCall struct {
 	header_              http.Header
 }
 
-// CompleteSetup: Update the given proposal to indicate that setup has
-// been completed. This method is called by the buyer when the line
-// items have been created on their end for a finalized proposal and all
-// the required creatives have been uploaded using the creatives API.
-// This call updates the `is_setup_completed` bit on the proposal and
-// also notifies the seller. The server will advance the revision number
-// of the most recent proposal.
+// CompleteSetup: You can opt-in to manually update proposals to
+// indicate that setup is complete. By default, proposal setup is
+// automatically completed after their deals are finalized. Contact your
+// Technical Account Manager to opt in. Buyers can call this method when
+// the proposal has been finalized, and all the required creatives have
+// been uploaded using the Creatives API. This call updates the
+// `is_setup_completed` field on the deals in the proposal, and notifies
+// the seller. The server then advances the revision number of the most
+// recent proposal. To mark an individual deal as ready to serve, call
+// `buyers.finalizedDeals.setReadyToServe` in the Marketplace API.
 //
 // - accountId: Account ID of the buyer.
 // - proposalId: The ID of the proposal to mark as setup completed.
@@ -10559,17 +10574,17 @@ func (c *AccountsProposalsCompleteSetupCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -10583,7 +10598,7 @@ func (c *AccountsProposalsCompleteSetupCall) Do(opts ...googleapi.CallOption) (*
 	}
 	return ret, nil
 	// {
-	//   "description": "Update the given proposal to indicate that setup has been completed. This method is called by the buyer when the line items have been created on their end for a finalized proposal and all the required creatives have been uploaded using the creatives API. This call updates the `is_setup_completed` bit on the proposal and also notifies the seller. The server will advance the revision number of the most recent proposal.",
+	//   "description": "You can opt-in to manually update proposals to indicate that setup is complete. By default, proposal setup is automatically completed after their deals are finalized. Contact your Technical Account Manager to opt in. Buyers can call this method when the proposal has been finalized, and all the required creatives have been uploaded using the Creatives API. This call updates the `is_setup_completed` field on the deals in the proposal, and notifies the seller. The server then advances the revision number of the most recent proposal. To mark an individual deal as ready to serve, call `buyers.finalizedDeals.setReadyToServe` in the Marketplace API.",
 	//   "flatPath": "v2beta1/accounts/{accountId}/proposals/{proposalId}:completeSetup",
 	//   "httpMethod": "POST",
 	//   "id": "adexchangebuyer2.accounts.proposals.completeSetup",
@@ -10708,17 +10723,17 @@ func (c *AccountsProposalsCreateCall) Do(opts ...googleapi.CallOption) (*Proposa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -10861,17 +10876,17 @@ func (c *AccountsProposalsGetCall) Do(opts ...googleapi.CallOption) (*Proposal, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -10957,12 +10972,18 @@ func (c *AccountsProposalsListCall) Filter(filter string) *AccountsProposalsList
 // the future it will be LIST_FILTER.
 //
 // Possible values:
-//   "FILTER_SYNTAX_UNSPECIFIED" - A placeholder for an undefined filter
+//
+//	"FILTER_SYNTAX_UNSPECIFIED" - A placeholder for an undefined filter
+//
 // syntax.
-//   "PQL" - PQL query syntax. Visit
+//
+//	"PQL" - PQL query syntax. Visit
+//
 // https://developers.google.com/ad-manager/api/pqlreference for PQL
 // documentation and examples.
-//   "LIST_FILTER" - API list filtering syntax. Read about syntax and
+//
+//	"LIST_FILTER" - API list filtering syntax. Read about syntax and
+//
 // usage at
 // https://developers.google.com/authorized-buyers/apis/guides/v2/list-filters.
 func (c *AccountsProposalsListCall) FilterSyntax(filterSyntax string) *AccountsProposalsListCall {
@@ -11060,17 +11081,17 @@ func (c *AccountsProposalsListCall) Do(opts ...googleapi.CallOption) (*ListPropo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProposalsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11258,17 +11279,17 @@ func (c *AccountsProposalsPauseCall) Do(opts ...googleapi.CallOption) (*Proposal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -11416,17 +11437,17 @@ func (c *AccountsProposalsResumeCall) Do(opts ...googleapi.CallOption) (*Proposa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -11578,17 +11599,17 @@ func (c *AccountsProposalsUpdateCall) Do(opts ...googleapi.CallOption) (*Proposa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Proposal{
 		ServerResponse: googleapi.ServerResponse{
@@ -11737,17 +11758,17 @@ func (c *AccountsPublisherProfilesGetCall) Do(opts ...googleapi.CallOption) (*Pu
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PublisherProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -11903,17 +11924,17 @@ func (c *AccountsPublisherProfilesListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPublisherProfilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11999,12 +12020,12 @@ type BiddersAccountsFilterSetsCreateCall struct {
 // Create: Creates the specified filter set for the account with the
 // given account ID.
 //
-// - ownerName: Name of the owner (bidder or account) of the filter set
-//   to be created. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123` - For an account-level filter set for the
-//   buyer account representing bidder 123: `bidders/123/accounts/123` -
-//   For an account-level filter set for the child seat buyer account
-//   456 whose bidder is 123: `bidders/123/accounts/456`.
+//   - ownerName: Name of the owner (bidder or account) of the filter set
+//     to be created. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123` - For an account-level filter set for the
+//     buyer account representing bidder 123: `bidders/123/accounts/123` -
+//     For an account-level filter set for the child seat buyer account
+//     456 whose bidder is 123: `bidders/123/accounts/456`.
 func (r *BiddersAccountsFilterSetsService) Create(ownerName string, filterset *FilterSet) *BiddersAccountsFilterSetsCreateCall {
 	c := &BiddersAccountsFilterSetsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.ownerName = ownerName
@@ -12088,17 +12109,17 @@ func (c *BiddersAccountsFilterSetsCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FilterSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -12160,13 +12181,13 @@ type BiddersAccountsFilterSetsDeleteCall struct {
 // Delete: Deletes the requested filter set from the account with the
 // given account ID.
 //
-// - name: Full name of the resource to delete. For example: - For a
-//   bidder-level filter set for bidder 123:
-//   `bidders/123/filterSets/abc` - For an account-level filter set for
-//   the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - name: Full name of the resource to delete. For example: - For a
+//     bidder-level filter set for bidder 123:
+//     `bidders/123/filterSets/abc` - For an account-level filter set for
+//     the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsService) Delete(name string) *BiddersAccountsFilterSetsDeleteCall {
 	c := &BiddersAccountsFilterSetsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12235,17 +12256,17 @@ func (c *BiddersAccountsFilterSetsDeleteCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -12300,13 +12321,13 @@ type BiddersAccountsFilterSetsGetCall struct {
 // Get: Retrieves the requested filter set for the account with the
 // given account ID.
 //
-// - name: Full name of the resource being requested. For example: - For
-//   a bidder-level filter set for bidder 123:
-//   `bidders/123/filterSets/abc` - For an account-level filter set for
-//   the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - name: Full name of the resource being requested. For example: - For
+//     a bidder-level filter set for bidder 123:
+//     `bidders/123/filterSets/abc` - For an account-level filter set for
+//     the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsService) Get(name string) *BiddersAccountsFilterSetsGetCall {
 	c := &BiddersAccountsFilterSetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12388,17 +12409,17 @@ func (c *BiddersAccountsFilterSetsGetCall) Do(opts ...googleapi.CallOption) (*Fi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FilterSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -12453,12 +12474,12 @@ type BiddersAccountsFilterSetsListCall struct {
 // List: Lists all filter sets for the account with the given account
 // ID.
 //
-// - ownerName: Name of the owner (bidder or account) of the filter sets
-//   to be listed. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123` - For an account-level filter set for the
-//   buyer account representing bidder 123: `bidders/123/accounts/123` -
-//   For an account-level filter set for the child seat buyer account
-//   456 whose bidder is 123: `bidders/123/accounts/456`.
+//   - ownerName: Name of the owner (bidder or account) of the filter sets
+//     to be listed. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123` - For an account-level filter set for the
+//     buyer account representing bidder 123: `bidders/123/accounts/123` -
+//     For an account-level filter set for the child seat buyer account
+//     456 whose bidder is 123: `bidders/123/accounts/456`.
 func (r *BiddersAccountsFilterSetsService) List(ownerName string) *BiddersAccountsFilterSetsListCall {
 	c := &BiddersAccountsFilterSetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.ownerName = ownerName
@@ -12557,17 +12578,17 @@ func (c *BiddersAccountsFilterSetsListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFilterSetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12653,13 +12674,13 @@ type BiddersAccountsFilterSetsBidMetricsListCall struct {
 
 // List: Lists all metrics that are measured in terms of number of bids.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsBidMetricsService) List(filterSetName string) *BiddersAccountsFilterSetsBidMetricsListCall {
 	c := &BiddersAccountsFilterSetsBidMetricsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -12758,17 +12779,17 @@ func (c *BiddersAccountsFilterSetsBidMetricsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBidMetricsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12855,13 +12876,13 @@ type BiddersAccountsFilterSetsBidResponseErrorsListCall struct {
 // List: List all errors that occurred in bid responses, with the number
 // of bid responses affected for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsBidResponseErrorsService) List(filterSetName string) *BiddersAccountsFilterSetsBidResponseErrorsListCall {
 	c := &BiddersAccountsFilterSetsBidResponseErrorsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -12960,17 +12981,17 @@ func (c *BiddersAccountsFilterSetsBidResponseErrorsListCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBidResponseErrorsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13058,13 +13079,13 @@ type BiddersAccountsFilterSetsBidResponsesWithoutBidsListCall struct {
 // have no applicable bids, with the number of bid responses affected
 // for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsBidResponsesWithoutBidsService) List(filterSetName string) *BiddersAccountsFilterSetsBidResponsesWithoutBidsListCall {
 	c := &BiddersAccountsFilterSetsBidResponsesWithoutBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -13165,17 +13186,17 @@ func (c *BiddersAccountsFilterSetsBidResponsesWithoutBidsListCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBidResponsesWithoutBidsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13263,13 +13284,13 @@ type BiddersAccountsFilterSetsFilteredBidRequestsListCall struct {
 // an impression, with the number of bid requests not sent for each
 // reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsFilteredBidRequestsService) List(filterSetName string) *BiddersAccountsFilterSetsFilteredBidRequestsListCall {
 	c := &BiddersAccountsFilterSetsFilteredBidRequestsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -13369,17 +13390,17 @@ func (c *BiddersAccountsFilterSetsFilteredBidRequestsListCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFilteredBidRequestsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13466,13 +13487,13 @@ type BiddersAccountsFilterSetsFilteredBidsListCall struct {
 // List: List all reasons for which bids were filtered, with the number
 // of bids filtered for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsFilteredBidsService) List(filterSetName string) *BiddersAccountsFilterSetsFilteredBidsListCall {
 	c := &BiddersAccountsFilterSetsFilteredBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -13571,17 +13592,17 @@ func (c *BiddersAccountsFilterSetsFilteredBidsListCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFilteredBidsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13670,16 +13691,16 @@ type BiddersAccountsFilterSetsFilteredBidsCreativesListCall struct {
 // bids were filtered, with the number of bids filtered for each
 // creative.
 //
-// - creativeStatusId: The ID of the creative status for which to
-//   retrieve a breakdown by creative. See creative-status-codes
-//   (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - creativeStatusId: The ID of the creative status for which to
+//     retrieve a breakdown by creative. See creative-status-codes
+//     (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsFilteredBidsCreativesService) List(filterSetName string, creativeStatusId int64) *BiddersAccountsFilterSetsFilteredBidsCreativesListCall {
 	c := &BiddersAccountsFilterSetsFilteredBidsCreativesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -13783,17 +13804,17 @@ func (c *BiddersAccountsFilterSetsFilteredBidsCreativesListCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativeStatusBreakdownByCreativeResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13889,18 +13910,18 @@ type BiddersAccountsFilterSetsFilteredBidsDetailsListCall struct {
 // List: List all details associated with a specific reason for which
 // bids were filtered, with the number of bids filtered for each detail.
 //
-// - creativeStatusId: The ID of the creative status for which to
-//   retrieve a breakdown by detail. See creative-status-codes
-//   (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
-//   Details are only available for statuses 10, 14, 15, 17, 18, 19, 86,
-//   and 87.
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - creativeStatusId: The ID of the creative status for which to
+//     retrieve a breakdown by detail. See creative-status-codes
+//     (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+//     Details are only available for statuses 10, 14, 15, 17, 18, 19, 86,
+//     and 87.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsFilteredBidsDetailsService) List(filterSetName string, creativeStatusId int64) *BiddersAccountsFilterSetsFilteredBidsDetailsListCall {
 	c := &BiddersAccountsFilterSetsFilteredBidsDetailsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -14004,17 +14025,17 @@ func (c *BiddersAccountsFilterSetsFilteredBidsDetailsListCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativeStatusBreakdownByDetailResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14109,13 +14130,13 @@ type BiddersAccountsFilterSetsImpressionMetricsListCall struct {
 // List: Lists all metrics that are measured in terms of number of
 // impressions.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsImpressionMetricsService) List(filterSetName string) *BiddersAccountsFilterSetsImpressionMetricsListCall {
 	c := &BiddersAccountsFilterSetsImpressionMetricsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -14214,17 +14235,17 @@ func (c *BiddersAccountsFilterSetsImpressionMetricsListCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListImpressionMetricsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14311,13 +14332,13 @@ type BiddersAccountsFilterSetsLosingBidsListCall struct {
 // List: List all reasons for which bids lost in the auction, with the
 // number of bids that lost for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsLosingBidsService) List(filterSetName string) *BiddersAccountsFilterSetsLosingBidsListCall {
 	c := &BiddersAccountsFilterSetsLosingBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -14416,17 +14437,17 @@ func (c *BiddersAccountsFilterSetsLosingBidsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLosingBidsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14513,13 +14534,13 @@ type BiddersAccountsFilterSetsNonBillableWinningBidsListCall struct {
 // List: List all reasons for which winning bids were not billable, with
 // the number of bids not billed for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersAccountsFilterSetsNonBillableWinningBidsService) List(filterSetName string) *BiddersAccountsFilterSetsNonBillableWinningBidsListCall {
 	c := &BiddersAccountsFilterSetsNonBillableWinningBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -14620,17 +14641,17 @@ func (c *BiddersAccountsFilterSetsNonBillableWinningBidsListCall) Do(opts ...goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListNonBillableWinningBidsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14717,12 +14738,12 @@ type BiddersFilterSetsCreateCall struct {
 // Create: Creates the specified filter set for the account with the
 // given account ID.
 //
-// - ownerName: Name of the owner (bidder or account) of the filter set
-//   to be created. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123` - For an account-level filter set for the
-//   buyer account representing bidder 123: `bidders/123/accounts/123` -
-//   For an account-level filter set for the child seat buyer account
-//   456 whose bidder is 123: `bidders/123/accounts/456`.
+//   - ownerName: Name of the owner (bidder or account) of the filter set
+//     to be created. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123` - For an account-level filter set for the
+//     buyer account representing bidder 123: `bidders/123/accounts/123` -
+//     For an account-level filter set for the child seat buyer account
+//     456 whose bidder is 123: `bidders/123/accounts/456`.
 func (r *BiddersFilterSetsService) Create(ownerName string, filterset *FilterSet) *BiddersFilterSetsCreateCall {
 	c := &BiddersFilterSetsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.ownerName = ownerName
@@ -14806,17 +14827,17 @@ func (c *BiddersFilterSetsCreateCall) Do(opts ...googleapi.CallOption) (*FilterS
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FilterSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -14878,13 +14899,13 @@ type BiddersFilterSetsDeleteCall struct {
 // Delete: Deletes the requested filter set from the account with the
 // given account ID.
 //
-// - name: Full name of the resource to delete. For example: - For a
-//   bidder-level filter set for bidder 123:
-//   `bidders/123/filterSets/abc` - For an account-level filter set for
-//   the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - name: Full name of the resource to delete. For example: - For a
+//     bidder-level filter set for bidder 123:
+//     `bidders/123/filterSets/abc` - For an account-level filter set for
+//     the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsService) Delete(name string) *BiddersFilterSetsDeleteCall {
 	c := &BiddersFilterSetsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14953,17 +14974,17 @@ func (c *BiddersFilterSetsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -15018,13 +15039,13 @@ type BiddersFilterSetsGetCall struct {
 // Get: Retrieves the requested filter set for the account with the
 // given account ID.
 //
-// - name: Full name of the resource being requested. For example: - For
-//   a bidder-level filter set for bidder 123:
-//   `bidders/123/filterSets/abc` - For an account-level filter set for
-//   the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - name: Full name of the resource being requested. For example: - For
+//     a bidder-level filter set for bidder 123:
+//     `bidders/123/filterSets/abc` - For an account-level filter set for
+//     the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsService) Get(name string) *BiddersFilterSetsGetCall {
 	c := &BiddersFilterSetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15106,17 +15127,17 @@ func (c *BiddersFilterSetsGetCall) Do(opts ...googleapi.CallOption) (*FilterSet,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FilterSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -15171,12 +15192,12 @@ type BiddersFilterSetsListCall struct {
 // List: Lists all filter sets for the account with the given account
 // ID.
 //
-// - ownerName: Name of the owner (bidder or account) of the filter sets
-//   to be listed. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123` - For an account-level filter set for the
-//   buyer account representing bidder 123: `bidders/123/accounts/123` -
-//   For an account-level filter set for the child seat buyer account
-//   456 whose bidder is 123: `bidders/123/accounts/456`.
+//   - ownerName: Name of the owner (bidder or account) of the filter sets
+//     to be listed. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123` - For an account-level filter set for the
+//     buyer account representing bidder 123: `bidders/123/accounts/123` -
+//     For an account-level filter set for the child seat buyer account
+//     456 whose bidder is 123: `bidders/123/accounts/456`.
 func (r *BiddersFilterSetsService) List(ownerName string) *BiddersFilterSetsListCall {
 	c := &BiddersFilterSetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.ownerName = ownerName
@@ -15275,17 +15296,17 @@ func (c *BiddersFilterSetsListCall) Do(opts ...googleapi.CallOption) (*ListFilte
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFilterSetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15371,13 +15392,13 @@ type BiddersFilterSetsBidMetricsListCall struct {
 
 // List: Lists all metrics that are measured in terms of number of bids.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsBidMetricsService) List(filterSetName string) *BiddersFilterSetsBidMetricsListCall {
 	c := &BiddersFilterSetsBidMetricsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -15476,17 +15497,17 @@ func (c *BiddersFilterSetsBidMetricsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBidMetricsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15573,13 +15594,13 @@ type BiddersFilterSetsBidResponseErrorsListCall struct {
 // List: List all errors that occurred in bid responses, with the number
 // of bid responses affected for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsBidResponseErrorsService) List(filterSetName string) *BiddersFilterSetsBidResponseErrorsListCall {
 	c := &BiddersFilterSetsBidResponseErrorsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -15678,17 +15699,17 @@ func (c *BiddersFilterSetsBidResponseErrorsListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBidResponseErrorsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15776,13 +15797,13 @@ type BiddersFilterSetsBidResponsesWithoutBidsListCall struct {
 // have no applicable bids, with the number of bid responses affected
 // for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsBidResponsesWithoutBidsService) List(filterSetName string) *BiddersFilterSetsBidResponsesWithoutBidsListCall {
 	c := &BiddersFilterSetsBidResponsesWithoutBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -15883,17 +15904,17 @@ func (c *BiddersFilterSetsBidResponsesWithoutBidsListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBidResponsesWithoutBidsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15981,13 +16002,13 @@ type BiddersFilterSetsFilteredBidRequestsListCall struct {
 // an impression, with the number of bid requests not sent for each
 // reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsFilteredBidRequestsService) List(filterSetName string) *BiddersFilterSetsFilteredBidRequestsListCall {
 	c := &BiddersFilterSetsFilteredBidRequestsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -16087,17 +16108,17 @@ func (c *BiddersFilterSetsFilteredBidRequestsListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFilteredBidRequestsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16184,13 +16205,13 @@ type BiddersFilterSetsFilteredBidsListCall struct {
 // List: List all reasons for which bids were filtered, with the number
 // of bids filtered for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsFilteredBidsService) List(filterSetName string) *BiddersFilterSetsFilteredBidsListCall {
 	c := &BiddersFilterSetsFilteredBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -16289,17 +16310,17 @@ func (c *BiddersFilterSetsFilteredBidsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFilteredBidsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16388,16 +16409,16 @@ type BiddersFilterSetsFilteredBidsCreativesListCall struct {
 // bids were filtered, with the number of bids filtered for each
 // creative.
 //
-// - creativeStatusId: The ID of the creative status for which to
-//   retrieve a breakdown by creative. See creative-status-codes
-//   (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - creativeStatusId: The ID of the creative status for which to
+//     retrieve a breakdown by creative. See creative-status-codes
+//     (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsFilteredBidsCreativesService) List(filterSetName string, creativeStatusId int64) *BiddersFilterSetsFilteredBidsCreativesListCall {
 	c := &BiddersFilterSetsFilteredBidsCreativesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -16501,17 +16522,17 @@ func (c *BiddersFilterSetsFilteredBidsCreativesListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativeStatusBreakdownByCreativeResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16607,18 +16628,18 @@ type BiddersFilterSetsFilteredBidsDetailsListCall struct {
 // List: List all details associated with a specific reason for which
 // bids were filtered, with the number of bids filtered for each detail.
 //
-// - creativeStatusId: The ID of the creative status for which to
-//   retrieve a breakdown by detail. See creative-status-codes
-//   (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
-//   Details are only available for statuses 10, 14, 15, 17, 18, 19, 86,
-//   and 87.
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - creativeStatusId: The ID of the creative status for which to
+//     retrieve a breakdown by detail. See creative-status-codes
+//     (https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+//     Details are only available for statuses 10, 14, 15, 17, 18, 19, 86,
+//     and 87.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsFilteredBidsDetailsService) List(filterSetName string, creativeStatusId int64) *BiddersFilterSetsFilteredBidsDetailsListCall {
 	c := &BiddersFilterSetsFilteredBidsDetailsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -16722,17 +16743,17 @@ func (c *BiddersFilterSetsFilteredBidsDetailsListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCreativeStatusBreakdownByDetailResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16827,13 +16848,13 @@ type BiddersFilterSetsImpressionMetricsListCall struct {
 // List: Lists all metrics that are measured in terms of number of
 // impressions.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsImpressionMetricsService) List(filterSetName string) *BiddersFilterSetsImpressionMetricsListCall {
 	c := &BiddersFilterSetsImpressionMetricsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -16932,17 +16953,17 @@ func (c *BiddersFilterSetsImpressionMetricsListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListImpressionMetricsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17029,13 +17050,13 @@ type BiddersFilterSetsLosingBidsListCall struct {
 // List: List all reasons for which bids lost in the auction, with the
 // number of bids that lost for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsLosingBidsService) List(filterSetName string) *BiddersFilterSetsLosingBidsListCall {
 	c := &BiddersFilterSetsLosingBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -17134,17 +17155,17 @@ func (c *BiddersFilterSetsLosingBidsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLosingBidsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17231,13 +17252,13 @@ type BiddersFilterSetsNonBillableWinningBidsListCall struct {
 // List: List all reasons for which winning bids were not billable, with
 // the number of bids not billed for each reason.
 //
-// - filterSetName: Name of the filter set that should be applied to the
-//   requested metrics. For example: - For a bidder-level filter set for
-//   bidder 123: `bidders/123/filterSets/abc` - For an account-level
-//   filter set for the buyer account representing bidder 123:
-//   `bidders/123/accounts/123/filterSets/abc` - For an account-level
-//   filter set for the child seat buyer account 456 whose bidder is
-//   123: `bidders/123/accounts/456/filterSets/abc`.
+//   - filterSetName: Name of the filter set that should be applied to the
+//     requested metrics. For example: - For a bidder-level filter set for
+//     bidder 123: `bidders/123/filterSets/abc` - For an account-level
+//     filter set for the buyer account representing bidder 123:
+//     `bidders/123/accounts/123/filterSets/abc` - For an account-level
+//     filter set for the child seat buyer account 456 whose bidder is
+//     123: `bidders/123/accounts/456/filterSets/abc`.
 func (r *BiddersFilterSetsNonBillableWinningBidsService) List(filterSetName string) *BiddersFilterSetsNonBillableWinningBidsListCall {
 	c := &BiddersFilterSetsNonBillableWinningBidsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.filterSetName = filterSetName
@@ -17338,17 +17359,17 @@ func (c *BiddersFilterSetsNonBillableWinningBidsListCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListNonBillableWinningBidsResponse{
 		ServerResponse: googleapi.ServerResponse{

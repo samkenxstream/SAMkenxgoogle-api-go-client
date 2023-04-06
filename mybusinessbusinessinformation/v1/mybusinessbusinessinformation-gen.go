@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/my-business/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/mybusinessbusinessinformation/v1"
-//   ...
-//   ctx := context.Background()
-//   mybusinessbusinessinformationService, err := mybusinessbusinessinformation.NewService(ctx)
+//	import "google.golang.org/api/mybusinessbusinessinformation/v1"
+//	...
+//	ctx := context.Background()
+//	mybusinessbusinessinformationService, err := mybusinessbusinessinformation.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   mybusinessbusinessinformationService, err := mybusinessbusinessinformation.NewService(ctx, option.WithAPIKey("AIza..."))
+//	mybusinessbusinessinformationService, err := mybusinessbusinessinformation.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   mybusinessbusinessinformationService, err := mybusinessbusinessinformation.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	mybusinessbusinessinformationService, err := mybusinessbusinessinformation.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package mybusinessbusinessinformation // import "google.golang.org/api/mybusinessbusinessinformation/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "mybusinessbusinessinformation:v1"
 const apiName = "mybusinessbusinessinformation"
@@ -1633,9 +1634,9 @@ func (s *Places) MarshalJSON() ([]byte, error) {
 // to model geographical locations (roads, towns, mountains). In typical
 // usage an address would be created via user input or from importing
 // existing data, depending on the type of process. Advice on address
-// input / editing: - Use an i18n-ready address widget such as
-// https://github.com/google/libaddressinput) - Users should not be
-// presented with UI elements for input or editing of fields outside
+// input / editing: - Use an internationalization-ready address widget
+// such as https://github.com/google/libaddressinput) - Users should not
+// be presented with UI elements for input or editing of fields outside
 // countries where that field is used. For more guidance on how to use
 // this schema, please see:
 // https://support.google.com/business/answer/6397478
@@ -2513,17 +2514,17 @@ func (c *AccountsLocationsCreateCall) Do(opts ...googleapi.CallOption) (*Locatio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -2587,11 +2588,11 @@ type AccountsLocationsListCall struct {
 
 // List: Lists the locations for the specified account.
 //
-// - parent: The name of the account to fetch locations from. If the
-//   parent Account is of AccountType PERSONAL, only Locations that are
-//   directly owned by the Account are returned, otherwise it will
-//   return all accessible locations from the Account, either directly
-//   or indirectly.
+//   - parent: The name of the account to fetch locations from. If the
+//     parent Account is of AccountType PERSONAL, only Locations that are
+//     directly owned by the Account are returned, otherwise it will
+//     return all accessible locations from the Account, either directly
+//     or indirectly.
 func (r *AccountsLocationsService) List(parent string) *AccountsLocationsListCall {
 	c := &AccountsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2720,17 +2721,17 @@ func (c *AccountsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2960,17 +2961,17 @@ func (c *AttributesListCall) Do(opts ...googleapi.CallOption) (*ListAttributeMet
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAttributeMetadataResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3101,12 +3102,17 @@ func (c *CategoriesBatchGetCall) RegionCode(regionCode string) *CategoriesBatchG
 // parts to the Category resource should be returned in the response.
 //
 // Possible values:
-//   "CATEGORY_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
+//	"CATEGORY_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
 // CATEGORY_METADATA_ONLY.
-//   "BASIC" - The server response will only include Category fields
+//
+//	"BASIC" - The server response will only include Category fields
+//
 // display_name, category_id and language_code. It omits any service
 // type metadata related fields.
-//   "FULL" - Returns all the fields in the response.
+//
+//	"FULL" - Returns all the fields in the response.
 func (c *CategoriesBatchGetCall) View(view string) *CategoriesBatchGetCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -3184,17 +3190,17 @@ func (c *CategoriesBatchGetCall) Do(opts ...googleapi.CallOption) (*BatchGetCate
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchGetCategoriesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3314,12 +3320,17 @@ func (c *CategoriesListCall) RegionCode(regionCode string) *CategoriesListCall {
 // parts to the Category resource should be returned in the response.
 //
 // Possible values:
-//   "CATEGORY_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
+//	"CATEGORY_VIEW_UNSPECIFIED" - Not specified, equivalent to
+//
 // CATEGORY_METADATA_ONLY.
-//   "BASIC" - The server response will only include Category fields
+//
+//	"BASIC" - The server response will only include Category fields
+//
 // display_name, category_id and language_code. It omits any service
 // type metadata related fields.
-//   "FULL" - Returns all the fields in the response.
+//
+//	"FULL" - Returns all the fields in the response.
 func (c *CategoriesListCall) View(view string) *CategoriesListCall {
 	c.urlParams_.Set("view", view)
 	return c
@@ -3397,17 +3408,17 @@ func (c *CategoriesListCall) Do(opts ...googleapi.CallOption) (*ListCategoriesRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCategoriesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3512,8 +3523,8 @@ type ChainsGetCall struct {
 // Get: Gets the specified chain. Returns `NOT_FOUND` if the chain does
 // not exist.
 //
-// - name: The chain's resource name, in the format
-//   `chains/{chain_place_id}`.
+//   - name: The chain's resource name, in the format
+//     `chains/{chain_place_id}`.
 func (r *ChainsService) Get(name string) *ChainsGetCall {
 	c := &ChainsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3595,17 +3606,17 @@ func (c *ChainsGetCall) Do(opts ...googleapi.CallOption) (*Chain, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Chain{
 		ServerResponse: googleapi.ServerResponse{
@@ -3747,17 +3758,17 @@ func (c *ChainsSearchCall) Do(opts ...googleapi.CallOption) (*SearchChainsRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchChainsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3879,17 +3890,17 @@ func (c *GoogleLocationsSearchCall) Do(opts ...googleapi.CallOption) (*SearchGoo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchGoogleLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4011,17 +4022,17 @@ func (c *LocationsAssociateCall) Do(opts ...googleapi.CallOption) (*Empty, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4152,17 +4163,17 @@ func (c *LocationsClearLocationAssociationCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4288,17 +4299,17 @@ func (c *LocationsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4438,17 +4449,17 @@ func (c *LocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -4505,8 +4516,8 @@ type LocationsGetAttributesCall struct {
 
 // GetAttributes: Looks up all the attributes set for a given location.
 //
-// - name: Google identifier for this location in the form of
-//   `locations/{location_id}/attributes`.
+//   - name: Google identifier for this location in the form of
+//     `locations/{location_id}/attributes`.
 func (r *LocationsService) GetAttributes(nameid string) *LocationsGetAttributesCall {
 	c := &LocationsGetAttributesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -4588,17 +4599,17 @@ func (c *LocationsGetAttributesCall) Do(opts ...googleapi.CallOption) (*Attribut
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Attributes{
 		ServerResponse: googleapi.ServerResponse{
@@ -4739,17 +4750,17 @@ func (c *LocationsGetGoogleUpdatedCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleUpdatedLocation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4806,8 +4817,8 @@ type LocationsPatchCall struct {
 
 // Patch: Updates the specified location.
 //
-// - name: Google identifier for this location in the form:
-//   `locations/{location_id}`.
+//   - name: Google identifier for this location in the form:
+//     `locations/{location_id}`.
 func (r *LocationsService) Patch(nameid string, location *Location) *LocationsPatchCall {
 	c := &LocationsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -4898,17 +4909,17 @@ func (c *LocationsPatchCall) Do(opts ...googleapi.CallOption) (*Location, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -4973,8 +4984,8 @@ type LocationsUpdateAttributesCall struct {
 
 // UpdateAttributes: Update attributes for a given location.
 //
-// - name: Google identifier for this location in the form of
-//   `locations/{location_id}/attributes`.
+//   - name: Google identifier for this location in the form of
+//     `locations/{location_id}/attributes`.
 func (r *LocationsService) UpdateAttributes(nameid string, attributes *Attributes) *LocationsUpdateAttributesCall {
 	c := &LocationsUpdateAttributesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -5065,17 +5076,17 @@ func (c *LocationsUpdateAttributesCall) Do(opts ...googleapi.CallOption) (*Attri
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Attributes{
 		ServerResponse: googleapi.ServerResponse{
@@ -5136,8 +5147,8 @@ type LocationsAttributesGetGoogleUpdatedCall struct {
 // GetGoogleUpdated: Gets the Google-updated version of the specified
 // location.
 //
-// - name: Google identifier for this location in the form of
-//   `locations/{location_id}/attributes`.
+//   - name: Google identifier for this location in the form of
+//     `locations/{location_id}/attributes`.
 func (r *LocationsAttributesService) GetGoogleUpdated(nameid string) *LocationsAttributesGetGoogleUpdatedCall {
 	c := &LocationsAttributesGetGoogleUpdatedCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -5219,17 +5230,17 @@ func (c *LocationsAttributesGetGoogleUpdatedCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Attributes{
 		ServerResponse: googleapi.ServerResponse{

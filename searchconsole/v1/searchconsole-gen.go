@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/webmaster-tools/search-console-api/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/searchconsole/v1"
-//   ...
-//   ctx := context.Background()
-//   searchconsoleService, err := searchconsole.NewService(ctx)
+//	import "google.golang.org/api/searchconsole/v1"
+//	...
+//	ctx := context.Background()
+//	searchconsoleService, err := searchconsole.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   searchconsoleService, err := searchconsole.NewService(ctx, option.WithScopes(searchconsole.WebmastersReadonlyScope))
+//	searchconsoleService, err := searchconsole.NewService(ctx, option.WithScopes(searchconsole.WebmastersReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   searchconsoleService, err := searchconsole.NewService(ctx, option.WithAPIKey("AIza..."))
+//	searchconsoleService, err := searchconsole.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   searchconsoleService, err := searchconsole.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	searchconsoleService, err := searchconsole.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package searchconsole // import "google.golang.org/api/searchconsole/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "searchconsole:v1"
 const apiName = "searchconsole"
@@ -235,8 +236,7 @@ type AmpInspectionResult struct {
 	//   "VERDICT_UNSPECIFIED" - Unknown verdict.
 	//   "PASS" - Equivalent to "Valid" for the page or item in Search
 	// Console.
-	//   "PARTIAL" - Equivalent to "Valid with warnings" for the page or
-	// item in Search Console.
+	//   "PARTIAL" - Reserved, no longer in use.
 	//   "FAIL" - Equivalent to "Error" or "Invalid" for the page or item in
 	// Search Console.
 	//   "NEUTRAL" - Equivalent to "Excluded" for the page or item in Search
@@ -304,8 +304,7 @@ type AmpInspectionResult struct {
 	//   "VERDICT_UNSPECIFIED" - Unknown verdict.
 	//   "PASS" - Equivalent to "Valid" for the page or item in Search
 	// Console.
-	//   "PARTIAL" - Equivalent to "Valid with warnings" for the page or
-	// item in Search Console.
+	//   "PARTIAL" - Reserved, no longer in use.
 	//   "FAIL" - Equivalent to "Error" or "Invalid" for the page or item in
 	// Search Console.
 	//   "NEUTRAL" - Equivalent to "Excluded" for the page or item in Search
@@ -698,8 +697,7 @@ type IndexStatusInspectionResult struct {
 	//   "VERDICT_UNSPECIFIED" - Unknown verdict.
 	//   "PASS" - Equivalent to "Valid" for the page or item in Search
 	// Console.
-	//   "PARTIAL" - Equivalent to "Valid with warnings" for the page or
-	// item in Search Console.
+	//   "PARTIAL" - Reserved, no longer in use.
 	//   "FAIL" - Equivalent to "Error" or "Invalid" for the page or item in
 	// Search Console.
 	//   "NEUTRAL" - Equivalent to "Excluded" for the page or item in Search
@@ -896,8 +894,7 @@ type MobileUsabilityInspectionResult struct {
 	//   "VERDICT_UNSPECIFIED" - Unknown verdict.
 	//   "PASS" - Equivalent to "Valid" for the page or item in Search
 	// Console.
-	//   "PARTIAL" - Equivalent to "Valid with warnings" for the page or
-	// item in Search Console.
+	//   "PARTIAL" - Reserved, no longer in use.
 	//   "FAIL" - Equivalent to "Error" or "Invalid" for the page or item in
 	// Search Console.
 	//   "NEUTRAL" - Equivalent to "Excluded" for the page or item in Search
@@ -1031,8 +1028,7 @@ type RichResultsInspectionResult struct {
 	//   "VERDICT_UNSPECIFIED" - Unknown verdict.
 	//   "PASS" - Equivalent to "Valid" for the page or item in Search
 	// Console.
-	//   "PARTIAL" - Equivalent to "Valid with warnings" for the page or
-	// item in Search Console.
+	//   "PARTIAL" - Reserved, no longer in use.
 	//   "FAIL" - Equivalent to "Error" or "Invalid" for the page or item in
 	// Search Console.
 	//   "NEUTRAL" - Equivalent to "Excluded" for the page or item in Search
@@ -1690,8 +1686,8 @@ type SearchanalyticsQueryCall struct {
 // date range query grouped by date for any metric, and see which day
 // rows are returned.
 //
-// - siteUrl: The site's URL, including protocol. For example:
-//   `http://www.example.com/`.
+//   - siteUrl: The site's URL, including protocol. For example:
+//     `http://www.example.com/`.
 func (r *SearchanalyticsService) Query(siteUrl string, searchanalyticsqueryrequest *SearchAnalyticsQueryRequest) *SearchanalyticsQueryCall {
 	c := &SearchanalyticsQueryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.siteUrl = siteUrl
@@ -1766,17 +1762,17 @@ func (c *SearchanalyticsQueryCall) Do(opts ...googleapi.CallOption) (*SearchAnal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchAnalyticsQueryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1835,10 +1831,10 @@ type SitemapsDeleteCall struct {
 // Google from crawling this sitemap or the URLs that were previously
 // crawled in the deleted sitemap.
 //
-// - feedpath: The URL of the actual sitemap. For example:
-//   `http://www.example.com/sitemap.xml`.
-// - siteUrl: The site's URL, including protocol. For example:
-//   `http://www.example.com/`.
+//   - feedpath: The URL of the actual sitemap. For example:
+//     `http://www.example.com/sitemap.xml`.
+//   - siteUrl: The site's URL, including protocol. For example:
+//     `http://www.example.com/`.
 func (r *SitemapsService) Delete(siteUrl string, feedpath string) *SitemapsDeleteCall {
 	c := &SitemapsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.siteUrl = siteUrl
@@ -1904,7 +1900,7 @@ func (c *SitemapsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -1952,10 +1948,10 @@ type SitemapsGetCall struct {
 
 // Get: Retrieves information about a specific sitemap.
 //
-// - feedpath: The URL of the actual sitemap. For example:
-//   `http://www.example.com/sitemap.xml`.
-// - siteUrl: The site's URL, including protocol. For example:
-//   `http://www.example.com/`.
+//   - feedpath: The URL of the actual sitemap. For example:
+//     `http://www.example.com/sitemap.xml`.
+//   - siteUrl: The site's URL, including protocol. For example:
+//     `http://www.example.com/`.
 func (r *SitemapsService) Get(siteUrl string, feedpath string) *SitemapsGetCall {
 	c := &SitemapsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.siteUrl = siteUrl
@@ -2039,17 +2035,17 @@ func (c *SitemapsGetCall) Do(opts ...googleapi.CallOption) (*WmxSitemap, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WmxSitemap{
 		ServerResponse: googleapi.ServerResponse{
@@ -2112,8 +2108,8 @@ type SitemapsListCall struct {
 // submitted for this site, or included in the sitemap index file (if
 // `sitemapIndex` is specified in the request).
 //
-// - siteUrl: The site's URL, including protocol. For example:
-//   `http://www.example.com/`.
+//   - siteUrl: The site's URL, including protocol. For example:
+//     `http://www.example.com/`.
 func (r *SitemapsService) List(siteUrl string) *SitemapsListCall {
 	c := &SitemapsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.siteUrl = siteUrl
@@ -2203,17 +2199,17 @@ func (c *SitemapsListCall) Do(opts ...googleapi.CallOption) (*SitemapsListRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SitemapsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2272,10 +2268,10 @@ type SitemapsSubmitCall struct {
 
 // Submit: Submits a sitemap for a site.
 //
-// - feedpath: The URL of the actual sitemap. For example:
-//   `http://www.example.com/sitemap.xml`.
-// - siteUrl: The site's URL, including protocol. For example:
-//   `http://www.example.com/`.
+//   - feedpath: The URL of the actual sitemap. For example:
+//     `http://www.example.com/sitemap.xml`.
+//   - siteUrl: The site's URL, including protocol. For example:
+//     `http://www.example.com/`.
 func (r *SitemapsService) Submit(siteUrl string, feedpath string) *SitemapsSubmitCall {
 	c := &SitemapsSubmitCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.siteUrl = siteUrl
@@ -2341,7 +2337,7 @@ func (c *SitemapsSubmitCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -2451,7 +2447,7 @@ func (c *SitesAddCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -2491,8 +2487,8 @@ type SitesDeleteCall struct {
 // Delete:  Removes a site from the set of the user's Search Console
 // sites.
 //
-// - siteUrl: The URI of the property as defined in Search Console.
-//   **Examples:** `http://www.example.com/` or `sc-domain:example.com`.
+//   - siteUrl: The URI of the property as defined in Search Console.
+//     **Examples:** `http://www.example.com/` or `sc-domain:example.com`.
 func (r *SitesService) Delete(siteUrl string) *SitesDeleteCall {
 	c := &SitesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.siteUrl = siteUrl
@@ -2556,7 +2552,7 @@ func (c *SitesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -2596,8 +2592,8 @@ type SitesGetCall struct {
 
 // Get:  Retrieves information about specific site.
 //
-// - siteUrl: The URI of the property as defined in Search Console.
-//   **Examples:** `http://www.example.com/` or `sc-domain:example.com`.
+//   - siteUrl: The URI of the property as defined in Search Console.
+//     **Examples:** `http://www.example.com/` or `sc-domain:example.com`.
 func (r *SitesService) Get(siteUrl string) *SitesGetCall {
 	c := &SitesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.siteUrl = siteUrl
@@ -2679,17 +2675,17 @@ func (c *SitesGetCall) Do(opts ...googleapi.CallOption) (*WmxSite, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WmxSite{
 		ServerResponse: googleapi.ServerResponse{
@@ -2818,17 +2814,17 @@ func (c *SitesListCall) Do(opts ...googleapi.CallOption) (*SitesListResponse, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SitesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2941,17 +2937,17 @@ func (c *UrlInspectionIndexInspectCall) Do(opts ...googleapi.CallOption) (*Inspe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InspectUrlIndexResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3067,17 +3063,17 @@ func (c *UrlTestingToolsMobileFriendlyTestRunCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RunMobileFriendlyTestResponse{
 		ServerResponse: googleapi.ServerResponse{

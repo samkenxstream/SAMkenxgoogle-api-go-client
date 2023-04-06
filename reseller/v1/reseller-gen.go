@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/google-apps/reseller/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/reseller/v1"
-//   ...
-//   ctx := context.Background()
-//   resellerService, err := reseller.NewService(ctx)
+//	import "google.golang.org/api/reseller/v1"
+//	...
+//	ctx := context.Background()
+//	resellerService, err := reseller.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   resellerService, err := reseller.NewService(ctx, option.WithScopes(reseller.AppsOrderReadonlyScope))
+//	resellerService, err := reseller.NewService(ctx, option.WithScopes(reseller.AppsOrderReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   resellerService, err := reseller.NewService(ctx, option.WithAPIKey("AIza..."))
+//	resellerService, err := reseller.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   resellerService, err := reseller.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	resellerService, err := reseller.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package reseller // import "google.golang.org/api/reseller/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "reseller:v1"
 const apiName = "reseller"
@@ -958,12 +959,12 @@ type CustomersGetCall struct {
 // see retrieving a customer account
 // (/admin-sdk/reseller/v1/how-tos/manage_customers#get_customer).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
 func (r *CustomersService) Get(customerId string) *CustomersGetCall {
 	c := &CustomersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -1045,17 +1046,17 @@ func (c *CustomersGetCall) Do(opts ...googleapi.CallOption) (*Customer, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Customer{
 		ServerResponse: googleapi.ServerResponse{
@@ -1206,17 +1207,17 @@ func (c *CustomersInsertCall) Do(opts ...googleapi.CallOption) (*Customer, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Customer{
 		ServerResponse: googleapi.ServerResponse{
@@ -1274,12 +1275,12 @@ type CustomersPatchCall struct {
 // domain to unlock Essentials features
 // (https://support.google.com/a/answer/9122284).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
 func (r *CustomersService) Patch(customerId string, customer *Customer) *CustomersPatchCall {
 	c := &CustomersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -1354,17 +1355,17 @@ func (c *CustomersPatchCall) Do(opts ...googleapi.CallOption) (*Customer, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Customer{
 		ServerResponse: googleapi.ServerResponse{
@@ -1424,12 +1425,12 @@ type CustomersUpdateCall struct {
 // information, see update a customer's settings
 // (/admin-sdk/reseller/v1/how-tos/manage_customers#update_customer).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
 func (r *CustomersService) Update(customerId string, customer *Customer) *CustomersUpdateCall {
 	c := &CustomersUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -1504,17 +1505,17 @@ func (c *CustomersUpdateCall) Do(opts ...googleapi.CallOption) (*Customer, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Customer{
 		ServerResponse: googleapi.ServerResponse{
@@ -1647,17 +1648,17 @@ func (c *ResellernotifyGetwatchdetailsCall) Do(opts ...googleapi.CallOption) (*R
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResellernotifyGetwatchdetailsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1771,17 +1772,17 @@ func (c *ResellernotifyRegisterCall) Do(opts ...googleapi.CallOption) (*Reseller
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResellernotifyResource{
 		ServerResponse: googleapi.ServerResponse{
@@ -1900,17 +1901,17 @@ func (c *ResellernotifyUnregisterCall) Do(opts ...googleapi.CallOption) (*Resell
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResellernotifyResource{
 		ServerResponse: googleapi.ServerResponse{
@@ -1963,18 +1964,18 @@ type SubscriptionsActivateCall struct {
 // suspended for any other reason, such as for abuse or a pending ToS
 // acceptance, this call will not reactivate the customer subscription.
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) Activate(customerId string, subscriptionId string) *SubscriptionsActivateCall {
 	c := &SubscriptionsActivateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -2045,17 +2046,17 @@ func (c *SubscriptionsActivateCall) Do(opts ...googleapi.CallOption) (*Subscript
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2122,18 +2123,18 @@ type SubscriptionsChangePlanCall struct {
 // (/admin-sdk/reseller/v1/how-tos/manage_subscriptions#update_subscripti
 // on_plan).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) ChangePlan(customerId string, subscriptionId string, changeplanrequest *ChangePlanRequest) *SubscriptionsChangePlanCall {
 	c := &SubscriptionsChangePlanCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -2210,17 +2211,17 @@ func (c *SubscriptionsChangePlanCall) Do(opts ...googleapi.CallOption) (*Subscri
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2287,18 +2288,18 @@ type SubscriptionsChangeRenewalSettingsCall struct {
 // For more information, see the description in manage subscriptions
 // (/admin-sdk/reseller/v1/how-tos/manage_subscriptions#update_renewal).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) ChangeRenewalSettings(customerId string, subscriptionId string, renewalsettings *RenewalSettings) *SubscriptionsChangeRenewalSettingsCall {
 	c := &SubscriptionsChangeRenewalSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -2375,17 +2376,17 @@ func (c *SubscriptionsChangeRenewalSettingsCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2453,18 +2454,18 @@ type SubscriptionsChangeSeatsCall struct {
 // (/admin-sdk/reseller/v1/how-tos/manage_subscriptions#update_subscripti
 // on_seat).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) ChangeSeats(customerId string, subscriptionId string, seats *Seats) *SubscriptionsChangeSeatsCall {
 	c := &SubscriptionsChangeSeatsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -2541,17 +2542,17 @@ func (c *SubscriptionsChangeSeatsCall) Do(opts ...googleapi.CallOption) (*Subscr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2614,20 +2615,20 @@ type SubscriptionsDeleteCall struct {
 
 // Delete: Cancels, suspends, or transfers a subscription to direct.
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - deletionType: The `deletionType` query string enables the
-//   cancellation, downgrade, or suspension of a subscription.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - deletionType: The `deletionType` query string enables the
+//     cancellation, downgrade, or suspension of a subscription.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) Delete(customerId string, subscriptionId string, deletionType string) *SubscriptionsDeleteCall {
 	c := &SubscriptionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -2694,7 +2695,7 @@ func (c *SubscriptionsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -2765,18 +2766,18 @@ type SubscriptionsGetCall struct {
 // (/admin-sdk/reseller/v1/how-tos/manage_subscriptions#get_subscription)
 // .
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) Get(customerId string, subscriptionId string) *SubscriptionsGetCall {
 	c := &SubscriptionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -2860,17 +2861,17 @@ func (c *SubscriptionsGetCall) Do(opts ...googleapi.CallOption) (*Subscription, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -2946,12 +2947,12 @@ type SubscriptionsInsertCall struct {
 // (/admin-sdk/reseller/v1/how-tos/manage_subscriptions#transfer_a_subscr
 // iption).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
 func (r *SubscriptionsService) Insert(customerId string, subscription *Subscription) *SubscriptionsInsertCall {
 	c := &SubscriptionsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -3038,17 +3039,17 @@ func (c *SubscriptionsInsertCall) Do(opts ...googleapi.CallOption) (*Subscriptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -3242,17 +3243,17 @@ func (c *SubscriptionsListCall) Do(opts ...googleapi.CallOption) (*Subscriptions
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscriptions{
 		ServerResponse: googleapi.ServerResponse{
@@ -3351,18 +3352,18 @@ type SubscriptionsStartPaidServiceCall struct {
 // subscription. For more information, see manage subscriptions
 // (/admin-sdk/reseller/v1/how-tos/manage_subscriptions#paid_service).
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) StartPaidService(customerId string, subscriptionId string) *SubscriptionsStartPaidServiceCall {
 	c := &SubscriptionsStartPaidServiceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -3433,17 +3434,17 @@ func (c *SubscriptionsStartPaidServiceCall) Do(opts ...googleapi.CallOption) (*S
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{
@@ -3513,18 +3514,18 @@ type SubscriptionsSuspendCall struct {
 // for short periods of time as suspensions over 60 days may result in
 // the subscription being cancelled.
 //
-// - customerId: This can be either the customer's primary domain name
-//   or the customer's unique identifier. If the domain name for a
-//   customer changes, the old domain name cannot be used to access the
-//   customer, but the customer's unique identifier (as returned by the
-//   API) can always be used. We recommend storing the unique identifier
-//   in your systems where applicable.
-// - subscriptionId: This is a required property. The `subscriptionId`
-//   is the subscription identifier and is unique for each customer.
-//   Since a `subscriptionId` changes when a subscription is updated, we
-//   recommend to not use this ID as a key for persistent data. And the
-//   `subscriptionId` can be found using the retrieve all reseller
-//   subscriptions method.
+//   - customerId: This can be either the customer's primary domain name
+//     or the customer's unique identifier. If the domain name for a
+//     customer changes, the old domain name cannot be used to access the
+//     customer, but the customer's unique identifier (as returned by the
+//     API) can always be used. We recommend storing the unique identifier
+//     in your systems where applicable.
+//   - subscriptionId: This is a required property. The `subscriptionId`
+//     is the subscription identifier and is unique for each customer.
+//     Since a `subscriptionId` changes when a subscription is updated, we
+//     recommend to not use this ID as a key for persistent data. And the
+//     `subscriptionId` can be found using the retrieve all reseller
+//     subscriptions method.
 func (r *SubscriptionsService) Suspend(customerId string, subscriptionId string) *SubscriptionsSuspendCall {
 	c := &SubscriptionsSuspendCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -3595,17 +3596,17 @@ func (c *SubscriptionsSuspendCall) Do(opts ...googleapi.CallOption) (*Subscripti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Subscription{
 		ServerResponse: googleapi.ServerResponse{

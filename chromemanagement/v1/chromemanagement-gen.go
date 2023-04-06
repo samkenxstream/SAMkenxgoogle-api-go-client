@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: http://developers.google.com/chrome/management/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/chromemanagement/v1"
-//   ...
-//   ctx := context.Background()
-//   chromemanagementService, err := chromemanagement.NewService(ctx)
+//	import "google.golang.org/api/chromemanagement/v1"
+//	...
+//	ctx := context.Background()
+//	chromemanagementService, err := chromemanagement.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   chromemanagementService, err := chromemanagement.NewService(ctx, option.WithScopes(chromemanagement.ChromeManagementTelemetryReadonlyScope))
+//	chromemanagementService, err := chromemanagement.NewService(ctx, option.WithScopes(chromemanagement.ChromeManagementTelemetryReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   chromemanagementService, err := chromemanagement.NewService(ctx, option.WithAPIKey("AIza..."))
+//	chromemanagementService, err := chromemanagement.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   chromemanagementService, err := chromemanagement.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	chromemanagementService, err := chromemanagement.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package chromemanagement // import "google.golang.org/api/chromemanagement/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "chromemanagement:v1"
 const apiName = "chromemanagement"
@@ -226,6 +227,8 @@ type CustomersReportsService struct {
 func NewCustomersTelemetryService(s *Service) *CustomersTelemetryService {
 	rs := &CustomersTelemetryService{s: s}
 	rs.Devices = NewCustomersTelemetryDevicesService(s)
+	rs.Events = NewCustomersTelemetryEventsService(s)
+	rs.Users = NewCustomersTelemetryUsersService(s)
 	return rs
 }
 
@@ -233,6 +236,10 @@ type CustomersTelemetryService struct {
 	s *Service
 
 	Devices *CustomersTelemetryDevicesService
+
+	Events *CustomersTelemetryEventsService
+
+	Users *CustomersTelemetryUsersService
 }
 
 func NewCustomersTelemetryDevicesService(s *Service) *CustomersTelemetryDevicesService {
@@ -241,6 +248,24 @@ func NewCustomersTelemetryDevicesService(s *Service) *CustomersTelemetryDevicesS
 }
 
 type CustomersTelemetryDevicesService struct {
+	s *Service
+}
+
+func NewCustomersTelemetryEventsService(s *Service) *CustomersTelemetryEventsService {
+	rs := &CustomersTelemetryEventsService{s: s}
+	return rs
+}
+
+type CustomersTelemetryEventsService struct {
+	s *Service
+}
+
+func NewCustomersTelemetryUsersService(s *Service) *CustomersTelemetryUsersService {
+	rs := &CustomersTelemetryUsersService{s: s}
+	return rs
+}
+
+type CustomersTelemetryUsersService struct {
 	s *Service
 }
 
@@ -424,7 +449,16 @@ func (s *GoogleChromeManagementV1AppDetails) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// GoogleChromeManagementV1AudioStatusReport: Audio report.
+// GoogleChromeManagementV1AudioStatusReport: Status data for storage. *
+// This field is telemetry information and this will change over time as
+// the device is utilized. * Data for this field is controlled via
+// policy: ReportDeviceAudioStatus
+// (https://chromeenterprise.google/policies/#ReportDeviceAudioStatus) *
+// Data Collection Frequency: 10 minutes * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1AudioStatusReport struct {
 	// InputDevice: Output only. Active input device's name.
 	InputDevice string `json:"inputDevice,omitempty"`
@@ -471,7 +505,16 @@ func (s *GoogleChromeManagementV1AudioStatusReport) MarshalJSON() ([]byte, error
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromeManagementV1BatteryInfo: Battery info
+// GoogleChromeManagementV1BatteryInfo: Information about the battery. *
+// This field provides device information, which is static and will not
+// change over time. * Data for this field is controlled via policy:
+// ReportDevicePowerStatus
+// (https://chromeenterprise.google/policies/#ReportDevicePowerStatus) *
+// Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1BatteryInfo struct {
 	// DesignCapacity: Output only. Design capacity (mAmpere-hours).
 	DesignCapacity int64 `json:"designCapacity,omitempty,string"`
@@ -516,7 +559,15 @@ func (s *GoogleChromeManagementV1BatteryInfo) MarshalJSON() ([]byte, error) {
 }
 
 // GoogleChromeManagementV1BatterySampleReport: Sampling data for
-// battery.
+// battery. * This field is telemetry information and this will change
+// over time as the device is utilized. * Data for this field is
+// controlled via policy: ReportDevicePowerStatus
+// (https://chromeenterprise.google/policies/#ReportDevicePowerStatus) *
+// Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1BatterySampleReport struct {
 	// ChargeRate: Output only. Battery charge percentage.
 	ChargeRate int64 `json:"chargeRate,omitempty"`
@@ -571,6 +622,15 @@ func (s *GoogleChromeManagementV1BatterySampleReport) MarshalJSON() ([]byte, err
 }
 
 // GoogleChromeManagementV1BatteryStatusReport: Status data for battery.
+// * This field is telemetry information and this will change over time
+// as the device is utilized. * Data for this field is controlled via
+// policy: ReportDevicePowerStatus
+// (https://chromeenterprise.google/policies/#ReportDevicePowerStatus) *
+// Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1BatteryStatusReport struct {
 	// BatteryHealth: Output only. Battery health.
 	//
@@ -620,6 +680,66 @@ type GoogleChromeManagementV1BatteryStatusReport struct {
 
 func (s *GoogleChromeManagementV1BatteryStatusReport) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleChromeManagementV1BatteryStatusReport
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1BootPerformanceReport: Boot performance
+// report of a device. * This field is telemetry information and this
+// will change over time as the device is utilized. * Data for this
+// field is controlled via policy: ReportDeviceBootMode
+// (https://chromeenterprise.google/policies/#ReportDeviceBootMode) *
+// Data Collection Frequency: On every boot up event * Default Data
+// Reporting Frequency: 3 hours - Policy Controlled: Yes * Cache: If the
+// device is offline, the collected data is stored locally, and will be
+// reported when the device is next online: Yes * Reported for
+// affiliated users only: N/A
+type GoogleChromeManagementV1BootPerformanceReport struct {
+	// BootUpDuration: Total time to boot up.
+	BootUpDuration string `json:"bootUpDuration,omitempty"`
+
+	// BootUpTime: The timestamp when power came on.
+	BootUpTime string `json:"bootUpTime,omitempty"`
+
+	// ReportTime: Timestamp when the report was collected.
+	ReportTime string `json:"reportTime,omitempty"`
+
+	// ShutdownDuration: Total time since shutdown start to power off.
+	ShutdownDuration string `json:"shutdownDuration,omitempty"`
+
+	// ShutdownReason: The shutdown reason.
+	//
+	// Possible values:
+	//   "SHUTDOWN_REASON_UNSPECIFIED" - Shutdown reason is not specified.
+	//   "USER_REQUEST" - User initiated.
+	//   "SYSTEM_UPDATE" - System update initiated.
+	//   "LOW_BATTERY" - Shutdown due to low battery.
+	//   "OTHER" - Shutdown due to other reasons.
+	ShutdownReason string `json:"shutdownReason,omitempty"`
+
+	// ShutdownTime: The timestamp when shutdown.
+	ShutdownTime string `json:"shutdownTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "BootUpDuration") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "BootUpDuration") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1BootPerformanceReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1BootPerformanceReport
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -695,6 +815,10 @@ type GoogleChromeManagementV1ChromeAppInfo struct {
 	// published state in the Chrome Web Store.
 	IsCwsHosted bool `json:"isCwsHosted,omitempty"`
 
+	// IsExtensionPolicySupported: Output only. Whether an app supports
+	// policy for extensions.
+	IsExtensionPolicySupported bool `json:"isExtensionPolicySupported,omitempty"`
+
 	// IsKioskOnly: Output only. Whether the app is only for Kiosk mode on
 	// ChromeOS devices
 	IsKioskOnly bool `json:"isKioskOnly,omitempty"`
@@ -726,6 +850,14 @@ type GoogleChromeManagementV1ChromeAppInfo struct {
 	// for their app. Version-specific field that will only be set when the
 	// requested app version is found.
 	SupportEnabled bool `json:"supportEnabled,omitempty"`
+
+	// Type: Output only. Types of an item in the Chrome Web Store
+	//
+	// Possible values:
+	//   "ITEM_TYPE_UNSPECIFIED" - Unspecified ItemType.
+	//   "EXTENSION" - Chrome Extensions.
+	//   "OTHERS" - Any other type than extension.
+	Type string `json:"type,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "GoogleOwned") to
 	// unconditionally include in API requests. By default, fields with
@@ -909,6 +1041,186 @@ func (s *GoogleChromeManagementV1CountChromeAppRequestsResponse) MarshalJSON() (
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse:
+// Response containing counts for browsers that need attention.
+type GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse struct {
+	// NoRecentActivityCount: Number of browsers that haven’t had any
+	// recent activity
+	NoRecentActivityCount int64 `json:"noRecentActivityCount,omitempty,string"`
+
+	// PendingBrowserUpdateCount: Number of browsers that are pending an OS
+	// update
+	PendingBrowserUpdateCount int64 `json:"pendingBrowserUpdateCount,omitempty,string"`
+
+	// RecentlyEnrolledCount: Number of browsers that have been recently
+	// enrolled
+	RecentlyEnrolledCount int64 `json:"recentlyEnrolledCount,omitempty,string"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "NoRecentActivityCount") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NoRecentActivityCount") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateRe
+// sponse: Response containing a list of devices expiring in each month
+// of a selected time frame. Counts are grouped by model and Auto Update
+// Expiration date.
+type GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateResponse struct {
+	// DeviceAueCountReports: The list of reports sorted by auto update
+	// expiration date in ascending order.
+	DeviceAueCountReports []*GoogleChromeManagementV1DeviceAueCountReport `json:"deviceAueCountReports,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "DeviceAueCountReports") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeviceAueCountReports") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse:
+// Response containing counts for devices that need attention.
+type GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse struct {
+	// NoRecentPolicySyncCount: Number of ChromeOS devices have not synced
+	// policies in the past 28 days.
+	NoRecentPolicySyncCount int64 `json:"noRecentPolicySyncCount,omitempty,string"`
+
+	// NoRecentUserActivityCount: Number of ChromeOS devices that have not
+	// seen any user activity in the past 28 days.
+	NoRecentUserActivityCount int64 `json:"noRecentUserActivityCount,omitempty,string"`
+
+	// OsVersionNotCompliantCount: Number of devices whose OS version is not
+	// compliant.
+	OsVersionNotCompliantCount int64 `json:"osVersionNotCompliantCount,omitempty,string"`
+
+	// PendingUpdate: Number of devices that are pending an OS update.
+	PendingUpdate int64 `json:"pendingUpdate,omitempty,string"`
+
+	// UnsupportedPolicyCount: Number of devices that are unable to apply a
+	// policy due to an OS version mismatch.
+	UnsupportedPolicyCount int64 `json:"unsupportedPolicyCount,omitempty,string"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "NoRecentPolicySyncCount") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NoRecentPolicySyncCount")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse:
+// Response containing a list of devices with a specific type of
+// hardware specification from the requested hardware type.
+type GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse struct {
+	// CpuReports: The DeviceHardwareCountReport for device cpu type (for
+	// example Intel(R) Core(TM) i7-10610U CPU @ 1.80GHz).
+	CpuReports []*GoogleChromeManagementV1DeviceHardwareCountReport `json:"cpuReports,omitempty"`
+
+	// MemoryReports: The DeviceHardwareCountReport for device memory amount
+	// in gigabytes (for example 16).
+	MemoryReports []*GoogleChromeManagementV1DeviceHardwareCountReport `json:"memoryReports,omitempty"`
+
+	// ModelReports: The DeviceHardwareCountReport for device model type
+	// (for example Acer C7 Chromebook).
+	ModelReports []*GoogleChromeManagementV1DeviceHardwareCountReport `json:"modelReports,omitempty"`
+
+	// StorageReports: The DeviceHardwareCountReport for device storage
+	// amount in gigabytes (for example 128).
+	StorageReports []*GoogleChromeManagementV1DeviceHardwareCountReport `json:"storageReports,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "CpuReports") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CpuReports") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleChromeManagementV1CountChromeVersionsResponse: Response
 // containing requested browser versions details and counts.
 type GoogleChromeManagementV1CountChromeVersionsResponse struct {
@@ -989,14 +1301,121 @@ func (s *GoogleChromeManagementV1CountInstalledAppsResponse) MarshalJSON() ([]by
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromeManagementV1CpuInfo: CPU specs for a CPU.
+// GoogleChromeManagementV1CountPrintJobsByPrinterResponse: Response
+// containing a summary printing report for each printer from the
+// specified organizational unit for the requested time interval.
+type GoogleChromeManagementV1CountPrintJobsByPrinterResponse struct {
+	// NextPageToken: Pagination token for requesting the next page.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// PrinterReports: List of PrinterReports matching request.
+	PrinterReports []*GoogleChromeManagementV1PrinterReport `json:"printerReports,omitempty"`
+
+	// TotalSize: Total number of printers matching request.
+	TotalSize int64 `json:"totalSize,omitempty,string"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NextPageToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NextPageToken") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1CountPrintJobsByPrinterResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1CountPrintJobsByPrinterResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1CountPrintJobsByUserResponse: Response
+// containing a summary printing report for each user that has initiated
+// a print job with a printer from the specified organizational unit
+// during the requested time interval.
+type GoogleChromeManagementV1CountPrintJobsByUserResponse struct {
+	// NextPageToken: Pagination token for requesting the next page.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// TotalSize: Total number of users matching request.
+	TotalSize int64 `json:"totalSize,omitempty,string"`
+
+	// UserPrintReports: List of UserPrintReports matching request.
+	UserPrintReports []*GoogleChromeManagementV1UserPrintReport `json:"userPrintReports,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NextPageToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NextPageToken") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1CountPrintJobsByUserResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1CountPrintJobsByUserResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1CpuInfo: CPU specifications for the device *
+// This field provides device information, which is static and will not
+// change over time. * Data for this field is controlled via policy:
+// ReportDeviceCpuInfo
+// (https://chromeenterprise.google/policies/#ReportDeviceCpuInfo) *
+// Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1CpuInfo struct {
-	// Architecture: Output only. The CPU architecture.
+	// Architecture: Output only. Architecture type for the CPU. * This
+	// field provides device information, which is static and will not
+	// change over time. * Data for this field is controlled via policy:
+	// ReportDeviceCpuInfo
+	// (https://chromeenterprise.google/policies/#ReportDeviceCpuInfo) *
+	// Data Collection Frequency: Only at Upload * Default Data Reporting
+	// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+	// offline, the collected data is stored locally, and will be reported
+	// when the device is next online: No * Reported for affiliated users
+	// only: N/A
 	//
 	// Possible values:
 	//   "ARCHITECTURE_UNSPECIFIED" - Architecture unknown.
 	//   "X64" - x64 architecture
 	Architecture string `json:"architecture,omitempty"`
+
+	// KeylockerConfigured: Output only. Whether keylocker is
+	// configured.`TRUE` = Enabled; `FALSE` = disabled. Only reported if
+	// keylockerSupported = `TRUE`.
+	KeylockerConfigured bool `json:"keylockerConfigured,omitempty"`
+
+	// KeylockerSupported: Output only. Whether keylocker is supported.
+	KeylockerSupported bool `json:"keylockerSupported,omitempty"`
 
 	// MaxClockSpeed: Output only. The max CPU clock speed in kHz.
 	MaxClockSpeed int64 `json:"maxClockSpeed,omitempty"`
@@ -1028,8 +1447,16 @@ func (s *GoogleChromeManagementV1CpuInfo) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromeManagementV1CpuStatusReport: Contains samples of the cpu
-// status reports.
+// GoogleChromeManagementV1CpuStatusReport: Provides information about
+// the status of the CPU. * This field is telemetry information and this
+// will change over time as the device is utilized. * Data for this
+// field is controlled via policy: ReportDeviceCpuInfo
+// (https://chromeenterprise.google/policies/#ReportDeviceCpuInfo) *
+// Data Collection Frequency: Every 10 minutes * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1CpuStatusReport struct {
 	// CpuTemperatureInfo: Output only. CPU temperature sample info per CPU
 	// core in Celsius
@@ -1071,7 +1498,15 @@ func (s *GoogleChromeManagementV1CpuStatusReport) MarshalJSON() ([]byte, error) 
 }
 
 // GoogleChromeManagementV1CpuTemperatureInfo: CPU temperature of a
-// device. Sampled per CPU core in Celsius
+// device. Sampled per CPU core in Celsius. * This field is telemetry
+// information and this will change over time as the device is utilized.
+// * Data for this field is controlled via policy: ReportDeviceCpuInfo
+// (https://chromeenterprise.google/policies/#ReportDeviceCpuInfo) *
+// Data Collection Frequency: Every 10 minutes * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1CpuTemperatureInfo struct {
 	// Label: Output only. CPU label. Example: Core 0
 	Label string `json:"label,omitempty"`
@@ -1132,6 +1567,101 @@ type GoogleChromeManagementV1Device struct {
 
 func (s *GoogleChromeManagementV1Device) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleChromeManagementV1Device
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1DeviceAueCountReport: Report for
+// CountChromeDevicesPerAueDateResponse, contains the count of devices
+// of a specific model and auto update expiration range.
+type GoogleChromeManagementV1DeviceAueCountReport struct {
+	// AueMonth: Enum value of month corresponding to the auto update
+	// expiration date in UTC time zone. If the device is already expired,
+	// this field is empty.
+	//
+	// Possible values:
+	//   "MONTH_UNSPECIFIED" - The unspecified month.
+	//   "JANUARY" - The month of January.
+	//   "FEBRUARY" - The month of February.
+	//   "MARCH" - The month of March.
+	//   "APRIL" - The month of April.
+	//   "MAY" - The month of May.
+	//   "JUNE" - The month of June.
+	//   "JULY" - The month of July.
+	//   "AUGUST" - The month of August.
+	//   "SEPTEMBER" - The month of September.
+	//   "OCTOBER" - The month of October.
+	//   "NOVEMBER" - The month of November.
+	//   "DECEMBER" - The month of December.
+	AueMonth string `json:"aueMonth,omitempty"`
+
+	// AueYear: Int value of year corresponding to the Auto Update
+	// Expiration date in UTC time zone. If the device is already expired,
+	// this field is empty.
+	AueYear int64 `json:"aueYear,omitempty,string"`
+
+	// Count: Count of devices of this model.
+	Count int64 `json:"count,omitempty,string"`
+
+	// Expired: Boolean value for whether or not the device has already
+	// expired.
+	Expired bool `json:"expired,omitempty"`
+
+	// Model: Public model name of the devices.
+	Model string `json:"model,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AueMonth") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AueMonth") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1DeviceAueCountReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1DeviceAueCountReport
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1DeviceHardwareCountReport: Report for
+// CountChromeDevicesPerHardwareSpecResponse, contains the count of
+// devices with a unique hardware specification.
+type GoogleChromeManagementV1DeviceHardwareCountReport struct {
+	// Bucket: Public name of the hardware specification.
+	Bucket string `json:"bucket,omitempty"`
+
+	// Count: Count of devices with a unique hardware specification.
+	Count int64 `json:"count,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Bucket") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Bucket") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1DeviceHardwareCountReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1DeviceHardwareCountReport
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1211,10 +1741,61 @@ func (s *GoogleChromeManagementV1DiskInfo) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleChromeManagementV1DisplayDevice: Information of a display
+// device.
+type GoogleChromeManagementV1DisplayDevice struct {
+	// DisplayHeightMm: Output only. Display height in millimeters.
+	DisplayHeightMm int64 `json:"displayHeightMm,omitempty"`
+
+	// DisplayName: Output only. Display device name.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// DisplayWidthMm: Output only. Display width in millimeters.
+	DisplayWidthMm int64 `json:"displayWidthMm,omitempty"`
+
+	// Internal: Output only. Is display internal or not.
+	Internal bool `json:"internal,omitempty"`
+
+	// ManufactureYear: Output only. Year of manufacture.
+	ManufactureYear int64 `json:"manufactureYear,omitempty"`
+
+	// ManufacturerId: Output only. Three letter manufacturer ID.
+	ManufacturerId string `json:"manufacturerId,omitempty"`
+
+	// ModelId: Output only. Manufacturer product code.
+	ModelId int64 `json:"modelId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DisplayHeightMm") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisplayHeightMm") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1DisplayDevice) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1DisplayDevice
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleChromeManagementV1DisplayInfo: Information for a display.
 type GoogleChromeManagementV1DisplayInfo struct {
 	// DeviceId: Output only. Represents the graphics card device id.
 	DeviceId int64 `json:"deviceId,omitempty,string"`
+
+	// DisplayName: Output only. Display device name.
+	DisplayName string `json:"displayName,omitempty"`
 
 	// IsInternal: Output only. Indicates if display is internal or not.
 	IsInternal bool `json:"isInternal,omitempty"`
@@ -1328,11 +1909,30 @@ func (s *GoogleChromeManagementV1GraphicsAdapterInfo) MarshalJSON() ([]byte, err
 }
 
 // GoogleChromeManagementV1GraphicsInfo: Information of the graphics
-// subsystem.
+// subsystem. * This field provides device information, which is static
+// and will not change over time. * Data for this field is controlled
+// via policy: ReportDeviceGraphicsStatus
+// (https://chromeenterprise.google/policies/#ReportDeviceGraphicsStatus)
+// * Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1GraphicsInfo struct {
 	// AdapterInfo: Output only. Information about the graphics adapter
 	// (GPU).
 	AdapterInfo *GoogleChromeManagementV1GraphicsAdapterInfo `json:"adapterInfo,omitempty"`
+
+	// DisplayDevices: Output only. Information about the display(s) of the
+	// device.
+	DisplayDevices []*GoogleChromeManagementV1DisplayDevice `json:"displayDevices,omitempty"`
+
+	// EprivacySupported: Output only. Is ePrivacy screen supported or not.
+	EprivacySupported bool `json:"eprivacySupported,omitempty"`
+
+	// TouchScreenInfo: Output only. Information about the internal touch
+	// screen(s) of the device.
+	TouchScreenInfo *GoogleChromeManagementV1TouchScreenInfo `json:"touchScreenInfo,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AdapterInfo") to
 	// unconditionally include in API requests. By default, fields with
@@ -1358,7 +1958,15 @@ func (s *GoogleChromeManagementV1GraphicsInfo) MarshalJSON() ([]byte, error) {
 }
 
 // GoogleChromeManagementV1GraphicsStatusReport: Information of the
-// graphics subsystem.
+// graphics subsystem. * This field is telemetry information and this
+// will change over time as the device is utilized. * Data for this
+// field is controlled via policy: ReportDeviceGraphicsInfo
+// (https://chromeenterprise.google/policies/#ReportDeviceGraphicsInfo)
+// * Data Collection Frequency: 3 hours. * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1GraphicsStatusReport struct {
 	// Displays: Output only. Information about the displays for the device.
 	Displays []*GoogleChromeManagementV1DisplayInfo `json:"displays,omitempty"`
@@ -1386,6 +1994,53 @@ type GoogleChromeManagementV1GraphicsStatusReport struct {
 
 func (s *GoogleChromeManagementV1GraphicsStatusReport) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleChromeManagementV1GraphicsStatusReport
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1HttpsLatencyRoutineData: Data that describes
+// the result of the HTTPS latency diagnostics routine, with the HTTPS
+// requests issued to Google websites.
+type GoogleChromeManagementV1HttpsLatencyRoutineData struct {
+	// Latency: Output only. HTTPS latency if routine succeeded or failed
+	// because of HIGH_LATENCY or VERY_HIGH_LATENCY.
+	Latency string `json:"latency,omitempty"`
+
+	// Problem: Output only. HTTPS latency routine problem if a problem
+	// occurred.
+	//
+	// Possible values:
+	//   "HTTPS_LATENCY_PROBLEM_UNSPECIFIED" - HTTPS latency problem not
+	// specified.
+	//   "FAILED_DNS_RESOLUTIONS" - One or more DNS resolutions resulted in
+	// a failure.
+	//   "FAILED_HTTPS_REQUESTS" - One or more HTTPS requests resulted in a
+	// failure.
+	//   "HIGH_LATENCY" - Average HTTPS request latency time between 500ms
+	// and 1000ms is high.
+	//   "VERY_HIGH_LATENCY" - Average HTTPS request latency time greater
+	// than 1000ms is very high.
+	Problem string `json:"problem,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Latency") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Latency") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1HttpsLatencyRoutineData) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1HttpsLatencyRoutineData
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1510,10 +2165,100 @@ func (s *GoogleChromeManagementV1ListTelemetryDevicesResponse) MarshalJSON() ([]
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromeManagementV1MemoryInfo: Memory information of a device.
+// GoogleChromeManagementV1ListTelemetryEventsResponse: Response message
+// for listing telemetry events for a customer.
+type GoogleChromeManagementV1ListTelemetryEventsResponse struct {
+	// NextPageToken: Token to specify next page in the list.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// TelemetryEvents: Telemetry events returned in the response.
+	TelemetryEvents []*GoogleChromeManagementV1TelemetryEvent `json:"telemetryEvents,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NextPageToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NextPageToken") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1ListTelemetryEventsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1ListTelemetryEventsResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1ListTelemetryUsersResponse: Response message
+// for listing telemetry users for a customer.
+type GoogleChromeManagementV1ListTelemetryUsersResponse struct {
+	// NextPageToken: Token to specify next page in the list.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// TelemetryUsers: Telemetry users returned in the response.
+	TelemetryUsers []*GoogleChromeManagementV1TelemetryUser `json:"telemetryUsers,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NextPageToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NextPageToken") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1ListTelemetryUsersResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1ListTelemetryUsersResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1MemoryInfo: Memory information of a device. *
+// This field has both telemetry and device information: -
+// `totalRamBytes` - Device information - `availableRamBytes` -
+// Telemetry information - `totalMemoryEncryption` - Device information
+// * Data for this field is controlled via policy:
+// ReportDeviceMemoryInfo
+// (https://chromeenterprise.google/policies/#ReportDeviceMemoryInfo) *
+// Data Collection Frequency: - `totalRamBytes` - Only at upload -
+// `availableRamBytes` - Every 10 minutes - `totalMemoryEncryption` - at
+// device startup * Default Data Reporting Frequency: - `totalRamBytes`
+// - 3 hours - `availableRamBytes` - 3 hours - `totalMemoryEncryption` -
+// at device startup - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: only for `totalMemoryEncryption` *
+// Reported for affiliated users only: N/A
 type GoogleChromeManagementV1MemoryInfo struct {
 	// AvailableRamBytes: Output only. Amount of available RAM in bytes.
 	AvailableRamBytes int64 `json:"availableRamBytes,omitempty,string"`
+
+	// TotalMemoryEncryption: Output only. Total memory encryption info for
+	// the device.
+	TotalMemoryEncryption *GoogleChromeManagementV1TotalMemoryEncryptionInfo `json:"totalMemoryEncryption,omitempty"`
 
 	// TotalRamBytes: Output only. Total RAM in bytes.
 	TotalRamBytes int64 `json:"totalRamBytes,omitempty,string"`
@@ -1543,7 +2288,15 @@ func (s *GoogleChromeManagementV1MemoryInfo) MarshalJSON() ([]byte, error) {
 }
 
 // GoogleChromeManagementV1MemoryStatusReport: Contains samples of
-// memory status reports.
+// memory status reports. * This field is telemetry information and this
+// will change over time as the device is utilized. * Data for this
+// field is controlled via policy: ReportDeviceMemoryInfo
+// (https://chromeenterprise.google/policies/#ReportDeviceMemoryInfo) *
+// Data Collection Frequency: Only at upload, SystemRamFreeByes is
+// collected every 10 minutes * Default Data Reporting Frequency: Every
+// 3 hours - Policy Controlled: Yes * Cache: If the device is offline,
+// the collected data is stored locally, and will be reported when the
+// device is next online: No * Reported for affiliated users only: N/A
 type GoogleChromeManagementV1MemoryStatusReport struct {
 	// PageFaults: Output only. Number of page faults during this collection
 	PageFaults int64 `json:"pageFaults,omitempty"`
@@ -1582,14 +2335,197 @@ func (s *GoogleChromeManagementV1MemoryStatusReport) MarshalJSON() ([]byte, erro
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleChromeManagementV1NetworkDevice: Details about the network
+// device. * This field provides device information, which is static and
+// will not change over time. * Data for this field is controlled via
+// policy: ReportNetworkDeviceConfiguration
+// (https://chromeenterprise.google/policies/#ReportNetworkDeviceConfiguration)
+// * Data Collection Frequency: At device startup * Default Data
+// Reporting Frequency: At device startup - Policy Controlled: Yes *
+// Cache: If the device is offline, the collected data is stored
+// locally, and will be reported when the device is next online: Yes *
+// Reported for affiliated users only: N/A
+type GoogleChromeManagementV1NetworkDevice struct {
+	// Iccid: Output only. The integrated circuit card ID associated with
+	// the device's sim card.
+	Iccid string `json:"iccid,omitempty"`
+
+	// Imei: Output only. IMEI (if applicable) of the corresponding network
+	// device.
+	Imei string `json:"imei,omitempty"`
+
+	// MacAddress: Output only. MAC address (if applicable) of the
+	// corresponding network device.
+	MacAddress string `json:"macAddress,omitempty"`
+
+	// Mdn: Output only. The mobile directory number associated with the
+	// device's sim card.
+	Mdn string `json:"mdn,omitempty"`
+
+	// Meid: Output only. MEID (if applicable) of the corresponding network
+	// device.
+	Meid string `json:"meid,omitempty"`
+
+	// Type: Output only. Network device type.
+	//
+	// Possible values:
+	//   "NETWORK_DEVICE_TYPE_UNSPECIFIED" - Network device type not
+	// specified.
+	//   "CELLULAR_DEVICE" - Cellular device.
+	//   "ETHERNET_DEVICE" - Ethernet device.
+	//   "WIFI_DEVICE" - Wifi device.
+	Type string `json:"type,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Iccid") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Iccid") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1NetworkDevice) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1NetworkDevice
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1NetworkDiagnosticsReport: Network testing
+// results to determine the health of the device's network connection,
+// for example whether the HTTPS latency is high or normal.
+type GoogleChromeManagementV1NetworkDiagnosticsReport struct {
+	// HttpsLatencyData: Output only. HTTPS latency test data.
+	HttpsLatencyData *GoogleChromeManagementV1HttpsLatencyRoutineData `json:"httpsLatencyData,omitempty"`
+
+	// ReportTime: Output only. Timestamp of when the diagnostics were
+	// collected.
+	ReportTime string `json:"reportTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "HttpsLatencyData") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "HttpsLatencyData") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1NetworkDiagnosticsReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1NetworkDiagnosticsReport
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1NetworkInfo: Network device information. *
+// This field provides device information, which is static and will not
+// change over time. * Data for this field is controlled via policy:
+// ReportNetworkDeviceConfiguration
+// (https://chromeenterprise.google/policies/#ReportNetworkDeviceConfiguration)
+// * Data Collection Frequency: At device startup * Default Data
+// Reporting Frequency: At device startup - Policy Controlled: Yes *
+// Cache: If the device is offline, the collected data is stored
+// locally, and will be reported when the device is next online: Yes *
+// Reported for affiliated users only: N/A
+type GoogleChromeManagementV1NetworkInfo struct {
+	// NetworkDevices: Output only. List of network devices.
+	NetworkDevices []*GoogleChromeManagementV1NetworkDevice `json:"networkDevices,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "NetworkDevices") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NetworkDevices") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1NetworkInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1NetworkInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleChromeManagementV1NetworkStatusReport: State of
-// visible/configured networks.
+// visible/configured networks. * This field is telemetry information
+// and this will change over time as the device is utilized. * Data for
+// this field is controlled via policy: ReportNetworkStatus
+// (https://chromeenterprise.google/policies/#ReportNetworkStatus) *
+// Data Collection Frequency: 60 minutes * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: Yes * Reported for affiliated users
+// only: Yes
 type GoogleChromeManagementV1NetworkStatusReport struct {
+	// ConnectionState: Output only. Current connection state of the
+	// network.
+	//
+	// Possible values:
+	//   "NETWORK_CONNECTION_STATE_UNSPECIFIED" - Network connection state
+	// unspecified.
+	//   "ONLINE" - The network is connected and internet connectivity is
+	// available.
+	//   "CONNECTED" - The network is connected and not in a detected portal
+	// state, but internet connectivity may not be available.
+	//   "PORTAL" - The network is connected but a portal state was
+	// detected. Internet connectivity may be limited.
+	//   "CONNECTING" - The network is in the process of connecting.
+	//   "NOT_CONNECTED" - The network is not connected.
+	ConnectionState string `json:"connectionState,omitempty"`
+
+	// ConnectionType: Output only. Network connection type.
+	//
+	// Possible values:
+	//   "NETWORK_TYPE_UNSPECIFIED" - Network connection type unspecified
+	//   "CELLULAR" - Cellular network connection.
+	//   "ETHERNET" - Ethernet network connection.
+	//   "TETHER" - Tether network connection.
+	//   "VPN" - VPN network connection.
+	//   "WIFI" - Wifi network connection.
+	ConnectionType string `json:"connectionType,omitempty"`
+
+	// EncryptionOn: Output only. Whether the wifi encryption key is turned
+	// off.
+	EncryptionOn bool `json:"encryptionOn,omitempty"`
+
 	// GatewayIpAddress: Output only. Gateway IP address.
 	GatewayIpAddress string `json:"gatewayIpAddress,omitempty"`
 
+	// Guid: Output only. Network connection guid.
+	Guid string `json:"guid,omitempty"`
+
 	// LanIpAddress: Output only. LAN IP address.
 	LanIpAddress string `json:"lanIpAddress,omitempty"`
+
+	// ReceivingBitRateMbps: Output only. Receiving bit rate measured in
+	// Megabits per second.
+	ReceivingBitRateMbps int64 `json:"receivingBitRateMbps,omitempty,string"`
 
 	// ReportTime: Output only. Time at which the network state was
 	// reported.
@@ -1602,7 +2538,23 @@ type GoogleChromeManagementV1NetworkStatusReport struct {
 	// measured in decibels.
 	SignalStrengthDbm int64 `json:"signalStrengthDbm,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "GatewayIpAddress") to
+	// TransmissionBitRateMbps: Output only. Transmission bit rate measured
+	// in Megabits per second.
+	TransmissionBitRateMbps int64 `json:"transmissionBitRateMbps,omitempty,string"`
+
+	// TransmissionPowerDbm: Output only. Transmission power measured in
+	// decibels.
+	TransmissionPowerDbm int64 `json:"transmissionPowerDbm,omitempty"`
+
+	// WifiLinkQuality: Output only. Wifi link quality. Value ranges from
+	// [0, 70]. 0 indicates no signal and 70 indicates a strong signal.
+	WifiLinkQuality int64 `json:"wifiLinkQuality,omitempty,string"`
+
+	// WifiPowerManagementEnabled: Output only. Wifi power management
+	// enabled
+	WifiPowerManagementEnabled bool `json:"wifiPowerManagementEnabled,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ConnectionState") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -1610,7 +2562,7 @@ type GoogleChromeManagementV1NetworkStatusReport struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "GatewayIpAddress") to
+	// NullFields is a list of field names (e.g. "ConnectionState") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -1627,7 +2579,16 @@ func (s *GoogleChromeManagementV1NetworkStatusReport) MarshalJSON() ([]byte, err
 }
 
 // GoogleChromeManagementV1OsUpdateStatus: Contains information
-// regarding the current OS update status.
+// regarding the current OS update status. * This field is telemetry
+// information and this will change over time as the device is utilized.
+// * Data for this field is controlled via policy:
+// ReportDeviceOsUpdateStatus
+// (https://chromeenterprise.google/policies/#ReportDeviceOsUpdateStatus)
+// * Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1OsUpdateStatus struct {
 	// LastRebootTime: Output only. Timestamp of the last reboot.
 	LastRebootTime string `json:"lastRebootTime,omitempty"`
@@ -1683,7 +2644,95 @@ func (s *GoogleChromeManagementV1OsUpdateStatus) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GoogleChromeManagementV1StorageInfo: Status data for storage.
+// GoogleChromeManagementV1PeripheralsReport: Peripherals report.
+type GoogleChromeManagementV1PeripheralsReport struct {
+	// ReportTime: Output only. Timestamp of when the report was collected.
+	ReportTime string `json:"reportTime,omitempty"`
+
+	// UsbPeripheralReport: Reports of all usb connected devices.
+	UsbPeripheralReport []*GoogleChromeManagementV1UsbPeripheralReport `json:"usbPeripheralReport,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ReportTime") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ReportTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1PeripheralsReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1PeripheralsReport
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1PrinterReport: Report for
+// CountPrintJobsByPrinter, contains statistics on printer usage.
+// Contains the total number of print jobs initiated with this printer,
+// the number of users and the number of devices that have initiated at
+// least one print job with this printer.
+type GoogleChromeManagementV1PrinterReport struct {
+	// DeviceCount: Number of chrome devices that have been used to send
+	// print jobs to the specified printer.
+	DeviceCount int64 `json:"deviceCount,omitempty,string"`
+
+	// JobCount: Number of print jobs sent to the printer.
+	JobCount int64 `json:"jobCount,omitempty,string"`
+
+	// Printer: Printer name.
+	Printer string `json:"printer,omitempty"`
+
+	// PrinterId: Printer API ID.
+	PrinterId string `json:"printerId,omitempty"`
+
+	// PrinterModel: Printer model.
+	PrinterModel string `json:"printerModel,omitempty"`
+
+	// UserCount: Number of users that have sent print jobs to the printer.
+	UserCount int64 `json:"userCount,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "DeviceCount") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeviceCount") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1PrinterReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1PrinterReport
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1StorageInfo: Status data for storage. * This
+// field is telemetry information and this will change over time as the
+// device is utilized. * Data for this field is controlled via policy:
+// ReportDeviceStorageStatus
+// (https://chromeenterprise.google/policies/#ReportDeviceStorageStatus)
+// * Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1StorageInfo struct {
 	// AvailableDiskBytes: The available space for user data storage in the
 	// device in bytes.
@@ -1757,6 +2806,15 @@ func (s *GoogleChromeManagementV1StorageInfoDiskVolume) MarshalJSON() ([]byte, e
 }
 
 // GoogleChromeManagementV1StorageStatusReport: Status data for storage.
+// * This field is telemetry information and this will change over time
+// as the device is utilized. * Data for this field is controlled via
+// policy: ReportDeviceStorageStatus
+// (https://chromeenterprise.google/policies/#ReportDeviceStorageStatus)
+// * Data Collection Frequency: Only at Upload * Default Data Reporting
+// Frequency: 3 hours - Policy Controlled: Yes * Cache: If the device is
+// offline, the collected data is stored locally, and will be reported
+// when the device is next online: No * Reported for affiliated users
+// only: N/A
 type GoogleChromeManagementV1StorageStatusReport struct {
 	// Disk: Output only. Reports on disk.
 	Disk []*GoogleChromeManagementV1DiskInfo `json:"disk,omitempty"`
@@ -1788,6 +2846,12 @@ func (s *GoogleChromeManagementV1StorageStatusReport) MarshalJSON() ([]byte, err
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleChromeManagementV1TelemetryAudioSevereUnderrunEvent:
+// `TelemetryAudioSevereUnderrunEvent` is triggered when a audio devices
+// run out of buffer data for more than 5 seconds.
+type GoogleChromeManagementV1TelemetryAudioSevereUnderrunEvent struct {
+}
+
 // GoogleChromeManagementV1TelemetryDevice: Telemetry data collected
 // from a managed device.
 type GoogleChromeManagementV1TelemetryDevice struct {
@@ -1802,6 +2866,10 @@ type GoogleChromeManagementV1TelemetryDevice struct {
 	// BatteryStatusReport: Output only. Battery reports collected
 	// periodically.
 	BatteryStatusReport []*GoogleChromeManagementV1BatteryStatusReport `json:"batteryStatusReport,omitempty"`
+
+	// BootPerformanceReport: Output only. Boot performance reports of the
+	// device.
+	BootPerformanceReport []*GoogleChromeManagementV1BootPerformanceReport `json:"bootPerformanceReport,omitempty"`
 
 	// CpuInfo: Output only. Information regarding CPU specs for the device.
 	CpuInfo []*GoogleChromeManagementV1CpuInfo `json:"cpuInfo,omitempty"`
@@ -1838,6 +2906,13 @@ type GoogleChromeManagementV1TelemetryDevice struct {
 	// Name: Output only. Resource name of the device.
 	Name string `json:"name,omitempty"`
 
+	// NetworkDiagnosticsReport: Output only. Network diagnostics collected
+	// periodically.
+	NetworkDiagnosticsReport []*GoogleChromeManagementV1NetworkDiagnosticsReport `json:"networkDiagnosticsReport,omitempty"`
+
+	// NetworkInfo: Output only. Network devices information.
+	NetworkInfo *GoogleChromeManagementV1NetworkInfo `json:"networkInfo,omitempty"`
+
 	// NetworkStatusReport: Output only. Network specs collected
 	// periodically.
 	NetworkStatusReport []*GoogleChromeManagementV1NetworkStatusReport `json:"networkStatusReport,omitempty"`
@@ -1848,6 +2923,10 @@ type GoogleChromeManagementV1TelemetryDevice struct {
 	// OsUpdateStatus: Output only. Contains relevant information regarding
 	// ChromeOS update status.
 	OsUpdateStatus []*GoogleChromeManagementV1OsUpdateStatus `json:"osUpdateStatus,omitempty"`
+
+	// PeripheralsReport: Output only. Peripherals reports collected
+	// periodically sorted in a decreasing order of report_time.
+	PeripheralsReport []*GoogleChromeManagementV1PeripheralsReport `json:"peripheralsReport,omitempty"`
 
 	// SerialNumber: Output only. Device serial number. This value is the
 	// same as the Admin Console's Serial Number in the ChromeOS Devices
@@ -1861,6 +2940,9 @@ type GoogleChromeManagementV1TelemetryDevice struct {
 	// StorageStatusReport: Output only. Storage reports collected
 	// periodically.
 	StorageStatusReport []*GoogleChromeManagementV1StorageStatusReport `json:"storageStatusReport,omitempty"`
+
+	// ThunderboltInfo: Output only. Information on Thunderbolt bus.
+	ThunderboltInfo []*GoogleChromeManagementV1ThunderboltInfo `json:"thunderboltInfo,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -1886,6 +2968,598 @@ type GoogleChromeManagementV1TelemetryDevice struct {
 
 func (s *GoogleChromeManagementV1TelemetryDevice) MarshalJSON() ([]byte, error) {
 	type NoMethod GoogleChromeManagementV1TelemetryDevice
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TelemetryDeviceInfo: Information about a
+// device associated with telemetry data.
+type GoogleChromeManagementV1TelemetryDeviceInfo struct {
+	// DeviceId: Output only. The unique Directory API ID of the device.
+	// This value is the same as the Admin Console's Directory API ID in the
+	// ChromeOS Devices tab.
+	DeviceId string `json:"deviceId,omitempty"`
+
+	// OrgUnitId: Output only. Organization unit ID of the device.
+	OrgUnitId string `json:"orgUnitId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DeviceId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeviceId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TelemetryDeviceInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TelemetryDeviceInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TelemetryEvent: Telemetry data reported by a
+// managed device.
+type GoogleChromeManagementV1TelemetryEvent struct {
+	// AudioSevereUnderrunEvent: Output only. Payload for audio severe
+	// underrun event. Present only when the `event_type` field is
+	// `AUDIO_SEVERE_UNDERRUN`.
+	AudioSevereUnderrunEvent *GoogleChromeManagementV1TelemetryAudioSevereUnderrunEvent `json:"audioSevereUnderrunEvent,omitempty"`
+
+	// Device: Output only. Information about the device associated with the
+	// event.
+	Device *GoogleChromeManagementV1TelemetryDeviceInfo `json:"device,omitempty"`
+
+	// EventType: The event type of the current event.
+	//
+	// Possible values:
+	//   "EVENT_TYPE_UNSPECIFIED" - Event type unknown.
+	//   "AUDIO_SEVERE_UNDERRUN" - Triggered when a audio devices run out of
+	// buffer data for more than 5 seconds.
+	//   "USB_ADDED" - Triggered when USB devices are added.
+	//   "USB_REMOVED" - Triggered when USB devices are removed.
+	//   "NETWORK_HTTPS_LATENCY_CHANGE" - Triggered when a new HTTPS latency
+	// problem was detected or the device has recovered form an existing
+	// HTTPS latency problem.
+	EventType string `json:"eventType,omitempty"`
+
+	// HttpsLatencyChangeEvent: Output only. Payload for HTTPS latency
+	// change event. Present only when `event_type` is
+	// `NETWORK_HTTPS_LATENCY_CHANGE`.
+	HttpsLatencyChangeEvent *GoogleChromeManagementV1TelemetryHttpsLatencyChangeEvent `json:"httpsLatencyChangeEvent,omitempty"`
+
+	// Name: Output only. Resource name of the event.
+	Name string `json:"name,omitempty"`
+
+	// ReportTime: Timestamp that represents when the event was reported.
+	ReportTime string `json:"reportTime,omitempty"`
+
+	// UsbPeripheralsEvent: Output only. Payload for usb peripherals event.
+	// Present only when the `event_type` field is either `USB_ADDED` or
+	// `USB_REMOVED`.
+	UsbPeripheralsEvent *GoogleChromeManagementV1TelemetryUsbPeripheralsEvent `json:"usbPeripheralsEvent,omitempty"`
+
+	// User: Output only. Information about the user associated with the
+	// event.
+	User *GoogleChromeManagementV1TelemetryUserInfo `json:"user,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "AudioSevereUnderrunEvent") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AudioSevereUnderrunEvent")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TelemetryEvent) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TelemetryEvent
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TelemetryHttpsLatencyChangeEvent: Https
+// latency routine is run periodically and
+// `TelemetryHttpsLatencyChangeEvent` is triggered if a latency problem
+// was detected or if the device has recovered from a latency problem..
+type GoogleChromeManagementV1TelemetryHttpsLatencyChangeEvent struct {
+	// HttpsLatencyRoutineData: HTTPS latency routine data that triggered
+	// the event.
+	HttpsLatencyRoutineData *GoogleChromeManagementV1HttpsLatencyRoutineData `json:"httpsLatencyRoutineData,omitempty"`
+
+	// HttpsLatencyState: Current HTTPS latency state.
+	//
+	// Possible values:
+	//   "HTTPS_LATENCY_STATE_UNSPECIFIED" - HTTPS latency state is
+	// unspecified.
+	//   "RECOVERY" - HTTPS latency recovered from a problem.
+	//   "PROBLEM" - HTTPS latency problem.
+	HttpsLatencyState string `json:"httpsLatencyState,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "HttpsLatencyRoutineData") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "HttpsLatencyRoutineData")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TelemetryHttpsLatencyChangeEvent) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TelemetryHttpsLatencyChangeEvent
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TelemetryUsbPeripheralsEvent:
+// `TelemetryUsbPeripheralsEvent` is triggered USB devices are either
+// added or removed.
+type GoogleChromeManagementV1TelemetryUsbPeripheralsEvent struct {
+	// UsbPeripheralReport: List of usb devices that were either added or
+	// removed.
+	UsbPeripheralReport []*GoogleChromeManagementV1UsbPeripheralReport `json:"usbPeripheralReport,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "UsbPeripheralReport")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "UsbPeripheralReport") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TelemetryUsbPeripheralsEvent) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TelemetryUsbPeripheralsEvent
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TelemetryUser: Telemetry data collected from
+// a managed user.
+type GoogleChromeManagementV1TelemetryUser struct {
+	// Customer: G Suite Customer whose enterprise enrolled the device.
+	Customer string `json:"customer,omitempty"`
+
+	// Name: Resource name of the user.
+	Name string `json:"name,omitempty"`
+
+	// OrgUnitId: Organization unit of the user.
+	OrgUnitId string `json:"orgUnitId,omitempty"`
+
+	// UserDevice: Telemetry data collected from a managed user and device.
+	UserDevice []*GoogleChromeManagementV1TelemetryUserDevice `json:"userDevice,omitempty"`
+
+	// UserEmail: Email address of the user.
+	UserEmail string `json:"userEmail,omitempty"`
+
+	// UserId: Directory ID of the user.
+	UserId string `json:"userId,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Customer") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Customer") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TelemetryUser) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TelemetryUser
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TelemetryUserDevice: Telemetry data collected
+// for a managed user and device.
+type GoogleChromeManagementV1TelemetryUserDevice struct {
+	// AudioStatusReport: Output only. Audio reports collected periodically
+	// sorted in a decreasing order of report_time.
+	AudioStatusReport []*GoogleChromeManagementV1AudioStatusReport `json:"audioStatusReport,omitempty"`
+
+	// DeviceId: The unique Directory API ID of the device. This value is
+	// the same as the Admin Console's Directory API ID in the ChromeOS
+	// Devices tab.
+	DeviceId string `json:"deviceId,omitempty"`
+
+	// PeripheralsReport: Output only. Peripherals reports collected
+	// periodically sorted in a decreasing order of report_time.
+	PeripheralsReport []*GoogleChromeManagementV1PeripheralsReport `json:"peripheralsReport,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AudioStatusReport")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AudioStatusReport") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TelemetryUserDevice) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TelemetryUserDevice
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TelemetryUserInfo: Information about a user
+// associated with telemetry data.
+type GoogleChromeManagementV1TelemetryUserInfo struct {
+	// Email: Output only. User's email.
+	Email string `json:"email,omitempty"`
+
+	// OrgUnitId: Output only. Organization unit ID of the user.
+	OrgUnitId string `json:"orgUnitId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Email") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Email") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TelemetryUserInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TelemetryUserInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1ThunderboltInfo: Thunderbolt bus info. * This
+// field provides device information, which is static and will not
+// change over time. * Data for this field is controlled via policy:
+// ReportDeviceSecurityStatus
+// (https://chromeenterprise.google/policies/#ReportDeviceSecurityStatus)
+// * Data Collection Frequency: At device startup * Default Data
+// Reporting Frequency: At device startup - Policy Controlled: No *
+// Cache: If the device is offline, the collected data is stored
+// locally, and will be reported when the device is next online: Yes *
+// Reported for affiliated users only: N/A
+type GoogleChromeManagementV1ThunderboltInfo struct {
+	// SecurityLevel: Security level of the Thunderbolt bus.
+	//
+	// Possible values:
+	//   "THUNDERBOLT_SECURITY_LEVEL_UNSPECIFIED" - Thunderbolt security
+	// level is not set.
+	//   "THUNDERBOLT_SECURITY_NONE_LEVEL" - All devices are automatically
+	// connected by the firmware. No user approval is needed.
+	//   "THUNDERBOLT_SECURITY_USER_LEVEL" - User is asked whether the
+	// device is allowed to be connected.
+	//   "THUNDERBOLT_SECURITY_SECURE_LEVEL" - User is asked whether the
+	// device is allowed to be connected. In addition the device is sent a
+	// challenge that should match the expected one based on a random key
+	// written to the key sysfs attribute
+	//   "THUNDERBOLT_SECURITY_DP_ONLY_LEVEL" - The firmware automatically
+	// creates tunnels for Thunderbolt.
+	//   "THUNDERBOLT_SECURITY_USB_ONLY_LEVEL" - The firmware automatically
+	// creates tunnels for the USB controller and Display Port in a dock.
+	// All PCIe links downstream of the dock are removed.
+	//   "THUNDERBOLT_SECURITY_NO_PCIE_LEVEL" - PCIE tunneling is disabled.
+	SecurityLevel string `json:"securityLevel,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "SecurityLevel") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "SecurityLevel") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1ThunderboltInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1ThunderboltInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TotalMemoryEncryptionInfo: Memory encryption
+// information of a device. * This field provides device information,
+// which is static and will not change over time. * Data for this field
+// is controlled via policy: ReportDeviceMemoryInfo
+// (https://chromeenterprise.google/policies/#ReportDeviceMemoryInfo) *
+// Data Collection Frequency: At device startup * Default Data Reporting
+// Frequency: At device startup - Policy Controlled: Yes * Cache: If the
+// device is offline, the collected data is stored locally, and will be
+// reported when the device is next online: Yes * Reported for
+// affiliated users only: N/A
+type GoogleChromeManagementV1TotalMemoryEncryptionInfo struct {
+	// EncryptionAlgorithm: Memory encryption algorithm.
+	//
+	// Possible values:
+	//   "MEMORY_ENCRYPTION_ALGORITHM_UNSPECIFIED" - Memory encryption
+	// algorithm is not set.
+	//   "MEMORY_ENCRYPTION_ALGORITHM_UNKNOWN" - The memory encryption
+	// algorithm being used is unknown.
+	//   "MEMORY_ENCRYPTION_ALGORITHM_AES_XTS_128" - The memory encryption
+	// algorithm is using the AES_XTS encryption algorithm with a 128 bit
+	// block cypher.
+	//   "MEMORY_ENCRYPTION_ALGORITHM_AES_XTS_256" - The memory encryption
+	// algorithm is using the AES_XTS encryption algorithm with a 256 bit
+	// block cypher.
+	EncryptionAlgorithm string `json:"encryptionAlgorithm,omitempty"`
+
+	// EncryptionState: The state of memory encryption on the device.
+	//
+	// Possible values:
+	//   "MEMORY_ENCRYPTION_STATE_UNSPECIFIED" - Memory encryption state is
+	// not set.
+	//   "MEMORY_ENCRYPTION_STATE_UNKNOWN" - The memory encryption state is
+	// unknown.
+	//   "MEMORY_ENCRYPTION_STATE_DISABLED" - Memory encrpytion on the
+	// device is disabled.
+	//   "MEMORY_ENCRYPTION_STATE_TME" - Memory encryption on the device
+	// uses total memory encryption.
+	//   "MEMORY_ENCRYPTION_STATE_MKTME" - Memory encryption on the device
+	// uses multi-key total memory encryption.
+	EncryptionState string `json:"encryptionState,omitempty"`
+
+	// KeyLength: The length of the encryption keys.
+	KeyLength int64 `json:"keyLength,omitempty,string"`
+
+	// MaxKeys: The maximum number of keys that can be used for encryption.
+	MaxKeys int64 `json:"maxKeys,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "EncryptionAlgorithm")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "EncryptionAlgorithm") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TotalMemoryEncryptionInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TotalMemoryEncryptionInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TouchScreenDevice: Information of an internal
+// touch screen device.
+type GoogleChromeManagementV1TouchScreenDevice struct {
+	// DisplayName: Output only. Touch screen device display name.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// StylusCapable: Output only. Touch screen device is stylus capable or
+	// not.
+	StylusCapable bool `json:"stylusCapable,omitempty"`
+
+	// TouchPointCount: Output only. Number of touch points supported on the
+	// device.
+	TouchPointCount int64 `json:"touchPointCount,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DisplayName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TouchScreenDevice) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TouchScreenDevice
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1TouchScreenInfo: Information on the device
+// touch screen.
+type GoogleChromeManagementV1TouchScreenInfo struct {
+	// Devices: Output only. List of the internal touch screen devices.
+	Devices []*GoogleChromeManagementV1TouchScreenDevice `json:"devices,omitempty"`
+
+	// TouchpadLibrary: Output only. Touchpad library name used by the input
+	// stack.
+	TouchpadLibrary string `json:"touchpadLibrary,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Devices") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Devices") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1TouchScreenInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1TouchScreenInfo
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1UsbPeripheralReport: USB connected peripheral
+// report.
+type GoogleChromeManagementV1UsbPeripheralReport struct {
+	// Categories: Output only. Categories the device belongs to
+	// https://www.usb.org/defined-class-codes
+	Categories []string `json:"categories,omitempty"`
+
+	// ClassId: Output only. Class ID
+	// https://www.usb.org/defined-class-codes
+	ClassId int64 `json:"classId,omitempty"`
+
+	// FirmwareVersion: Output only. Firmware version
+	FirmwareVersion string `json:"firmwareVersion,omitempty"`
+
+	// Name: Output only. Device name, model name, or product name
+	Name string `json:"name,omitempty"`
+
+	// Pid: Output only. Product ID
+	Pid int64 `json:"pid,omitempty"`
+
+	// SubclassId: Output only. Subclass ID
+	// https://www.usb.org/defined-class-codes
+	SubclassId int64 `json:"subclassId,omitempty"`
+
+	// Vendor: Output only. Vendor name
+	Vendor string `json:"vendor,omitempty"`
+
+	// Vid: Output only. Vendor ID
+	Vid int64 `json:"vid,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Categories") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Categories") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1UsbPeripheralReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1UsbPeripheralReport
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleChromeManagementV1UserPrintReport: Report for
+// CountPrintJobsByUser, contains printing statistics for a user.
+// Contains the number of printers, the number of devices used to
+// initiate print jobs, and the number of print jobs initiated.
+type GoogleChromeManagementV1UserPrintReport struct {
+	// DeviceCount: Number of chrome devices that have been used to initiate
+	// print jobs by the user.
+	DeviceCount int64 `json:"deviceCount,omitempty,string"`
+
+	// JobCount: Number of print jobs initiated by the user.
+	JobCount int64 `json:"jobCount,omitempty,string"`
+
+	// PrinterCount: Number of printers used by the user.
+	PrinterCount int64 `json:"printerCount,omitempty,string"`
+
+	// UserEmail: The primary e-mail address of the user.
+	UserEmail string `json:"userEmail,omitempty"`
+
+	// UserId: The unique Directory API ID of the user.
+	UserId string `json:"userId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DeviceCount") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeviceCount") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleChromeManagementV1UserPrintReport) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleChromeManagementV1UserPrintReport
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1995,8 +3669,8 @@ type CustomersAppsCountChromeAppRequestsCall struct {
 // CountChromeAppRequests: Generate summary of app installation
 // requests.
 //
-// - customer: Customer id or "my_customer" to use the customer
-//   associated to the account making the request.
+//   - customer: Customer id or "my_customer" to use the customer
+//     associated to the account making the request.
 func (r *CustomersAppsService) CountChromeAppRequests(customer string) *CustomersAppsCountChromeAppRequestsCall {
 	c := &CustomersAppsCountChromeAppRequestsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -2110,17 +3784,17 @@ func (c *CustomersAppsCountChromeAppRequestsCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1CountChromeAppRequestsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2216,11 +3890,11 @@ type CustomersAppsAndroidGetCall struct {
 
 // Get: Get a specific app for a customer by its resource name.
 //
-// - name: The app for which details are being queried. Examples:
-//   "customers/my_customer/apps/chrome/gmbmikajjgmnabiglmofipeabaddhgne@
-//   2.1.2" for the Save to Google Drive Chrome extension version 2.1.2,
-//   "customers/my_customer/apps/android/com.google.android.apps.docs"
-//   for the Google Drive Android app's latest version.
+//   - name: The app for which details are being queried. Examples:
+//     "customers/my_customer/apps/chrome/gmbmikajjgmnabiglmofipeabaddhgne@
+//     2.1.2" for the Save to Google Drive Chrome extension version 2.1.2,
+//     "customers/my_customer/apps/android/com.google.android.apps.docs"
+//     for the Google Drive Android app's latest version.
 func (r *CustomersAppsAndroidService) Get(name string) *CustomersAppsAndroidGetCall {
 	c := &CustomersAppsAndroidGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2303,17 +3977,17 @@ func (c *CustomersAppsAndroidGetCall) Do(opts ...googleapi.CallOption) (*GoogleC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1AppDetails{
 		ServerResponse: googleapi.ServerResponse{
@@ -2367,11 +4041,11 @@ type CustomersAppsChromeGetCall struct {
 
 // Get: Get a specific app for a customer by its resource name.
 //
-// - name: The app for which details are being queried. Examples:
-//   "customers/my_customer/apps/chrome/gmbmikajjgmnabiglmofipeabaddhgne@
-//   2.1.2" for the Save to Google Drive Chrome extension version 2.1.2,
-//   "customers/my_customer/apps/android/com.google.android.apps.docs"
-//   for the Google Drive Android app's latest version.
+//   - name: The app for which details are being queried. Examples:
+//     "customers/my_customer/apps/chrome/gmbmikajjgmnabiglmofipeabaddhgne@
+//     2.1.2" for the Save to Google Drive Chrome extension version 2.1.2,
+//     "customers/my_customer/apps/android/com.google.android.apps.docs"
+//     for the Google Drive Android app's latest version.
 func (r *CustomersAppsChromeService) Get(name string) *CustomersAppsChromeGetCall {
 	c := &CustomersAppsChromeGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2454,17 +4128,17 @@ func (c *CustomersAppsChromeGetCall) Do(opts ...googleapi.CallOption) (*GoogleCh
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1AppDetails{
 		ServerResponse: googleapi.ServerResponse{
@@ -2518,11 +4192,11 @@ type CustomersAppsWebGetCall struct {
 
 // Get: Get a specific app for a customer by its resource name.
 //
-// - name: The app for which details are being queried. Examples:
-//   "customers/my_customer/apps/chrome/gmbmikajjgmnabiglmofipeabaddhgne@
-//   2.1.2" for the Save to Google Drive Chrome extension version 2.1.2,
-//   "customers/my_customer/apps/android/com.google.android.apps.docs"
-//   for the Google Drive Android app's latest version.
+//   - name: The app for which details are being queried. Examples:
+//     "customers/my_customer/apps/chrome/gmbmikajjgmnabiglmofipeabaddhgne@
+//     2.1.2" for the Save to Google Drive Chrome extension version 2.1.2,
+//     "customers/my_customer/apps/android/com.google.android.apps.docs"
+//     for the Google Drive Android app's latest version.
 func (r *CustomersAppsWebService) Get(name string) *CustomersAppsWebGetCall {
 	c := &CustomersAppsWebGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2605,17 +4279,17 @@ func (c *CustomersAppsWebGetCall) Do(opts ...googleapi.CallOption) (*GoogleChrom
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1AppDetails{
 		ServerResponse: googleapi.ServerResponse{
@@ -2656,6 +4330,719 @@ func (c *CustomersAppsWebGetCall) Do(opts ...googleapi.CallOption) (*GoogleChrom
 
 }
 
+// method id "chromemanagement.customers.reports.countChromeBrowsersNeedingAttention":
+
+type CustomersReportsCountChromeBrowsersNeedingAttentionCall struct {
+	s            *Service
+	customer     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// CountChromeBrowsersNeedingAttention: Count of Chrome Browsers that
+// have been recently enrolled, have new policy to be synced, or have no
+// recent activity.
+//
+//   - customer: The customer ID or "my_customer" prefixed with
+//     "customers/".
+func (r *CustomersReportsService) CountChromeBrowsersNeedingAttention(customer string) *CustomersReportsCountChromeBrowsersNeedingAttentionCall {
+	c := &CustomersReportsCountChromeBrowsersNeedingAttentionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	return c
+}
+
+// OrgUnitId sets the optional parameter "orgUnitId": The ID of the
+// organizational unit. If omitted, all data will be returned.
+func (c *CustomersReportsCountChromeBrowsersNeedingAttentionCall) OrgUnitId(orgUnitId string) *CustomersReportsCountChromeBrowsersNeedingAttentionCall {
+	c.urlParams_.Set("orgUnitId", orgUnitId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersReportsCountChromeBrowsersNeedingAttentionCall) Fields(s ...googleapi.Field) *CustomersReportsCountChromeBrowsersNeedingAttentionCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersReportsCountChromeBrowsersNeedingAttentionCall) IfNoneMatch(entityTag string) *CustomersReportsCountChromeBrowsersNeedingAttentionCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersReportsCountChromeBrowsersNeedingAttentionCall) Context(ctx context.Context) *CustomersReportsCountChromeBrowsersNeedingAttentionCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersReportsCountChromeBrowsersNeedingAttentionCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersReportsCountChromeBrowsersNeedingAttentionCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/reports:countChromeBrowsersNeedingAttention")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.reports.countChromeBrowsersNeedingAttention" call.
+// Exactly one of
+// *GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse.S
+// erverResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersReportsCountChromeBrowsersNeedingAttentionCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Count of Chrome Browsers that have been recently enrolled, have new policy to be synced, or have no recent activity.",
+	//   "flatPath": "v1/customers/{customersId}/reports:countChromeBrowsersNeedingAttention",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.reports.countChromeBrowsersNeedingAttention",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer ID or \"my_customer\" prefixed with \"customers/\".",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "orgUnitId": {
+	//       "description": "Optional. The ID of the organizational unit. If omitted, all data will be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/reports:countChromeBrowsersNeedingAttention",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1CountChromeBrowsersNeedingAttentionResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.reports.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "chromemanagement.customers.reports.countChromeDevicesReachingAutoExpirationDate":
+
+type CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall struct {
+	s            *Service
+	customer     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// CountChromeDevicesReachingAutoExpirationDate: Generate report of the
+// number of devices expiring in each month of the selected time frame.
+// Devices are grouped by auto update expiration date and model. Further
+// information can be found here
+// (https://support.google.com/chrome/a/answer/10564947).
+//
+//   - customer: The customer ID or "my_customer" prefixed with
+//     "customers/".
+func (r *CustomersReportsService) CountChromeDevicesReachingAutoExpirationDate(customer string) *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall {
+	c := &CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	return c
+}
+
+// MaxAueDate sets the optional parameter "maxAueDate": Maximum
+// expiration date in format yyyy-mm-dd in UTC timezone. If included
+// returns all devices that have already expired and devices with auto
+// expiration date equal to or earlier than the maximum date.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) MaxAueDate(maxAueDate string) *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall {
+	c.urlParams_.Set("maxAueDate", maxAueDate)
+	return c
+}
+
+// MinAueDate sets the optional parameter "minAueDate": Maximum
+// expiration date in format yyyy-mm-dd in UTC timezone. If included
+// returns all devices that have already expired and devices with auto
+// expiration date equal to or later than the minimum date.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) MinAueDate(minAueDate string) *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall {
+	c.urlParams_.Set("minAueDate", minAueDate)
+	return c
+}
+
+// OrgUnitId sets the optional parameter "orgUnitId": The organizational
+// unit ID, if omitted, will return data for all organizational units.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) OrgUnitId(orgUnitId string) *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall {
+	c.urlParams_.Set("orgUnitId", orgUnitId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) Fields(s ...googleapi.Field) *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) IfNoneMatch(entityTag string) *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) Context(ctx context.Context) *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/reports:countChromeDevicesReachingAutoExpirationDate")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.reports.countChromeDevicesReachingAutoExpirationDate" call.
+// Exactly one of
+// *GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateR
+// esponse or error will be non-nil. Any non-2xx status code is an
+// error. Response headers are in either
+// *GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateR
+// esponse.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *CustomersReportsCountChromeDevicesReachingAutoExpirationDateCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Generate report of the number of devices expiring in each month of the selected time frame. Devices are grouped by auto update expiration date and model. Further information can be found [here](https://support.google.com/chrome/a/answer/10564947).",
+	//   "flatPath": "v1/customers/{customersId}/reports:countChromeDevicesReachingAutoExpirationDate",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.reports.countChromeDevicesReachingAutoExpirationDate",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer ID or \"my_customer\" prefixed with \"customers/\".",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "maxAueDate": {
+	//       "description": "Optional. Maximum expiration date in format yyyy-mm-dd in UTC timezone. If included returns all devices that have already expired and devices with auto expiration date equal to or earlier than the maximum date.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "minAueDate": {
+	//       "description": "Optional. Maximum expiration date in format yyyy-mm-dd in UTC timezone. If included returns all devices that have already expired and devices with auto expiration date equal to or later than the minimum date.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orgUnitId": {
+	//       "description": "Optional. The organizational unit ID, if omitted, will return data for all organizational units.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/reports:countChromeDevicesReachingAutoExpirationDate",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1CountChromeDevicesReachingAutoExpirationDateResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.reports.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "chromemanagement.customers.reports.countChromeDevicesThatNeedAttention":
+
+type CustomersReportsCountChromeDevicesThatNeedAttentionCall struct {
+	s            *Service
+	customer     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// CountChromeDevicesThatNeedAttention: Counts of ChromeOS devices that
+// have not synced policies or have lacked user activity in the past 28
+// days, are out of date, or are not complaint. Further information can
+// be found here https://support.google.com/chrome/a/answer/10564947
+//
+//   - customer: The customer ID or "my_customer" prefixed with
+//     "customers/".
+func (r *CustomersReportsService) CountChromeDevicesThatNeedAttention(customer string) *CustomersReportsCountChromeDevicesThatNeedAttentionCall {
+	c := &CustomersReportsCountChromeDevicesThatNeedAttentionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	return c
+}
+
+// OrgUnitId sets the optional parameter "orgUnitId": The ID of the
+// organizational unit. If omitted, all data will be returned.
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) OrgUnitId(orgUnitId string) *CustomersReportsCountChromeDevicesThatNeedAttentionCall {
+	c.urlParams_.Set("orgUnitId", orgUnitId)
+	return c
+}
+
+// ReadMask sets the optional parameter "readMask": Required. Mask of
+// the fields that should be populated in the returned report.
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) ReadMask(readMask string) *CustomersReportsCountChromeDevicesThatNeedAttentionCall {
+	c.urlParams_.Set("readMask", readMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) Fields(s ...googleapi.Field) *CustomersReportsCountChromeDevicesThatNeedAttentionCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) IfNoneMatch(entityTag string) *CustomersReportsCountChromeDevicesThatNeedAttentionCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) Context(ctx context.Context) *CustomersReportsCountChromeDevicesThatNeedAttentionCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/reports:countChromeDevicesThatNeedAttention")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.reports.countChromeDevicesThatNeedAttention" call.
+// Exactly one of
+// *GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse.S
+// erverResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersReportsCountChromeDevicesThatNeedAttentionCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Counts of ChromeOS devices that have not synced policies or have lacked user activity in the past 28 days, are out of date, or are not complaint. Further information can be found here https://support.google.com/chrome/a/answer/10564947",
+	//   "flatPath": "v1/customers/{customersId}/reports:countChromeDevicesThatNeedAttention",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.reports.countChromeDevicesThatNeedAttention",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer ID or \"my_customer\" prefixed with \"customers/\".",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "orgUnitId": {
+	//       "description": "Optional. The ID of the organizational unit. If omitted, all data will be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "readMask": {
+	//       "description": "Required. Mask of the fields that should be populated in the returned report.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/reports:countChromeDevicesThatNeedAttention",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1CountChromeDevicesThatNeedAttentionResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.reports.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "chromemanagement.customers.reports.countChromeHardwareFleetDevices":
+
+type CustomersReportsCountChromeHardwareFleetDevicesCall struct {
+	s            *Service
+	customer     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// CountChromeHardwareFleetDevices: Counts of devices with a specific
+// hardware specification from the requested hardware type (for example
+// model name, processor type). Further information can be found here
+// https://support.google.com/chrome/a/answer/10564947
+//
+// - customer: The customer ID or "my_customer".
+func (r *CustomersReportsService) CountChromeHardwareFleetDevices(customer string) *CustomersReportsCountChromeHardwareFleetDevicesCall {
+	c := &CustomersReportsCountChromeHardwareFleetDevicesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	return c
+}
+
+// OrgUnitId sets the optional parameter "orgUnitId": The ID of the
+// organizational unit. If omitted, all data will be returned.
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) OrgUnitId(orgUnitId string) *CustomersReportsCountChromeHardwareFleetDevicesCall {
+	c.urlParams_.Set("orgUnitId", orgUnitId)
+	return c
+}
+
+// ReadMask sets the optional parameter "readMask": Required. Mask of
+// the fields that should be populated in the returned report.
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) ReadMask(readMask string) *CustomersReportsCountChromeHardwareFleetDevicesCall {
+	c.urlParams_.Set("readMask", readMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) Fields(s ...googleapi.Field) *CustomersReportsCountChromeHardwareFleetDevicesCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) IfNoneMatch(entityTag string) *CustomersReportsCountChromeHardwareFleetDevicesCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) Context(ctx context.Context) *CustomersReportsCountChromeHardwareFleetDevicesCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/reports:countChromeHardwareFleetDevices")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.reports.countChromeHardwareFleetDevices" call.
+// Exactly one of
+// *GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse.Serve
+// rResponse.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersReportsCountChromeHardwareFleetDevicesCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Counts of devices with a specific hardware specification from the requested hardware type (for example model name, processor type). Further information can be found here https://support.google.com/chrome/a/answer/10564947",
+	//   "flatPath": "v1/customers/{customersId}/reports:countChromeHardwareFleetDevices",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.reports.countChromeHardwareFleetDevices",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. The customer ID or \"my_customer\".",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "orgUnitId": {
+	//       "description": "Optional. The ID of the organizational unit. If omitted, all data will be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "readMask": {
+	//       "description": "Required. Mask of the fields that should be populated in the returned report.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/reports:countChromeHardwareFleetDevices",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1CountChromeHardwareFleetDevicesResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.reports.readonly"
+	//   ]
+	// }
+
+}
+
 // method id "chromemanagement.customers.reports.countChromeVersions":
 
 type CustomersReportsCountChromeVersionsCall struct {
@@ -2669,8 +5056,8 @@ type CustomersReportsCountChromeVersionsCall struct {
 
 // CountChromeVersions: Generate report of installed Chrome versions.
 //
-// - customer: Customer id or "my_customer" to use the customer
-//   associated to the account making the request.
+//   - customer: Customer id or "my_customer" to use the customer
+//     associated to the account making the request.
 func (r *CustomersReportsService) CountChromeVersions(customer string) *CustomersReportsCountChromeVersionsCall {
 	c := &CustomersReportsCountChromeVersionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -2784,17 +5171,17 @@ func (c *CustomersReportsCountChromeVersionsCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1CountChromeVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2890,8 +5277,8 @@ type CustomersReportsCountInstalledAppsCall struct {
 
 // CountInstalledApps: Generate report of app installations.
 //
-// - customer: Customer id or "my_customer" to use the customer
-//   associated to the account making the request.
+//   - customer: Customer id or "my_customer" to use the customer
+//     associated to the account making the request.
 func (r *CustomersReportsService) CountInstalledApps(customer string) *CustomersReportsCountInstalledAppsCall {
 	c := &CustomersReportsCountInstalledAppsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -2902,7 +5289,7 @@ func (r *CustomersReportsService) CountInstalledApps(customer string) *Customers
 // results, AND-separated fields in EBNF syntax. Note: OR operations are
 // not supported in this filter. Supported filter fields: * app_name *
 // app_type * install_type * number_of_permissions * total_install_count
-// * latest_profile_active_date * permission_name
+// * latest_profile_active_date * permission_name * app_id
 func (c *CustomersReportsCountInstalledAppsCall) Filter(filter string) *CustomersReportsCountInstalledAppsCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -2910,7 +5297,7 @@ func (c *CustomersReportsCountInstalledAppsCall) Filter(filter string) *Customer
 
 // OrderBy sets the optional parameter "orderBy": Field used to order
 // results. Supported order by fields: * app_name * app_type *
-// install_type * number_of_permissions * total_install_count
+// install_type * number_of_permissions * total_install_count * app_id
 func (c *CustomersReportsCountInstalledAppsCall) OrderBy(orderBy string) *CustomersReportsCountInstalledAppsCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -3014,17 +5401,17 @@ func (c *CustomersReportsCountInstalledAppsCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1CountInstalledAppsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3054,12 +5441,12 @@ func (c *CustomersReportsCountInstalledAppsCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "filter": {
-	//       "description": "Query string to filter results, AND-separated fields in EBNF syntax. Note: OR operations are not supported in this filter. Supported filter fields: * app_name * app_type * install_type * number_of_permissions * total_install_count * latest_profile_active_date * permission_name",
+	//       "description": "Query string to filter results, AND-separated fields in EBNF syntax. Note: OR operations are not supported in this filter. Supported filter fields: * app_name * app_type * install_type * number_of_permissions * total_install_count * latest_profile_active_date * permission_name * app_id",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "Field used to order results. Supported order by fields: * app_name * app_type * install_type * number_of_permissions * total_install_count",
+	//       "description": "Field used to order results. Supported order by fields: * app_name * app_type * install_type * number_of_permissions * total_install_count * app_id",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -3112,6 +5499,485 @@ func (c *CustomersReportsCountInstalledAppsCall) Pages(ctx context.Context, f fu
 	}
 }
 
+// method id "chromemanagement.customers.reports.countPrintJobsByPrinter":
+
+type CustomersReportsCountPrintJobsByPrinterCall struct {
+	s            *Service
+	customer     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// CountPrintJobsByPrinter: Get a summary of printing done by each
+// printer.
+//
+//   - customer: Customer ID prefixed with "customers/" or
+//     "customers/my_customer" to use the customer associated to the
+//     account making the request.
+func (r *CustomersReportsService) CountPrintJobsByPrinter(customer string) *CustomersReportsCountPrintJobsByPrinterCall {
+	c := &CustomersReportsCountPrintJobsByPrinterCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	return c
+}
+
+// Filter sets the optional parameter "filter": Query string to filter
+// results, AND-separated fields in EBNF syntax. Note: OR operations are
+// not supported in this filter. Note: Only >= and <= comparators are
+// supported in this filter. Supported filter fields: * complete_time
+func (c *CustomersReportsCountPrintJobsByPrinterCall) Filter(filter string) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": Field used to order
+// results. If omitted, results will be ordered in ascending order of
+// the 'printer' field. Supported order_by fields: * printer * job_count
+// * device_count * user_count
+func (c *CustomersReportsCountPrintJobsByPrinterCall) OrderBy(orderBy string) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.urlParams_.Set("orderBy", orderBy)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Maximum number of
+// results to return. Maximum and default are 100.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) PageSize(pageSize int64) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Token to specify
+// the page of the response to be returned.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) PageToken(pageToken string) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// PrinterOrgUnitId sets the optional parameter "printerOrgUnitId": The
+// ID of the organizational unit for printers. If specified, only data
+// for printers from the specified organizational unit will be returned.
+// If omitted, data for printers from all organizational units will be
+// returned.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) PrinterOrgUnitId(printerOrgUnitId string) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.urlParams_.Set("printerOrgUnitId", printerOrgUnitId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) Fields(s ...googleapi.Field) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) IfNoneMatch(entityTag string) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) Context(ctx context.Context) *CustomersReportsCountPrintJobsByPrinterCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersReportsCountPrintJobsByPrinterCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/reports:countPrintJobsByPrinter")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.reports.countPrintJobsByPrinter" call.
+// Exactly one of
+// *GoogleChromeManagementV1CountPrintJobsByPrinterResponse or error
+// will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromeManagementV1CountPrintJobsByPrinterResponse.ServerRespons
+// e.Header or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1CountPrintJobsByPrinterResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1CountPrintJobsByPrinterResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get a summary of printing done by each printer.",
+	//   "flatPath": "v1/customers/{customersId}/reports:countPrintJobsByPrinter",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.reports.countPrintJobsByPrinter",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. Customer ID prefixed with \"customers/\" or \"customers/my_customer\" to use the customer associated to the account making the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "filter": {
+	//       "description": "Query string to filter results, AND-separated fields in EBNF syntax. Note: OR operations are not supported in this filter. Note: Only \u003e= and \u003c= comparators are supported in this filter. Supported filter fields: * complete_time",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "Field used to order results. If omitted, results will be ordered in ascending order of the 'printer' field. Supported order_by fields: * printer * job_count * device_count * user_count",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Maximum number of results to return. Maximum and default are 100.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Token to specify the page of the response to be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "printerOrgUnitId": {
+	//       "description": "The ID of the organizational unit for printers. If specified, only data for printers from the specified organizational unit will be returned. If omitted, data for printers from all organizational units will be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/reports:countPrintJobsByPrinter",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1CountPrintJobsByPrinterResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.reports.readonly"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *CustomersReportsCountPrintJobsByPrinterCall) Pages(ctx context.Context, f func(*GoogleChromeManagementV1CountPrintJobsByPrinterResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "chromemanagement.customers.reports.countPrintJobsByUser":
+
+type CustomersReportsCountPrintJobsByUserCall struct {
+	s            *Service
+	customer     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// CountPrintJobsByUser: Get a summary of printing done by each user.
+//
+//   - customer: Customer ID prefixed with "customers/" or
+//     "customers/my_customer" to use the customer associated to the
+//     account making the request.
+func (r *CustomersReportsService) CountPrintJobsByUser(customer string) *CustomersReportsCountPrintJobsByUserCall {
+	c := &CustomersReportsCountPrintJobsByUserCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.customer = customer
+	return c
+}
+
+// Filter sets the optional parameter "filter": Query string to filter
+// results, AND-separated fields in EBNF syntax. Note: OR operations are
+// not supported in this filter. Note: Only >= and <= comparators are
+// supported in this filter. Supported filter fields: * complete_time
+func (c *CustomersReportsCountPrintJobsByUserCall) Filter(filter string) *CustomersReportsCountPrintJobsByUserCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": Field used to order
+// results. If omitted, results will be ordered in ascending order of
+// the 'user_email' field. Supported order_by fields: * user_email *
+// job_count * printer_count * device_count
+func (c *CustomersReportsCountPrintJobsByUserCall) OrderBy(orderBy string) *CustomersReportsCountPrintJobsByUserCall {
+	c.urlParams_.Set("orderBy", orderBy)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Maximum number of
+// results to return. Maximum and default are 100.
+func (c *CustomersReportsCountPrintJobsByUserCall) PageSize(pageSize int64) *CustomersReportsCountPrintJobsByUserCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Token to specify
+// the page of the response to be returned.
+func (c *CustomersReportsCountPrintJobsByUserCall) PageToken(pageToken string) *CustomersReportsCountPrintJobsByUserCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// PrinterOrgUnitId sets the optional parameter "printerOrgUnitId": The
+// ID of the organizational unit for printers. If specified, only print
+// jobs initiated with printers from the specified organizational unit
+// will be counted. If omitted, all print jobs will be counted.
+func (c *CustomersReportsCountPrintJobsByUserCall) PrinterOrgUnitId(printerOrgUnitId string) *CustomersReportsCountPrintJobsByUserCall {
+	c.urlParams_.Set("printerOrgUnitId", printerOrgUnitId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersReportsCountPrintJobsByUserCall) Fields(s ...googleapi.Field) *CustomersReportsCountPrintJobsByUserCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersReportsCountPrintJobsByUserCall) IfNoneMatch(entityTag string) *CustomersReportsCountPrintJobsByUserCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersReportsCountPrintJobsByUserCall) Context(ctx context.Context) *CustomersReportsCountPrintJobsByUserCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersReportsCountPrintJobsByUserCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersReportsCountPrintJobsByUserCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+customer}/reports:countPrintJobsByUser")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"customer": c.customer,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.reports.countPrintJobsByUser" call.
+// Exactly one of *GoogleChromeManagementV1CountPrintJobsByUserResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromeManagementV1CountPrintJobsByUserResponse.ServerResponse.H
+// eader or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersReportsCountPrintJobsByUserCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1CountPrintJobsByUserResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1CountPrintJobsByUserResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get a summary of printing done by each user.",
+	//   "flatPath": "v1/customers/{customersId}/reports:countPrintJobsByUser",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.reports.countPrintJobsByUser",
+	//   "parameterOrder": [
+	//     "customer"
+	//   ],
+	//   "parameters": {
+	//     "customer": {
+	//       "description": "Required. Customer ID prefixed with \"customers/\" or \"customers/my_customer\" to use the customer associated to the account making the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "filter": {
+	//       "description": "Query string to filter results, AND-separated fields in EBNF syntax. Note: OR operations are not supported in this filter. Note: Only \u003e= and \u003c= comparators are supported in this filter. Supported filter fields: * complete_time",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "Field used to order results. If omitted, results will be ordered in ascending order of the 'user_email' field. Supported order_by fields: * user_email * job_count * printer_count * device_count",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Maximum number of results to return. Maximum and default are 100.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Token to specify the page of the response to be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "printerOrgUnitId": {
+	//       "description": "The ID of the organizational unit for printers. If specified, only print jobs initiated with printers from the specified organizational unit will be counted. If omitted, all print jobs will be counted.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+customer}/reports:countPrintJobsByUser",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1CountPrintJobsByUserResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.reports.readonly"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *CustomersReportsCountPrintJobsByUserCall) Pages(ctx context.Context, f func(*GoogleChromeManagementV1CountPrintJobsByUserResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
 // method id "chromemanagement.customers.reports.findInstalledAppDevices":
 
 type CustomersReportsFindInstalledAppDevicesCall struct {
@@ -3123,11 +5989,11 @@ type CustomersReportsFindInstalledAppDevicesCall struct {
 	header_      http.Header
 }
 
-// FindInstalledAppDevices: Generate report of devices that have a
-// specified app installed.
+// FindInstalledAppDevices: Generate report of managed Chrome browser
+// devices that have a specified app installed.
 //
-// - customer: Customer id or "my_customer" to use the customer
-//   associated to the account making the request.
+//   - customer: Customer id or "my_customer" to use the customer
+//     associated to the account making the request.
 func (r *CustomersReportsService) FindInstalledAppDevices(customer string) *CustomersReportsFindInstalledAppDevicesCall {
 	c := &CustomersReportsFindInstalledAppDevicesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -3146,12 +6012,13 @@ func (c *CustomersReportsFindInstalledAppDevicesCall) AppId(appId string) *Custo
 // AppType sets the optional parameter "appType": Type of the app.
 //
 // Possible values:
-//   "APP_TYPE_UNSPECIFIED" - App type not specified.
-//   "EXTENSION" - Chrome extension.
-//   "APP" - Chrome app.
-//   "THEME" - Chrome theme.
-//   "HOSTED_APP" - Chrome hosted app.
-//   "ANDROID_APP" - ARC++ app.
+//
+//	"APP_TYPE_UNSPECIFIED" - App type not specified.
+//	"EXTENSION" - Chrome extension.
+//	"APP" - Chrome app.
+//	"THEME" - Chrome theme.
+//	"HOSTED_APP" - Chrome hosted app.
+//	"ANDROID_APP" - ARC++ app.
 func (c *CustomersReportsFindInstalledAppDevicesCall) AppType(appType string) *CustomersReportsFindInstalledAppDevicesCall {
 	c.urlParams_.Set("appType", appType)
 	return c
@@ -3272,17 +6139,17 @@ func (c *CustomersReportsFindInstalledAppDevicesCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1FindInstalledAppDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3296,7 +6163,7 @@ func (c *CustomersReportsFindInstalledAppDevicesCall) Do(opts ...googleapi.CallO
 	}
 	return ret, nil
 	// {
-	//   "description": "Generate report of devices that have a specified app installed.",
+	//   "description": "Generate report of managed Chrome browser devices that have a specified app installed.",
 	//   "flatPath": "v1/customers/{customersId}/reports:findInstalledAppDevices",
 	//   "httpMethod": "GET",
 	//   "id": "chromemanagement.customers.reports.findInstalledAppDevices",
@@ -3416,6 +6283,13 @@ func (r *CustomersTelemetryDevicesService) Get(name string) *CustomersTelemetryD
 	return c
 }
 
+// ReadMask sets the optional parameter "readMask": Required. Read mask
+// to specify which fields to return.
+func (c *CustomersTelemetryDevicesGetCall) ReadMask(readMask string) *CustomersTelemetryDevicesGetCall {
+	c.urlParams_.Set("readMask", readMask)
+	return c
+}
+
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -3492,17 +6366,17 @@ func (c *CustomersTelemetryDevicesGetCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1TelemetryDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -3530,6 +6404,12 @@ func (c *CustomersTelemetryDevicesGetCall) Do(opts ...googleapi.CallOption) (*Go
 	//       "pattern": "^customers/[^/]+/telemetry/devices/[^/]+$",
 	//       "required": true,
 	//       "type": "string"
+	//     },
+	//     "readMask": {
+	//       "description": "Required. Read mask to specify which fields to return.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
 	//     }
 	//   },
 	//   "path": "v1/{+name}",
@@ -3556,8 +6436,8 @@ type CustomersTelemetryDevicesListCall struct {
 
 // List: List all telemetry devices.
 //
-// - parent: Customer id or "my_customer" to use the customer associated
-//   to the account making the request.
+//   - parent: Customer id or "my_customer" to use the customer associated
+//     to the account making the request.
 func (r *CustomersTelemetryDevicesService) List(parent string) *CustomersTelemetryDevicesListCall {
 	c := &CustomersTelemetryDevicesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3566,14 +6446,19 @@ func (r *CustomersTelemetryDevicesService) List(parent string) *CustomersTelemet
 
 // Filter sets the optional parameter "filter": Only include resources
 // that match the filter. Supported filter fields: - org_unit_id -
-// serial_number - device_id
+// serial_number - device_id - reports_timestamp The "reports_timestamp"
+// filter accepts either the Unix Epoch milliseconds format or the
+// RFC3339 UTC "Zulu" format with nanosecond resolution and up to nine
+// fractional digits. Both formats should be surrounded by simple double
+// quotes. Examples: "2014-10-02T15:01:23Z",
+// "2014-10-02T15:01:23.045123456Z", "1679283943823".
 func (c *CustomersTelemetryDevicesListCall) Filter(filter string) *CustomersTelemetryDevicesListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": Maximum number of
-// results to return. Default value is 100. Maximum value is 200.
+// results to return. Default value is 100. Maximum value is 1000.
 func (c *CustomersTelemetryDevicesListCall) PageSize(pageSize int64) *CustomersTelemetryDevicesListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -3670,17 +6555,17 @@ func (c *CustomersTelemetryDevicesListCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleChromeManagementV1ListTelemetryDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3703,12 +6588,12 @@ func (c *CustomersTelemetryDevicesListCall) Do(opts ...googleapi.CallOption) (*G
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "Optional. Only include resources that match the filter. Supported filter fields: - org_unit_id - serial_number - device_id ",
+	//       "description": "Optional. Only include resources that match the filter. Supported filter fields: - org_unit_id - serial_number - device_id - reports_timestamp The \"reports_timestamp\" filter accepts either the Unix Epoch milliseconds format or the RFC3339 UTC \"Zulu\" format with nanosecond resolution and up to nine fractional digits. Both formats should be surrounded by simple double quotes. Examples: \"2014-10-02T15:01:23Z\", \"2014-10-02T15:01:23.045123456Z\", \"1679283943823\".",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "Maximum number of results to return. Default value is 100. Maximum value is 200.",
+	//       "description": "Maximum number of results to return. Default value is 100. Maximum value is 1000.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
@@ -3747,6 +6632,613 @@ func (c *CustomersTelemetryDevicesListCall) Do(opts ...googleapi.CallOption) (*G
 // A non-nil error returned from f will halt the iteration.
 // The provided context supersedes any context provided to the Context method.
 func (c *CustomersTelemetryDevicesListCall) Pages(ctx context.Context, f func(*GoogleChromeManagementV1ListTelemetryDevicesResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "chromemanagement.customers.telemetry.events.list":
+
+type CustomersTelemetryEventsListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: List telemetry events.
+//
+//   - parent: Customer id or "my_customer" to use the customer associated
+//     to the account making the request.
+func (r *CustomersTelemetryEventsService) List(parent string) *CustomersTelemetryEventsListCall {
+	c := &CustomersTelemetryEventsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// Filter sets the optional parameter "filter": Only include resources
+// that match the filter. Supported filter fields: - device_id - user_id
+// - device_org_unit_id - user_org_unit_id - timestamp - event_type The
+// "timestamp" filter accepts either the Unix Epoch milliseconds format
+// or the RFC3339 UTC "Zulu" format with nanosecond resolution and up to
+// nine fractional digits. Both formats should be surrounded by simple
+// double quotes. Examples: "2014-10-02T15:01:23Z",
+// "2014-10-02T15:01:23.045123456Z", "1679283943823".
+func (c *CustomersTelemetryEventsListCall) Filter(filter string) *CustomersTelemetryEventsListCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Maximum number of
+// results to return. Default value is 100. Maximum value is 1000.
+func (c *CustomersTelemetryEventsListCall) PageSize(pageSize int64) *CustomersTelemetryEventsListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Token to specify
+// next page in the list.
+func (c *CustomersTelemetryEventsListCall) PageToken(pageToken string) *CustomersTelemetryEventsListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// ReadMask sets the optional parameter "readMask": Required. Read mask
+// to specify which fields to return.
+func (c *CustomersTelemetryEventsListCall) ReadMask(readMask string) *CustomersTelemetryEventsListCall {
+	c.urlParams_.Set("readMask", readMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersTelemetryEventsListCall) Fields(s ...googleapi.Field) *CustomersTelemetryEventsListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersTelemetryEventsListCall) IfNoneMatch(entityTag string) *CustomersTelemetryEventsListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersTelemetryEventsListCall) Context(ctx context.Context) *CustomersTelemetryEventsListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersTelemetryEventsListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersTelemetryEventsListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/telemetry/events")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.telemetry.events.list" call.
+// Exactly one of *GoogleChromeManagementV1ListTelemetryEventsResponse
+// or error will be non-nil. Any non-2xx status code is an error.
+// Response headers are in either
+// *GoogleChromeManagementV1ListTelemetryEventsResponse.ServerResponse.He
+// ader or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersTelemetryEventsListCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1ListTelemetryEventsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1ListTelemetryEventsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "List telemetry events.",
+	//   "flatPath": "v1/customers/{customersId}/telemetry/events",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.telemetry.events.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "filter": {
+	//       "description": "Optional. Only include resources that match the filter. Supported filter fields: - device_id - user_id - device_org_unit_id - user_org_unit_id - timestamp - event_type The \"timestamp\" filter accepts either the Unix Epoch milliseconds format or the RFC3339 UTC \"Zulu\" format with nanosecond resolution and up to nine fractional digits. Both formats should be surrounded by simple double quotes. Examples: \"2014-10-02T15:01:23Z\", \"2014-10-02T15:01:23.045123456Z\", \"1679283943823\".",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Optional. Maximum number of results to return. Default value is 100. Maximum value is 1000.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Optional. Token to specify next page in the list.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. Customer id or \"my_customer\" to use the customer associated to the account making the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "readMask": {
+	//       "description": "Required. Read mask to specify which fields to return.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/telemetry/events",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1ListTelemetryEventsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.telemetry.readonly"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *CustomersTelemetryEventsListCall) Pages(ctx context.Context, f func(*GoogleChromeManagementV1ListTelemetryEventsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "chromemanagement.customers.telemetry.users.get":
+
+type CustomersTelemetryUsersGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Get telemetry user.
+//
+// - name: Name of the `TelemetryUser` to return.
+func (r *CustomersTelemetryUsersService) Get(name string) *CustomersTelemetryUsersGetCall {
+	c := &CustomersTelemetryUsersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// ReadMask sets the optional parameter "readMask": Read mask to specify
+// which fields to return.
+func (c *CustomersTelemetryUsersGetCall) ReadMask(readMask string) *CustomersTelemetryUsersGetCall {
+	c.urlParams_.Set("readMask", readMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersTelemetryUsersGetCall) Fields(s ...googleapi.Field) *CustomersTelemetryUsersGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersTelemetryUsersGetCall) IfNoneMatch(entityTag string) *CustomersTelemetryUsersGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersTelemetryUsersGetCall) Context(ctx context.Context) *CustomersTelemetryUsersGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersTelemetryUsersGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersTelemetryUsersGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.telemetry.users.get" call.
+// Exactly one of *GoogleChromeManagementV1TelemetryUser or error will
+// be non-nil. Any non-2xx status code is an error. Response headers are
+// in either
+// *GoogleChromeManagementV1TelemetryUser.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *CustomersTelemetryUsersGetCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1TelemetryUser, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1TelemetryUser{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get telemetry user.",
+	//   "flatPath": "v1/customers/{customersId}/telemetry/users/{usersId}",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.telemetry.users.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Name of the `TelemetryUser` to return.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+/telemetry/users/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "readMask": {
+	//       "description": "Read mask to specify which fields to return.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1TelemetryUser"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.telemetry.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "chromemanagement.customers.telemetry.users.list":
+
+type CustomersTelemetryUsersListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: List all telemetry users.
+//
+//   - parent: Customer id or "my_customer" to use the customer associated
+//     to the account making the request.
+func (r *CustomersTelemetryUsersService) List(parent string) *CustomersTelemetryUsersListCall {
+	c := &CustomersTelemetryUsersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// Filter sets the optional parameter "filter": Only include resources
+// that match the filter. Supported filter fields: - user_id -
+// user_org_unit_id
+func (c *CustomersTelemetryUsersListCall) Filter(filter string) *CustomersTelemetryUsersListCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Maximum number of
+// results to return. Default value is 100. Maximum value is 1000.
+func (c *CustomersTelemetryUsersListCall) PageSize(pageSize int64) *CustomersTelemetryUsersListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Token to specify
+// next page in the list.
+func (c *CustomersTelemetryUsersListCall) PageToken(pageToken string) *CustomersTelemetryUsersListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// ReadMask sets the optional parameter "readMask": Read mask to specify
+// which fields to return.
+func (c *CustomersTelemetryUsersListCall) ReadMask(readMask string) *CustomersTelemetryUsersListCall {
+	c.urlParams_.Set("readMask", readMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersTelemetryUsersListCall) Fields(s ...googleapi.Field) *CustomersTelemetryUsersListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersTelemetryUsersListCall) IfNoneMatch(entityTag string) *CustomersTelemetryUsersListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersTelemetryUsersListCall) Context(ctx context.Context) *CustomersTelemetryUsersListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersTelemetryUsersListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersTelemetryUsersListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/telemetry/users")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "chromemanagement.customers.telemetry.users.list" call.
+// Exactly one of *GoogleChromeManagementV1ListTelemetryUsersResponse or
+// error will be non-nil. Any non-2xx status code is an error. Response
+// headers are in either
+// *GoogleChromeManagementV1ListTelemetryUsersResponse.ServerResponse.Hea
+// der or (if a response was returned at all) in
+// error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
+// whether the returned error was because http.StatusNotModified was
+// returned.
+func (c *CustomersTelemetryUsersListCall) Do(opts ...googleapi.CallOption) (*GoogleChromeManagementV1ListTelemetryUsersResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleChromeManagementV1ListTelemetryUsersResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "List all telemetry users.",
+	//   "flatPath": "v1/customers/{customersId}/telemetry/users",
+	//   "httpMethod": "GET",
+	//   "id": "chromemanagement.customers.telemetry.users.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "filter": {
+	//       "description": "Only include resources that match the filter. Supported filter fields: - user_id - user_org_unit_id ",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "Maximum number of results to return. Default value is 100. Maximum value is 1000.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Token to specify next page in the list.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. Customer id or \"my_customer\" to use the customer associated to the account making the request.",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "readMask": {
+	//       "description": "Read mask to specify which fields to return.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/telemetry/users",
+	//   "response": {
+	//     "$ref": "GoogleChromeManagementV1ListTelemetryUsersResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/chrome.management.telemetry.readonly"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *CustomersTelemetryUsersListCall) Pages(ctx context.Context, f func(*GoogleChromeManagementV1ListTelemetryUsersResponse) error) error {
 	c.ctx_ = ctx
 	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
 	for {

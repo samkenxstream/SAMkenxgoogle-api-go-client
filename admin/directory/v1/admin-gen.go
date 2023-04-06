@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/admin-sdk/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/admin/directory/v1"
-//   ...
-//   ctx := context.Background()
-//   adminService, err := admin.NewService(ctx)
+//	import "google.golang.org/api/admin/directory/v1"
+//	...
+//	ctx := context.Background()
+//	adminService, err := admin.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   adminService, err := admin.NewService(ctx, option.WithScopes(admin.CloudPlatformScope))
+//	adminService, err := admin.NewService(ctx, option.WithScopes(admin.CloudPlatformScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   adminService, err := admin.NewService(ctx, option.WithAPIKey("AIza..."))
+//	adminService, err := admin.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   adminService, err := admin.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	adminService, err := admin.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package admin // import "google.golang.org/api/admin/directory/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "admin:directory_v1"
 const apiName = "admin"
@@ -397,6 +398,7 @@ type CustomersService struct {
 
 func NewCustomersChromeService(s *Service) *CustomersChromeService {
 	rs := &CustomersChromeService{s: s}
+	rs.PrintServers = NewCustomersChromePrintServersService(s)
 	rs.Printers = NewCustomersChromePrintersService(s)
 	return rs
 }
@@ -404,7 +406,18 @@ func NewCustomersChromeService(s *Service) *CustomersChromeService {
 type CustomersChromeService struct {
 	s *Service
 
+	PrintServers *CustomersChromePrintServersService
+
 	Printers *CustomersChromePrintersService
+}
+
+func NewCustomersChromePrintServersService(s *Service) *CustomersChromePrintServersService {
+	rs := &CustomersChromePrintServersService{s: s}
+	return rs
+}
+
+type CustomersChromePrintServersService struct {
+	s *Service
 }
 
 func NewCustomersChromePrintersService(s *Service) *CustomersChromePrintersService {
@@ -840,6 +853,72 @@ func (s *AuxiliaryMessage) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// BatchCreatePrintServersRequest: Request to add multiple new print
+// servers in a batch.
+type BatchCreatePrintServersRequest struct {
+	// Requests: Required. A list of `PrintServer` resources to be created
+	// (max `50` per batch).
+	Requests []*CreatePrintServerRequest `json:"requests,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Requests") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Requests") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreatePrintServersRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreatePrintServersRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type BatchCreatePrintServersResponse struct {
+	// Failures: A list of create failures. `PrintServer` IDs are not
+	// populated, as print servers were not created.
+	Failures []*PrintServerFailureInfo `json:"failures,omitempty"`
+
+	// PrintServers: A list of successfully created print servers with their
+	// IDs populated.
+	PrintServers []*PrintServer `json:"printServers,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Failures") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Failures") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreatePrintServersResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreatePrintServersResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // BatchCreatePrintersRequest: Request for adding new printers in batch.
 type BatchCreatePrintersRequest struct {
 	// Requests: A list of Printers to be created. Max 50 at a time.
@@ -902,6 +981,73 @@ type BatchCreatePrintersResponse struct {
 
 func (s *BatchCreatePrintersResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod BatchCreatePrintersResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BatchDeletePrintServersRequest: Request to delete multiple existing
+// print servers in a batch.
+type BatchDeletePrintServersRequest struct {
+	// PrintServerIds: A list of print server IDs that should be deleted
+	// (max `100` per batch).
+	PrintServerIds []string `json:"printServerIds,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PrintServerIds") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PrintServerIds") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchDeletePrintServersRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchDeletePrintServersRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type BatchDeletePrintServersResponse struct {
+	// FailedPrintServers: A list of update failures.
+	FailedPrintServers []*PrintServerFailureInfo `json:"failedPrintServers,omitempty"`
+
+	// PrintServerIds: A list of print server IDs that were successfully
+	// deleted.
+	PrintServerIds []string `json:"printServerIds,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "FailedPrintServers")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FailedPrintServers") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchDeletePrintServersResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchDeletePrintServersResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1326,7 +1472,9 @@ type Channel struct {
 	Kind string `json:"kind,omitempty"`
 
 	// Params: Additional parameters controlling delivery channel behavior.
-	// Optional.
+	// Optional. For example, `params.ttl` specifies the time-to-live in
+	// seconds for the notification channel, where the default is 2 hours
+	// and the maximum TTL is 2 days.
 	Params map[string]string `json:"params,omitempty"`
 
 	// Payload: A Boolean value to indicate whether payload is wanted.
@@ -1379,7 +1527,7 @@ func (s *Channel) MarshalJSON() ([]byte, error) {
 // common API tasks, see the Developer's Guide
 // (/admin-sdk/directory/v1/guides/manage-chrome-devices).
 type ChromeOsDevice struct {
-	// ActiveTimeRanges: List of active time ranges (Read-only).
+	// ActiveTimeRanges: A list of active time ranges (Read-only).
 	ActiveTimeRanges []*ChromeOsDeviceActiveTimeRanges `json:"activeTimeRanges,omitempty"`
 
 	// AnnotatedAssetId: The asset identifier as noted by an administrator
@@ -1414,7 +1562,30 @@ type ChromeOsDevice struct {
 	// (Read-only)
 	CpuStatusReports []*ChromeOsDeviceCpuStatusReports `json:"cpuStatusReports,omitempty"`
 
-	// DeviceFiles: List of device files to download (Read-only)
+	// DeprovisionReason: (Read-only) Deprovision reason.
+	//
+	// Possible values:
+	//   "deprovisionReasonUnspecified" - The deprovision reason is unknown.
+	//   "deprovisionReasonSameModelReplacement" - The device was replaced
+	// by a device with the same model.
+	//   "deprovisionReasonUpgrade" - The device was upgraded.
+	//   "deprovisionReasonDomainMove" - The device's domain was changed.
+	//   "deprovisionReasonServiceExpiration" - Service expired for the
+	// device.
+	//   "deprovisionReasonOther" - The device was deprovisioned for a
+	// legacy reason that is no longer supported.
+	//   "deprovisionReasonDifferentModelReplacement" - The device was
+	// replaced by a device with a different model.
+	//   "deprovisionReasonRetiringDevice" - The device was retired.
+	//   "deprovisionReasonUpgradeTransfer" - The device's perpetual upgrade
+	// was transferred to a new device.
+	//   "deprovisionReasonNotRequired" - A reason was not required. For
+	// example, the licenses were returned to the customer's license pool.
+	//   "deprovisionReasonRepairCenter" - The device was deprovisioned by a
+	// repair service center.
+	DeprovisionReason string `json:"deprovisionReason,omitempty"`
+
+	// DeviceFiles: A list of device files to download (Read-only)
 	DeviceFiles []*ChromeOsDeviceDeviceFiles `json:"deviceFiles,omitempty"`
 
 	// DeviceId: The unique ID of the Chrome device.
@@ -1449,9 +1620,17 @@ type ChromeOsDevice struct {
 	// FirmwareVersion: The Chrome device's firmware version.
 	FirmwareVersion string `json:"firmwareVersion,omitempty"`
 
+	// FirstEnrollmentTime: Date and time for the first time the device was
+	// enrolled.
+	FirstEnrollmentTime string `json:"firstEnrollmentTime,omitempty"`
+
 	// Kind: The type of resource. For the Chromeosdevices resource, the
 	// value is `admin#directory#chromeosdevice`.
 	Kind string `json:"kind,omitempty"`
+
+	// LastDeprovisionTimestamp: (Read-only) Date and time for the last
+	// deprovision of the device.
+	LastDeprovisionTimestamp string `json:"lastDeprovisionTimestamp,omitempty"`
 
 	// LastEnrollmentTime: Date and time the device was last enrolled
 	// (Read-only)
@@ -1521,18 +1700,21 @@ type ChromeOsDevice struct {
 	// center (https://support.google.com/a/answer/182433).
 	OrgUnitPath string `json:"orgUnitPath,omitempty"`
 
+	// OsUpdateStatus: The status of the OS updates for the device.
+	OsUpdateStatus *OsUpdateStatus `json:"osUpdateStatus,omitempty"`
+
 	// OsVersion: The Chrome device's operating system version.
 	OsVersion string `json:"osVersion,omitempty"`
 
 	// PlatformVersion: The Chrome device's platform version.
 	PlatformVersion string `json:"platformVersion,omitempty"`
 
-	// RecentUsers: List of recent device users, in descending order, by
+	// RecentUsers: A list of recent device users, in descending order, by
 	// last login time.
 	RecentUsers []*ChromeOsDeviceRecentUsers `json:"recentUsers,omitempty"`
 
-	// ScreenshotFiles: List of screenshot files to download. Type is always
-	// "SCREENSHOT_FILE". (Read-only)
+	// ScreenshotFiles: A list of screenshot files to download. Type is
+	// always "SCREENSHOT_FILE". (Read-only)
 	ScreenshotFiles []*ChromeOsDeviceScreenshotFiles `json:"screenshotFiles,omitempty"`
 
 	// SerialNumber: The Chrome device serial number entered when the device
@@ -1729,7 +1911,7 @@ func (s *ChromeOsDeviceCpuInfoLogicalCpusCStates) MarshalJSON() ([]byte, error) 
 }
 
 type ChromeOsDeviceCpuStatusReports struct {
-	// CpuTemperatureInfo: List of CPU temperature samples.
+	// CpuTemperatureInfo: A list of CPU temperature samples.
 	CpuTemperatureInfo []*ChromeOsDeviceCpuStatusReportsCpuTemperatureInfo `json:"cpuTemperatureInfo,omitempty"`
 
 	CpuUtilizationPercentageInfo []int64 `json:"cpuUtilizationPercentageInfo,omitempty"`
@@ -1918,8 +2100,8 @@ func (s *ChromeOsDeviceLastKnownNetwork) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// ChromeOsDeviceRecentUsers: List of recent device users, in descending
-// order, by last login time.
+// ChromeOsDeviceRecentUsers: A list of recent device users, in
+// descending order, by last login time.
 type ChromeOsDeviceRecentUsers struct {
 	// Email: The user's email address. This is only present if the user
 	// type is `USER_TYPE_MANAGED`.
@@ -2062,6 +2244,8 @@ func (s *ChromeOsDeviceTpmVersionInfo) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// ChromeOsDeviceAction: Data about an update to the status of a Chrome
+// OS device.
 type ChromeOsDeviceAction struct {
 	// Action: Action to be taken on the Chrome OS device.
 	Action string `json:"action,omitempty"`
@@ -2096,7 +2280,7 @@ func (s *ChromeOsDeviceAction) MarshalJSON() ([]byte, error) {
 }
 
 type ChromeOsDevices struct {
-	// Chromeosdevices: List of Chrome OS Device objects.
+	// Chromeosdevices: A list of Chrome OS Device objects.
 	Chromeosdevices []*ChromeOsDevice `json:"chromeosdevices,omitempty"`
 
 	// Etag: ETag of the resource.
@@ -2161,6 +2345,44 @@ type ChromeOsMoveDevicesToOu struct {
 
 func (s *ChromeOsMoveDevicesToOu) MarshalJSON() ([]byte, error) {
 	type NoMethod ChromeOsMoveDevicesToOu
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CreatePrintServerRequest: Request for adding a new print server.
+type CreatePrintServerRequest struct {
+	// Parent: Required. The unique ID
+	// (https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers)
+	// of the customer's Google Workspace account. Format: `customers/{id}`
+	Parent string `json:"parent,omitempty"`
+
+	// PrintServer: Required. A print server to create. If you want to place
+	// the print server under a specific organizational unit (OU), then
+	// populate the `org_unit_id`. Otherwise the print server is created
+	// under the root OU. The `org_unit_id` can be retrieved using the
+	// Directory API
+	// (https://developers.google.com/admin-sdk/directory/v1/guides/manage-org-units).
+	PrintServer *PrintServer `json:"printServer,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Parent") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Parent") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CreatePrintServerRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod CreatePrintServerRequest
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2376,6 +2598,13 @@ type DirectoryChromeosdevicesCommand struct {
 	// will revert the device back to a factory state with no enrollment
 	// unless the device is subject to forced or auto enrollment. Use with
 	// caution, as this is an irreversible action!
+	//   "DEVICE_START_CRD_SESSION" - Starts a Chrome Remote Desktop
+	// session.
+	//   "CAPTURE_LOGS" - Capture the system logs of a kiosk device. The
+	// logs can be downloaded from the downloadUrl link present in
+	// deviceFiles field of
+	// [chromeosdevices](https://developers.google.com/admin-sdk/directory/re
+	// ference/rest/v1/chromeosdevices)
 	Type string `json:"type,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -2409,6 +2638,13 @@ func (s *DirectoryChromeosdevicesCommand) MarshalJSON() ([]byte, error) {
 // DirectoryChromeosdevicesCommandResult: The result of executing a
 // command.
 type DirectoryChromeosdevicesCommandResult struct {
+	// CommandResultPayload: The payload for the command result. The
+	// following commands respond with a payload: *
+	// `DEVICE_START_CRD_SESSION`: Payload is a stringified JSON object in
+	// the form: { "url": url }. The URL provides a link to the Chrome
+	// Remote Desktop session.
+	CommandResultPayload string `json:"commandResultPayload,omitempty"`
+
 	// ErrorMessage: The error message with a short explanation as to why
 	// the command failed. Only present if the command failed.
 	ErrorMessage string `json:"errorMessage,omitempty"`
@@ -2427,20 +2663,22 @@ type DirectoryChromeosdevicesCommandResult struct {
 	//   "SUCCESS" - The command was successfully executed.
 	Result string `json:"result,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "ErrorMessage") to
-	// unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "CommandResultPayload") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "ErrorMessage") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "CommandResultPayload") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -2472,12 +2710,24 @@ type DirectoryChromeosdevicesIssueCommandRequest struct {
 	// will revert the device back to a factory state with no enrollment
 	// unless the device is subject to forced or auto enrollment. Use with
 	// caution, as this is an irreversible action!
+	//   "DEVICE_START_CRD_SESSION" - Starts a Chrome Remote Desktop
+	// session.
+	//   "CAPTURE_LOGS" - Capture the system logs of a kiosk device. The
+	// logs can be downloaded from the downloadUrl link present in
+	// deviceFiles field of
+	// [chromeosdevices](https://developers.google.com/admin-sdk/directory/re
+	// ference/rest/v1/chromeosdevices)
 	CommandType string `json:"commandType,omitempty"`
 
 	// Payload: The payload for the command, provide it only if command
-	// supports it. The following commands support adding payload: -
-	// SET_VOLUME: Payload is a stringified JSON object in the form: {
+	// supports it. The following commands support adding payload: *
+	// `SET_VOLUME`: Payload is a stringified JSON object in the form: {
 	// "volume": 50 }. The volume has to be an integer in the range [0,100].
+	// * `DEVICE_START_CRD_SESSION`: Payload is optionally a stringified
+	// JSON object in the form: { "ackedUserPresence": true }.
+	// `ackedUserPresence` is a boolean. By default, `ackedUserPresence` is
+	// set to `false`. To start a Chrome Remote Desktop session for an
+	// active device, set `ackedUserPresence` to `true`.
 	Payload string `json:"payload,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CommandType") to
@@ -2587,7 +2837,7 @@ func (s *DomainAlias) MarshalJSON() ([]byte, error) {
 }
 
 type DomainAliases struct {
-	// DomainAliases: List of domain alias objects.
+	// DomainAliases: A list of domain alias objects.
 	DomainAliases []*DomainAlias `json:"domainAliases,omitempty"`
 
 	// Etag: ETag of the resource.
@@ -2628,7 +2878,7 @@ type Domains struct {
 	// (https://en.wikipedia.org/wiki/Epoch_time) format. (Read-only).
 	CreationTime int64 `json:"creationTime,omitempty,string"`
 
-	// DomainAliases: List of domain alias objects. (Read-only)
+	// DomainAliases: A list of domain alias objects. (Read-only)
 	DomainAliases []*DomainAlias `json:"domainAliases,omitempty"`
 
 	// DomainName: The domain name of the customer.
@@ -2674,7 +2924,7 @@ func (s *Domains) MarshalJSON() ([]byte, error) {
 }
 
 type Domains2 struct {
-	// Domains: List of domain objects.
+	// Domains: A list of domain objects.
 	Domains []*Domains `json:"domains,omitempty"`
 
 	// Etag: ETag of the resource.
@@ -2726,7 +2976,7 @@ type FailureInfo struct {
 	// ErrorCode: Canonical code for why the update failed to apply.
 	//
 	// Possible values:
-	//   "OK" - Not an error; returned on success HTTP Mapping: 200 OK
+	//   "OK" - Not an error; returned on success. HTTP Mapping: 200 OK
 	//   "CANCELLED" - The operation was cancelled, typically by the caller.
 	// HTTP Mapping: 499 Client Closed Request
 	//   "UNKNOWN" - Unknown error. For example, this error may be returned
@@ -2987,13 +3237,24 @@ func (s *Features) MarshalJSON() ([]byte, error) {
 // Group: Google Groups provide your users the ability to send messages
 // to groups of people using the group's email address. For more
 // information about common tasks, see the Developer's Guide
-// (/admin-sdk/directory/v1/guides/manage-groups).
+// (https://developers.google.com/admin-sdk/directory/v1/guides/manage-groups).
+// For information about other types of groups, see the Cloud Identity
+// Groups API documentation
+// (https://cloud.google.com/identity/docs/groups). Note: The user
+// calling the API (or being impersonated by a service account) must
+// have an assigned role
+// (https://developers.google.com/admin-sdk/directory/v1/guides/manage-roles)
+// that includes Admin API Groups permissions, such as Super Admin or
+// Groups Admin.
 type Group struct {
-	// AdminCreated: Value is `true` if this group was created by an
-	// administrator rather than a user.
+	// AdminCreated: Read-only. Value is `true` if this group was created by
+	// an administrator rather than a user.
 	AdminCreated bool `json:"adminCreated,omitempty"`
 
-	// Aliases: List of a group's alias email addresses.
+	// Aliases: Read-only. The list of a group's alias email addresses. To
+	// add, update, or remove a group's aliases, use the `groups.aliases`
+	// methods. If edited in a group's POST or PUT request, the edit is
+	// ignored.
 	Aliases []string `json:"aliases,omitempty"`
 
 	// Description: An extended description to help users determine the
@@ -3020,8 +3281,8 @@ type Group struct {
 	// Etag: ETag of the resource.
 	Etag string `json:"etag,omitempty"`
 
-	// Id: The unique ID of a group. A group `id` can be used as a group
-	// request URI's `groupKey`.
+	// Id: Read-only. The unique ID of a group. A group `id` can be used as
+	// a group request URI's `groupKey`.
 	Id string `json:"id,omitempty"`
 
 	// Kind: The type of the API resource. For Groups resources, the value
@@ -3031,12 +3292,12 @@ type Group struct {
 	// Name: The group's display name.
 	Name string `json:"name,omitempty"`
 
-	// NonEditableAliases: List of the group's non-editable alias email
-	// addresses that are outside of the account's primary domain or
-	// subdomains. These are functioning email addresses used by the group.
-	// This is a read-only property returned in the API's response for a
-	// group. If edited in a group's POST or PUT request, the edit is
-	// ignored by the API service.
+	// NonEditableAliases: Read-only. The list of the group's non-editable
+	// alias email addresses that are outside of the account's primary
+	// domain or subdomains. These are functioning email addresses used by
+	// the group. This is a read-only property returned in the API's
+	// response for a group. If edited in a group's POST or PUT request, the
+	// edit is ignored.
 	NonEditableAliases []string `json:"nonEditableAliases,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -3066,11 +3327,53 @@ func (s *Group) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GroupAlias: The Directory API manages aliases, which are alternative
+// email addresses.
+type GroupAlias struct {
+	// Alias: The alias email address.
+	Alias string `json:"alias,omitempty"`
+
+	// Etag: ETag of the resource.
+	Etag string `json:"etag,omitempty"`
+
+	// Id: The unique ID of the group.
+	Id string `json:"id,omitempty"`
+
+	// Kind: The type of the API resource. For Alias resources, the value is
+	// `admin#directory#alias`.
+	Kind string `json:"kind,omitempty"`
+
+	// PrimaryEmail: The primary email address of the group.
+	PrimaryEmail string `json:"primaryEmail,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Alias") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Alias") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GroupAlias) MarshalJSON() ([]byte, error) {
+	type NoMethod GroupAlias
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 type Groups struct {
 	// Etag: ETag of the resource.
 	Etag string `json:"etag,omitempty"`
 
-	// Groups: List of group objects.
+	// Groups: A list of group objects.
 	Groups []*Group `json:"groups,omitempty"`
 
 	// Kind: Kind of resource this is.
@@ -3102,6 +3405,42 @@ type Groups struct {
 
 func (s *Groups) MarshalJSON() ([]byte, error) {
 	type NoMethod Groups
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ListPrintServersResponse struct {
+	// NextPageToken: A token that can be sent as `page_token` in a request
+	// to retrieve the next page. If this field is omitted, there are no
+	// subsequent pages.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// PrintServers: List of print servers.
+	PrintServers []*PrintServer `json:"printServers,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "NextPageToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NextPageToken") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ListPrintServersResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod ListPrintServersResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3261,7 +3600,7 @@ type Members struct {
 	// Kind: Kind of resource this is.
 	Kind string `json:"kind,omitempty"`
 
-	// Members: List of member objects.
+	// Members: A list of member objects.
 	Members []*Member `json:"members,omitempty"`
 
 	// NextPageToken: Token used to access next page of this result.
@@ -3377,8 +3716,8 @@ type MobileDevice struct {
 	// DevicePasswordStatus: DevicePasswordStatus (Read-only)
 	DevicePasswordStatus string `json:"devicePasswordStatus,omitempty"`
 
-	// Email: List of owner's email addresses. If your application needs the
-	// current list of user emails, use the get
+	// Email: The list of the owner's email addresses. If your application
+	// needs the current list of user emails, use the get
 	// (/admin-sdk/directory/v1/reference/mobiledevices/get.html) method.
 	// For additional information, see the retrieve a user
 	// (/admin-sdk/directory/v1/guides/manage-users#get_user) method.
@@ -3437,8 +3776,8 @@ type MobileDevice struct {
 	// vice).
 	Model string `json:"model,omitempty"`
 
-	// Name: List of the owner's user names. If your application needs the
-	// current list of device owner names, use the get
+	// Name: The list of the owner's user names. If your application needs
+	// the current list of device owner names, use the get
 	// (/admin-sdk/directory/v1/reference/mobiledevices/get.html) method.
 	// For more information about retrieving mobile device user information,
 	// see the Developer's Guide
@@ -3457,7 +3796,7 @@ type MobileDevice struct {
 	// vice).
 	Os string `json:"os,omitempty"`
 
-	// OtherAccountsInfo: List of accounts added on device (Read-only)
+	// OtherAccountsInfo: The list of accounts added on device (Read-only)
 	OtherAccountsInfo []string `json:"otherAccountsInfo,omitempty"`
 
 	// Privilege: DMAgentPermission (Read-only)
@@ -3607,7 +3946,7 @@ type MobileDevices struct {
 	// Kind: Kind of resource this is.
 	Kind string `json:"kind,omitempty"`
 
-	// Mobiledevices: List of Mobile Device objects.
+	// Mobiledevices: A list of Mobile Device objects.
 	Mobiledevices []*MobileDevice `json:"mobiledevices,omitempty"`
 
 	// NextPageToken: Token used to access next page of this result.
@@ -3736,7 +4075,7 @@ type OrgUnits struct {
 	// is `admin#directory#orgUnits`.
 	Kind string `json:"kind,omitempty"`
 
-	// OrganizationUnits: List of organizational unit objects.
+	// OrganizationUnits: A list of organizational unit objects.
 	OrganizationUnits []*OrgUnit `json:"organizationUnits,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -3762,6 +4101,248 @@ type OrgUnits struct {
 
 func (s *OrgUnits) MarshalJSON() ([]byte, error) {
 	type NoMethod OrgUnits
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// OsUpdateStatus: Contains information regarding the current OS update
+// status.
+type OsUpdateStatus struct {
+	// RebootTime: Date and time of the last reboot.
+	RebootTime string `json:"rebootTime,omitempty"`
+
+	// State: The update state of an OS update.
+	//
+	// Possible values:
+	//   "updateStateUnspecified" - The update state is unspecified.
+	//   "updateStateNotStarted" - There is an update pending but it hasn't
+	// started.
+	//   "updateStateDownloadInProgress" - The pending update is being
+	// downloaded.
+	//   "updateStateNeedReboot" - The device is ready to install the
+	// update, but must reboot.
+	State string `json:"state,omitempty"`
+
+	// TargetKioskAppVersion: New required platform version from the pending
+	// updated kiosk app.
+	TargetKioskAppVersion string `json:"targetKioskAppVersion,omitempty"`
+
+	// TargetOsVersion: New platform version of the OS image being
+	// downloaded and applied. It is only set when update status is
+	// UPDATE_STATUS_DOWNLOAD_IN_PROGRESS or UPDATE_STATUS_NEED_REBOOT. Note
+	// this could be a dummy "0.0.0.0" for UPDATE_STATUS_NEED_REBOOT for
+	// some edge cases, e.g. update engine is restarted without a reboot.
+	TargetOsVersion string `json:"targetOsVersion,omitempty"`
+
+	// UpdateCheckTime: Date and time of the last update check.
+	UpdateCheckTime string `json:"updateCheckTime,omitempty"`
+
+	// UpdateTime: Date and time of the last successful OS update.
+	UpdateTime string `json:"updateTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "RebootTime") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "RebootTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *OsUpdateStatus) MarshalJSON() ([]byte, error) {
+	type NoMethod OsUpdateStatus
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PrintServer: Configuration for a print server.
+type PrintServer struct {
+	// CreateTime: Output only. Time when the print server was created.
+	CreateTime string `json:"createTime,omitempty"`
+
+	// Description: Editable. Description of the print server (as shown in
+	// the Admin console).
+	Description string `json:"description,omitempty"`
+
+	// DisplayName: Editable. Display name of the print server (as shown in
+	// the Admin console).
+	DisplayName string `json:"displayName,omitempty"`
+
+	// Id: Immutable. ID of the print server. Leave empty when creating.
+	Id string `json:"id,omitempty"`
+
+	// Name: Immutable. Resource name of the print server. Leave empty when
+	// creating. Format:
+	// `customers/{customer.id}/printServers/{print_server.id}`
+	Name string `json:"name,omitempty"`
+
+	// OrgUnitId: ID of the organization unit (OU) that owns this print
+	// server. This value can only be set when the print server is initially
+	// created. If it's not populated, the print server is placed under the
+	// root OU. The `org_unit_id` can be retrieved using the Directory API
+	// (/admin-sdk/directory/reference/rest/v1/orgunits).
+	OrgUnitId string `json:"orgUnitId,omitempty"`
+
+	// Uri: Editable. Print server URI.
+	Uri string `json:"uri,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "CreateTime") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CreateTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PrintServer) MarshalJSON() ([]byte, error) {
+	type NoMethod PrintServer
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PrintServerFailureInfo: Info about failures
+type PrintServerFailureInfo struct {
+	// ErrorCode: Canonical code for why the update failed to apply.
+	//
+	// Possible values:
+	//   "OK" - Not an error; returned on success. HTTP Mapping: 200 OK
+	//   "CANCELLED" - The operation was cancelled, typically by the caller.
+	// HTTP Mapping: 499 Client Closed Request
+	//   "UNKNOWN" - Unknown error. For example, this error may be returned
+	// when a `Status` value received from another address space belongs to
+	// an error space that is not known in this address space. Also errors
+	// raised by APIs that do not return enough error information may be
+	// converted to this error. HTTP Mapping: 500 Internal Server Error
+	//   "INVALID_ARGUMENT" - The client specified an invalid argument. Note
+	// that this differs from `FAILED_PRECONDITION`. `INVALID_ARGUMENT`
+	// indicates arguments that are problematic regardless of the state of
+	// the system (e.g., a malformed file name). HTTP Mapping: 400 Bad
+	// Request
+	//   "DEADLINE_EXCEEDED" - The deadline expired before the operation
+	// could complete. For operations that change the state of the system,
+	// this error may be returned even if the operation has completed
+	// successfully. For example, a successful response from a server could
+	// have been delayed long enough for the deadline to expire. HTTP
+	// Mapping: 504 Gateway Timeout
+	//   "NOT_FOUND" - Some requested entity (e.g., file or directory) was
+	// not found. Note to server developers: if a request is denied for an
+	// entire class of users, such as gradual feature rollout or
+	// undocumented allowlist, `NOT_FOUND` may be used. If a request is
+	// denied for some users within a class of users, such as user-based
+	// access control, `PERMISSION_DENIED` must be used. HTTP Mapping: 404
+	// Not Found
+	//   "ALREADY_EXISTS" - The entity that a client attempted to create
+	// (e.g., file or directory) already exists. HTTP Mapping: 409 Conflict
+	//   "PERMISSION_DENIED" - The caller does not have permission to
+	// execute the specified operation. `PERMISSION_DENIED` must not be used
+	// for rejections caused by exhausting some resource (use
+	// `RESOURCE_EXHAUSTED` instead for those errors). `PERMISSION_DENIED`
+	// must not be used if the caller can not be identified (use
+	// `UNAUTHENTICATED` instead for those errors). This error code does not
+	// imply the request is valid or the requested entity exists or
+	// satisfies other pre-conditions. HTTP Mapping: 403 Forbidden
+	//   "UNAUTHENTICATED" - The request does not have valid authentication
+	// credentials for the operation. HTTP Mapping: 401 Unauthorized
+	//   "RESOURCE_EXHAUSTED" - Some resource has been exhausted, perhaps a
+	// per-user quota, or perhaps the entire file system is out of space.
+	// HTTP Mapping: 429 Too Many Requests
+	//   "FAILED_PRECONDITION" - The operation was rejected because the
+	// system is not in a state required for the operation's execution. For
+	// example, the directory to be deleted is non-empty, an rmdir operation
+	// is applied to a non-directory, etc. Service implementors can use the
+	// following guidelines to decide between `FAILED_PRECONDITION`,
+	// `ABORTED`, and `UNAVAILABLE`: (a) Use `UNAVAILABLE` if the client can
+	// retry just the failing call. (b) Use `ABORTED` if the client should
+	// retry at a higher level. For example, when a client-specified
+	// test-and-set fails, indicating the client should restart a
+	// read-modify-write sequence. (c) Use `FAILED_PRECONDITION` if the
+	// client should not retry until the system state has been explicitly
+	// fixed. For example, if an "rmdir" fails because the directory is
+	// non-empty, `FAILED_PRECONDITION` should be returned since the client
+	// should not retry unless the files are deleted from the directory.
+	// HTTP Mapping: 400 Bad Request
+	//   "ABORTED" - The operation was aborted, typically due to a
+	// concurrency issue such as a sequencer check failure or transaction
+	// abort. See the guidelines above for deciding between
+	// `FAILED_PRECONDITION`, `ABORTED`, and `UNAVAILABLE`. HTTP Mapping:
+	// 409 Conflict
+	//   "OUT_OF_RANGE" - The operation was attempted past the valid range.
+	// E.g., seeking or reading past end-of-file. Unlike `INVALID_ARGUMENT`,
+	// this error indicates a problem that may be fixed if the system state
+	// changes. For example, a 32-bit file system will generate
+	// `INVALID_ARGUMENT` if asked to read at an offset that is not in the
+	// range [0,2^32-1], but it will generate `OUT_OF_RANGE` if asked to
+	// read from an offset past the current file size. There is a fair bit
+	// of overlap between `FAILED_PRECONDITION` and `OUT_OF_RANGE`. We
+	// recommend using `OUT_OF_RANGE` (the more specific error) when it
+	// applies so that callers who are iterating through a space can easily
+	// look for an `OUT_OF_RANGE` error to detect when they are done. HTTP
+	// Mapping: 400 Bad Request
+	//   "UNIMPLEMENTED" - The operation is not implemented or is not
+	// supported/enabled in this service. HTTP Mapping: 501 Not Implemented
+	//   "INTERNAL" - Internal errors. This means that some invariants
+	// expected by the underlying system have been broken. This error code
+	// is reserved for serious errors. HTTP Mapping: 500 Internal Server
+	// Error
+	//   "UNAVAILABLE" - The service is currently unavailable. This is most
+	// likely a transient condition, which can be corrected by retrying with
+	// a backoff. Note that it is not always safe to retry non-idempotent
+	// operations. See the guidelines above for deciding between
+	// `FAILED_PRECONDITION`, `ABORTED`, and `UNAVAILABLE`. HTTP Mapping:
+	// 503 Service Unavailable
+	//   "DATA_LOSS" - Unrecoverable data loss or corruption. HTTP Mapping:
+	// 500 Internal Server Error
+	ErrorCode string `json:"errorCode,omitempty"`
+
+	// ErrorMessage: Failure reason message.
+	ErrorMessage string `json:"errorMessage,omitempty"`
+
+	// PrintServer: Failed print server.
+	PrintServer *PrintServer `json:"printServer,omitempty"`
+
+	// PrintServerId: ID of a failed print server.
+	PrintServerId string `json:"printServerId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ErrorCode") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ErrorCode") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PrintServerFailureInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod PrintServerFailureInfo
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -4045,8 +4626,19 @@ func (s *RoleRolePrivileges) MarshalJSON() ([]byte, error) {
 
 // RoleAssignment: Defines an assignment of a role.
 type RoleAssignment struct {
-	// AssignedTo: The unique ID of the user this role is assigned to.
+	// AssignedTo: The unique ID of the entity this role is assigned
+	// to—either the `user_id` of a user or the `uniqueId` of a service
+	// account, as defined in Identity and Access Management (IAM)
+	// (https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts).
 	AssignedTo string `json:"assignedTo,omitempty"`
+
+	// AssigneeType: Output only. The type of the assignee (`USER` or
+	// `GROUP`).
+	//
+	// Possible values:
+	//   "user" - An individual user within the domain.
+	//   "group" - A group within the domain.
+	AssigneeType string `json:"assigneeType,omitempty"`
 
 	// Etag: ETag of the resource.
 	Etag string `json:"etag,omitempty"`
@@ -4361,7 +4953,7 @@ type Schemas struct {
 	// Kind: Kind of resource this is.
 	Kind string `json:"kind,omitempty"`
 
-	// Schemas: List of UserSchema objects.
+	// Schemas: A list of UserSchema objects.
 	Schemas []*Schema `json:"schemas,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -4496,8 +5088,8 @@ func (s *Tokens) MarshalJSON() ([]byte, error) {
 // and the User Aliases Developer's Guide
 // (/admin-sdk/directory/v1/guides/manage-user-aliases.html).
 type User struct {
-	// Addresses: A list of the user's addresses. The maximum allowed data
-	// size for this field is 10Kb.
+	// Addresses: The list of the user's addresses. The maximum allowed data
+	// size for this field is 10KB.
 	Addresses interface{} `json:"addresses,omitempty"`
 
 	// AgreedToTerms: Output only. This property is `true` if the user has
@@ -4505,7 +5097,7 @@ type User struct {
 	// agreement.
 	AgreedToTerms bool `json:"agreedToTerms,omitempty"`
 
-	// Aliases: Output only. A list of the user's alias email addresses.
+	// Aliases: Output only. The list of the user's alias email addresses.
 	Aliases []string `json:"aliases,omitempty"`
 
 	// Archived: Indicates if user is archived.
@@ -4536,37 +5128,40 @@ type User struct {
 
 	DeletionTime string `json:"deletionTime,omitempty"`
 
-	// Emails: A list of the user's email addresses. The maximum allowed
-	// data size for this field is 10Kb.
+	// Emails: The list of the user's email addresses. The maximum allowed
+	// data size for this field is 10KB.
 	Emails interface{} `json:"emails,omitempty"`
 
 	// Etag: Output only. ETag of the resource.
 	Etag string `json:"etag,omitempty"`
 
-	// ExternalIds: A list of external IDs for the user, such as an employee
-	// or network ID. The maximum allowed data size for this field is 2Kb.
+	// ExternalIds: The list of external IDs for the user, such as an
+	// employee or network ID. The maximum allowed data size for this field
+	// is 2KB.
 	ExternalIds interface{} `json:"externalIds,omitempty"`
 
 	// Gender: The user's gender. The maximum allowed data size for this
-	// field is 1Kb.
+	// field is 1KB.
 	Gender interface{} `json:"gender,omitempty"`
 
-	// HashFunction: Stores the hash format of the password property. We
-	// recommend sending the `password` property value as a base 16 bit
-	// hexadecimal-encoded hash value. The following `hashFunction` values
-	// are allowed: * `DES` * `MD5` - hash prefix is `$1$` * `SHA2-256` -
-	// hash prefix is `$5$` * `SHA2-512` - hash prefix is `$6$` If rounds
-	// are specified as part of the prefix, they must be 10,000 or fewer.
+	// HashFunction: Stores the hash format of the `password` property. The
+	// following `hashFunction` values are allowed: * `MD5` - Accepts simple
+	// hex-encoded values. * `SHA-1` - Accepts simple hex-encoded values. *
+	// `crypt` - Compliant with the C crypt library
+	// (https://en.wikipedia.org/wiki/Crypt_%28C%29). Supports the DES, MD5
+	// (hash prefix `$1$`), SHA-256 (hash prefix `$5$`), and SHA-512 (hash
+	// prefix `$6$`) hash algorithms. If rounds are specified as part of the
+	// prefix, they must be 10,000 or fewer.
 	HashFunction string `json:"hashFunction,omitempty"`
 
 	// Id: The unique ID for the user. A user `id` can be used as a user
 	// request URI's `userKey`.
 	Id string `json:"id,omitempty"`
 
-	// Ims: The user's Instant Messenger (IM) accounts. A user account can
-	// have multiple ims properties. But, only one of these ims properties
-	// can be the primary IM contact. The maximum allowed data size for this
-	// field is 2Kb.
+	// Ims: The list of the user's Instant Messenger (IM) accounts. A user
+	// account can have multiple ims properties. But, only one of these ims
+	// properties can be the primary IM contact. The maximum allowed data
+	// size for this field is 2KB.
 	Ims interface{} `json:"ims,omitempty"`
 
 	// IncludeInGlobalAddressList: Indicates if the user's profile is
@@ -4576,8 +5171,9 @@ type User struct {
 	// (https://support.google.com/a/answer/1285988).
 	IncludeInGlobalAddressList bool `json:"includeInGlobalAddressList,omitempty"`
 
-	// IpWhitelisted: If `true`, the user's IP address is whitelisted
-	// (https://support.google.com/a/answer/60752).
+	// IpWhitelisted: If `true`, the user's IP address is subject to a
+	// deprecated IP address `allowlist`
+	// (https://support.google.com/a/answer/60752) configuration.
 	IpWhitelisted bool `json:"ipWhitelisted,omitempty"`
 
 	// IsAdmin: Output only. Indicates a user with super admininistrator
@@ -4613,8 +5209,8 @@ type User struct {
 	// assigned a Gmail license.
 	IsMailboxSetup bool `json:"isMailboxSetup,omitempty"`
 
-	// Keywords: The user's keywords. The maximum allowed data size for this
-	// field is 1Kb.
+	// Keywords: The list of the user's keywords. The maximum allowed data
+	// size for this field is 1KB.
 	Keywords interface{} `json:"keywords,omitempty"`
 
 	// Kind: Output only. The type of the API resource. For Users resources,
@@ -4622,14 +5218,14 @@ type User struct {
 	Kind string `json:"kind,omitempty"`
 
 	// Languages: The user's languages. The maximum allowed data size for
-	// this field is 1Kb.
+	// this field is 1KB.
 	Languages interface{} `json:"languages,omitempty"`
 
 	// LastLoginTime: User's last login time. (Read-only)
 	LastLoginTime string `json:"lastLoginTime,omitempty"`
 
 	// Locations: The user's locations. The maximum allowed data size for
-	// this field is 10Kb.
+	// this field is 10KB.
 	Locations interface{} `json:"locations,omitempty"`
 
 	// Name: Holds the given and family names of the user, and the read-only
@@ -4640,10 +5236,10 @@ type User struct {
 	// (.). For more information about character usage rules, see the
 	// administration help center
 	// (https://support.google.com/a/answer/9193374). Maximum allowed data
-	// size for this field is 1Kb.
+	// size for this field is 1KB.
 	Name *UserName `json:"name,omitempty"`
 
-	// NonEditableAliases: Output only. List of the user's non-editable
+	// NonEditableAliases: Output only. The list of the user's non-editable
 	// alias email addresses. These are typically outside the account's
 	// primary domain or sub-domain.
 	NonEditableAliases []string `json:"nonEditableAliases,omitempty"`
@@ -4656,18 +5252,18 @@ type User struct {
 	// represented as a forward slash (`/`).
 	OrgUnitPath string `json:"orgUnitPath,omitempty"`
 
-	// Organizations: A list of organizations the user belongs to. The
-	// maximum allowed data size for this field is 10Kb.
+	// Organizations: The list of organizations the user belongs to. The
+	// maximum allowed data size for this field is 10KB.
 	Organizations interface{} `json:"organizations,omitempty"`
 
 	// Password: User's password
 	Password string `json:"password,omitempty"`
 
-	// Phones: A list of the user's phone numbers. The maximum allowed data
-	// size for this field is 1Kb.
+	// Phones: The list of the user's phone numbers. The maximum allowed
+	// data size for this field is 1KB.
 	Phones interface{} `json:"phones,omitempty"`
 
-	// PosixAccounts: A list of POSIX
+	// PosixAccounts: The list of POSIX
 	// (https://www.opengroup.org/austin/papers/posix_faq.html) account
 	// information for the user.
 	PosixAccounts interface{} `json:"posixAccounts,omitempty"`
@@ -4685,8 +5281,8 @@ type User struct {
 	// *+16506661212*.
 	RecoveryPhone string `json:"recoveryPhone,omitempty"`
 
-	// Relations: A list of the user's relationships to other users. The
-	// maximum allowed data size for this field is 2Kb.
+	// Relations: The list of the user's relationships to other users. The
+	// maximum allowed data size for this field is 2KB.
 	Relations interface{} `json:"relations,omitempty"`
 
 	// SshPublicKeys: A list of SSH public keys.
@@ -4704,11 +5300,12 @@ type User struct {
 	// ThumbnailPhotoEtag: Output only. ETag of the user's photo (Read-only)
 	ThumbnailPhotoEtag string `json:"thumbnailPhotoEtag,omitempty"`
 
-	// ThumbnailPhotoUrl: Output only. Photo Url of the user (Read-only)
+	// ThumbnailPhotoUrl: Output only. The URL of the user's profile photo.
+	// The URL might be temporary or private.
 	ThumbnailPhotoUrl string `json:"thumbnailPhotoUrl,omitempty"`
 
 	// Websites: The user's websites. The maximum allowed data size for this
-	// field is 2Kb.
+	// field is 2KB.
 	Websites interface{} `json:"websites,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -4839,6 +5436,48 @@ type UserAddress struct {
 
 func (s *UserAddress) MarshalJSON() ([]byte, error) {
 	type NoMethod UserAddress
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// UserAlias: The Directory API manages aliases, which are alternative
+// email addresses.
+type UserAlias struct {
+	// Alias: The alias email address.
+	Alias string `json:"alias,omitempty"`
+
+	// Etag: ETag of the resource.
+	Etag string `json:"etag,omitempty"`
+
+	// Id: The unique ID for the user.
+	Id string `json:"id,omitempty"`
+
+	// Kind: The type of the API resource. For Alias resources, the value is
+	// `admin#directory#alias`.
+	Kind string `json:"kind,omitempty"`
+
+	// PrimaryEmail: The user's primary email address.
+	PrimaryEmail string `json:"primaryEmail,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Alias") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Alias") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *UserAlias) MarshalJSON() ([]byte, error) {
+	type NoMethod UserAlias
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -5170,6 +5809,9 @@ func (s *UserMakeAdmin) MarshalJSON() ([]byte, error) {
 }
 
 type UserName struct {
+	// DisplayName: The user's display name. Limit: 256 characters.
+	DisplayName string `json:"displayName,omitempty"`
+
 	// FamilyName: The user's last name. Required when creating a user
 	// account.
 	FamilyName string `json:"familyName,omitempty"`
@@ -5182,7 +5824,7 @@ type UserName struct {
 	// account.
 	GivenName string `json:"givenName,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "FamilyName") to
+	// ForceSendFields is a list of field names (e.g. "DisplayName") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -5190,10 +5832,10 @@ type UserName struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "FamilyName") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -5584,7 +6226,7 @@ type Users struct {
 	// of Push Response)
 	TriggerEvent string `json:"trigger_event,omitempty"`
 
-	// Users: List of user objects.
+	// Users: A list of user objects.
 	Users []*User `json:"users,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -5655,7 +6297,7 @@ func (s *VerificationCode) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// VerificationCodes: JSON response template for List verification codes
+// VerificationCodes: JSON response template for list verification codes
 // operation in Directory API.
 type VerificationCodes struct {
 	// Etag: ETag of the resource.
@@ -5708,10 +6350,10 @@ type AspsDeleteCall struct {
 
 // Delete: Deletes an ASP issued by a user.
 //
-// - codeId: The unique ID of the ASP to be deleted.
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - codeId: The unique ID of the ASP to be deleted.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *AspsService) Delete(userKey string, codeId int64) *AspsDeleteCall {
 	c := &AspsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -5777,7 +6419,7 @@ func (c *AspsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -5826,10 +6468,10 @@ type AspsGetCall struct {
 
 // Get: Gets information about an ASP issued by a user.
 //
-// - codeId: The unique ID of the ASP.
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - codeId: The unique ID of the ASP.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *AspsService) Get(userKey string, codeId int64) *AspsGetCall {
 	c := &AspsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -5913,17 +6555,17 @@ func (c *AspsGetCall) Do(opts ...googleapi.CallOption) (*Asp, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Asp{
 		ServerResponse: googleapi.ServerResponse{
@@ -5984,9 +6626,9 @@ type AspsListCall struct {
 
 // List: Lists the ASPs issued by a user.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *AspsService) List(userKey string) *AspsListCall {
 	c := &AspsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -6068,17 +6710,17 @@ func (c *AspsListCall) Do(opts ...googleapi.CallOption) (*Asps, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Asps{
 		ServerResponse: googleapi.ServerResponse{
@@ -6194,7 +6836,7 @@ func (c *ChannelsStopCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -6243,14 +6885,14 @@ type ChromeosdevicesActionCall struct {
 // devices, visit the help center
 // (https://support.google.com/chrome/a/answer/3523633).
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - resourceId: The unique ID of the device. The `resourceId`s are
-//   returned in the response from the chromeosdevices.list
-//   (/admin-sdk/directory/v1/reference/chromeosdevices/list) method.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - resourceId: The unique ID of the device. The `resourceId`s are
+//     returned in the response from the chromeosdevices.list
+//     (/admin-sdk/directory/v1/reference/chromeosdevices/list) method.
 func (r *ChromeosdevicesService) Action(customerId string, resourceId string, chromeosdeviceaction *ChromeOsDeviceAction) *ChromeosdevicesActionCall {
 	c := &ChromeosdevicesActionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -6322,7 +6964,7 @@ func (c *ChromeosdevicesActionCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -6373,14 +7015,14 @@ type ChromeosdevicesGetCall struct {
 
 // Get: Retrieves a Chrome OS device's properties.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - deviceId: The unique ID of the device. The `deviceId`s are returned
-//   in the response from the chromeosdevices.list
-//   (/admin-sdk/directory/v1/reference/chromeosdevices/list) method.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - deviceId: The unique ID of the device. The `deviceId`s are returned
+//     in the response from the chromeosdevices.list
+//     (/admin-sdk/directory/v1/reference/chromeosdevices/list) method.
 func (r *ChromeosdevicesService) Get(customerId string, deviceId string) *ChromeosdevicesGetCall {
 	c := &ChromeosdevicesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -6393,9 +7035,12 @@ func (r *ChromeosdevicesService) Get(customerId string, deviceId string) *Chrome
 // subset.
 //
 // Possible values:
-//   "BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
+//	"BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
 // serialNumber, status, and user)
-//   "FULL" - Includes all metadata fields
+//
+//	"FULL" - Includes all metadata fields
 func (c *ChromeosdevicesGetCall) Projection(projection string) *ChromeosdevicesGetCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -6477,17 +7122,17 @@ func (c *ChromeosdevicesGetCall) Do(opts ...googleapi.CallOption) (*ChromeOsDevi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChromeOsDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -6562,11 +7207,11 @@ type ChromeosdevicesListCall struct {
 // List: Retrieves a paginated list of Chrome OS devices within an
 // account.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
 func (r *ChromeosdevicesService) List(customerId string) *ChromeosdevicesListCall {
 	c := &ChromeosdevicesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -6575,7 +7220,7 @@ func (r *ChromeosdevicesService) List(customerId string) *ChromeosdevicesListCal
 
 // IncludeChildOrgunits sets the optional parameter
 // "includeChildOrgunits": Return devices from all child orgunits, as
-// well as the specified org unit. If this is set to true 'orgUnitPath'
+// well as the specified org unit. If this is set to true, 'orgUnitPath'
 // must be provided.
 func (c *ChromeosdevicesListCall) IncludeChildOrgunits(includeChildOrgunits bool) *ChromeosdevicesListCall {
 	c.urlParams_.Set("includeChildOrgunits", fmt.Sprint(includeChildOrgunits))
@@ -6593,19 +7238,25 @@ func (c *ChromeosdevicesListCall) MaxResults(maxResults int64) *ChromeosdevicesL
 // for sorting results.
 //
 // Possible values:
-//   "annotatedLocation" - Chrome device location as annotated by the
+//
+//	"annotatedLocation" - Chrome device location as annotated by the
+//
 // administrator.
-//   "annotatedUser" - Chromebook user as annotated by administrator.
-//   "lastSync" - The date and time the Chrome device was last
+//
+//	"annotatedUser" - Chromebook user as annotated by administrator.
+//	"lastSync" - The date and time the Chrome device was last
+//
 // synchronized with the policy settings in the Admin console.
-//   "notes" - Chrome device notes as annotated by the administrator.
-//   "serialNumber" - The Chrome device serial number entered when the
+//
+//	"notes" - Chrome device notes as annotated by the administrator.
+//	"serialNumber" - The Chrome device serial number entered when the
+//
 // device was enabled.
-//   "status" - Chrome device status. For more information, see the <a
+//
+//	"status" - Chrome device status. For more information, see the <a
+//
 // [chromeosdevices](/admin-sdk/directory/v1/reference/chromeosdevices.ht
 // ml).
-//   "supportEndDate" - Chrome device support end date. This is
-// applicable only for devices purchased directly from Google.
 func (c *ChromeosdevicesListCall) OrderBy(orderBy string) *ChromeosdevicesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -6631,9 +7282,12 @@ func (c *ChromeosdevicesListCall) PageToken(pageToken string) *ChromeosdevicesLi
 // information returned to a set of selected fields.
 //
 // Possible values:
-//   "BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
+//	"BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
 // serialNumber, status, and user)
-//   "FULL" - Includes all metadata fields
+//
+//	"FULL" - Includes all metadata fields
 func (c *ChromeosdevicesListCall) Projection(projection string) *ChromeosdevicesListCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -6652,8 +7306,9 @@ func (c *ChromeosdevicesListCall) Query(query string) *ChromeosdevicesListCall {
 // `orderBy` parameter.
 //
 // Possible values:
-//   "ASCENDING" - Ascending order.
-//   "DESCENDING" - Descending order.
+//
+//	"ASCENDING" - Ascending order.
+//	"DESCENDING" - Descending order.
 func (c *ChromeosdevicesListCall) SortOrder(sortOrder string) *ChromeosdevicesListCall {
 	c.urlParams_.Set("sortOrder", sortOrder)
 	return c
@@ -6734,17 +7389,17 @@ func (c *ChromeosdevicesListCall) Do(opts ...googleapi.CallOption) (*ChromeOsDev
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChromeOsDevices{
 		ServerResponse: googleapi.ServerResponse{
@@ -6773,7 +7428,7 @@ func (c *ChromeosdevicesListCall) Do(opts ...googleapi.CallOption) (*ChromeOsDev
 	//       "type": "string"
 	//     },
 	//     "includeChildOrgunits": {
-	//       "description": "Return devices from all child orgunits, as well as the specified org unit. If this is set to true 'orgUnitPath' must be provided.",
+	//       "description": "Return devices from all child orgunits, as well as the specified org unit. If this is set to true, 'orgUnitPath' must be provided.",
 	//       "location": "query",
 	//       "type": "boolean"
 	//     },
@@ -6793,8 +7448,7 @@ func (c *ChromeosdevicesListCall) Do(opts ...googleapi.CallOption) (*ChromeOsDev
 	//         "lastSync",
 	//         "notes",
 	//         "serialNumber",
-	//         "status",
-	//         "supportEndDate"
+	//         "status"
 	//       ],
 	//       "enumDescriptions": [
 	//         "Chrome device location as annotated by the administrator.",
@@ -6802,8 +7456,7 @@ func (c *ChromeosdevicesListCall) Do(opts ...googleapi.CallOption) (*ChromeOsDev
 	//         "The date and time the Chrome device was last synchronized with the policy settings in the Admin console.",
 	//         "Chrome device notes as annotated by the administrator.",
 	//         "The Chrome device serial number entered when the device was enabled.",
-	//         "Chrome device status. For more information, see the \u003ca [chromeosdevices](/admin-sdk/directory/v1/reference/chromeosdevices.html).",
-	//         "Chrome device support end date. This is applicable only for devices purchased directly from Google."
+	//         "Chrome device status. For more information, see the \u003ca [chromeosdevices](/admin-sdk/directory/v1/reference/chromeosdevices.html)."
 	//       ],
 	//       "location": "query",
 	//       "type": "string"
@@ -6897,7 +7550,7 @@ type ChromeosdevicesMoveDevicesToOuCall struct {
 // MoveDevicesToOu: Moves or inserts multiple Chrome OS devices to an
 // organizational unit. You can move up to 50 devices at once.
 //
-// - customerId: Immutable ID of the Google Workspace account.
+// - customerId: Immutable. ID of the Google Workspace account.
 // - orgUnitPath: Full path of the target organizational unit or its ID.
 func (r *ChromeosdevicesService) MoveDevicesToOu(customerId string, orgUnitPath string, chromeosmovedevicestoou *ChromeOsMoveDevicesToOu) *ChromeosdevicesMoveDevicesToOuCall {
 	c := &ChromeosdevicesMoveDevicesToOuCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -6969,7 +7622,7 @@ func (c *ChromeosdevicesMoveDevicesToOuCall) Do(opts ...googleapi.CallOption) er
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -6983,7 +7636,7 @@ func (c *ChromeosdevicesMoveDevicesToOuCall) Do(opts ...googleapi.CallOption) er
 	//   ],
 	//   "parameters": {
 	//     "customerId": {
-	//       "description": "Immutable ID of the Google Workspace account",
+	//       "description": "Immutable. ID of the Google Workspace account",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -7023,14 +7676,14 @@ type ChromeosdevicesPatchCall struct {
 // `annotatedAssetId`. This method supports patch semantics
 // (/admin-sdk/directory/v1/guides/performance#patch).
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - deviceId: The unique ID of the device. The `deviceId`s are returned
-//   in the response from the chromeosdevices.list
-//   (/admin-sdk/v1/reference/chromeosdevices/list) method.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - deviceId: The unique ID of the device. The `deviceId`s are returned
+//     in the response from the chromeosdevices.list
+//     (/admin-sdk/v1/reference/chromeosdevices/list) method.
 func (r *ChromeosdevicesService) Patch(customerId string, deviceId string, chromeosdevice *ChromeOsDevice) *ChromeosdevicesPatchCall {
 	c := &ChromeosdevicesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -7043,9 +7696,12 @@ func (r *ChromeosdevicesService) Patch(customerId string, deviceId string, chrom
 // information returned to a set of selected fields.
 //
 // Possible values:
-//   "BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
+//	"BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
 // serialNumber, status, and user)
-//   "FULL" - Includes all metadata fields
+//
+//	"FULL" - Includes all metadata fields
 func (c *ChromeosdevicesPatchCall) Projection(projection string) *ChromeosdevicesPatchCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -7119,17 +7775,17 @@ func (c *ChromeosdevicesPatchCall) Do(opts ...googleapi.CallOption) (*ChromeOsDe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChromeOsDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -7208,14 +7864,14 @@ type ChromeosdevicesUpdateCall struct {
 // `annotatedUser`, `annotatedLocation`, `notes`, `orgUnitPath`, or
 // `annotatedAssetId`.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - deviceId: The unique ID of the device. The `deviceId`s are returned
-//   in the response from the chromeosdevices.list
-//   (/admin-sdk/v1/reference/chromeosdevices/list) method.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - deviceId: The unique ID of the device. The `deviceId`s are returned
+//     in the response from the chromeosdevices.list
+//     (/admin-sdk/v1/reference/chromeosdevices/list) method.
 func (r *ChromeosdevicesService) Update(customerId string, deviceId string, chromeosdevice *ChromeOsDevice) *ChromeosdevicesUpdateCall {
 	c := &ChromeosdevicesUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -7228,9 +7884,12 @@ func (r *ChromeosdevicesService) Update(customerId string, deviceId string, chro
 // information returned to a set of selected fields.
 //
 // Possible values:
-//   "BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
+//	"BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
 // serialNumber, status, and user)
-//   "FULL" - Includes all metadata fields
+//
+//	"FULL" - Includes all metadata fields
 func (c *ChromeosdevicesUpdateCall) Projection(projection string) *ChromeosdevicesUpdateCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -7304,17 +7963,17 @@ func (c *ChromeosdevicesUpdateCall) Do(opts ...googleapi.CallOption) (*ChromeOsD
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChromeOsDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -7391,9 +8050,8 @@ type CustomerDevicesChromeosIssueCommandCall struct {
 
 // IssueCommand: Issues a command for the device to execute.
 //
-// - customerId: Immutable. Immutable ID of the Google Workspace
-//   account.
-// - deviceId: Immutable. Immutable ID of Chrome OS Device.
+// - customerId: Immutable. ID of the Google Workspace account.
+// - deviceId: Immutable. ID of Chrome OS Device.
 func (r *CustomerDevicesChromeosService) IssueCommand(customerId string, deviceId string, directorychromeosdevicesissuecommandrequest *DirectoryChromeosdevicesIssueCommandRequest) *CustomerDevicesChromeosIssueCommandCall {
 	c := &CustomerDevicesChromeosIssueCommandCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -7472,17 +8130,17 @@ func (c *CustomerDevicesChromeosIssueCommandCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DirectoryChromeosdevicesIssueCommandResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7506,13 +8164,13 @@ func (c *CustomerDevicesChromeosIssueCommandCall) Do(opts ...googleapi.CallOptio
 	//   ],
 	//   "parameters": {
 	//     "customerId": {
-	//       "description": "Immutable. Immutable ID of the Google Workspace account.",
+	//       "description": "Immutable. ID of the Google Workspace account.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
 	//     },
 	//     "deviceId": {
-	//       "description": "Immutable. Immutable ID of Chrome OS Device.",
+	//       "description": "Immutable. ID of Chrome OS Device.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -7547,10 +8205,9 @@ type CustomerDevicesChromeosCommandsGetCall struct {
 
 // Get: Gets command data a specific command issued to the device.
 //
-// - commandId: Immutable. Immutable ID of Chrome OS Device Command.
-// - customerId: Immutable. Immutable ID of the Google Workspace
-//   account.
-// - deviceId: Immutable. Immutable ID of Chrome OS Device.
+// - commandId: Immutable. ID of Chrome OS Device Command.
+// - customerId: Immutable. ID of the Google Workspace account.
+// - deviceId: Immutable. ID of Chrome OS Device.
 func (r *CustomerDevicesChromeosCommandsService) Get(customerId string, deviceId string, commandId int64) *CustomerDevicesChromeosCommandsGetCall {
 	c := &CustomerDevicesChromeosCommandsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -7636,17 +8293,17 @@ func (c *CustomerDevicesChromeosCommandsGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DirectoryChromeosdevicesCommand{
 		ServerResponse: googleapi.ServerResponse{
@@ -7671,20 +8328,20 @@ func (c *CustomerDevicesChromeosCommandsGetCall) Do(opts ...googleapi.CallOption
 	//   ],
 	//   "parameters": {
 	//     "commandId": {
-	//       "description": "Immutable. Immutable ID of Chrome OS Device Command.",
+	//       "description": "Immutable. ID of Chrome OS Device Command.",
 	//       "format": "int64",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
 	//     },
 	//     "customerId": {
-	//       "description": "Immutable. Immutable ID of the Google Workspace account.",
+	//       "description": "Immutable. ID of the Google Workspace account.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
 	//     },
 	//     "deviceId": {
-	//       "description": "Immutable. Immutable ID of Chrome OS Device.",
+	//       "description": "Immutable. ID of Chrome OS Device.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -7797,17 +8454,17 @@ func (c *CustomersGetCall) Do(opts ...googleapi.CallOption) (*Customer, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Customer{
 		ServerResponse: googleapi.ServerResponse{
@@ -7936,17 +8593,17 @@ func (c *CustomersPatchCall) Do(opts ...googleapi.CallOption) (*Customer, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Customer{
 		ServerResponse: googleapi.ServerResponse{
@@ -8077,17 +8734,17 @@ func (c *CustomersUpdateCall) Do(opts ...googleapi.CallOption) (*Customer, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Customer{
 		ServerResponse: googleapi.ServerResponse{
@@ -8125,6 +8782,1125 @@ func (c *CustomersUpdateCall) Do(opts ...googleapi.CallOption) (*Customer, error
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/admin.directory.customer"
+	//   ]
+	// }
+
+}
+
+// method id "admin.customers.chrome.printServers.batchCreatePrintServers":
+
+type CustomersChromePrintServersBatchCreatePrintServersCall struct {
+	s                              *Service
+	parent                         string
+	batchcreateprintserversrequest *BatchCreatePrintServersRequest
+	urlParams_                     gensupport.URLParams
+	ctx_                           context.Context
+	header_                        http.Header
+}
+
+// BatchCreatePrintServers: Creates multiple print servers.
+//
+//   - parent: The unique ID
+//     (https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers)
+//     of the customer's Google Workspace account. Format:
+//     `customers/{id}`.
+func (r *CustomersChromePrintServersService) BatchCreatePrintServers(parent string, batchcreateprintserversrequest *BatchCreatePrintServersRequest) *CustomersChromePrintServersBatchCreatePrintServersCall {
+	c := &CustomersChromePrintServersBatchCreatePrintServersCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.batchcreateprintserversrequest = batchcreateprintserversrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersChromePrintServersBatchCreatePrintServersCall) Fields(s ...googleapi.Field) *CustomersChromePrintServersBatchCreatePrintServersCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersChromePrintServersBatchCreatePrintServersCall) Context(ctx context.Context) *CustomersChromePrintServersBatchCreatePrintServersCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersChromePrintServersBatchCreatePrintServersCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersChromePrintServersBatchCreatePrintServersCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.batchcreateprintserversrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "admin/directory/v1/{+parent}/chrome/printServers:batchCreatePrintServers")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "admin.customers.chrome.printServers.batchCreatePrintServers" call.
+// Exactly one of *BatchCreatePrintServersResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *BatchCreatePrintServersResponse.ServerResponse.Header or (if
+// a response was returned at all) in error.(*googleapi.Error).Header.
+// Use googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *CustomersChromePrintServersBatchCreatePrintServersCall) Do(opts ...googleapi.CallOption) (*BatchCreatePrintServersResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &BatchCreatePrintServersResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates multiple print servers.",
+	//   "flatPath": "admin/directory/v1/customers/{customersId}/chrome/printServers:batchCreatePrintServers",
+	//   "httpMethod": "POST",
+	//   "id": "admin.customers.chrome.printServers.batchCreatePrintServers",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Required. The [unique ID](https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers) of the customer's Google Workspace account. Format: `customers/{id}`",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "admin/directory/v1/{+parent}/chrome/printServers:batchCreatePrintServers",
+	//   "request": {
+	//     "$ref": "BatchCreatePrintServersRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "BatchCreatePrintServersResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/admin.chrome.printers"
+	//   ]
+	// }
+
+}
+
+// method id "admin.customers.chrome.printServers.batchDeletePrintServers":
+
+type CustomersChromePrintServersBatchDeletePrintServersCall struct {
+	s                              *Service
+	parent                         string
+	batchdeleteprintserversrequest *BatchDeletePrintServersRequest
+	urlParams_                     gensupport.URLParams
+	ctx_                           context.Context
+	header_                        http.Header
+}
+
+// BatchDeletePrintServers: Deletes multiple print servers.
+//
+//   - parent: The unique ID
+//     (https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers)
+//     of the customer's Google Workspace account. Format:
+//     `customers/{customer.id}`.
+func (r *CustomersChromePrintServersService) BatchDeletePrintServers(parent string, batchdeleteprintserversrequest *BatchDeletePrintServersRequest) *CustomersChromePrintServersBatchDeletePrintServersCall {
+	c := &CustomersChromePrintServersBatchDeletePrintServersCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.batchdeleteprintserversrequest = batchdeleteprintserversrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersChromePrintServersBatchDeletePrintServersCall) Fields(s ...googleapi.Field) *CustomersChromePrintServersBatchDeletePrintServersCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersChromePrintServersBatchDeletePrintServersCall) Context(ctx context.Context) *CustomersChromePrintServersBatchDeletePrintServersCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersChromePrintServersBatchDeletePrintServersCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersChromePrintServersBatchDeletePrintServersCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.batchdeleteprintserversrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "admin/directory/v1/{+parent}/chrome/printServers:batchDeletePrintServers")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "admin.customers.chrome.printServers.batchDeletePrintServers" call.
+// Exactly one of *BatchDeletePrintServersResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *BatchDeletePrintServersResponse.ServerResponse.Header or (if
+// a response was returned at all) in error.(*googleapi.Error).Header.
+// Use googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *CustomersChromePrintServersBatchDeletePrintServersCall) Do(opts ...googleapi.CallOption) (*BatchDeletePrintServersResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &BatchDeletePrintServersResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes multiple print servers.",
+	//   "flatPath": "admin/directory/v1/customers/{customersId}/chrome/printServers:batchDeletePrintServers",
+	//   "httpMethod": "POST",
+	//   "id": "admin.customers.chrome.printServers.batchDeletePrintServers",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Required. The [unique ID](https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers) of the customer's Google Workspace account. Format: `customers/{customer.id}`",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "admin/directory/v1/{+parent}/chrome/printServers:batchDeletePrintServers",
+	//   "request": {
+	//     "$ref": "BatchDeletePrintServersRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "BatchDeletePrintServersResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/admin.chrome.printers"
+	//   ]
+	// }
+
+}
+
+// method id "admin.customers.chrome.printServers.create":
+
+type CustomersChromePrintServersCreateCall struct {
+	s           *Service
+	parent      string
+	printserver *PrintServer
+	urlParams_  gensupport.URLParams
+	ctx_        context.Context
+	header_     http.Header
+}
+
+// Create: Creates a print server.
+//
+//   - parent: The unique ID
+//     (https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers)
+//     of the customer's Google Workspace account. Format:
+//     `customers/{id}`.
+func (r *CustomersChromePrintServersService) Create(parent string, printserver *PrintServer) *CustomersChromePrintServersCreateCall {
+	c := &CustomersChromePrintServersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.printserver = printserver
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersChromePrintServersCreateCall) Fields(s ...googleapi.Field) *CustomersChromePrintServersCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersChromePrintServersCreateCall) Context(ctx context.Context) *CustomersChromePrintServersCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersChromePrintServersCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersChromePrintServersCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.printserver)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "admin/directory/v1/{+parent}/chrome/printServers")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "admin.customers.chrome.printServers.create" call.
+// Exactly one of *PrintServer or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *PrintServer.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *CustomersChromePrintServersCreateCall) Do(opts ...googleapi.CallOption) (*PrintServer, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &PrintServer{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a print server.",
+	//   "flatPath": "admin/directory/v1/customers/{customersId}/chrome/printServers",
+	//   "httpMethod": "POST",
+	//   "id": "admin.customers.chrome.printServers.create",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Required. The [unique ID](https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers) of the customer's Google Workspace account. Format: `customers/{id}`",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "admin/directory/v1/{+parent}/chrome/printServers",
+	//   "request": {
+	//     "$ref": "PrintServer"
+	//   },
+	//   "response": {
+	//     "$ref": "PrintServer"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/admin.chrome.printers"
+	//   ]
+	// }
+
+}
+
+// method id "admin.customers.chrome.printServers.delete":
+
+type CustomersChromePrintServersDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes a print server.
+//
+//   - name: The name of the print server to be deleted. Format:
+//     `customers/{customer.id}/chrome/printServers/{print_server.id}`.
+func (r *CustomersChromePrintServersService) Delete(name string) *CustomersChromePrintServersDeleteCall {
+	c := &CustomersChromePrintServersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersChromePrintServersDeleteCall) Fields(s ...googleapi.Field) *CustomersChromePrintServersDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersChromePrintServersDeleteCall) Context(ctx context.Context) *CustomersChromePrintServersDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersChromePrintServersDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersChromePrintServersDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "admin/directory/v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "admin.customers.chrome.printServers.delete" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *CustomersChromePrintServersDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes a print server.",
+	//   "flatPath": "admin/directory/v1/customers/{customersId}/chrome/printServers/{printServersId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "admin.customers.chrome.printServers.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The name of the print server to be deleted. Format: `customers/{customer.id}/chrome/printServers/{print_server.id}`",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+/chrome/printServers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "admin/directory/v1/{+name}",
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/admin.chrome.printers"
+	//   ]
+	// }
+
+}
+
+// method id "admin.customers.chrome.printServers.get":
+
+type CustomersChromePrintServersGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Returns a print server's configuration.
+//
+//   - name: The unique ID
+//     (https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers)
+//     of the customer's Google Workspace account. Format:
+//     `customers/{id}`.
+func (r *CustomersChromePrintServersService) Get(name string) *CustomersChromePrintServersGetCall {
+	c := &CustomersChromePrintServersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersChromePrintServersGetCall) Fields(s ...googleapi.Field) *CustomersChromePrintServersGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersChromePrintServersGetCall) IfNoneMatch(entityTag string) *CustomersChromePrintServersGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersChromePrintServersGetCall) Context(ctx context.Context) *CustomersChromePrintServersGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersChromePrintServersGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersChromePrintServersGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "admin/directory/v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "admin.customers.chrome.printServers.get" call.
+// Exactly one of *PrintServer or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *PrintServer.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *CustomersChromePrintServersGetCall) Do(opts ...googleapi.CallOption) (*PrintServer, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &PrintServer{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns a print server's configuration.",
+	//   "flatPath": "admin/directory/v1/customers/{customersId}/chrome/printServers/{printServersId}",
+	//   "httpMethod": "GET",
+	//   "id": "admin.customers.chrome.printServers.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The [unique ID](https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers) of the customer's Google Workspace account. Format: `customers/{id}`",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+/chrome/printServers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "admin/directory/v1/{+name}",
+	//   "response": {
+	//     "$ref": "PrintServer"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/admin.chrome.printers",
+	//     "https://www.googleapis.com/auth/admin.chrome.printers.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "admin.customers.chrome.printServers.list":
+
+type CustomersChromePrintServersListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists print server configurations.
+//
+//   - parent: The unique ID
+//     (https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers)
+//     of the customer's Google Workspace account. Format:
+//     `customers/{id}`.
+func (r *CustomersChromePrintServersService) List(parent string) *CustomersChromePrintServersListCall {
+	c := &CustomersChromePrintServersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// Filter sets the optional parameter "filter": Search query in Common
+// Expression Language syntax (https://github.com/google/cel-spec).
+// Supported filters are `display_name`, `description`, and `uri`.
+// Example: `printServer.displayName=='marketing-queue'`.
+func (c *CustomersChromePrintServersListCall) Filter(filter string) *CustomersChromePrintServersListCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": Sort order for
+// results. Supported values are `display_name`, `description`, or
+// `create_time`. Default order is ascending, but descending order can
+// be returned by appending "desc" to the `order_by` field. For
+// instance, `orderBy=='description desc'` returns the print servers
+// sorted by description in descending order.
+func (c *CustomersChromePrintServersListCall) OrderBy(orderBy string) *CustomersChromePrintServersListCall {
+	c.urlParams_.Set("orderBy", orderBy)
+	return c
+}
+
+// OrgUnitId sets the optional parameter "orgUnitId": If `org_unit_id`
+// is present in the request, only print servers owned or inherited by
+// the organizational unit (OU) are returned. If the `PrintServer`
+// resource's `org_unit_id` matches the one in the request, the OU owns
+// the server. If `org_unit_id` is not specified in the request, all
+// print servers are returned or filtered against.
+func (c *CustomersChromePrintServersListCall) OrgUnitId(orgUnitId string) *CustomersChromePrintServersListCall {
+	c.urlParams_.Set("orgUnitId", orgUnitId)
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": The maximum number
+// of objects to return (default `100`, max `100`). The service might
+// return fewer than this value.
+func (c *CustomersChromePrintServersListCall) PageSize(pageSize int64) *CustomersChromePrintServersListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": A generated token
+// to paginate results (the `next_page_token` from a previous call).
+func (c *CustomersChromePrintServersListCall) PageToken(pageToken string) *CustomersChromePrintServersListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersChromePrintServersListCall) Fields(s ...googleapi.Field) *CustomersChromePrintServersListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *CustomersChromePrintServersListCall) IfNoneMatch(entityTag string) *CustomersChromePrintServersListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersChromePrintServersListCall) Context(ctx context.Context) *CustomersChromePrintServersListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersChromePrintServersListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersChromePrintServersListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "admin/directory/v1/{+parent}/chrome/printServers")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "admin.customers.chrome.printServers.list" call.
+// Exactly one of *ListPrintServersResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *ListPrintServersResponse.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *CustomersChromePrintServersListCall) Do(opts ...googleapi.CallOption) (*ListPrintServersResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &ListPrintServersResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists print server configurations.",
+	//   "flatPath": "admin/directory/v1/customers/{customersId}/chrome/printServers",
+	//   "httpMethod": "GET",
+	//   "id": "admin.customers.chrome.printServers.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "filter": {
+	//       "description": "Search query in [Common Expression Language syntax](https://github.com/google/cel-spec). Supported filters are `display_name`, `description`, and `uri`. Example: `printServer.displayName=='marketing-queue'`.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orderBy": {
+	//       "description": "Sort order for results. Supported values are `display_name`, `description`, or `create_time`. Default order is ascending, but descending order can be returned by appending \"desc\" to the `order_by` field. For instance, `orderBy=='description desc'` returns the print servers sorted by description in descending order.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "orgUnitId": {
+	//       "description": "If `org_unit_id` is present in the request, only print servers owned or inherited by the organizational unit (OU) are returned. If the `PrintServer` resource's `org_unit_id` matches the one in the request, the OU owns the server. If `org_unit_id` is not specified in the request, all print servers are returned or filtered against.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageSize": {
+	//       "description": "The maximum number of objects to return (default `100`, max `100`). The service might return fewer than this value.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "A generated token to paginate results (the `next_page_token` from a previous call).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. The [unique ID](https://developers.google.com/admin-sdk/directory/reference/rest/v1/customers) of the customer's Google Workspace account. Format: `customers/{id}`",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "admin/directory/v1/{+parent}/chrome/printServers",
+	//   "response": {
+	//     "$ref": "ListPrintServersResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/admin.chrome.printers",
+	//     "https://www.googleapis.com/auth/admin.chrome.printers.readonly"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *CustomersChromePrintServersListCall) Pages(ctx context.Context, f func(*ListPrintServersResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "admin.customers.chrome.printServers.patch":
+
+type CustomersChromePrintServersPatchCall struct {
+	s           *Service
+	name        string
+	printserver *PrintServer
+	urlParams_  gensupport.URLParams
+	ctx_        context.Context
+	header_     http.Header
+}
+
+// Patch: Updates a print server's configuration.
+//
+//   - name: Immutable. Resource name of the print server. Leave empty
+//     when creating. Format:
+//     `customers/{customer.id}/printServers/{print_server.id}`.
+func (r *CustomersChromePrintServersService) Patch(name string, printserver *PrintServer) *CustomersChromePrintServersPatchCall {
+	c := &CustomersChromePrintServersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.printserver = printserver
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The list of
+// fields to update. Some fields are read-only and cannot be updated.
+// Values for unspecified fields are patched.
+func (c *CustomersChromePrintServersPatchCall) UpdateMask(updateMask string) *CustomersChromePrintServersPatchCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *CustomersChromePrintServersPatchCall) Fields(s ...googleapi.Field) *CustomersChromePrintServersPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *CustomersChromePrintServersPatchCall) Context(ctx context.Context) *CustomersChromePrintServersPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *CustomersChromePrintServersPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *CustomersChromePrintServersPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.printserver)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "admin/directory/v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "admin.customers.chrome.printServers.patch" call.
+// Exactly one of *PrintServer or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *PrintServer.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *CustomersChromePrintServersPatchCall) Do(opts ...googleapi.CallOption) (*PrintServer, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &PrintServer{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates a print server's configuration.",
+	//   "flatPath": "admin/directory/v1/customers/{customersId}/chrome/printServers/{printServersId}",
+	//   "httpMethod": "PATCH",
+	//   "id": "admin.customers.chrome.printServers.patch",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Immutable. Resource name of the print server. Leave empty when creating. Format: `customers/{customer.id}/printServers/{print_server.id}`",
+	//       "location": "path",
+	//       "pattern": "^customers/[^/]+/chrome/printServers/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The list of fields to update. Some fields are read-only and cannot be updated. Values for unspecified fields are patched.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "admin/directory/v1/{+name}",
+	//   "request": {
+	//     "$ref": "PrintServer"
+	//   },
+	//   "response": {
+	//     "$ref": "PrintServer"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/admin.chrome.printers"
 	//   ]
 	// }
 
@@ -8218,17 +9994,17 @@ func (c *CustomersChromePrintersBatchCreatePrintersCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchCreatePrintersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8360,17 +10136,17 @@ func (c *CustomersChromePrintersBatchDeletePrintersCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchDeletePrintersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8502,17 +10278,17 @@ func (c *CustomersChromePrintersCreateCall) Do(opts ...googleapi.CallOption) (*P
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Printer{
 		ServerResponse: googleapi.ServerResponse{
@@ -8568,8 +10344,8 @@ type CustomersChromePrintersDeleteCall struct {
 
 // Delete: Deletes a `Printer`.
 //
-// - name: The name of the printer to be updated. Format:
-//   customers/{customer_id}/chrome/printers/{printer_id}.
+//   - name: The name of the printer to be updated. Format:
+//     customers/{customer_id}/chrome/printers/{printer_id}.
 func (r *CustomersChromePrintersService) Delete(name string) *CustomersChromePrintersDeleteCall {
 	c := &CustomersChromePrintersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8638,17 +10414,17 @@ func (c *CustomersChromePrintersDeleteCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8702,8 +10478,8 @@ type CustomersChromePrintersGetCall struct {
 
 // Get: Returns a `Printer` resource (printer's config).
 //
-// - name: The name of the printer to retrieve. Format:
-//   customers/{customer_id}/chrome/printers/{printer_id}.
+//   - name: The name of the printer to retrieve. Format:
+//     customers/{customer_id}/chrome/printers/{printer_id}.
 func (r *CustomersChromePrintersService) Get(name string) *CustomersChromePrintersGetCall {
 	c := &CustomersChromePrintersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8785,17 +10561,17 @@ func (c *CustomersChromePrintersGetCall) Do(opts ...googleapi.CallOption) (*Prin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Printer{
 		ServerResponse: googleapi.ServerResponse{
@@ -8850,8 +10626,8 @@ type CustomersChromePrintersListCall struct {
 
 // List: List printers configs.
 //
-// - parent: The name of the customer who owns this collection of
-//   printers. Format: customers/{customer_id}.
+//   - parent: The name of the customer who owns this collection of
+//     printers. Format: customers/{customer_id}.
 func (r *CustomersChromePrintersService) List(parent string) *CustomersChromePrintersListCall {
 	c := &CustomersChromePrintersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8977,17 +10753,17 @@ func (c *CustomersChromePrintersListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPrintersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9089,8 +10865,8 @@ type CustomersChromePrintersListPrinterModelsCall struct {
 
 // ListPrinterModels: Lists the supported printer models.
 //
-// - parent: The name of the customer who owns this collection of
-//   printers. Format: customers/{customer_id}.
+//   - parent: The name of the customer who owns this collection of
+//     printers. Format: customers/{customer_id}.
 func (r *CustomersChromePrintersService) ListPrinterModels(parent string) *CustomersChromePrintersListPrinterModelsCall {
 	c := &CustomersChromePrintersListPrinterModelsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9195,17 +10971,17 @@ func (c *CustomersChromePrintersListPrinterModelsCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPrinterModelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9297,9 +11073,9 @@ type CustomersChromePrintersPatchCall struct {
 
 // Patch: Updates a `Printer` resource.
 //
-// - name: The resource name of the Printer object, in the format
-//   customers/{customer-id}/printers/{printer-id} (During printer
-//   creation leave empty).
+//   - name: The resource name of the Printer object, in the format
+//     customers/{customer-id}/printers/{printer-id} (During printer
+//     creation leave empty).
 func (r *CustomersChromePrintersService) Patch(name string, printer *Printer) *CustomersChromePrintersPatchCall {
 	c := &CustomersChromePrintersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9390,17 +11166,17 @@ func (c *CustomersChromePrintersPatchCall) Do(opts ...googleapi.CallOption) (*Pr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Printer{
 		ServerResponse: googleapi.ServerResponse{
@@ -9536,7 +11312,7 @@ func (c *DomainAliasesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -9584,8 +11360,14 @@ type DomainAliasesGetCall struct {
 
 // Get: Retrieves a domain alias of the customer.
 //
-// - customer: Immutable ID of the Google Workspace account.
-// - domainAliasName: Name of domain alias to be retrieved.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
+//   - domainAliasName: Name of domain alias to be retrieved.
 func (r *DomainAliasesService) Get(customer string, domainAliasName string) *DomainAliasesGetCall {
 	c := &DomainAliasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -9669,17 +11451,17 @@ func (c *DomainAliasesGetCall) Do(opts ...googleapi.CallOption) (*DomainAlias, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DomainAlias{
 		ServerResponse: googleapi.ServerResponse{
@@ -9703,7 +11485,7 @@ func (c *DomainAliasesGetCall) Do(opts ...googleapi.CallOption) (*DomainAlias, e
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -9815,17 +11597,17 @@ func (c *DomainAliasesInsertCall) Do(opts ...googleapi.CallOption) (*DomainAlias
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DomainAlias{
 		ServerResponse: googleapi.ServerResponse{
@@ -9881,7 +11663,13 @@ type DomainAliasesListCall struct {
 
 // List: Lists the domain aliases of the customer.
 //
-// - customer: Immutable ID of the Google Workspace account.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
 func (r *DomainAliasesService) List(customer string) *DomainAliasesListCall {
 	c := &DomainAliasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -9970,17 +11758,17 @@ func (c *DomainAliasesListCall) Do(opts ...googleapi.CallOption) (*DomainAliases
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DomainAliases{
 		ServerResponse: googleapi.ServerResponse{
@@ -10003,7 +11791,7 @@ func (c *DomainAliasesListCall) Do(opts ...googleapi.CallOption) (*DomainAliases
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -10106,7 +11894,7 @@ func (c *DomainsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -10154,8 +11942,14 @@ type DomainsGetCall struct {
 
 // Get: Retrieves a domain of the customer.
 //
-// - customer: Immutable ID of the Google Workspace account.
-// - domainName: Name of domain to be retrieved.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
+//   - domainName: Name of domain to be retrieved.
 func (r *DomainsService) Get(customer string, domainName string) *DomainsGetCall {
 	c := &DomainsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -10239,17 +12033,17 @@ func (c *DomainsGetCall) Do(opts ...googleapi.CallOption) (*Domains, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domains{
 		ServerResponse: googleapi.ServerResponse{
@@ -10273,7 +12067,7 @@ func (c *DomainsGetCall) Do(opts ...googleapi.CallOption) (*Domains, error) {
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -10385,17 +12179,17 @@ func (c *DomainsInsertCall) Do(opts ...googleapi.CallOption) (*Domains, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domains{
 		ServerResponse: googleapi.ServerResponse{
@@ -10451,7 +12245,13 @@ type DomainsListCall struct {
 
 // List: Lists the domains of the customer.
 //
-// - customer: Immutable ID of the Google Workspace account.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
 func (r *DomainsService) List(customer string) *DomainsListCall {
 	c := &DomainsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -10533,17 +12333,17 @@ func (c *DomainsListCall) Do(opts ...googleapi.CallOption) (*Domains2, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domains2{
 		ServerResponse: googleapi.ServerResponse{
@@ -10566,7 +12366,7 @@ func (c *DomainsListCall) Do(opts ...googleapi.CallOption) (*Domains2, error) {
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -10596,8 +12396,8 @@ type GroupsDeleteCall struct {
 
 // Delete: Deletes a group.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *GroupsService) Delete(groupKey string) *GroupsDeleteCall {
 	c := &GroupsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -10661,7 +12461,7 @@ func (c *GroupsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -10701,8 +12501,8 @@ type GroupsGetCall struct {
 
 // Get: Retrieves a group's properties.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *GroupsService) Get(groupKey string) *GroupsGetCall {
 	c := &GroupsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -10784,17 +12584,17 @@ func (c *GroupsGetCall) Do(opts ...googleapi.CallOption) (*Group, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Group{
 		ServerResponse: googleapi.ServerResponse{
@@ -10916,17 +12716,17 @@ func (c *GroupsInsertCall) Do(opts ...googleapi.CallOption) (*Group, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Group{
 		ServerResponse: googleapi.ServerResponse{
@@ -10979,11 +12779,11 @@ func (r *GroupsService) List() *GroupsListCall {
 
 // Customer sets the optional parameter "customer": The unique ID for
 // the customer's Google Workspace account. In case of a multi-domain
-// account, to fetch all groups for a customer, fill this field instead
-// of domain. As an account administrator, you can also use the
-// `my_customer` alias to represent your account's `customerId`. The
-// `customerId` is also returned as part of the Users
-// (/admin-sdk/directory/v1/reference/users)
+// account, to fetch all groups for a customer, use this field instead
+// of `domain`. You can also use the `my_customer` alias to represent
+// your account's `customerId`. The `customerId` is also returned as
+// part of the Users (/admin-sdk/directory/v1/reference/users) resource.
+// You must provide either the `customer` or the `domain` parameter.
 func (c *GroupsListCall) Customer(customer string) *GroupsListCall {
 	c.urlParams_.Set("customer", customer)
 	return c
@@ -11008,7 +12808,8 @@ func (c *GroupsListCall) MaxResults(maxResults int64) *GroupsListCall {
 // sorting results
 //
 // Possible values:
-//   "email" - Email of the group.
+//
+//	"email" - Email of the group.
 func (c *GroupsListCall) OrderBy(orderBy string) *GroupsListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -11034,8 +12835,9 @@ func (c *GroupsListCall) Query(query string) *GroupsListCall {
 // also used
 //
 // Possible values:
-//   "ASCENDING" - Ascending order.
-//   "DESCENDING" - Descending order.
+//
+//	"ASCENDING" - Ascending order.
+//	"DESCENDING" - Descending order.
 func (c *GroupsListCall) SortOrder(sortOrder string) *GroupsListCall {
 	c.urlParams_.Set("sortOrder", sortOrder)
 	return c
@@ -11122,17 +12924,17 @@ func (c *GroupsListCall) Do(opts ...googleapi.CallOption) (*Groups, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Groups{
 		ServerResponse: googleapi.ServerResponse{
@@ -11153,7 +12955,7 @@ func (c *GroupsListCall) Do(opts ...googleapi.CallOption) (*Groups, error) {
 	//   "parameterOrder": [],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, fill this field instead of domain. As an account administrator, you can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users)",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -11257,8 +13059,8 @@ type GroupsPatchCall struct {
 // Patch: Updates a group's properties. This method supports patch
 // semantics (/admin-sdk/directory/v1/guides/performance#patch).
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *GroupsService) Patch(groupKey string, group *Group) *GroupsPatchCall {
 	c := &GroupsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -11333,17 +13135,17 @@ func (c *GroupsPatchCall) Do(opts ...googleapi.CallOption) (*Group, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Group{
 		ServerResponse: googleapi.ServerResponse{
@@ -11399,8 +13201,8 @@ type GroupsUpdateCall struct {
 
 // Update: Updates a group's properties.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *GroupsService) Update(groupKey string, group *Group) *GroupsUpdateCall {
 	c := &GroupsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -11475,17 +13277,17 @@ func (c *GroupsUpdateCall) Do(opts ...googleapi.CallOption) (*Group, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Group{
 		ServerResponse: googleapi.ServerResponse{
@@ -11541,9 +13343,9 @@ type GroupsAliasesDeleteCall struct {
 
 // Delete: Removes an alias.
 //
-// - alias: The alias to be removed.
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - alias: The alias to be removed.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *GroupsAliasesService) Delete(groupKey string, alias string) *GroupsAliasesDeleteCall {
 	c := &GroupsAliasesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -11609,7 +13411,7 @@ func (c *GroupsAliasesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -11656,8 +13458,8 @@ type GroupsAliasesInsertCall struct {
 
 // Insert: Adds an alias for the group.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *GroupsAliasesService) Insert(groupKey string, alias *Alias) *GroupsAliasesInsertCall {
 	c := &GroupsAliasesInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -11732,17 +13534,17 @@ func (c *GroupsAliasesInsertCall) Do(opts ...googleapi.CallOption) (*Alias, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Alias{
 		ServerResponse: googleapi.ServerResponse{
@@ -11798,8 +13600,8 @@ type GroupsAliasesListCall struct {
 
 // List: Lists all aliases for a group.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *GroupsAliasesService) List(groupKey string) *GroupsAliasesListCall {
 	c := &GroupsAliasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -11881,17 +13683,17 @@ func (c *GroupsAliasesListCall) Do(opts ...googleapi.CallOption) (*Aliases, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Aliases{
 		ServerResponse: googleapi.ServerResponse{
@@ -11945,12 +13747,12 @@ type MembersDeleteCall struct {
 
 // Delete: Removes a member from a group.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
-// - memberKey: Identifies the group member in the API request. A group
-//   member can be a user or another group. The value can be the
-//   member's (group or user) primary email address, alias, or unique
-//   ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
+//   - memberKey: Identifies the group member in the API request. A group
+//     member can be a user or another group. The value can be the
+//     member's (group or user) primary email address, alias, or unique
+//     ID.
 func (r *MembersService) Delete(groupKey string, memberKey string) *MembersDeleteCall {
 	c := &MembersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -12016,7 +13818,7 @@ func (c *MembersDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -12065,12 +13867,12 @@ type MembersGetCall struct {
 
 // Get: Retrieves a group member's properties.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
-// - memberKey: Identifies the group member in the API request. A group
-//   member can be a user or another group. The value can be the
-//   member's (group or user) primary email address, alias, or unique
-//   ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
+//   - memberKey: Identifies the group member in the API request. A group
+//     member can be a user or another group. The value can be the
+//     member's (group or user) primary email address, alias, or unique
+//     ID.
 func (r *MembersService) Get(groupKey string, memberKey string) *MembersGetCall {
 	c := &MembersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -12154,17 +13956,17 @@ func (c *MembersGetCall) Do(opts ...googleapi.CallOption) (*Member, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Member{
 		ServerResponse: googleapi.ServerResponse{
@@ -12227,12 +14029,18 @@ type MembersHasMemberCall struct {
 }
 
 // HasMember: Checks whether the given user is a member of the group.
-// Membership can be direct or nested.
+// Membership can be direct or nested, but if nested, the `memberKey`
+// and `groupKey` must be entities in the same domain or an `Invalid
+// input` error is returned. To check for nested memberships that
+// include entities outside of the group's domain, use the
+// `checkTransitiveMembership()`
+// (https://cloud.google.com/identity/docs/reference/rest/v1/groups.memberships/checkTransitiveMembership)
+// method in the Cloud Identity Groups API.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
-// - memberKey: Identifies the user member in the API request. The value
-//   can be the user's primary email address, alias, or unique ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
+//   - memberKey: Identifies the user member in the API request. The value
+//     can be the user's primary email address, alias, or unique ID.
 func (r *MembersService) HasMember(groupKey string, memberKey string) *MembersHasMemberCall {
 	c := &MembersHasMemberCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -12316,17 +14124,17 @@ func (c *MembersHasMemberCall) Do(opts ...googleapi.CallOption) (*MembersHasMemb
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &MembersHasMember{
 		ServerResponse: googleapi.ServerResponse{
@@ -12340,7 +14148,7 @@ func (c *MembersHasMemberCall) Do(opts ...googleapi.CallOption) (*MembersHasMemb
 	}
 	return ret, nil
 	// {
-	//   "description": "Checks whether the given user is a member of the group. Membership can be direct or nested.",
+	//   "description": "Checks whether the given user is a member of the group. Membership can be direct or nested, but if nested, the `memberKey` and `groupKey` must be entities in the same domain or an `Invalid input` error is returned. To check for nested memberships that include entities outside of the group's domain, use the [`checkTransitiveMembership()`](https://cloud.google.com/identity/docs/reference/rest/v1/groups.memberships/checkTransitiveMembership) method in the Cloud Identity Groups API.",
 	//   "flatPath": "admin/directory/v1/groups/{groupKey}/hasMember/{memberKey}",
 	//   "httpMethod": "GET",
 	//   "id": "directory.members.hasMember",
@@ -12389,8 +14197,8 @@ type MembersInsertCall struct {
 
 // Insert: Adds a user to the specified group.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *MembersService) Insert(groupKey string, member *Member) *MembersInsertCall {
 	c := &MembersInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -12465,17 +14273,17 @@ func (c *MembersInsertCall) Do(opts ...googleapi.CallOption) (*Member, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Member{
 		ServerResponse: googleapi.ServerResponse{
@@ -12530,10 +14338,13 @@ type MembersListCall struct {
 	header_      http.Header
 }
 
-// List: Retrieves a paginated list of all members in a group.
+// List: Retrieves a paginated list of all members in a group. This
+// method times out after 60 minutes. For more information, see
+// Troubleshoot error codes
+// (https://developers.google.com/admin-sdk/directory/v1/guides/troubleshoot-error-codes).
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
 func (r *MembersService) List(groupKey string) *MembersListCall {
 	c := &MembersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -12645,17 +14456,17 @@ func (c *MembersListCall) Do(opts ...googleapi.CallOption) (*Members, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Members{
 		ServerResponse: googleapi.ServerResponse{
@@ -12669,7 +14480,7 @@ func (c *MembersListCall) Do(opts ...googleapi.CallOption) (*Members, error) {
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves a paginated list of all members in a group.",
+	//   "description": "Retrieves a paginated list of all members in a group. This method times out after 60 minutes. For more information, see [Troubleshoot error codes](https://developers.google.com/admin-sdk/directory/v1/guides/troubleshoot-error-codes).",
 	//   "flatPath": "admin/directory/v1/groups/{groupKey}/members",
 	//   "httpMethod": "GET",
 	//   "id": "directory.members.list",
@@ -12758,12 +14569,12 @@ type MembersPatchCall struct {
 // group. This method supports patch semantics
 // (/admin-sdk/directory/v1/guides/performance#patch).
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
-// - memberKey: Identifies the group member in the API request. A group
-//   member can be a user or another group. The value can be the
-//   member's (group or user) primary email address, alias, or unique
-//   ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
+//   - memberKey: Identifies the group member in the API request. A group
+//     member can be a user or another group. The value can be the
+//     member's (group or user) primary email address, alias, or unique
+//     ID.
 func (r *MembersService) Patch(groupKey string, memberKey string, member *Member) *MembersPatchCall {
 	c := &MembersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -12840,17 +14651,17 @@ func (c *MembersPatchCall) Do(opts ...googleapi.CallOption) (*Member, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Member{
 		ServerResponse: googleapi.ServerResponse{
@@ -12915,12 +14726,12 @@ type MembersUpdateCall struct {
 
 // Update: Updates the membership of a user in the specified group.
 //
-// - groupKey: Identifies the group in the API request. The value can be
-//   the group's email address, group alias, or the unique group ID.
-// - memberKey: Identifies the group member in the API request. A group
-//   member can be a user or another group. The value can be the
-//   member's (group or user) primary email address, alias, or unique
-//   ID.
+//   - groupKey: Identifies the group in the API request. The value can be
+//     the group's email address, group alias, or the unique group ID.
+//   - memberKey: Identifies the group member in the API request. A group
+//     member can be a user or another group. The value can be the
+//     member's (group or user) primary email address, alias, or unique
+//     ID.
 func (r *MembersService) Update(groupKey string, memberKey string, member *Member) *MembersUpdateCall {
 	c := &MembersUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.groupKey = groupKey
@@ -12997,17 +14808,17 @@ func (c *MembersUpdateCall) Do(opts ...googleapi.CallOption) (*Member, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Member{
 		ServerResponse: googleapi.ServerResponse{
@@ -13073,13 +14884,13 @@ type MobiledevicesActionCall struct {
 // Action: Takes an action that affects a mobile device. For example,
 // remotely wiping a device.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - resourceId: The unique ID the API service uses to identify the
-//   mobile device.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - resourceId: The unique ID the API service uses to identify the
+//     mobile device.
 func (r *MobiledevicesService) Action(customerId string, resourceId string, mobiledeviceaction *MobileDeviceAction) *MobiledevicesActionCall {
 	c := &MobiledevicesActionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -13151,7 +14962,7 @@ func (c *MobiledevicesActionCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13202,13 +15013,13 @@ type MobiledevicesDeleteCall struct {
 
 // Delete: Removes a mobile device.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - resourceId: The unique ID the API service uses to identify the
-//   mobile device.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - resourceId: The unique ID the API service uses to identify the
+//     mobile device.
 func (r *MobiledevicesService) Delete(customerId string, resourceId string) *MobiledevicesDeleteCall {
 	c := &MobiledevicesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -13274,7 +15085,7 @@ func (c *MobiledevicesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13322,13 +15133,13 @@ type MobiledevicesGetCall struct {
 
 // Get: Retrieves a mobile device's properties.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - resourceId: The unique ID the API service uses to identify the
-//   mobile device.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - resourceId: The unique ID the API service uses to identify the
+//     mobile device.
 func (r *MobiledevicesService) Get(customerId string, resourceId string) *MobiledevicesGetCall {
 	c := &MobiledevicesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -13340,9 +15151,12 @@ func (r *MobiledevicesService) Get(customerId string, resourceId string) *Mobile
 // information returned to a set of selected fields.
 //
 // Possible values:
-//   "BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
+//	"BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
 // model, status, type, and status)
-//   "FULL" - Includes all metadata fields
+//
+//	"FULL" - Includes all metadata fields
 func (c *MobiledevicesGetCall) Projection(projection string) *MobiledevicesGetCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -13424,17 +15238,17 @@ func (c *MobiledevicesGetCall) Do(opts ...googleapi.CallOption) (*MobileDevice, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &MobileDevice{
 		ServerResponse: googleapi.ServerResponse{
@@ -13511,13 +15325,15 @@ type MobiledevicesListCall struct {
 // an account. To retrieve a list that includes company-owned devices,
 // use the Cloud Identity Devices API
 // (https://cloud.google.com/identity/docs/concepts/overview-devices)
-// instead.
+// instead. This method times out after 60 minutes. For more
+// information, see Troubleshoot error codes
+// (https://developers.google.com/admin-sdk/directory/v1/guides/troubleshoot-error-codes).
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
 func (r *MobiledevicesService) List(customerId string) *MobiledevicesListCall {
 	c := &MobiledevicesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -13535,15 +15351,18 @@ func (c *MobiledevicesListCall) MaxResults(maxResults int64) *MobiledevicesListC
 // for sorting results.
 //
 // Possible values:
-//   "deviceId" - The serial number for a Google Sync mobile device. For
+//
+//	"deviceId" - The serial number for a Google Sync mobile device. For
+//
 // Android devices, this is a software generated unique identifier.
-//   "email" - The device owner's email address.
-//   "lastSync" - Last policy settings sync date time of the device.
-//   "model" - The mobile device's model.
-//   "name" - The device owner's user name.
-//   "os" - The device's operating system.
-//   "status" - The device status.
-//   "type" - Type of the device.
+//
+//	"email" - The device owner's email address.
+//	"lastSync" - Last policy settings sync date time of the device.
+//	"model" - The mobile device's model.
+//	"name" - The device owner's user name.
+//	"os" - The device's operating system.
+//	"status" - The device status.
+//	"type" - Type of the device.
 func (c *MobiledevicesListCall) OrderBy(orderBy string) *MobiledevicesListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -13560,9 +15379,12 @@ func (c *MobiledevicesListCall) PageToken(pageToken string) *MobiledevicesListCa
 // information returned to a set of selected fields.
 //
 // Possible values:
-//   "BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
+//	"BASIC" - Includes only the basic metadata fields (e.g., deviceId,
+//
 // model, status, type, and status)
-//   "FULL" - Includes all metadata fields
+//
+//	"FULL" - Includes all metadata fields
 func (c *MobiledevicesListCall) Projection(projection string) *MobiledevicesListCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -13581,8 +15403,9 @@ func (c *MobiledevicesListCall) Query(query string) *MobiledevicesListCall {
 // `orderBy` parameter.
 //
 // Possible values:
-//   "ASCENDING" - Ascending order.
-//   "DESCENDING" - Descending order.
+//
+//	"ASCENDING" - Ascending order.
+//	"DESCENDING" - Descending order.
 func (c *MobiledevicesListCall) SortOrder(sortOrder string) *MobiledevicesListCall {
 	c.urlParams_.Set("sortOrder", sortOrder)
 	return c
@@ -13663,17 +15486,17 @@ func (c *MobiledevicesListCall) Do(opts ...googleapi.CallOption) (*MobileDevices
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &MobileDevices{
 		ServerResponse: googleapi.ServerResponse{
@@ -13687,7 +15510,7 @@ func (c *MobiledevicesListCall) Do(opts ...googleapi.CallOption) (*MobileDevices
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves a paginated list of all user-owned mobile devices for an account. To retrieve a list that includes company-owned devices, use the Cloud Identity [Devices API](https://cloud.google.com/identity/docs/concepts/overview-devices) instead.",
+	//   "description": "Retrieves a paginated list of all user-owned mobile devices for an account. To retrieve a list that includes company-owned devices, use the Cloud Identity [Devices API](https://cloud.google.com/identity/docs/concepts/overview-devices) instead. This method times out after 60 minutes. For more information, see [Troubleshoot error codes](https://developers.google.com/admin-sdk/directory/v1/guides/troubleshoot-error-codes).",
 	//   "flatPath": "admin/directory/v1/customer/{customerId}/devices/mobile",
 	//   "httpMethod": "GET",
 	//   "id": "directory.mobiledevices.list",
@@ -13819,13 +15642,13 @@ type OrgunitsDeleteCall struct {
 
 // Delete: Removes an organizational unit.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - orgUnitPath: The full path of the organizational unit (minus the
-//   leading `/`) or its unique ID.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - orgUnitPath: The full path of the organizational unit (minus the
+//     leading `/`) or its unique ID.
 func (r *OrgunitsService) Delete(customerId string, orgUnitPath string) *OrgunitsDeleteCall {
 	c := &OrgunitsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -13891,7 +15714,7 @@ func (c *OrgunitsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13940,13 +15763,13 @@ type OrgunitsGetCall struct {
 
 // Get: Retrieves an organizational unit.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - orgUnitPath: The full path of the organizational unit (minus the
-//   leading `/`) or its unique ID.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - orgUnitPath: The full path of the organizational unit (minus the
+//     leading `/`) or its unique ID.
 func (r *OrgunitsService) Get(customerId string, orgUnitPath string) *OrgunitsGetCall {
 	c := &OrgunitsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -14030,17 +15853,17 @@ func (c *OrgunitsGetCall) Do(opts ...googleapi.CallOption) (*OrgUnit, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrgUnit{
 		ServerResponse: googleapi.ServerResponse{
@@ -14102,11 +15925,11 @@ type OrgunitsInsertCall struct {
 
 // Insert: Adds an organizational unit.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
 func (r *OrgunitsService) Insert(customerId string, orgunit *OrgUnit) *OrgunitsInsertCall {
 	c := &OrgunitsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -14181,17 +16004,17 @@ func (c *OrgunitsInsertCall) Do(opts ...googleapi.CallOption) (*OrgUnit, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrgUnit{
 		ServerResponse: googleapi.ServerResponse{
@@ -14247,11 +16070,11 @@ type OrgunitsListCall struct {
 
 // List: Retrieves a list of all organizational units for an account.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
 func (r *OrgunitsService) List(customerId string) *OrgunitsListCall {
 	c := &OrgunitsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -14270,8 +16093,9 @@ func (c *OrgunitsListCall) OrgUnitPath(orgUnitPath string) *OrgunitsListCall {
 // sub-organizations or just immediate children.
 //
 // Possible values:
-//   "all" - All sub-organizational units.
-//   "children" - Immediate children only (default).
+//
+//	"all" - All sub-organizational units.
+//	"children" - Immediate children only (default).
 func (c *OrgunitsListCall) Type(type_ string) *OrgunitsListCall {
 	c.urlParams_.Set("type", type_)
 	return c
@@ -14352,17 +16176,17 @@ func (c *OrgunitsListCall) Do(opts ...googleapi.CallOption) (*OrgUnits, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrgUnits{
 		ServerResponse: googleapi.ServerResponse{
@@ -14437,13 +16261,13 @@ type OrgunitsPatchCall struct {
 // Patch: Updates an organizational unit. This method supports patch
 // semantics (/admin-sdk/directory/v1/guides/performance#patch)
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - orgUnitPath: The full path of the organizational unit (minus the
-//   leading `/`) or its unique ID.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - orgUnitPath: The full path of the organizational unit (minus the
+//     leading `/`) or its unique ID.
 func (r *OrgunitsService) Patch(customerId string, orgUnitPath string, orgunit *OrgUnit) *OrgunitsPatchCall {
 	c := &OrgunitsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -14520,17 +16344,17 @@ func (c *OrgunitsPatchCall) Do(opts ...googleapi.CallOption) (*OrgUnit, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrgUnit{
 		ServerResponse: googleapi.ServerResponse{
@@ -14595,13 +16419,13 @@ type OrgunitsUpdateCall struct {
 
 // Update: Updates an organizational unit.
 //
-// - customerId: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's `customerId`. The
-//   `customerId` is also returned as part of the Users resource
-//   (/admin-sdk/directory/v1/reference/users).
-// - orgUnitPath: The full path of the organizational unit (minus the
-//   leading `/`) or its unique ID.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's `customerId`. The
+//     `customerId` is also returned as part of the Users resource
+//     (/admin-sdk/directory/v1/reference/users).
+//   - orgUnitPath: The full path of the organizational unit (minus the
+//     leading `/`) or its unique ID.
 func (r *OrgunitsService) Update(customerId string, orgUnitPath string, orgunit *OrgUnit) *OrgunitsUpdateCall {
 	c := &OrgunitsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -14678,17 +16502,17 @@ func (c *OrgunitsUpdateCall) Do(opts ...googleapi.CallOption) (*OrgUnit, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrgUnit{
 		ServerResponse: googleapi.ServerResponse{
@@ -14752,7 +16576,13 @@ type PrivilegesListCall struct {
 
 // List: Retrieves a paginated list of all privileges for a customer.
 //
-// - customer: Immutable ID of the Google Workspace account.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
 func (r *PrivilegesService) List(customer string) *PrivilegesListCall {
 	c := &PrivilegesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -14834,17 +16664,17 @@ func (c *PrivilegesListCall) Do(opts ...googleapi.CallOption) (*Privileges, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Privileges{
 		ServerResponse: googleapi.ServerResponse{
@@ -14867,7 +16697,7 @@ func (c *PrivilegesListCall) Do(opts ...googleapi.CallOption) (*Privileges, erro
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -14898,10 +16728,10 @@ type ResourcesBuildingsDeleteCall struct {
 
 // Delete: Deletes a building.
 //
-// - buildingId: The id of the building to delete.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - buildingId: The id of the building to delete.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesBuildingsService) Delete(customer string, buildingId string) *ResourcesBuildingsDeleteCall {
 	c := &ResourcesBuildingsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -14967,7 +16797,7 @@ func (c *ResourcesBuildingsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -15015,10 +16845,10 @@ type ResourcesBuildingsGetCall struct {
 
 // Get: Retrieves a building.
 //
-// - buildingId: The unique ID of the building to retrieve.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - buildingId: The unique ID of the building to retrieve.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesBuildingsService) Get(customer string, buildingId string) *ResourcesBuildingsGetCall {
 	c := &ResourcesBuildingsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -15102,17 +16932,17 @@ func (c *ResourcesBuildingsGetCall) Do(opts ...googleapi.CallOption) (*Building,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Building{
 		ServerResponse: googleapi.ServerResponse{
@@ -15173,9 +17003,9 @@ type ResourcesBuildingsInsertCall struct {
 
 // Insert: Inserts a building.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesBuildingsService) Insert(customer string, building *Building) *ResourcesBuildingsInsertCall {
 	c := &ResourcesBuildingsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -15187,11 +17017,17 @@ func (r *ResourcesBuildingsService) Insert(customer string, building *Building) 
 // Source from which Building.coordinates are derived.
 //
 // Possible values:
-//   "CLIENT_SPECIFIED" - Building.coordinates are set to the
+//
+//	"CLIENT_SPECIFIED" - Building.coordinates are set to the
+//
 // coordinates included in the request.
-//   "RESOLVED_FROM_ADDRESS" - Building.coordinates are automatically
+//
+//	"RESOLVED_FROM_ADDRESS" - Building.coordinates are automatically
+//
 // populated based on the postal address.
-//   "SOURCE_UNSPECIFIED" (default) - Defaults to
+//
+//	"SOURCE_UNSPECIFIED" (default) - Defaults to
+//
 // `RESOLVED_FROM_ADDRESS` if postal address is provided. Otherwise,
 // defaults to `CLIENT_SPECIFIED` if coordinates are provided.
 func (c *ResourcesBuildingsInsertCall) CoordinatesSource(coordinatesSource string) *ResourcesBuildingsInsertCall {
@@ -15266,17 +17102,17 @@ func (c *ResourcesBuildingsInsertCall) Do(opts ...googleapi.CallOption) (*Buildi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Building{
 		ServerResponse: googleapi.ServerResponse{
@@ -15348,9 +17184,9 @@ type ResourcesBuildingsListCall struct {
 
 // List: Retrieves a list of buildings for an account.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesBuildingsService) List(customer string) *ResourcesBuildingsListCall {
 	c := &ResourcesBuildingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -15446,17 +17282,17 @@ func (c *ResourcesBuildingsListCall) Do(opts ...googleapi.CallOption) (*Building
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Buildings{
 		ServerResponse: googleapi.ServerResponse{
@@ -15545,10 +17381,10 @@ type ResourcesBuildingsPatchCall struct {
 
 // Patch: Patches a building.
 //
-// - buildingId: The id of the building to update.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - buildingId: The id of the building to update.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesBuildingsService) Patch(customer string, buildingId string, building *Building) *ResourcesBuildingsPatchCall {
 	c := &ResourcesBuildingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -15561,11 +17397,17 @@ func (r *ResourcesBuildingsService) Patch(customer string, buildingId string, bu
 // Source from which Building.coordinates are derived.
 //
 // Possible values:
-//   "CLIENT_SPECIFIED" - Building.coordinates are set to the
+//
+//	"CLIENT_SPECIFIED" - Building.coordinates are set to the
+//
 // coordinates included in the request.
-//   "RESOLVED_FROM_ADDRESS" - Building.coordinates are automatically
+//
+//	"RESOLVED_FROM_ADDRESS" - Building.coordinates are automatically
+//
 // populated based on the postal address.
-//   "SOURCE_UNSPECIFIED" (default) - Defaults to
+//
+//	"SOURCE_UNSPECIFIED" (default) - Defaults to
+//
 // `RESOLVED_FROM_ADDRESS` if postal address is provided. Otherwise,
 // defaults to `CLIENT_SPECIFIED` if coordinates are provided.
 func (c *ResourcesBuildingsPatchCall) CoordinatesSource(coordinatesSource string) *ResourcesBuildingsPatchCall {
@@ -15641,17 +17483,17 @@ func (c *ResourcesBuildingsPatchCall) Do(opts ...googleapi.CallOption) (*Buildin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Building{
 		ServerResponse: googleapi.ServerResponse{
@@ -15731,10 +17573,10 @@ type ResourcesBuildingsUpdateCall struct {
 
 // Update: Updates a building.
 //
-// - buildingId: The id of the building to update.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - buildingId: The id of the building to update.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesBuildingsService) Update(customer string, buildingId string, building *Building) *ResourcesBuildingsUpdateCall {
 	c := &ResourcesBuildingsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -15747,11 +17589,17 @@ func (r *ResourcesBuildingsService) Update(customer string, buildingId string, b
 // Source from which Building.coordinates are derived.
 //
 // Possible values:
-//   "CLIENT_SPECIFIED" - Building.coordinates are set to the
+//
+//	"CLIENT_SPECIFIED" - Building.coordinates are set to the
+//
 // coordinates included in the request.
-//   "RESOLVED_FROM_ADDRESS" - Building.coordinates are automatically
+//
+//	"RESOLVED_FROM_ADDRESS" - Building.coordinates are automatically
+//
 // populated based on the postal address.
-//   "SOURCE_UNSPECIFIED" (default) - Defaults to
+//
+//	"SOURCE_UNSPECIFIED" (default) - Defaults to
+//
 // `RESOLVED_FROM_ADDRESS` if postal address is provided. Otherwise,
 // defaults to `CLIENT_SPECIFIED` if coordinates are provided.
 func (c *ResourcesBuildingsUpdateCall) CoordinatesSource(coordinatesSource string) *ResourcesBuildingsUpdateCall {
@@ -15827,17 +17675,17 @@ func (c *ResourcesBuildingsUpdateCall) Do(opts ...googleapi.CallOption) (*Buildi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Building{
 		ServerResponse: googleapi.ServerResponse{
@@ -15916,11 +17764,11 @@ type ResourcesCalendarsDeleteCall struct {
 
 // Delete: Deletes a calendar resource.
 //
-// - calendarResourceId: The unique ID of the calendar resource to
-//   delete.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - calendarResourceId: The unique ID of the calendar resource to
+//     delete.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesCalendarsService) Delete(customer string, calendarResourceId string) *ResourcesCalendarsDeleteCall {
 	c := &ResourcesCalendarsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -15986,7 +17834,7 @@ func (c *ResourcesCalendarsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -16034,11 +17882,11 @@ type ResourcesCalendarsGetCall struct {
 
 // Get: Retrieves a calendar resource.
 //
-// - calendarResourceId: The unique ID of the calendar resource to
-//   retrieve.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - calendarResourceId: The unique ID of the calendar resource to
+//     retrieve.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesCalendarsService) Get(customer string, calendarResourceId string) *ResourcesCalendarsGetCall {
 	c := &ResourcesCalendarsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -16122,17 +17970,17 @@ func (c *ResourcesCalendarsGetCall) Do(opts ...googleapi.CallOption) (*CalendarR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CalendarResource{
 		ServerResponse: googleapi.ServerResponse{
@@ -16193,9 +18041,9 @@ type ResourcesCalendarsInsertCall struct {
 
 // Insert: Inserts a calendar resource.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesCalendarsService) Insert(customer string, calendarresource *CalendarResource) *ResourcesCalendarsInsertCall {
 	c := &ResourcesCalendarsInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -16270,17 +18118,17 @@ func (c *ResourcesCalendarsInsertCall) Do(opts ...googleapi.CallOption) (*Calend
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CalendarResource{
 		ServerResponse: googleapi.ServerResponse{
@@ -16336,9 +18184,9 @@ type ResourcesCalendarsListCall struct {
 
 // List: Retrieves a list of calendar resources for an account.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesCalendarsService) List(customer string) *ResourcesCalendarsListCall {
 	c := &ResourcesCalendarsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -16464,17 +18312,17 @@ func (c *ResourcesCalendarsListCall) Do(opts ...googleapi.CallOption) (*Calendar
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CalendarResources{
 		ServerResponse: googleapi.ServerResponse{
@@ -16573,11 +18421,11 @@ type ResourcesCalendarsPatchCall struct {
 
 // Patch: Patches a calendar resource.
 //
-// - calendarResourceId: The unique ID of the calendar resource to
-//   update.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - calendarResourceId: The unique ID of the calendar resource to
+//     update.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesCalendarsService) Patch(customer string, calendarResourceId string, calendarresource *CalendarResource) *ResourcesCalendarsPatchCall {
 	c := &ResourcesCalendarsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -16654,17 +18502,17 @@ func (c *ResourcesCalendarsPatchCall) Do(opts ...googleapi.CallOption) (*Calenda
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CalendarResource{
 		ServerResponse: googleapi.ServerResponse{
@@ -16730,11 +18578,11 @@ type ResourcesCalendarsUpdateCall struct {
 // semantics, meaning you only need to include the fields you wish to
 // update. Fields that are not present in the request will be preserved.
 //
-// - calendarResourceId: The unique ID of the calendar resource to
-//   update.
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - calendarResourceId: The unique ID of the calendar resource to
+//     update.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesCalendarsService) Update(customer string, calendarResourceId string, calendarresource *CalendarResource) *ResourcesCalendarsUpdateCall {
 	c := &ResourcesCalendarsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -16811,17 +18659,17 @@ func (c *ResourcesCalendarsUpdateCall) Do(opts ...googleapi.CallOption) (*Calend
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CalendarResource{
 		ServerResponse: googleapi.ServerResponse{
@@ -16884,10 +18732,10 @@ type ResourcesFeaturesDeleteCall struct {
 
 // Delete: Deletes a feature.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
-// - featureKey: The unique ID of the feature to delete.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
+//   - featureKey: The unique ID of the feature to delete.
 func (r *ResourcesFeaturesService) Delete(customer string, featureKey string) *ResourcesFeaturesDeleteCall {
 	c := &ResourcesFeaturesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -16953,7 +18801,7 @@ func (c *ResourcesFeaturesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17001,10 +18849,10 @@ type ResourcesFeaturesGetCall struct {
 
 // Get: Retrieves a feature.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
-// - featureKey: The unique ID of the feature to retrieve.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
+//   - featureKey: The unique ID of the feature to retrieve.
 func (r *ResourcesFeaturesService) Get(customer string, featureKey string) *ResourcesFeaturesGetCall {
 	c := &ResourcesFeaturesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -17088,17 +18936,17 @@ func (c *ResourcesFeaturesGetCall) Do(opts ...googleapi.CallOption) (*Feature, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Feature{
 		ServerResponse: googleapi.ServerResponse{
@@ -17159,9 +19007,9 @@ type ResourcesFeaturesInsertCall struct {
 
 // Insert: Inserts a feature.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesFeaturesService) Insert(customer string, feature *Feature) *ResourcesFeaturesInsertCall {
 	c := &ResourcesFeaturesInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -17236,17 +19084,17 @@ func (c *ResourcesFeaturesInsertCall) Do(opts ...googleapi.CallOption) (*Feature
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Feature{
 		ServerResponse: googleapi.ServerResponse{
@@ -17302,9 +19150,9 @@ type ResourcesFeaturesListCall struct {
 
 // List: Retrieves a list of features for an account.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
 func (r *ResourcesFeaturesService) List(customer string) *ResourcesFeaturesListCall {
 	c := &ResourcesFeaturesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -17400,17 +19248,17 @@ func (c *ResourcesFeaturesListCall) Do(opts ...googleapi.CallOption) (*Features,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Features{
 		ServerResponse: googleapi.ServerResponse{
@@ -17499,10 +19347,10 @@ type ResourcesFeaturesPatchCall struct {
 
 // Patch: Patches a feature.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
-// - featureKey: The unique ID of the feature to update.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
+//   - featureKey: The unique ID of the feature to update.
 func (r *ResourcesFeaturesService) Patch(customer string, featureKey string, feature *Feature) *ResourcesFeaturesPatchCall {
 	c := &ResourcesFeaturesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -17579,17 +19427,17 @@ func (c *ResourcesFeaturesPatchCall) Do(opts ...googleapi.CallOption) (*Feature,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Feature{
 		ServerResponse: googleapi.ServerResponse{
@@ -17653,10 +19501,10 @@ type ResourcesFeaturesRenameCall struct {
 
 // Rename: Renames a feature.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
-// - oldName: The unique ID of the feature to rename.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
+//   - oldName: The unique ID of the feature to rename.
 func (r *ResourcesFeaturesService) Rename(customer string, oldName string, featurerename *FeatureRename) *ResourcesFeaturesRenameCall {
 	c := &ResourcesFeaturesRenameCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -17728,7 +19576,7 @@ func (c *ResourcesFeaturesRenameCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -17779,10 +19627,10 @@ type ResourcesFeaturesUpdateCall struct {
 
 // Update: Updates a feature.
 //
-// - customer: The unique ID for the customer's Google Workspace
-//   account. As an account administrator, you can also use the
-//   `my_customer` alias to represent your account's customer ID.
-// - featureKey: The unique ID of the feature to update.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. As an account administrator, you can also use the
+//     `my_customer` alias to represent your account's customer ID.
+//   - featureKey: The unique ID of the feature to update.
 func (r *ResourcesFeaturesService) Update(customer string, featureKey string, feature *Feature) *ResourcesFeaturesUpdateCall {
 	c := &ResourcesFeaturesUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -17859,17 +19707,17 @@ func (c *ResourcesFeaturesUpdateCall) Do(opts ...googleapi.CallOption) (*Feature
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Feature{
 		ServerResponse: googleapi.ServerResponse{
@@ -17999,7 +19847,7 @@ func (c *RoleAssignmentsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -18047,8 +19895,14 @@ type RoleAssignmentsGetCall struct {
 
 // Get: Retrieves a role assignment.
 //
-// - customer: Immutable ID of the Google Workspace account.
-// - roleAssignmentId: Immutable ID of the role assignment.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
+//   - roleAssignmentId: Immutable ID of the role assignment.
 func (r *RoleAssignmentsService) Get(customer string, roleAssignmentId string) *RoleAssignmentsGetCall {
 	c := &RoleAssignmentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -18132,17 +19986,17 @@ func (c *RoleAssignmentsGetCall) Do(opts ...googleapi.CallOption) (*RoleAssignme
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RoleAssignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -18166,7 +20020,7 @@ func (c *RoleAssignmentsGetCall) Do(opts ...googleapi.CallOption) (*RoleAssignme
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -18278,17 +20132,17 @@ func (c *RoleAssignmentsInsertCall) Do(opts ...googleapi.CallOption) (*RoleAssig
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RoleAssignment{
 		ServerResponse: googleapi.ServerResponse{
@@ -18344,10 +20198,26 @@ type RoleAssignmentsListCall struct {
 
 // List: Retrieves a paginated list of all roleAssignments.
 //
-// - customer: Immutable ID of the Google Workspace account.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
 func (r *RoleAssignmentsService) List(customer string) *RoleAssignmentsListCall {
 	c := &RoleAssignmentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
+	return c
+}
+
+// IncludeIndirectRoleAssignments sets the optional parameter
+// "includeIndirectRoleAssignments": When set to `true`, fetches
+// indirect role assignments (i.e. role assignment via a group) as well
+// as direct ones. Defaults to `false`. You must specify `user_key` or
+// the indirect role assignments will not be included.
+func (c *RoleAssignmentsListCall) IncludeIndirectRoleAssignments(includeIndirectRoleAssignments bool) *RoleAssignmentsListCall {
+	c.urlParams_.Set("includeIndirectRoleAssignments", fmt.Sprint(includeIndirectRoleAssignments))
 	return c
 }
 
@@ -18373,9 +20243,9 @@ func (c *RoleAssignmentsListCall) RoleId(roleId string) *RoleAssignmentsListCall
 	return c
 }
 
-// UserKey sets the optional parameter "userKey": The user's primary
-// email address, alias email address, or unique user ID. If included in
-// the request, returns role assignments only for this user.
+// UserKey sets the optional parameter "userKey": The primary email
+// address, alias email address, or unique user or group ID. If included
+// in the request, returns role assignments only for this user or group.
 func (c *RoleAssignmentsListCall) UserKey(userKey string) *RoleAssignmentsListCall {
 	c.urlParams_.Set("userKey", userKey)
 	return c
@@ -18456,17 +20326,17 @@ func (c *RoleAssignmentsListCall) Do(opts ...googleapi.CallOption) (*RoleAssignm
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RoleAssignments{
 		ServerResponse: googleapi.ServerResponse{
@@ -18489,10 +20359,15 @@ func (c *RoleAssignmentsListCall) Do(opts ...googleapi.CallOption) (*RoleAssignm
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
+	//     },
+	//     "includeIndirectRoleAssignments": {
+	//       "description": "When set to `true`, fetches indirect role assignments (i.e. role assignment via a group) as well as direct ones. Defaults to `false`. You must specify `user_key` or the indirect role assignments will not be included.",
+	//       "location": "query",
+	//       "type": "boolean"
 	//     },
 	//     "maxResults": {
 	//       "description": "Maximum number of results to return.",
@@ -18513,7 +20388,7 @@ func (c *RoleAssignmentsListCall) Do(opts ...googleapi.CallOption) (*RoleAssignm
 	//       "type": "string"
 	//     },
 	//     "userKey": {
-	//       "description": "The user's primary email address, alias email address, or unique user ID. If included in the request, returns role assignments only for this user.",
+	//       "description": "The primary email address, alias email address, or unique user or group ID. If included in the request, returns role assignments only for this user or group.",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -18631,7 +20506,7 @@ func (c *RolesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -18679,8 +20554,14 @@ type RolesGetCall struct {
 
 // Get: Retrieves a role.
 //
-// - customer: Immutable ID of the Google Workspace account.
-// - roleId: Immutable ID of the role.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
+//   - roleId: Immutable ID of the role.
 func (r *RolesService) Get(customer string, roleId string) *RolesGetCall {
 	c := &RolesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -18764,17 +20645,17 @@ func (c *RolesGetCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Role{
 		ServerResponse: googleapi.ServerResponse{
@@ -18798,7 +20679,7 @@ func (c *RolesGetCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -18910,17 +20791,17 @@ func (c *RolesInsertCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Role{
 		ServerResponse: googleapi.ServerResponse{
@@ -18976,7 +20857,13 @@ type RolesListCall struct {
 
 // List: Retrieves a paginated list of all the roles in a domain.
 //
-// - customer: Immutable ID of the Google Workspace account.
+//   - customer: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
 func (r *RolesService) List(customer string) *RolesListCall {
 	c := &RolesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customer = customer
@@ -19072,17 +20959,17 @@ func (c *RolesListCall) Do(opts ...googleapi.CallOption) (*Roles, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Roles{
 		ServerResponse: googleapi.ServerResponse{
@@ -19105,7 +20992,7 @@ func (c *RolesListCall) Do(opts ...googleapi.CallOption) (*Roles, error) {
 	//   ],
 	//   "parameters": {
 	//     "customer": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -19249,17 +21136,17 @@ func (c *RolesPatchCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Role{
 		ServerResponse: googleapi.ServerResponse{
@@ -19401,17 +21288,17 @@ func (c *RolesUpdateCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Role{
 		ServerResponse: googleapi.ServerResponse{
@@ -19541,7 +21428,7 @@ func (c *SchemasDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -19589,8 +21476,14 @@ type SchemasGetCall struct {
 
 // Get: Retrieves a schema.
 //
-// - customerId: Immutable ID of the Google Workspace account.
-// - schemaKey: Name or immutable ID of the schema.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
+//   - schemaKey: Name or immutable ID of the schema.
 func (r *SchemasService) Get(customerId string, schemaKey string) *SchemasGetCall {
 	c := &SchemasGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -19674,17 +21567,17 @@ func (c *SchemasGetCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Schema{
 		ServerResponse: googleapi.ServerResponse{
@@ -19708,7 +21601,7 @@ func (c *SchemasGetCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
 	//   ],
 	//   "parameters": {
 	//     "customerId": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -19820,17 +21713,17 @@ func (c *SchemasInsertCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Schema{
 		ServerResponse: googleapi.ServerResponse{
@@ -19886,7 +21779,13 @@ type SchemasListCall struct {
 
 // List: Retrieves all schemas for a customer.
 //
-// - customerId: Immutable ID of the Google Workspace account.
+//   - customerId: The unique ID for the customer's Google Workspace
+//     account. In case of a multi-domain account, to fetch all groups for
+//     a customer, use this field instead of `domain`. You can also use
+//     the `my_customer` alias to represent your account's `customerId`.
+//     The `customerId` is also returned as part of the Users
+//     (/admin-sdk/directory/v1/reference/users) resource. You must
+//     provide either the `customer` or the `domain` parameter.
 func (r *SchemasService) List(customerId string) *SchemasListCall {
 	c := &SchemasListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.customerId = customerId
@@ -19968,17 +21867,17 @@ func (c *SchemasListCall) Do(opts ...googleapi.CallOption) (*Schemas, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Schemas{
 		ServerResponse: googleapi.ServerResponse{
@@ -20001,7 +21900,7 @@ func (c *SchemasListCall) Do(opts ...googleapi.CallOption) (*Schemas, error) {
 	//   ],
 	//   "parameters": {
 	//     "customerId": {
-	//       "description": "Immutable ID of the Google Workspace account.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -20111,17 +22010,17 @@ func (c *SchemasPatchCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Schema{
 		ServerResponse: googleapi.ServerResponse{
@@ -20263,17 +22162,17 @@ func (c *SchemasUpdateCall) Do(opts ...googleapi.CallOption) (*Schema, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Schema{
 		ServerResponse: googleapi.ServerResponse{
@@ -20337,10 +22236,10 @@ type TokensDeleteCall struct {
 // Delete: Deletes all access tokens issued by a user for an
 // application.
 //
-// - clientId: The Client ID of the application the token is issued to.
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - clientId: The Client ID of the application the token is issued to.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *TokensService) Delete(userKey string, clientId string) *TokensDeleteCall {
 	c := &TokensDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -20406,7 +22305,7 @@ func (c *TokensDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -20454,10 +22353,10 @@ type TokensGetCall struct {
 
 // Get: Gets information about an access token issued by a user.
 //
-// - clientId: The Client ID of the application the token is issued to.
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - clientId: The Client ID of the application the token is issued to.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *TokensService) Get(userKey string, clientId string) *TokensGetCall {
 	c := &TokensGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -20541,17 +22440,17 @@ func (c *TokensGetCall) Do(opts ...googleapi.CallOption) (*Token, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Token{
 		ServerResponse: googleapi.ServerResponse{
@@ -20612,9 +22511,9 @@ type TokensListCall struct {
 // List: Returns the set of tokens specified user has issued to 3rd
 // party applications.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *TokensService) List(userKey string) *TokensListCall {
 	c := &TokensListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -20696,17 +22595,17 @@ func (c *TokensListCall) Do(opts ...googleapi.CallOption) (*Tokens, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Tokens{
 		ServerResponse: googleapi.ServerResponse{
@@ -20758,9 +22657,9 @@ type TwoStepVerificationTurnOffCall struct {
 
 // TurnOff: Turns off 2-Step Verification for user.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *TwoStepVerificationService) TurnOff(userKey string) *TwoStepVerificationTurnOffCall {
 	c := &TwoStepVerificationTurnOffCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -20824,7 +22723,7 @@ func (c *TwoStepVerificationTurnOffCall) Do(opts ...googleapi.CallOption) error 
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -20863,9 +22762,9 @@ type UsersDeleteCall struct {
 
 // Delete: Deletes a user.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersService) Delete(userKey string) *UsersDeleteCall {
 	c := &UsersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -20929,7 +22828,7 @@ func (c *UsersDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -20969,9 +22868,9 @@ type UsersGetCall struct {
 
 // Get: Retrieves a user.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersService) Get(userKey string) *UsersGetCall {
 	c := &UsersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -20990,10 +22889,13 @@ func (c *UsersGetCall) CustomFieldMask(customFieldMask string) *UsersGetCall {
 // fields to fetch for this user.
 //
 // Possible values:
-//   "basic" (default) - Do not include any custom fields for the user.
-//   "custom" - Include custom fields from schemas requested in
+//
+//	"basic" (default) - Do not include any custom fields for the user.
+//	"custom" - Include custom fields from schemas requested in
+//
 // `customFieldMask`.
-//   "full" - Include all fields associated with this user.
+//
+//	"full" - Include all fields associated with this user.
 func (c *UsersGetCall) Projection(projection string) *UsersGetCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -21006,9 +22908,13 @@ func (c *UsersGetCall) Projection(projection string) *UsersGetCall {
 // .
 //
 // Possible values:
-//   "admin_view" (default) - Results include both administrator-only
+//
+//	"admin_view" (default) - Results include both administrator-only
+//
 // and domain-public fields for the user.
-//   "domain_public" - Results only include fields for the user that are
+//
+//	"domain_public" - Results only include fields for the user that are
+//
 // publicly visible to other users in the domain.
 func (c *UsersGetCall) ViewType(viewType string) *UsersGetCall {
 	c.urlParams_.Set("viewType", viewType)
@@ -21090,17 +22996,17 @@ func (c *UsersGetCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -21257,17 +23163,17 @@ func (c *UsersInsertCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -21328,11 +23234,11 @@ func (c *UsersListCall) CustomFieldMask(customFieldMask string) *UsersListCall {
 
 // Customer sets the optional parameter "customer": The unique ID for
 // the customer's Google Workspace account. In case of a multi-domain
-// account, to fetch all groups for a customer, fill this field instead
-// of domain. You can also use the `my_customer` alias to represent your
-// account's `customerId`. The `customerId` is also returned as part of
-// the Users resource (/admin-sdk/directory/v1/reference/users). Either
-// the `customer` or the `domain` parameter must be provided.
+// account, to fetch all groups for a customer, use this field instead
+// of `domain`. You can also use the `my_customer` alias to represent
+// your account's `customerId`. The `customerId` is also returned as
+// part of the Users (/admin-sdk/directory/v1/reference/users) resource.
+// You must provide either the `customer` or the `domain` parameter.
 func (c *UsersListCall) Customer(customer string) *UsersListCall {
 	c.urlParams_.Set("customer", customer)
 	return c
@@ -21351,11 +23257,12 @@ func (c *UsersListCall) Domain(domain string) *UsersListCall {
 // subscription is intended (if subscribing)
 //
 // Possible values:
-//   "add" - User Created Event
-//   "delete" - User Deleted Event
-//   "makeAdmin" - User Admin Status Change Event
-//   "undelete" - User Undeleted Event
-//   "update" - User Updated Event
+//
+//	"add" - User Created Event
+//	"delete" - User Deleted Event
+//	"makeAdmin" - User Admin Status Change Event
+//	"undelete" - User Undeleted Event
+//	"update" - User Updated Event
 func (c *UsersListCall) Event(event string) *UsersListCall {
 	c.urlParams_.Set("event", event)
 	return c
@@ -21372,9 +23279,10 @@ func (c *UsersListCall) MaxResults(maxResults int64) *UsersListCall {
 // sorting results.
 //
 // Possible values:
-//   "email" - Primary email of the user.
-//   "familyName" - User's family name.
-//   "givenName" - User's given name.
+//
+//	"email" - Primary email of the user.
+//	"familyName" - User's family name.
+//	"givenName" - User's given name.
 func (c *UsersListCall) OrderBy(orderBy string) *UsersListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -21391,10 +23299,13 @@ func (c *UsersListCall) PageToken(pageToken string) *UsersListCall {
 // fields to fetch for this user.
 //
 // Possible values:
-//   "basic" (default) - Do not include any custom fields for the user.
-//   "custom" - Include custom fields from schemas requested in
+//
+//	"basic" (default) - Do not include any custom fields for the user.
+//	"custom" - Include custom fields from schemas requested in
+//
 // `customFieldMask`.
-//   "full" - Include all fields associated with this user.
+//
+//	"full" - Include all fields associated with this user.
 func (c *UsersListCall) Projection(projection string) *UsersListCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -21419,8 +23330,9 @@ func (c *UsersListCall) ShowDeleted(showDeleted string) *UsersListCall {
 // results in ascending or descending order, ignoring case.
 //
 // Possible values:
-//   "ASCENDING" - Ascending order.
-//   "DESCENDING" - Descending order.
+//
+//	"ASCENDING" - Ascending order.
+//	"DESCENDING" - Descending order.
 func (c *UsersListCall) SortOrder(sortOrder string) *UsersListCall {
 	c.urlParams_.Set("sortOrder", sortOrder)
 	return c
@@ -21433,9 +23345,13 @@ func (c *UsersListCall) SortOrder(sortOrder string) *UsersListCall {
 // .
 //
 // Possible values:
-//   "admin_view" (default) - Results include both administrator-only
+//
+//	"admin_view" (default) - Results include both administrator-only
+//
 // and domain-public fields for the user.
-//   "domain_public" - Results only include fields for the user that are
+//
+//	"domain_public" - Results only include fields for the user that are
+//
 // publicly visible to other users in the domain.
 func (c *UsersListCall) ViewType(viewType string) *UsersListCall {
 	c.urlParams_.Set("viewType", viewType)
@@ -21514,17 +23430,17 @@ func (c *UsersListCall) Do(opts ...googleapi.CallOption) (*Users, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Users{
 		ServerResponse: googleapi.ServerResponse{
@@ -21550,7 +23466,7 @@ func (c *UsersListCall) Do(opts ...googleapi.CallOption) (*Users, error) {
 	//       "type": "string"
 	//     },
 	//     "customer": {
-	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, fill this field instead of domain. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users resource](/admin-sdk/directory/v1/reference/users). Either the `customer` or the `domain` parameter must be provided.",
+	//       "description": "The unique ID for the customer's Google Workspace account. In case of a multi-domain account, to fetch all groups for a customer, use this field instead of `domain`. You can also use the `my_customer` alias to represent your account's `customerId`. The `customerId` is also returned as part of the [Users](/admin-sdk/directory/v1/reference/users) resource. You must provide either the `customer` or the `domain` parameter.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -21708,9 +23624,9 @@ type UsersMakeAdminCall struct {
 
 // MakeAdmin: Makes a user a super administrator.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersService) MakeAdmin(userKey string, usermakeadmin *UserMakeAdmin) *UsersMakeAdminCall {
 	c := &UsersMakeAdminCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -21780,7 +23696,7 @@ func (c *UsersMakeAdminCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -21822,14 +23738,17 @@ type UsersPatchCall struct {
 }
 
 // Patch: Updates a user using patch semantics. The update method should
-// be used instead, since it also supports patch semantics and has
-// better performance. This method is unable to clear fields that
-// contain repeated objects (`addresses`, `phones`, etc). Use the update
-// method instead.
+// be used instead, because it also supports patch semantics and has
+// better performance. If you're mapping an external identity to a
+// Google identity, use the `update`
+// (https://developers.google.com/admin-sdk/directory/v1/reference/users/update)
+// method instead of the `patch` method. This method is unable to clear
+// fields that contain repeated objects (`addresses`, `phones`, etc).
+// Use the update method instead.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersService) Patch(userKey string, user *User) *UsersPatchCall {
 	c := &UsersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -21904,17 +23823,17 @@ func (c *UsersPatchCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -21928,7 +23847,7 @@ func (c *UsersPatchCall) Do(opts ...googleapi.CallOption) (*User, error) {
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a user using patch semantics. The update method should be used instead, since it also supports patch semantics and has better performance. This method is unable to clear fields that contain repeated objects (`addresses`, `phones`, etc). Use the update method instead.",
+	//   "description": "Updates a user using patch semantics. The update method should be used instead, because it also supports patch semantics and has better performance. If you're mapping an external identity to a Google identity, use the [`update`](https://developers.google.com/admin-sdk/directory/v1/reference/users/update) method instead of the `patch` method. This method is unable to clear fields that contain repeated objects (`addresses`, `phones`, etc). Use the update method instead.",
 	//   "flatPath": "admin/directory/v1/users/{userKey}",
 	//   "httpMethod": "PATCH",
 	//   "id": "directory.users.patch",
@@ -21971,9 +23890,9 @@ type UsersSignOutCall struct {
 // their sign-in cookies. User will have to sign in by authenticating
 // again.
 //
-// - userKey: Identifies the target user in the API request. The value
-//   can be the user's primary email address, alias email address, or
-//   unique user ID.
+//   - userKey: Identifies the target user in the API request. The value
+//     can be the user's primary email address, alias email address, or
+//     unique user ID.
 func (r *UsersService) SignOut(userKey string) *UsersSignOutCall {
 	c := &UsersSignOutCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -22037,7 +23956,7 @@ func (c *UsersSignOutCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -22147,7 +24066,7 @@ func (c *UsersUndeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -22189,13 +24108,18 @@ type UsersUpdateCall struct {
 }
 
 // Update: Updates a user. This method supports patch semantics, meaning
-// you only need to include the fields you wish to update. Fields that
-// are not present in the request will be preserved, and fields set to
-// `null` will be cleared.
+// that you only need to include the fields you wish to update. Fields
+// that are not present in the request will be preserved, and fields set
+// to `null` will be cleared. For repeating fields that contain arrays,
+// individual items in the array can't be patched piecemeal; they must
+// be supplied in the request body with the desired values for all
+// items. See the user accounts guide
+// (https://developers.google.com/admin-sdk/directory/v1/guides/manage-users#update_user)
+// for more information.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersService) Update(userKey string, user *User) *UsersUpdateCall {
 	c := &UsersUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -22270,17 +24194,17 @@ func (c *UsersUpdateCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -22294,7 +24218,7 @@ func (c *UsersUpdateCall) Do(opts ...googleapi.CallOption) (*User, error) {
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a user. This method supports patch semantics, meaning you only need to include the fields you wish to update. Fields that are not present in the request will be preserved, and fields set to `null` will be cleared.",
+	//   "description": "Updates a user. This method supports patch semantics, meaning that you only need to include the fields you wish to update. Fields that are not present in the request will be preserved, and fields set to `null` will be cleared. For repeating fields that contain arrays, individual items in the array can't be patched piecemeal; they must be supplied in the request body with the desired values for all items. See the [user accounts guide](https://developers.google.com/admin-sdk/directory/v1/guides/manage-users#update_user) for more information.",
 	//   "flatPath": "admin/directory/v1/users/{userKey}",
 	//   "httpMethod": "PUT",
 	//   "id": "directory.users.update",
@@ -22367,11 +24291,12 @@ func (c *UsersWatchCall) Domain(domain string) *UsersWatchCall {
 // Event sets the optional parameter "event": Events to watch for.
 //
 // Possible values:
-//   "add" - User Created Event
-//   "delete" - User Deleted Event
-//   "makeAdmin" - User Admin Status Change Event
-//   "undelete" - User Undeleted Event
-//   "update" - User Updated Event
+//
+//	"add" - User Created Event
+//	"delete" - User Deleted Event
+//	"makeAdmin" - User Admin Status Change Event
+//	"undelete" - User Undeleted Event
+//	"update" - User Updated Event
 func (c *UsersWatchCall) Event(event string) *UsersWatchCall {
 	c.urlParams_.Set("event", event)
 	return c
@@ -22388,9 +24313,10 @@ func (c *UsersWatchCall) MaxResults(maxResults int64) *UsersWatchCall {
 // sorting results
 //
 // Possible values:
-//   "email" - Primary email of the user.
-//   "familyName" - User's family name.
-//   "givenName" - User's given name.
+//
+//	"email" - Primary email of the user.
+//	"familyName" - User's family name.
+//	"givenName" - User's given name.
 func (c *UsersWatchCall) OrderBy(orderBy string) *UsersWatchCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
@@ -22407,10 +24333,13 @@ func (c *UsersWatchCall) PageToken(pageToken string) *UsersWatchCall {
 // fields to fetch for this user.
 //
 // Possible values:
-//   "basic" (default) - Do not include any custom fields for the user.
-//   "custom" - Include custom fields from schemas mentioned in
+//
+//	"basic" (default) - Do not include any custom fields for the user.
+//	"custom" - Include custom fields from schemas mentioned in
+//
 // customFieldMask.
-//   "full" - Include all fields associated with this user.
+//
+//	"full" - Include all fields associated with this user.
 func (c *UsersWatchCall) Projection(projection string) *UsersWatchCall {
 	c.urlParams_.Set("projection", projection)
 	return c
@@ -22435,8 +24364,9 @@ func (c *UsersWatchCall) ShowDeleted(showDeleted string) *UsersWatchCall {
 // results in ascending or descending order.
 //
 // Possible values:
-//   "ASCENDING" - Ascending order.
-//   "DESCENDING" - Descending order.
+//
+//	"ASCENDING" - Ascending order.
+//	"DESCENDING" - Descending order.
 func (c *UsersWatchCall) SortOrder(sortOrder string) *UsersWatchCall {
 	c.urlParams_.Set("sortOrder", sortOrder)
 	return c
@@ -22449,9 +24379,13 @@ func (c *UsersWatchCall) SortOrder(sortOrder string) *UsersWatchCall {
 // .
 //
 // Possible values:
-//   "admin_view" (default) - Results include both administrator-only
+//
+//	"admin_view" (default) - Results include both administrator-only
+//
 // and domain-public fields.
-//   "domain_public" - Results only include fields for the user that are
+//
+//	"domain_public" - Results only include fields for the user that are
+//
 // publicly visible to other users in the domain.
 func (c *UsersWatchCall) ViewType(viewType string) *UsersWatchCall {
 	c.urlParams_.Set("viewType", viewType)
@@ -22522,17 +24456,17 @@ func (c *UsersWatchCall) Do(opts ...googleapi.CallOption) (*Channel, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -22698,10 +24632,10 @@ type UsersAliasesDeleteCall struct {
 
 // Delete: Removes an alias.
 //
-// - alias: The alias to be removed.
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - alias: The alias to be removed.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersAliasesService) Delete(userKey string, alias string) *UsersAliasesDeleteCall {
 	c := &UsersAliasesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -22767,7 +24701,7 @@ func (c *UsersAliasesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -22815,9 +24749,9 @@ type UsersAliasesInsertCall struct {
 
 // Insert: Adds an alias.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersAliasesService) Insert(userKey string, alias *Alias) *UsersAliasesInsertCall {
 	c := &UsersAliasesInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -22892,17 +24826,17 @@ func (c *UsersAliasesInsertCall) Do(opts ...googleapi.CallOption) (*Alias, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Alias{
 		ServerResponse: googleapi.ServerResponse{
@@ -22959,9 +24893,9 @@ type UsersAliasesListCall struct {
 
 // List: Lists all aliases for a user.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersAliasesService) List(userKey string) *UsersAliasesListCall {
 	c := &UsersAliasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -22971,8 +24905,9 @@ func (r *UsersAliasesService) List(userKey string) *UsersAliasesListCall {
 // Event sets the optional parameter "event": Events to watch for.
 //
 // Possible values:
-//   "add" - Alias Created Event
-//   "delete" - Alias Deleted Event
+//
+//	"add" - Alias Created Event
+//	"delete" - Alias Deleted Event
 func (c *UsersAliasesListCall) Event(event string) *UsersAliasesListCall {
 	c.urlParams_.Set("event", event)
 	return c
@@ -23053,17 +24988,17 @@ func (c *UsersAliasesListCall) Do(opts ...googleapi.CallOption) (*Aliases, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Aliases{
 		ServerResponse: googleapi.ServerResponse{
@@ -23143,8 +25078,9 @@ func (r *UsersAliasesService) Watch(userKey string, channel *Channel) *UsersAlia
 // Event sets the optional parameter "event": Events to watch for.
 //
 // Possible values:
-//   "add" - Alias Created Event
-//   "delete" - Alias Deleted Event
+//
+//	"add" - Alias Created Event
+//	"delete" - Alias Deleted Event
 func (c *UsersAliasesWatchCall) Event(event string) *UsersAliasesWatchCall {
 	c.urlParams_.Set("event", event)
 	return c
@@ -23217,17 +25153,17 @@ func (c *UsersAliasesWatchCall) Do(opts ...googleapi.CallOption) (*Channel, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -23298,9 +25234,9 @@ type UsersPhotosDeleteCall struct {
 
 // Delete: Removes the user's photo.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersPhotosService) Delete(userKey string) *UsersPhotosDeleteCall {
 	c := &UsersPhotosDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -23364,7 +25300,7 @@ func (c *UsersPhotosDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -23404,9 +25340,9 @@ type UsersPhotosGetCall struct {
 
 // Get: Retrieves the user's photo.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersPhotosService) Get(userKey string) *UsersPhotosGetCall {
 	c := &UsersPhotosGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -23488,17 +25424,17 @@ func (c *UsersPhotosGetCall) Do(opts ...googleapi.CallOption) (*UserPhoto, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserPhoto{
 		ServerResponse: googleapi.ServerResponse{
@@ -23553,9 +25489,9 @@ type UsersPhotosPatchCall struct {
 // Patch: Adds a photo for the user. This method supports patch
 // semantics (/admin-sdk/directory/v1/guides/performance#patch).
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersPhotosService) Patch(userKey string, userphoto *UserPhoto) *UsersPhotosPatchCall {
 	c := &UsersPhotosPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -23630,17 +25566,17 @@ func (c *UsersPhotosPatchCall) Do(opts ...googleapi.CallOption) (*UserPhoto, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserPhoto{
 		ServerResponse: googleapi.ServerResponse{
@@ -23696,9 +25632,9 @@ type UsersPhotosUpdateCall struct {
 
 // Update: Adds a photo for the user.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *UsersPhotosService) Update(userKey string, userphoto *UserPhoto) *UsersPhotosUpdateCall {
 	c := &UsersPhotosUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -23773,17 +25709,17 @@ func (c *UsersPhotosUpdateCall) Do(opts ...googleapi.CallOption) (*UserPhoto, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UserPhoto{
 		ServerResponse: googleapi.ServerResponse{
@@ -23902,7 +25838,7 @@ func (c *VerificationCodesGenerateCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -24006,7 +25942,7 @@ func (c *VerificationCodesInvalidateCall) Do(opts ...googleapi.CallOption) error
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -24047,9 +25983,9 @@ type VerificationCodesListCall struct {
 // List: Returns the current set of valid backup verification codes for
 // the specified user.
 //
-// - userKey: Identifies the user in the API request. The value can be
-//   the user's primary email address, alias email address, or unique
-//   user ID.
+//   - userKey: Identifies the user in the API request. The value can be
+//     the user's primary email address, alias email address, or unique
+//     user ID.
 func (r *VerificationCodesService) List(userKey string) *VerificationCodesListCall {
 	c := &VerificationCodesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.userKey = userKey
@@ -24131,17 +26067,17 @@ func (c *VerificationCodesListCall) Do(opts ...googleapi.CallOption) (*Verificat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &VerificationCodes{
 		ServerResponse: googleapi.ServerResponse{

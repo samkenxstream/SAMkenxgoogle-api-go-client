@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/security-command-center/docs/concepts-web-security-scanner-overview/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/websecurityscanner/v1beta"
-//   ...
-//   ctx := context.Background()
-//   websecurityscannerService, err := websecurityscanner.NewService(ctx)
+//	import "google.golang.org/api/websecurityscanner/v1beta"
+//	...
+//	ctx := context.Background()
+//	websecurityscannerService, err := websecurityscanner.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   websecurityscannerService, err := websecurityscanner.NewService(ctx, option.WithAPIKey("AIza..."))
+//	websecurityscannerService, err := websecurityscanner.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   websecurityscannerService, err := websecurityscanner.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	websecurityscannerService, err := websecurityscanner.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package websecurityscanner // import "google.golang.org/api/websecurityscanner/v1beta"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "websecurityscanner:v1beta"
 const apiName = "websecurityscanner"
@@ -919,6 +920,7 @@ type ScanConfig struct {
 	//   "APP_ENGINE" - Google App Engine service.
 	//   "COMPUTE" - Google Compute Engine service.
 	//   "CLOUD_RUN" - Google Cloud Run service.
+	//   "CLOUD_FUNCTIONS" - Google Cloud Function service.
 	TargetPlatforms []string `json:"targetPlatforms,omitempty"`
 
 	// UserAgent: The user agent used during scanning.
@@ -1205,6 +1207,8 @@ type ScanRunErrorTrace struct {
 	// errors from the web site pages. When available,
 	// most_common_http_error_code field indicates the most common HTTP
 	// error code encountered during the scan.
+	//   "STARTING_URLS_CRAWL_HTTP_ERRORS" - Indicates that some of the
+	// starting web urls returned HTTP errors during the scan.
 	Code string `json:"code,omitempty"`
 
 	// MostCommonHttpErrorCode: If the scan encounters TOO_MANY_HTTP_ERRORS,
@@ -1509,9 +1513,9 @@ type ProjectsScanConfigsCreateCall struct {
 
 // Create: Creates a new ScanConfig.
 //
-// - parent: The parent resource name where the scan is created, which
-//   should be a project resource name in the format
-//   'projects/{projectId}'.
+//   - parent: The parent resource name where the scan is created, which
+//     should be a project resource name in the format
+//     'projects/{projectId}'.
 func (r *ProjectsScanConfigsService) Create(parent string, scanconfig *ScanConfig) *ProjectsScanConfigsCreateCall {
 	c := &ProjectsScanConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1586,17 +1590,17 @@ func (c *ProjectsScanConfigsCreateCall) Do(opts ...googleapi.CallOption) (*ScanC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ScanConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -1652,9 +1656,9 @@ type ProjectsScanConfigsDeleteCall struct {
 
 // Delete: Deletes an existing ScanConfig and its child resources.
 //
-// - name: The resource name of the ScanConfig to be deleted. The name
-//   follows the format of
-//   'projects/{projectId}/scanConfigs/{scanConfigId}'.
+//   - name: The resource name of the ScanConfig to be deleted. The name
+//     follows the format of
+//     'projects/{projectId}/scanConfigs/{scanConfigId}'.
 func (r *ProjectsScanConfigsService) Delete(name string) *ProjectsScanConfigsDeleteCall {
 	c := &ProjectsScanConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1723,17 +1727,17 @@ func (c *ProjectsScanConfigsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1787,9 +1791,9 @@ type ProjectsScanConfigsGetCall struct {
 
 // Get: Gets a ScanConfig.
 //
-// - name: The resource name of the ScanConfig to be returned. The name
-//   follows the format of
-//   'projects/{projectId}/scanConfigs/{scanConfigId}'.
+//   - name: The resource name of the ScanConfig to be returned. The name
+//     follows the format of
+//     'projects/{projectId}/scanConfigs/{scanConfigId}'.
 func (r *ProjectsScanConfigsService) Get(name string) *ProjectsScanConfigsGetCall {
 	c := &ProjectsScanConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1871,17 +1875,17 @@ func (c *ProjectsScanConfigsGetCall) Do(opts ...googleapi.CallOption) (*ScanConf
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ScanConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -1935,8 +1939,8 @@ type ProjectsScanConfigsListCall struct {
 
 // List: Lists ScanConfigs under a given project.
 //
-// - parent: The parent resource name, which should be a project
-//   resource name in the format 'projects/{projectId}'.
+//   - parent: The parent resource name, which should be a project
+//     resource name in the format 'projects/{projectId}'.
 func (r *ProjectsScanConfigsService) List(parent string) *ProjectsScanConfigsListCall {
 	c := &ProjectsScanConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2035,17 +2039,17 @@ func (c *ProjectsScanConfigsListCall) Do(opts ...googleapi.CallOption) (*ListSca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListScanConfigsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2132,9 +2136,9 @@ type ProjectsScanConfigsPatchCall struct {
 // Patch: Updates a ScanConfig. This method support partial update of a
 // ScanConfig.
 //
-// - name: The resource name of the ScanConfig. The name follows the
-//   format of 'projects/{projectId}/scanConfigs/{scanConfigId}'. The
-//   ScanConfig IDs are generated by the system.
+//   - name: The resource name of the ScanConfig. The name follows the
+//     format of 'projects/{projectId}/scanConfigs/{scanConfigId}'. The
+//     ScanConfig IDs are generated by the system.
 func (r *ProjectsScanConfigsService) Patch(name string, scanconfig *ScanConfig) *ProjectsScanConfigsPatchCall {
 	c := &ProjectsScanConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2218,17 +2222,17 @@ func (c *ProjectsScanConfigsPatchCall) Do(opts ...googleapi.CallOption) (*ScanCo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ScanConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -2291,9 +2295,9 @@ type ProjectsScanConfigsStartCall struct {
 
 // Start: Start a ScanRun according to the given ScanConfig.
 //
-// - name: The resource name of the ScanConfig to be used. The name
-//   follows the format of
-//   'projects/{projectId}/scanConfigs/{scanConfigId}'.
+//   - name: The resource name of the ScanConfig to be used. The name
+//     follows the format of
+//     'projects/{projectId}/scanConfigs/{scanConfigId}'.
 func (r *ProjectsScanConfigsService) Start(name string, startscanrunrequest *StartScanRunRequest) *ProjectsScanConfigsStartCall {
 	c := &ProjectsScanConfigsStartCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2368,17 +2372,17 @@ func (c *ProjectsScanConfigsStartCall) Do(opts ...googleapi.CallOption) (*ScanRu
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ScanRun{
 		ServerResponse: googleapi.ServerResponse{
@@ -2435,10 +2439,10 @@ type ProjectsScanConfigsScanRunsGetCall struct {
 
 // Get: Gets a ScanRun.
 //
-// - name: The resource name of the ScanRun to be returned. The name
-//   follows the format of
-//   'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
-//   }'.
+//   - name: The resource name of the ScanRun to be returned. The name
+//     follows the format of
+//     'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
+//     }'.
 func (r *ProjectsScanConfigsScanRunsService) Get(name string) *ProjectsScanConfigsScanRunsGetCall {
 	c := &ProjectsScanConfigsScanRunsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2520,17 +2524,17 @@ func (c *ProjectsScanConfigsScanRunsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ScanRun{
 		ServerResponse: googleapi.ServerResponse{
@@ -2585,9 +2589,9 @@ type ProjectsScanConfigsScanRunsListCall struct {
 // List: Lists ScanRuns under a given ScanConfig, in descending order of
 // ScanRun stop time.
 //
-// - parent: The parent resource name, which should be a scan resource
-//   name in the format
-//   'projects/{projectId}/scanConfigs/{scanConfigId}'.
+//   - parent: The parent resource name, which should be a scan resource
+//     name in the format
+//     'projects/{projectId}/scanConfigs/{scanConfigId}'.
 func (r *ProjectsScanConfigsScanRunsService) List(parent string) *ProjectsScanConfigsScanRunsListCall {
 	c := &ProjectsScanConfigsScanRunsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2686,17 +2690,17 @@ func (c *ProjectsScanConfigsScanRunsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListScanRunsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2782,10 +2786,10 @@ type ProjectsScanConfigsScanRunsStopCall struct {
 
 // Stop: Stops a ScanRun. The stopped ScanRun is returned.
 //
-// - name: The resource name of the ScanRun to be stopped. The name
-//   follows the format of
-//   'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
-//   }'.
+//   - name: The resource name of the ScanRun to be stopped. The name
+//     follows the format of
+//     'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
+//     }'.
 func (r *ProjectsScanConfigsScanRunsService) Stop(name string, stopscanrunrequest *StopScanRunRequest) *ProjectsScanConfigsScanRunsStopCall {
 	c := &ProjectsScanConfigsScanRunsStopCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2860,17 +2864,17 @@ func (c *ProjectsScanConfigsScanRunsStopCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ScanRun{
 		ServerResponse: googleapi.ServerResponse{
@@ -2927,10 +2931,10 @@ type ProjectsScanConfigsScanRunsCrawledUrlsListCall struct {
 
 // List: List CrawledUrls under a given ScanRun.
 //
-// - parent: The parent resource name, which should be a scan run
-//   resource name in the format
-//   'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
-//   }'.
+//   - parent: The parent resource name, which should be a scan run
+//     resource name in the format
+//     'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
+//     }'.
 func (r *ProjectsScanConfigsScanRunsCrawledUrlsService) List(parent string) *ProjectsScanConfigsScanRunsCrawledUrlsListCall {
 	c := &ProjectsScanConfigsScanRunsCrawledUrlsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3029,17 +3033,17 @@ func (c *ProjectsScanConfigsScanRunsCrawledUrlsListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCrawledUrlsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3125,10 +3129,10 @@ type ProjectsScanConfigsScanRunsFindingTypeStatsListCall struct {
 
 // List: List all FindingTypeStats under a given ScanRun.
 //
-// - parent: The parent resource name, which should be a scan run
-//   resource name in the format
-//   'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
-//   }'.
+//   - parent: The parent resource name, which should be a scan run
+//     resource name in the format
+//     'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
+//     }'.
 func (r *ProjectsScanConfigsScanRunsFindingTypeStatsService) List(parent string) *ProjectsScanConfigsScanRunsFindingTypeStatsListCall {
 	c := &ProjectsScanConfigsScanRunsFindingTypeStatsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3210,17 +3214,17 @@ func (c *ProjectsScanConfigsScanRunsFindingTypeStatsListCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFindingTypeStatsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3274,10 +3278,10 @@ type ProjectsScanConfigsScanRunsFindingsGetCall struct {
 
 // Get: Gets a Finding.
 //
-// - name: The resource name of the Finding to be returned. The name
-//   follows the format of
-//   'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
-//   }/findings/{findingId}'.
+//   - name: The resource name of the Finding to be returned. The name
+//     follows the format of
+//     'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
+//     }/findings/{findingId}'.
 func (r *ProjectsScanConfigsScanRunsFindingsService) Get(name string) *ProjectsScanConfigsScanRunsFindingsGetCall {
 	c := &ProjectsScanConfigsScanRunsFindingsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3359,17 +3363,17 @@ func (c *ProjectsScanConfigsScanRunsFindingsGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -3423,10 +3427,10 @@ type ProjectsScanConfigsScanRunsFindingsListCall struct {
 
 // List: List Findings under a given ScanRun.
 //
-// - parent: The parent resource name, which should be a scan run
-//   resource name in the format
-//   'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
-//   }'.
+//   - parent: The parent resource name, which should be a scan run
+//     resource name in the format
+//     'projects/{projectId}/scanConfigs/{scanConfigId}/scanRuns/{scanRunId
+//     }'.
 func (r *ProjectsScanConfigsScanRunsFindingsService) List(parent string) *ProjectsScanConfigsScanRunsFindingsListCall {
 	c := &ProjectsScanConfigsScanRunsFindingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3533,17 +3537,17 @@ func (c *ProjectsScanConfigsScanRunsFindingsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{

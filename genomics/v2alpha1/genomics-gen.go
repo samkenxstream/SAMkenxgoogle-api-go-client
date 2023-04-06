@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/genomics
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/genomics/v2alpha1"
-//   ...
-//   ctx := context.Background()
-//   genomicsService, err := genomics.NewService(ctx)
+//	import "google.golang.org/api/genomics/v2alpha1"
+//	...
+//	ctx := context.Background()
+//	genomicsService, err := genomics.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   genomicsService, err := genomics.NewService(ctx, option.WithScopes(genomics.GenomicsScope))
+//	genomicsService, err := genomics.NewService(ctx, option.WithScopes(genomics.GenomicsScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   genomicsService, err := genomics.NewService(ctx, option.WithAPIKey("AIza..."))
+//	genomicsService, err := genomics.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   genomicsService, err := genomics.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	genomicsService, err := genomics.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package genomics // import "google.golang.org/api/genomics/v2alpha1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "genomics:v2alpha1"
 const apiName = "genomics"
@@ -822,7 +823,7 @@ type FailedEvent struct {
 	// failure.
 	//
 	// Possible values:
-	//   "OK" - Not an error; returned on success HTTP Mapping: 200 OK
+	//   "OK" - Not an error; returned on success. HTTP Mapping: 200 OK
 	//   "CANCELLED" - The operation was cancelled, typically by the caller.
 	// HTTP Mapping: 499 Client Closed Request
 	//   "UNKNOWN" - Unknown error. For example, this error may be returned
@@ -1971,17 +1972,17 @@ func (c *PipelinesRunCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2110,17 +2111,17 @@ func (c *ProjectsOperationsCancelCall) Do(opts ...googleapi.CallOption) (*Empty,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2264,17 +2265,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2447,17 +2448,17 @@ func (c *ProjectsOperationsListCall) Do(opts ...googleapi.CallOption) (*ListOper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2550,8 +2551,8 @@ type ProjectsWorkersCheckInCall struct {
 // CheckIn: The worker uses this method to retrieve the assigned
 // operation and provide periodic status updates.
 //
-// - id: The VM identity token for authenticating the VM instance.
-//   https://cloud.google.com/compute/docs/instances/verifying-instance-identity.
+//   - id: The VM identity token for authenticating the VM instance.
+//     https://cloud.google.com/compute/docs/instances/verifying-instance-identity.
 func (r *ProjectsWorkersService) CheckIn(id string, checkinrequest *CheckInRequest) *ProjectsWorkersCheckInCall {
 	c := &ProjectsWorkersCheckInCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.id = id
@@ -2626,17 +2627,17 @@ func (c *ProjectsWorkersCheckInCall) Do(opts ...googleapi.CallOption) (*CheckInR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CheckInResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2695,8 +2696,8 @@ type WorkersCheckInCall struct {
 // CheckIn: The worker uses this method to retrieve the assigned
 // operation and provide periodic status updates.
 //
-// - id: The VM identity token for authenticating the VM instance.
-//   https://cloud.google.com/compute/docs/instances/verifying-instance-identity.
+//   - id: The VM identity token for authenticating the VM instance.
+//     https://cloud.google.com/compute/docs/instances/verifying-instance-identity.
 func (r *WorkersService) CheckIn(id string, checkinrequest *CheckInRequest) *WorkersCheckInCall {
 	c := &WorkersCheckInCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.id = id
@@ -2771,17 +2772,17 @@ func (c *WorkersCheckInCall) Do(opts ...googleapi.CallOption) (*CheckInResponse,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CheckInResponse{
 		ServerResponse: googleapi.ServerResponse{

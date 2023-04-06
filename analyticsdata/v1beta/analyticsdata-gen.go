@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/analytics/devguides/reporting/data/v1/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/analyticsdata/v1beta"
-//   ...
-//   ctx := context.Background()
-//   analyticsdataService, err := analyticsdata.NewService(ctx)
+//	import "google.golang.org/api/analyticsdata/v1beta"
+//	...
+//	ctx := context.Background()
+//	analyticsdataService, err := analyticsdata.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   analyticsdataService, err := analyticsdata.NewService(ctx, option.WithScopes(analyticsdata.AnalyticsReadonlyScope))
+//	analyticsdataService, err := analyticsdata.NewService(ctx, option.WithScopes(analyticsdata.AnalyticsReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   analyticsdataService, err := analyticsdata.NewService(ctx, option.WithAPIKey("AIza..."))
+//	analyticsdataService, err := analyticsdata.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   analyticsdataService, err := analyticsdata.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	analyticsdataService, err := analyticsdata.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package analyticsdata // import "google.golang.org/api/analyticsdata/v1beta"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "analyticsdata:v1beta"
 const apiName = "analyticsdata"
@@ -1061,8 +1062,11 @@ type Filter struct {
 	// BetweenFilter: A filter for two values.
 	BetweenFilter *BetweenFilter `json:"betweenFilter,omitempty"`
 
-	// FieldName: The dimension name or metric name. Must be a name defined
-	// in dimensions or metrics.
+	// FieldName: The dimension name or metric name. In most methods,
+	// dimensions & metrics can be used for the first time in this field.
+	// However in a RunPivotReportRequest, this field must be additionally
+	// specified by name in the RunPivotReportRequest's dimensions or
+	// metrics.
 	FieldName string `json:"fieldName,omitempty"`
 
 	// InListFilter: A filter for in list values.
@@ -1726,7 +1730,7 @@ type Pivot struct {
 	// return in this pivot. The `limit` parameter is required. A `limit` of
 	// 10,000 is common for single pivot requests. The product of the
 	// `limit` for each `pivot` in a `RunPivotReportRequest` must not exceed
-	// 100,000. For example, a two pivot request with `limit: 1000` in each
+	// 250,000. For example, a two pivot request with `limit: 1000` in each
 	// pivot will fail because the product is `1,000,000`.
 	Limit int64 `json:"limit,omitempty,string"`
 
@@ -1949,8 +1953,18 @@ type PropertyQuota struct {
 	// TokensPerHour: Standard Analytics Properties can use up to 5,000
 	// tokens per hour; Analytics 360 Properties can use 50,000 tokens per
 	// hour. An API request consumes a single number of tokens, and that
-	// number is deducted from both the hourly and daily quotas.
+	// number is deducted from all of the hourly, daily, and per project
+	// hourly quotas.
 	TokensPerHour *QuotaStatus `json:"tokensPerHour,omitempty"`
+
+	// TokensPerProjectPerHour: Analytics Properties can use up to 25% of
+	// their tokens per project per hour. This amounts to standard Analytics
+	// Properties can use up to 1,250 tokens per project per hour, and
+	// Analytics 360 Properties can use 12,500 tokens per project per hour.
+	// An API request consumes a single number of tokens, and that number is
+	// deducted from all of the hourly, daily, and per project hourly
+	// quotas.
+	TokensPerProjectPerHour *QuotaStatus `json:"tokensPerProjectPerHour,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ConcurrentRequests")
 	// to unconditionally include in API requests. By default, fields with
@@ -2023,7 +2037,16 @@ type ResponseMetaData struct {
 
 	// DataLossFromOtherRow: If true, indicates some buckets of dimension
 	// combinations are rolled into "(other)" row. This can happen for high
-	// cardinality reports.
+	// cardinality reports. The metadata parameter dataLossFromOtherRow is
+	// populated based on the aggregated data table used in the report. The
+	// parameter will be accurately populated regardless of the filters and
+	// limits in the report. For example, the (other) row could be dropped
+	// from the report because the request contains a filter on
+	// sessionSource = google. This parameter will still be populated if
+	// data loss from other row was present in the input aggregate data used
+	// to generate this report. To learn more, see About the (other) row and
+	// data sampling
+	// (https://support.google.com/analytics/answer/13208658#reports).
 	DataLossFromOtherRow bool `json:"dataLossFromOtherRow,omitempty"`
 
 	// EmptyReason: If empty reason is specified, the report is empty for
@@ -2148,7 +2171,12 @@ type RunPivotReportRequest struct {
 
 	// KeepEmptyRows: If false or unspecified, each row with all metrics
 	// equal to 0 will not be returned. If true, these rows will be returned
-	// if they are not separately removed by a filter.
+	// if they are not separately removed by a filter. Regardless of this
+	// `keep_empty_rows` setting, only data recorded by the Google Analytics
+	// (GA4) property can be displayed in a report. For example if a
+	// property never logs a `purchase` event, then a query for the
+	// `eventName` dimension and `eventCount` metric will not have a row
+	// eventName: "purchase" and eventCount: 0.
 	KeepEmptyRows bool `json:"keepEmptyRows,omitempty"`
 
 	// MetricFilter: The filter clause of metrics. Applied at post
@@ -2281,16 +2309,15 @@ func (s *RunPivotReportResponse) MarshalJSON() ([]byte, error) {
 
 // RunRealtimeReportRequest: The request to generate a realtime report.
 type RunRealtimeReportRequest struct {
-	// DimensionFilter: The filter clause of dimensions. Dimensions must be
-	// requested to be used in this filter. Metrics cannot be used in this
-	// filter.
+	// DimensionFilter: The filter clause of dimensions. Metrics cannot be
+	// used in this filter.
 	DimensionFilter *FilterExpression `json:"dimensionFilter,omitempty"`
 
 	// Dimensions: The dimensions requested and displayed.
 	Dimensions []*Dimension `json:"dimensions,omitempty"`
 
 	// Limit: The number of rows to return. If unspecified, 10,000 rows are
-	// returned. The API returns a maximum of 100,000 rows per request, no
+	// returned. The API returns a maximum of 250,000 rows per request, no
 	// matter how many you ask for. `limit` must be positive. The API can
 	// also return fewer rows than the requested `limit`, if there aren't as
 	// many dimension values as the `limit`. For instance, there are fewer
@@ -2312,9 +2339,8 @@ type RunRealtimeReportRequest struct {
 	MetricAggregations []string `json:"metricAggregations,omitempty"`
 
 	// MetricFilter: The filter clause of metrics. Applied at post
-	// aggregation phase, similar to SQL having-clause. Metrics must be
-	// requested to be used in this filter. Dimensions cannot be used in
-	// this filter.
+	// aggregation phase, similar to SQL having-clause. Dimensions cannot be
+	// used in this filter.
 	MetricFilter *FilterExpression `json:"metricFilter,omitempty"`
 
 	// Metrics: The metrics requested and displayed.
@@ -2447,7 +2473,7 @@ type RunReportRequest struct {
 	// cohort request, this `dateRanges` must be unspecified.
 	DateRanges []*DateRange `json:"dateRanges,omitempty"`
 
-	// DimensionFilter: Dimension filters allow you to ask for only specific
+	// DimensionFilter: Dimension filters let you ask for only specific
 	// dimension values in the report. To learn more, see Fundamentals of
 	// Dimension Filters
 	// (https://developers.google.com/analytics/devguides/reporting/data/v1/basics#dimension_filters)
@@ -2459,11 +2485,16 @@ type RunReportRequest struct {
 
 	// KeepEmptyRows: If false or unspecified, each row with all metrics
 	// equal to 0 will not be returned. If true, these rows will be returned
-	// if they are not separately removed by a filter.
+	// if they are not separately removed by a filter. Regardless of this
+	// `keep_empty_rows` setting, only data recorded by the Google Analytics
+	// (GA4) property can be displayed in a report. For example if a
+	// property never logs a `purchase` event, then a query for the
+	// `eventName` dimension and `eventCount` metric will not have a row
+	// eventName: "purchase" and eventCount: 0.
 	KeepEmptyRows bool `json:"keepEmptyRows,omitempty"`
 
 	// Limit: The number of rows to return. If unspecified, 10,000 rows are
-	// returned. The API returns a maximum of 100,000 rows per request, no
+	// returned. The API returns a maximum of 250,000 rows per request, no
 	// matter how many you ask for. `limit` must be positive. The API can
 	// also return fewer rows than the requested `limit`, if there aren't as
 	// many dimension values as the `limit`. For instance, there are fewer
@@ -2712,13 +2743,13 @@ type PropertiesBatchRunPivotReportsCall struct {
 // BatchRunPivotReports: Returns multiple pivot reports in a batch. All
 // reports must be for the same GA4 Property.
 //
-// - property: A Google Analytics GA4 property identifier whose events
-//   are tracked. Specified in the URL path and not the body. To learn
-//   more, see where to find your Property ID
-//   (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
-//   This property must be specified for the batch. The property within
-//   RunPivotReportRequest may either be unspecified or consistent with
-//   this property. Example: properties/1234.
+//   - property: A Google Analytics GA4 property identifier whose events
+//     are tracked. Specified in the URL path and not the body. To learn
+//     more, see where to find your Property ID
+//     (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
+//     This property must be specified for the batch. The property within
+//     RunPivotReportRequest may either be unspecified or consistent with
+//     this property. Example: properties/1234.
 func (r *PropertiesService) BatchRunPivotReports(propertyid string, batchrunpivotreportsrequest *BatchRunPivotReportsRequest) *PropertiesBatchRunPivotReportsCall {
 	c := &PropertiesBatchRunPivotReportsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.propertyid = propertyid
@@ -2793,17 +2824,17 @@ func (c *PropertiesBatchRunPivotReportsCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchRunPivotReportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2862,13 +2893,13 @@ type PropertiesBatchRunReportsCall struct {
 // BatchRunReports: Returns multiple reports in a batch. All reports
 // must be for the same GA4 Property.
 //
-// - property: A Google Analytics GA4 property identifier whose events
-//   are tracked. Specified in the URL path and not the body. To learn
-//   more, see where to find your Property ID
-//   (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
-//   This property must be specified for the batch. The property within
-//   RunReportRequest may either be unspecified or consistent with this
-//   property. Example: properties/1234.
+//   - property: A Google Analytics GA4 property identifier whose events
+//     are tracked. Specified in the URL path and not the body. To learn
+//     more, see where to find your Property ID
+//     (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
+//     This property must be specified for the batch. The property within
+//     RunReportRequest may either be unspecified or consistent with this
+//     property. Example: properties/1234.
 func (r *PropertiesService) BatchRunReports(propertyid string, batchrunreportsrequest *BatchRunReportsRequest) *PropertiesBatchRunReportsCall {
 	c := &PropertiesBatchRunReportsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.propertyid = propertyid
@@ -2943,17 +2974,17 @@ func (c *PropertiesBatchRunReportsCall) Do(opts ...googleapi.CallOption) (*Batch
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchRunReportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3019,14 +3050,11 @@ type PropertiesCheckCompatibilityCall struct {
 // have different compatibility rules. This method checks compatibility
 // for Core reports.
 //
-// - property: A Google Analytics GA4 property identifier whose events
-//   are tracked. To learn more, see where to find your Property ID
-//   (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
-//   `property` should be the same value as in your `runReport` request.
-//   Example: properties/1234 Set the Property ID to 0 for compatibility
-//   checking on dimensions and metrics common to all properties. In
-//   this special mode, this method will not return custom dimensions
-//   and metrics.
+//   - property: A Google Analytics GA4 property identifier whose events
+//     are tracked. To learn more, see where to find your Property ID
+//     (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
+//     `property` should be the same value as in your `runReport` request.
+//     Example: properties/1234.
 func (r *PropertiesService) CheckCompatibility(propertyid string, checkcompatibilityrequest *CheckCompatibilityRequest) *PropertiesCheckCompatibilityCall {
 	c := &PropertiesCheckCompatibilityCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.propertyid = propertyid
@@ -3101,17 +3129,17 @@ func (c *PropertiesCheckCompatibilityCall) Do(opts ...googleapi.CallOption) (*Ch
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CheckCompatibilityResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3134,7 +3162,7 @@ func (c *PropertiesCheckCompatibilityCall) Do(opts ...googleapi.CallOption) (*Ch
 	//   ],
 	//   "parameters": {
 	//     "property": {
-	//       "description": "A Google Analytics GA4 property identifier whose events are tracked. To learn more, see [where to find your Property ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id). `property` should be the same value as in your `runReport` request. Example: properties/1234 Set the Property ID to 0 for compatibility checking on dimensions and metrics common to all properties. In this special mode, this method will not return custom dimensions and metrics.",
+	//       "description": "A Google Analytics GA4 property identifier whose events are tracked. To learn more, see [where to find your Property ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id). `property` should be the same value as in your `runReport` request. Example: properties/1234",
 	//       "location": "path",
 	//       "pattern": "^properties/[^/]+$",
 	//       "required": true,
@@ -3178,14 +3206,14 @@ type PropertiesGetMetadataCall struct {
 // metrics applicable to any property such as `country` and
 // `totalUsers`.
 //
-// - name: The resource name of the metadata to retrieve. This name
-//   field is specified in the URL path and not URL parameters. Property
-//   is a numeric Google Analytics GA4 Property identifier. To learn
-//   more, see where to find your Property ID
-//   (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
-//   Example: properties/1234/metadata Set the Property ID to 0 for
-//   dimensions and metrics common to all properties. In this special
-//   mode, this method will not return custom dimensions and metrics.
+//   - name: The resource name of the metadata to retrieve. This name
+//     field is specified in the URL path and not URL parameters. Property
+//     is a numeric Google Analytics GA4 Property identifier. To learn
+//     more, see where to find your Property ID
+//     (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
+//     Example: properties/1234/metadata Set the Property ID to 0 for
+//     dimensions and metrics common to all properties. In this special
+//     mode, this method will not return custom dimensions and metrics.
 func (r *PropertiesService) GetMetadata(nameid string) *PropertiesGetMetadataCall {
 	c := &PropertiesGetMetadataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -3267,17 +3295,17 @@ func (c *PropertiesGetMetadataCall) Do(opts ...googleapi.CallOption) (*Metadata,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Metadata{
 		ServerResponse: googleapi.ServerResponse{
@@ -3336,13 +3364,13 @@ type PropertiesRunPivotReportCall struct {
 // visible if they are included in a pivot. Multiple pivots can be
 // specified to further dissect your data.
 //
-// - property: A Google Analytics GA4 property identifier whose events
-//   are tracked. Specified in the URL path and not the body. To learn
-//   more, see where to find your Property ID
-//   (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
-//   Within a batch request, this property should either be unspecified
-//   or consistent with the batch-level property. Example:
-//   properties/1234.
+//   - property: A Google Analytics GA4 property identifier whose events
+//     are tracked. Specified in the URL path and not the body. To learn
+//     more, see where to find your Property ID
+//     (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
+//     Within a batch request, this property should either be unspecified
+//     or consistent with the batch-level property. Example:
+//     properties/1234.
 func (r *PropertiesService) RunPivotReport(propertyid string, runpivotreportrequest *RunPivotReportRequest) *PropertiesRunPivotReportCall {
 	c := &PropertiesRunPivotReportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.propertyid = propertyid
@@ -3417,17 +3445,17 @@ func (c *PropertiesRunPivotReportCall) Do(opts ...googleapi.CallOption) (*RunPiv
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RunPivotReportResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3492,11 +3520,11 @@ type PropertiesRunRealtimeReportCall struct {
 // requests & understanding responses, see Creating a Realtime Report
 // (https://developers.google.com/analytics/devguides/reporting/data/v1/realtime-basics).
 //
-// - property: A Google Analytics GA4 property identifier whose events
-//   are tracked. Specified in the URL path and not the body. To learn
-//   more, see where to find your Property ID
-//   (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
-//   Example: properties/1234.
+//   - property: A Google Analytics GA4 property identifier whose events
+//     are tracked. Specified in the URL path and not the body. To learn
+//     more, see where to find your Property ID
+//     (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
+//     Example: properties/1234.
 func (r *PropertiesService) RunRealtimeReport(propertyid string, runrealtimereportrequest *RunRealtimeReportRequest) *PropertiesRunRealtimeReportCall {
 	c := &PropertiesRunRealtimeReportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.propertyid = propertyid
@@ -3571,17 +3599,17 @@ func (c *PropertiesRunRealtimeReportCall) Do(opts ...googleapi.CallOption) (*Run
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RunRealtimeReportResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3648,13 +3676,13 @@ type PropertiesRunReportCall struct {
 // Creating a Report
 // (https://developers.google.com/analytics/devguides/reporting/data/v1/basics).
 //
-// - property: A Google Analytics GA4 property identifier whose events
-//   are tracked. Specified in the URL path and not the body. To learn
-//   more, see where to find your Property ID
-//   (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
-//   Within a batch request, this property should either be unspecified
-//   or consistent with the batch-level property. Example:
-//   properties/1234.
+//   - property: A Google Analytics GA4 property identifier whose events
+//     are tracked. Specified in the URL path and not the body. To learn
+//     more, see where to find your Property ID
+//     (https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
+//     Within a batch request, this property should either be unspecified
+//     or consistent with the batch-level property. Example:
+//     properties/1234.
 func (r *PropertiesService) RunReport(propertyid string, runreportrequest *RunReportRequest) *PropertiesRunReportCall {
 	c := &PropertiesRunReportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.propertyid = propertyid
@@ -3729,17 +3757,17 @@ func (c *PropertiesRunReportCall) Do(opts ...googleapi.CallOption) (*RunReportRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RunReportResponse{
 		ServerResponse: googleapi.ServerResponse{

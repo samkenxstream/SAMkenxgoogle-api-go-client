@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/apps-script/api/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/script/v1"
-//   ...
-//   ctx := context.Background()
-//   scriptService, err := script.NewService(ctx)
+//	import "google.golang.org/api/script/v1"
+//	...
+//	ctx := context.Background()
+//	scriptService, err := script.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   scriptService, err := script.NewService(ctx, option.WithScopes(script.UserinfoEmailScope))
+//	scriptService, err := script.NewService(ctx, option.WithScopes(script.UserinfoEmailScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   scriptService, err := script.NewService(ctx, option.WithAPIKey("AIza..."))
+//	scriptService, err := script.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   scriptService, err := script.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	scriptService, err := script.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package script // import "google.golang.org/api/script/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "script:v1"
 const apiName = "script"
@@ -1822,15 +1823,16 @@ func (c *ProcessesListCall) UserProcessFilterStartTime(userProcessFilterStartTim
 // processes to those having one of the specified process statuses.
 //
 // Possible values:
-//   "PROCESS_STATUS_UNSPECIFIED" - Unspecified status.
-//   "RUNNING" - The process is currently running.
-//   "PAUSED" - The process has paused.
-//   "COMPLETED" - The process has completed.
-//   "CANCELED" - The process was cancelled.
-//   "FAILED" - The process failed.
-//   "TIMED_OUT" - The process timed out.
-//   "UNKNOWN" - Process status unknown.
-//   "DELAYED" - The process is delayed, waiting for quota.
+//
+//	"PROCESS_STATUS_UNSPECIFIED" - Unspecified status.
+//	"RUNNING" - The process is currently running.
+//	"PAUSED" - The process has paused.
+//	"COMPLETED" - The process has completed.
+//	"CANCELED" - The process was cancelled.
+//	"FAILED" - The process failed.
+//	"TIMED_OUT" - The process timed out.
+//	"UNKNOWN" - Process status unknown.
+//	"DELAYED" - The process is delayed, waiting for quota.
 func (c *ProcessesListCall) UserProcessFilterStatuses(userProcessFilterStatuses ...string) *ProcessesListCall {
 	c.urlParams_.SetMulti("userProcessFilter.statuses", append([]string{}, userProcessFilterStatuses...))
 	return c
@@ -1841,18 +1843,23 @@ func (c *ProcessesListCall) UserProcessFilterStatuses(userProcessFilterStatuses 
 // processes to those having one of the specified process types.
 //
 // Possible values:
-//   "PROCESS_TYPE_UNSPECIFIED" - Unspecified type.
-//   "ADD_ON" - The process was started from an add-on entry point.
-//   "EXECUTION_API" - The process was started using the Apps Script
+//
+//	"PROCESS_TYPE_UNSPECIFIED" - Unspecified type.
+//	"ADD_ON" - The process was started from an add-on entry point.
+//	"EXECUTION_API" - The process was started using the Apps Script
+//
 // API.
-//   "TIME_DRIVEN" - The process was started from a time-based trigger.
-//   "TRIGGER" - The process was started from an event-based trigger.
-//   "WEBAPP" - The process was started from a web app entry point.
-//   "EDITOR" - The process was started using the Apps Script IDE.
-//   "SIMPLE_TRIGGER" - The process was started from a G Suite simple
+//
+//	"TIME_DRIVEN" - The process was started from a time-based trigger.
+//	"TRIGGER" - The process was started from an event-based trigger.
+//	"WEBAPP" - The process was started from a web app entry point.
+//	"EDITOR" - The process was started using the Apps Script IDE.
+//	"SIMPLE_TRIGGER" - The process was started from a G Suite simple
+//
 // trigger.
-//   "MENU" - The process was started from a G Suite menu item.
-//   "BATCH_TASK" - The process was started as a task in a batch job.
+//
+//	"MENU" - The process was started from a G Suite menu item.
+//	"BATCH_TASK" - The process was started as a task in a batch job.
 func (c *ProcessesListCall) UserProcessFilterTypes(userProcessFilterTypes ...string) *ProcessesListCall {
 	c.urlParams_.SetMulti("userProcessFilter.types", append([]string{}, userProcessFilterTypes...))
 	return c
@@ -1864,11 +1871,12 @@ func (c *ProcessesListCall) UserProcessFilterTypes(userProcessFilterTypes ...str
 // levels.
 //
 // Possible values:
-//   "USER_ACCESS_LEVEL_UNSPECIFIED" - User access level unspecified
-//   "NONE" - The user has no access.
-//   "READ" - The user has read-only access.
-//   "WRITE" - The user has write access.
-//   "OWNER" - The user is an owner.
+//
+//	"USER_ACCESS_LEVEL_UNSPECIFIED" - User access level unspecified
+//	"NONE" - The user has no access.
+//	"READ" - The user has read-only access.
+//	"WRITE" - The user has write access.
+//	"OWNER" - The user is an owner.
 func (c *ProcessesListCall) UserProcessFilterUserAccessLevels(userProcessFilterUserAccessLevels ...string) *ProcessesListCall {
 	c.urlParams_.SetMulti("userProcessFilter.userAccessLevels", append([]string{}, userProcessFilterUserAccessLevels...))
 	return c
@@ -1946,17 +1954,17 @@ func (c *ProcessesListCall) Do(opts ...googleapi.CallOption) (*ListUserProcesses
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListUserProcessesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2209,15 +2217,16 @@ func (c *ProcessesListScriptProcessesCall) ScriptProcessFilterStartTime(scriptPr
 // processes to those having one of the specified process statuses.
 //
 // Possible values:
-//   "PROCESS_STATUS_UNSPECIFIED" - Unspecified status.
-//   "RUNNING" - The process is currently running.
-//   "PAUSED" - The process has paused.
-//   "COMPLETED" - The process has completed.
-//   "CANCELED" - The process was cancelled.
-//   "FAILED" - The process failed.
-//   "TIMED_OUT" - The process timed out.
-//   "UNKNOWN" - Process status unknown.
-//   "DELAYED" - The process is delayed, waiting for quota.
+//
+//	"PROCESS_STATUS_UNSPECIFIED" - Unspecified status.
+//	"RUNNING" - The process is currently running.
+//	"PAUSED" - The process has paused.
+//	"COMPLETED" - The process has completed.
+//	"CANCELED" - The process was cancelled.
+//	"FAILED" - The process failed.
+//	"TIMED_OUT" - The process timed out.
+//	"UNKNOWN" - Process status unknown.
+//	"DELAYED" - The process is delayed, waiting for quota.
 func (c *ProcessesListScriptProcessesCall) ScriptProcessFilterStatuses(scriptProcessFilterStatuses ...string) *ProcessesListScriptProcessesCall {
 	c.urlParams_.SetMulti("scriptProcessFilter.statuses", append([]string{}, scriptProcessFilterStatuses...))
 	return c
@@ -2228,18 +2237,23 @@ func (c *ProcessesListScriptProcessesCall) ScriptProcessFilterStatuses(scriptPro
 // processes to those having one of the specified process types.
 //
 // Possible values:
-//   "PROCESS_TYPE_UNSPECIFIED" - Unspecified type.
-//   "ADD_ON" - The process was started from an add-on entry point.
-//   "EXECUTION_API" - The process was started using the Apps Script
+//
+//	"PROCESS_TYPE_UNSPECIFIED" - Unspecified type.
+//	"ADD_ON" - The process was started from an add-on entry point.
+//	"EXECUTION_API" - The process was started using the Apps Script
+//
 // API.
-//   "TIME_DRIVEN" - The process was started from a time-based trigger.
-//   "TRIGGER" - The process was started from an event-based trigger.
-//   "WEBAPP" - The process was started from a web app entry point.
-//   "EDITOR" - The process was started using the Apps Script IDE.
-//   "SIMPLE_TRIGGER" - The process was started from a G Suite simple
+//
+//	"TIME_DRIVEN" - The process was started from a time-based trigger.
+//	"TRIGGER" - The process was started from an event-based trigger.
+//	"WEBAPP" - The process was started from a web app entry point.
+//	"EDITOR" - The process was started using the Apps Script IDE.
+//	"SIMPLE_TRIGGER" - The process was started from a G Suite simple
+//
 // trigger.
-//   "MENU" - The process was started from a G Suite menu item.
-//   "BATCH_TASK" - The process was started as a task in a batch job.
+//
+//	"MENU" - The process was started from a G Suite menu item.
+//	"BATCH_TASK" - The process was started as a task in a batch job.
 func (c *ProcessesListScriptProcessesCall) ScriptProcessFilterTypes(scriptProcessFilterTypes ...string) *ProcessesListScriptProcessesCall {
 	c.urlParams_.SetMulti("scriptProcessFilter.types", append([]string{}, scriptProcessFilterTypes...))
 	return c
@@ -2251,11 +2265,12 @@ func (c *ProcessesListScriptProcessesCall) ScriptProcessFilterTypes(scriptProces
 // levels.
 //
 // Possible values:
-//   "USER_ACCESS_LEVEL_UNSPECIFIED" - User access level unspecified
-//   "NONE" - The user has no access.
-//   "READ" - The user has read-only access.
-//   "WRITE" - The user has write access.
-//   "OWNER" - The user is an owner.
+//
+//	"USER_ACCESS_LEVEL_UNSPECIFIED" - User access level unspecified
+//	"NONE" - The user has no access.
+//	"READ" - The user has read-only access.
+//	"WRITE" - The user has write access.
+//	"OWNER" - The user is an owner.
 func (c *ProcessesListScriptProcessesCall) ScriptProcessFilterUserAccessLevels(scriptProcessFilterUserAccessLevels ...string) *ProcessesListScriptProcessesCall {
 	c.urlParams_.SetMulti("scriptProcessFilter.userAccessLevels", append([]string{}, scriptProcessFilterUserAccessLevels...))
 	return c
@@ -2333,17 +2348,17 @@ func (c *ProcessesListScriptProcessesCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListScriptProcessesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2594,17 +2609,17 @@ func (c *ProjectsCreateCall) Do(opts ...googleapi.CallOption) (*Project, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Project{
 		ServerResponse: googleapi.ServerResponse{
@@ -2733,17 +2748,17 @@ func (c *ProjectsGetCall) Do(opts ...googleapi.CallOption) (*Project, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Project{
 		ServerResponse: googleapi.ServerResponse{
@@ -2888,17 +2903,17 @@ func (c *ProjectsGetContentCall) Do(opts ...googleapi.CallOption) (*Content, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Content{
 		ServerResponse: googleapi.ServerResponse{
@@ -2978,10 +2993,13 @@ func (c *ProjectsGetMetricsCall) MetricsFilterDeploymentId(metricsFilterDeployme
 // Required field indicating what granularity of metrics are returned.
 //
 // Possible values:
-//   "UNSPECIFIED_GRANULARITY" - Default metric granularity used to
+//
+//	"UNSPECIFIED_GRANULARITY" - Default metric granularity used to
+//
 // query no metrics.
-//   "WEEKLY" - Represents weekly metrics.
-//   "DAILY" - Represents daily metrics over a period of 7 days.
+//
+//	"WEEKLY" - Represents weekly metrics.
+//	"DAILY" - Represents daily metrics over a period of 7 days.
 func (c *ProjectsGetMetricsCall) MetricsGranularity(metricsGranularity string) *ProjectsGetMetricsCall {
 	c.urlParams_.Set("metricsGranularity", metricsGranularity)
 	return c
@@ -3062,17 +3080,17 @@ func (c *ProjectsGetMetricsCall) Do(opts ...googleapi.CallOption) (*Metrics, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Metrics{
 		ServerResponse: googleapi.ServerResponse{
@@ -3224,17 +3242,17 @@ func (c *ProjectsUpdateContentCall) Do(opts ...googleapi.CallOption) (*Content, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Content{
 		ServerResponse: googleapi.ServerResponse{
@@ -3365,17 +3383,17 @@ func (c *ProjectsDeploymentsCreateCall) Do(opts ...googleapi.CallOption) (*Deplo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Deployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -3503,17 +3521,17 @@ func (c *ProjectsDeploymentsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3659,17 +3677,17 @@ func (c *ProjectsDeploymentsGetCall) Do(opts ...googleapi.CallOption) (*Deployme
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Deployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -3827,17 +3845,17 @@ func (c *ProjectsDeploymentsListCall) Do(opts ...googleapi.CallOption) (*ListDep
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDeploymentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4002,17 +4020,17 @@ func (c *ProjectsDeploymentsUpdateCall) Do(opts ...googleapi.CallOption) (*Deplo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Deployment{
 		ServerResponse: googleapi.ServerResponse{
@@ -4151,17 +4169,17 @@ func (c *ProjectsVersionsCreateCall) Do(opts ...googleapi.CallOption) (*Version,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -4303,17 +4321,17 @@ func (c *ProjectsVersionsGetCall) Do(opts ...googleapi.CallOption) (*Version, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -4472,17 +4490,17 @@ func (c *ProjectsVersionsListCall) Do(opts ...googleapi.CallOption) (*ListVersio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4579,8 +4597,8 @@ type ScriptsRunCall struct {
 // that the Cloud Platform project used to authorize the request is not
 // the same as the one used by the script.
 //
-// - scriptId: The script ID of the script to be executed. Find the
-//   script ID on the **Project settings** page under "IDs.".
+//   - scriptId: The script ID of the script to be executed. Find the
+//     script ID on the **Project settings** page under "IDs.".
 func (r *ScriptsService) Run(scriptId string, executionrequest *ExecutionRequest) *ScriptsRunCall {
 	c := &ScriptsRunCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.scriptId = scriptId
@@ -4655,17 +4673,17 @@ func (c *ScriptsRunCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

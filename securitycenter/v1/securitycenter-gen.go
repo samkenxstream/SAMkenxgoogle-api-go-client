@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/security-command-center
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/securitycenter/v1"
-//   ...
-//   ctx := context.Background()
-//   securitycenterService, err := securitycenter.NewService(ctx)
+//	import "google.golang.org/api/securitycenter/v1"
+//	...
+//	ctx := context.Background()
+//	securitycenterService, err := securitycenter.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   securitycenterService, err := securitycenter.NewService(ctx, option.WithAPIKey("AIza..."))
+//	securitycenterService, err := securitycenter.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   securitycenterService, err := securitycenter.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	securitycenterService, err := securitycenter.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package securitycenter // import "google.golang.org/api/securitycenter/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "securitycenter:v1"
 const apiName = "securitycenter"
@@ -149,6 +150,7 @@ func NewFoldersService(s *Service) *FoldersService {
 	rs.BigQueryExports = NewFoldersBigQueryExportsService(s)
 	rs.Findings = NewFoldersFindingsService(s)
 	rs.MuteConfigs = NewFoldersMuteConfigsService(s)
+	rs.NotificationConfigs = NewFoldersNotificationConfigsService(s)
 	rs.Sources = NewFoldersSourcesService(s)
 	return rs
 }
@@ -163,6 +165,8 @@ type FoldersService struct {
 	Findings *FoldersFindingsService
 
 	MuteConfigs *FoldersMuteConfigsService
+
+	NotificationConfigs *FoldersNotificationConfigsService
 
 	Sources *FoldersSourcesService
 }
@@ -200,6 +204,15 @@ func NewFoldersMuteConfigsService(s *Service) *FoldersMuteConfigsService {
 }
 
 type FoldersMuteConfigsService struct {
+	s *Service
+}
+
+func NewFoldersNotificationConfigsService(s *Service) *FoldersNotificationConfigsService {
+	rs := &FoldersNotificationConfigsService{s: s}
+	return rs
+}
+
+type FoldersNotificationConfigsService struct {
 	s *Service
 }
 
@@ -359,6 +372,7 @@ func NewProjectsService(s *Service) *ProjectsService {
 	rs.BigQueryExports = NewProjectsBigQueryExportsService(s)
 	rs.Findings = NewProjectsFindingsService(s)
 	rs.MuteConfigs = NewProjectsMuteConfigsService(s)
+	rs.NotificationConfigs = NewProjectsNotificationConfigsService(s)
 	rs.Sources = NewProjectsSourcesService(s)
 	return rs
 }
@@ -373,6 +387,8 @@ type ProjectsService struct {
 	Findings *ProjectsFindingsService
 
 	MuteConfigs *ProjectsMuteConfigsService
+
+	NotificationConfigs *ProjectsNotificationConfigsService
 
 	Sources *ProjectsSourcesService
 }
@@ -410,6 +426,15 @@ func NewProjectsMuteConfigsService(s *Service) *ProjectsMuteConfigsService {
 }
 
 type ProjectsMuteConfigsService struct {
+	s *Service
+}
+
+func NewProjectsNotificationConfigsService(s *Service) *ProjectsNotificationConfigsService {
+	rs := &ProjectsNotificationConfigsService{s: s}
+	return rs
+}
+
+type ProjectsNotificationConfigsService struct {
 	s *Service
 }
 
@@ -459,16 +484,57 @@ type Access struct {
 	// "SetIamPolicy".
 	MethodName string `json:"methodName,omitempty"`
 
-	// PrincipalEmail: Associated email, such as "foo@google.com".
+	// PrincipalEmail: Associated email, such as "foo@google.com". The email
+	// address of the authenticated user (or service account on behalf of
+	// third party principal) making the request. For third party identity
+	// callers, the `principal_subject` field is populated instead of this
+	// field. For privacy reasons, the principal email address is sometimes
+	// redacted. For more information, see Caller identities in audit logs
+	// (https://cloud.google.com/logging/docs/audit#user-id).
 	PrincipalEmail string `json:"principalEmail,omitempty"`
+
+	// PrincipalSubject: A string representing the principal_subject
+	// associated with the identity. As compared to `principal_email`,
+	// supports principals that aren't associated with email addresses, such
+	// as third party principals. For most identities, the format will be
+	// `principal://iam.googleapis.com/{identity pool
+	// name}/subjects/{subject}` except for some GKE identities
+	// (GKE_WORKLOAD, FREEFORM, GKE_HUB_WORKLOAD) that are still in the
+	// legacy format `serviceAccount:{identity pool name}[{subject}]`
+	PrincipalSubject string `json:"principalSubject,omitempty"`
+
+	// ServiceAccountDelegationInfo: Identity delegation history of an
+	// authenticated service account that makes the request. It contains
+	// information on the real authorities that try to access GCP resources
+	// by delegating on a service account. When multiple authorities are
+	// present, they are guaranteed to be sorted based on the original
+	// ordering of the identity delegation events.
+	ServiceAccountDelegationInfo []*ServiceAccountDelegationInfo `json:"serviceAccountDelegationInfo,omitempty"`
+
+	// ServiceAccountKeyName: The name of the service account key used to
+	// create or exchange credentials for authenticating the service account
+	// making the request. This is a scheme-less URI full resource name. For
+	// example:
+	// "//iam.googleapis.com/projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/
+	// keys/{key}"
+	ServiceAccountKeyName string `json:"serviceAccountKeyName,omitempty"`
 
 	// ServiceName: This is the API service that the service account made a
 	// call to, e.g. "iam.googleapis.com"
 	ServiceName string `json:"serviceName,omitempty"`
 
-	// UserAgentFamily: What kind of user agent is associated, e.g.
+	// UserAgentFamily: What kind of user agent is associated, for example
 	// operating system shells, embedded or stand-alone applications, etc.
 	UserAgentFamily string `json:"userAgentFamily,omitempty"`
+
+	// UserName: A string that represents the username of a user, user
+	// account, or other entity involved in the access event. What the
+	// entity is and what its role in the access event is depends on the
+	// finding that this field appears in. The entity is likely not an IAM
+	// principal, but could be a user that is logged into an operating
+	// system, if the finding is VM-related, or a user that is logged into
+	// some type of application that is involved in the access event.
+	UserName string `json:"userName,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CallerIp") to
 	// unconditionally include in API requests. By default, fields with
@@ -489,6 +555,58 @@ type Access struct {
 
 func (s *Access) MarshalJSON() ([]byte, error) {
 	type NoMethod Access
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AccessReview: Conveys information about a Kubernetes access review
+// (e.g. kubectl auth can-i ...) that was involved in a finding.
+type AccessReview struct {
+	// Group: Group is the API Group of the Resource. "*" means all.
+	Group string `json:"group,omitempty"`
+
+	// Name: Name is the name of the resource being requested. Empty means
+	// all.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace of the action being requested. Currently, there is no
+	// distinction between no namespace and all namespaces. Both are
+	// represented by "" (empty).
+	Ns string `json:"ns,omitempty"`
+
+	// Resource: Resource is the optional resource type requested. "*" means
+	// all.
+	Resource string `json:"resource,omitempty"`
+
+	// Subresource: Subresource is the optional subresource type.
+	Subresource string `json:"subresource,omitempty"`
+
+	// Verb: Verb is a Kubernetes resource API verb, like: get, list, watch,
+	// create, update, delete, proxy. "*" means all.
+	Verb string `json:"verb,omitempty"`
+
+	// Version: Version is the API Version of the Resource. "*" means all.
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Group") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Group") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AccessReview) MarshalJSON() ([]byte, error) {
+	type NoMethod AccessReview
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -722,19 +840,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -746,9 +871,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -823,6 +946,118 @@ func (s *BulkMuteFindingsRequest) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// CloudDlpDataProfile: The data profile
+// (https://cloud.google.com/dlp/docs/data-profiles) associated with the
+// finding.
+type CloudDlpDataProfile struct {
+	// DataProfile: Name of the data profile, for example,
+	// `projects/123/locations/europe/tableProfiles/8383929`.
+	DataProfile string `json:"dataProfile,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DataProfile") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DataProfile") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudDlpDataProfile) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudDlpDataProfile
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CloudDlpInspection: Details about the Cloud Data Loss Prevention
+// (Cloud DLP) inspection job
+// (https://cloud.google.com/dlp/docs/concepts-job-triggers) that
+// produced the finding.
+type CloudDlpInspection struct {
+	// FullScan: Whether Cloud DLP scanned the complete resource or a
+	// sampled subset.
+	FullScan bool `json:"fullScan,omitempty"`
+
+	// InfoType: The type of information
+	// (https://cloud.google.com/dlp/docs/infotypes-reference) found, for
+	// example, `EMAIL_ADDRESS` or `STREET_ADDRESS`.
+	InfoType string `json:"infoType,omitempty"`
+
+	// InfoTypeCount: The number of times Cloud DLP found this infoType
+	// within this job and resource.
+	InfoTypeCount int64 `json:"infoTypeCount,omitempty,string"`
+
+	// InspectJob: Name of the inspection job, for example,
+	// `projects/123/locations/europe/dlpJobs/i-8383929`.
+	InspectJob string `json:"inspectJob,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "FullScan") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "FullScan") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CloudDlpInspection) MarshalJSON() ([]byte, error) {
+	type NoMethod CloudDlpInspection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Compliance: Contains compliance information about a security standard
+// indicating unmet recommendations.
+type Compliance struct {
+	// Ids: Policies within the standard/benchmark e.g. A.12.4.1
+	Ids []string `json:"ids,omitempty"`
+
+	// Standard: Refers to industry wide standards or benchmarks e.g. "cis",
+	// "pci", "owasp", etc.
+	Standard string `json:"standard,omitempty"`
+
+	// Version: Version of the standard/benchmark e.g. 1.1
+	Version string `json:"version,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Ids") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Ids") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Compliance) MarshalJSON() ([]byte, error) {
+	type NoMethod Compliance
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Connection: Contains information about the IP connection associated
 // with the finding.
 type Connection struct {
@@ -870,6 +1105,102 @@ type Connection struct {
 
 func (s *Connection) MarshalJSON() ([]byte, error) {
 	type NoMethod Connection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Contact: The email address of a contact.
+type Contact struct {
+	// Email: An email address. For example, "person123@company.com".
+	Email string `json:"email,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Email") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Email") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Contact) MarshalJSON() ([]byte, error) {
+	type NoMethod Contact
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ContactDetails: The details pertaining to specific contacts
+type ContactDetails struct {
+	// Contacts: A list of contacts
+	Contacts []*Contact `json:"contacts,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Contacts") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Contacts") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ContactDetails) MarshalJSON() ([]byte, error) {
+	type NoMethod ContactDetails
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Container: Container associated with the finding.
+type Container struct {
+	// ImageId: Optional container image id, when provided by the container
+	// runtime. Uniquely identifies the container image launched using a
+	// container image digest.
+	ImageId string `json:"imageId,omitempty"`
+
+	// Labels: Container labels, as provided by the container runtime.
+	Labels []*Label `json:"labels,omitempty"`
+
+	// Name: Container name.
+	Name string `json:"name,omitempty"`
+
+	// Uri: Container image URI provided when configuring a pod/container.
+	// May identify a container image version using mutable tags.
+	Uri string `json:"uri,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ImageId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ImageId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Container) MarshalJSON() ([]byte, error) {
+	type NoMethod Container
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1072,6 +1403,105 @@ func (s *Cvssv3) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Database: Represents database access information, such as queries. A
+// database may be a sub-resource of an instance (as in the case of
+// CloudSQL instances or Cloud Spanner instances), or the database
+// instance itself. Some database resources may not have the full
+// resource name populated because these resource types are not yet
+// supported by Cloud Asset Inventory (e.g. CloudSQL databases). In
+// these cases only the display name will be provided.
+type Database struct {
+	// DisplayName: The human readable name of the database the user
+	// connected to.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// Grantees: The target usernames/roles/groups of a SQL privilege grant
+	// (not an IAM policy change).
+	Grantees []string `json:"grantees,omitempty"`
+
+	// Name: The full resource name of the database the user connected to,
+	// if it is supported by CAI.
+	// (https://google.aip.dev/122#full-resource-names)
+	Name string `json:"name,omitempty"`
+
+	// Query: The SQL statement associated with the relevant access.
+	Query string `json:"query,omitempty"`
+
+	// UserName: The username used to connect to the DB. This may not
+	// necessarily be an IAM principal, and has no required format.
+	UserName string `json:"userName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DisplayName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisplayName") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Database) MarshalJSON() ([]byte, error) {
+	type NoMethod Database
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Detection: Memory hash detection contributing to the binary family
+// match.
+type Detection struct {
+	// Binary: The name of the binary associated with the memory hash
+	// signature detection.
+	Binary string `json:"binary,omitempty"`
+
+	// PercentPagesMatched: The percentage of memory page hashes in the
+	// signature that were matched.
+	PercentPagesMatched float64 `json:"percentPagesMatched,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Binary") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Binary") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Detection) MarshalJSON() ([]byte, error) {
+	type NoMethod Detection
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+func (s *Detection) UnmarshalJSON(data []byte) error {
+	type NoMethod Detection
+	var s1 struct {
+		PercentPagesMatched gensupport.JSONFloat64 `json:"percentPagesMatched"`
+		*NoMethod
+	}
+	s1.NoMethod = (*NoMethod)(s)
+	if err := json.Unmarshal(data, &s1); err != nil {
+		return err
+	}
+	s.PercentPagesMatched = float64(s1.PercentPagesMatched)
+	return nil
+}
+
 // Empty: A generic empty message that you can re-use to avoid defining
 // duplicated empty messages in your APIs. A typical example is to use
 // it as the request or the response type of an API method. For
@@ -1081,6 +1511,110 @@ type Empty struct {
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
+}
+
+// EnvironmentVariable: EnvironmentVariable is a name-value pair to
+// store environment variables for Process.
+type EnvironmentVariable struct {
+	// Name: Environment variable name as a JSON encoded string.
+	Name string `json:"name,omitempty"`
+
+	// Val: Environment variable value as a JSON encoded string.
+	Val string `json:"val,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EnvironmentVariable) MarshalJSON() ([]byte, error) {
+	type NoMethod EnvironmentVariable
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ExfilResource: Resource that has been exfiltrated or exfiltrated_to.
+type ExfilResource struct {
+	// Components: Subcomponents of the asset that is exfiltrated - these
+	// could be URIs used during exfiltration, table names, databases,
+	// filenames, etc. For example, multiple tables may be exfiltrated from
+	// the same CloudSQL instance, or multiple files from the same Cloud
+	// Storage bucket.
+	Components []string `json:"components,omitempty"`
+
+	// Name: Resource's URI (https://google.aip.dev/122#full-resource-names)
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Components") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Components") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ExfilResource) MarshalJSON() ([]byte, error) {
+	type NoMethod ExfilResource
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Exfiltration: Exfiltration represents a data exfiltration attempt of
+// one or more sources to one or more targets. Sources represent the
+// source of data that is exfiltrated, and Targets represents the
+// destination the data was copied to.
+type Exfiltration struct {
+	// Sources: If there are multiple sources, then the data is considered
+	// "joined" between them. For instance, BigQuery can join multiple
+	// tables, and each table would be considered a source.
+	Sources []*ExfilResource `json:"sources,omitempty"`
+
+	// Targets: If there are multiple targets, each target would get a
+	// complete copy of the "joined" source data.
+	Targets []*ExfilResource `json:"targets,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Sources") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Sources") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Exfiltration) MarshalJSON() ([]byte, error) {
+	type NoMethod Exfiltration
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // Expr: Represents a textual expression in the Common Expression
@@ -1143,6 +1677,55 @@ func (s *Expr) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// File: File information about the related binary/library used by an
+// executable, or the script used by a script interpreter
+type File struct {
+	// Contents: Prefix of the file contents as a JSON encoded string.
+	// (Currently only populated for Malicious Script Executed findings.)
+	Contents string `json:"contents,omitempty"`
+
+	// HashedSize: The length in bytes of the file prefix that was hashed.
+	// If hashed_size == size, any hashes reported represent the entire
+	// file.
+	HashedSize int64 `json:"hashedSize,omitempty,string"`
+
+	// PartiallyHashed: True when the hash covers only a prefix of the file.
+	PartiallyHashed bool `json:"partiallyHashed,omitempty"`
+
+	// Path: Absolute path of the file as a JSON encoded string.
+	Path string `json:"path,omitempty"`
+
+	// Sha256: SHA256 hash of the first hashed_size bytes of the file
+	// encoded as a hex string. If hashed_size == size, sha256 represents
+	// the SHA256 hash of the entire file.
+	Sha256 string `json:"sha256,omitempty"`
+
+	// Size: Size of the file in bytes.
+	Size int64 `json:"size,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Contents") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Contents") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *File) MarshalJSON() ([]byte, error) {
+	type NoMethod File
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Finding: Security Command Center finding. A finding is a record of
 // assessment data like security, risk, health, or privacy, that is
 // ingested into Security Command Center for presentation, notification,
@@ -1169,13 +1752,41 @@ type Finding struct {
 	// "XSS_FLASH_INJECTION"
 	Category string `json:"category,omitempty"`
 
+	// CloudDlpDataProfile: Cloud DLP data profile associated with the
+	// finding.
+	CloudDlpDataProfile *CloudDlpDataProfile `json:"cloudDlpDataProfile,omitempty"`
+
+	// CloudDlpInspection: Cloud DLP inspection associated with the finding.
+	CloudDlpInspection *CloudDlpInspection `json:"cloudDlpInspection,omitempty"`
+
+	// Compliances: Contains compliance information for security standards
+	// associated to the finding.
+	Compliances []*Compliance `json:"compliances,omitempty"`
+
 	// Connections: Contains information about the IP connection associated
 	// with the finding.
 	Connections []*Connection `json:"connections,omitempty"`
 
+	// Contacts: Output only. Map containing the points of contact for the
+	// given finding. The key represents the type of contact, while the
+	// value contains a list of all the contacts that pertain. Please refer
+	// to:
+	// https://cloud.google.com/resource-manager/docs/managing-notification-contacts#notification-categories
+	// { "security": { "contacts": [ { "email": "person1@company.com" }, {
+	// "email": "person2@company.com" } ] } }
+	Contacts map[string]ContactDetails `json:"contacts,omitempty"`
+
+	// Containers: Containers associated with the finding. containers
+	// provides information for both Kubernetes and non-Kubernetes
+	// containers.
+	Containers []*Container `json:"containers,omitempty"`
+
 	// CreateTime: The time at which the finding was created in Security
 	// Command Center.
 	CreateTime string `json:"createTime,omitempty"`
+
+	// Database: Database associated with the finding.
+	Database *Database `json:"database,omitempty"`
 
 	// Description: Contains more detail about the finding.
 	Description string `json:"description,omitempty"`
@@ -1189,6 +1800,9 @@ type Finding struct {
 	// must not be set to a value greater than the current timestamp.
 	EventTime string `json:"eventTime,omitempty"`
 
+	// Exfiltration: Represents exfiltration associated with the Finding.
+	Exfiltration *Exfiltration `json:"exfiltration,omitempty"`
+
 	// ExternalSystems: Output only. Third party SIEM/SOAR fields within
 	// SCC, contains external system information and external system finding
 	// fields.
@@ -1199,6 +1813,9 @@ type Finding struct {
 	// finding can be found. This field is guaranteed to be either empty or
 	// a well formed URL.
 	ExternalUri string `json:"externalUri,omitempty"`
+
+	// Files: File associated with the finding.
+	Files []*File `json:"files,omitempty"`
 
 	// FindingClass: The class of the finding.
 	//
@@ -1225,9 +1842,21 @@ type Finding struct {
 	// https://en.wikipedia.org/wiki/Indicator_of_compromise
 	Indicator *Indicator `json:"indicator,omitempty"`
 
+	// KernelRootkit: Kernel Rootkit signature.
+	KernelRootkit *KernelRootkit `json:"kernelRootkit,omitempty"`
+
+	// Kubernetes: Kubernetes resources associated with the finding.
+	Kubernetes *Kubernetes `json:"kubernetes,omitempty"`
+
 	// MitreAttack: MITRE ATT&CK tactics and techniques related to this
 	// finding. See: https://attack.mitre.org
 	MitreAttack *MitreAttack `json:"mitreAttack,omitempty"`
+
+	// ModuleName: Unique identifier of the module which generated the
+	// finding. Example:
+	// folders/598186756061/securityHealthAnalyticsSettings/customModules/567
+	// 99441161885
+	ModuleName string `json:"moduleName,omitempty"`
 
 	// Mute: Indicates the mute state of a finding (either muted, unmuted or
 	// undefined). Unlike other attributes of a finding, a finding provider
@@ -1266,6 +1895,15 @@ type Finding struct {
 	// This field is immutable after creation time. For example:
 	// "organizations/{organization_id}/sources/{source_id}"
 	Parent string `json:"parent,omitempty"`
+
+	// ParentDisplayName: Output only. The human readable display name of
+	// the finding source such as "Event Threat Detection" or "Security
+	// Health Analytics".
+	ParentDisplayName string `json:"parentDisplayName,omitempty"`
+
+	// Processes: Represents operating system processes associated with the
+	// Finding.
+	Processes []*Process `json:"processes,omitempty"`
 
 	// ResourceName: For findings on Google Cloud resources, the full
 	// resource name of the Google Cloud resource this finding is for. See:
@@ -1340,8 +1978,8 @@ type Finding struct {
 	// otherwise addressed and is no longer active.
 	State string `json:"state,omitempty"`
 
-	// Vulnerability: Represents vulnerability specific fields like cve,
-	// cvss scores etc. CVE stands for Common Vulnerabilities and Exposures
+	// Vulnerability: Represents vulnerability-specific fields like CVE and
+	// CVSS scores. CVE stands for Common Vulnerabilities and Exposures
 	// (https://cve.mitre.org/about/)
 	Vulnerability *Vulnerability `json:"vulnerability,omitempty"`
 
@@ -1508,7 +2146,7 @@ func (s *GetPolicyOptions) MarshalJSON() ([]byte, error) {
 // GoogleCloudSecuritycenterV1BigQueryExport: Configures how to deliver
 // Findings to BigQuery Instance.
 type GoogleCloudSecuritycenterV1BigQueryExport struct {
-	// CreateTime: Output only. The time at which the big query export was
+	// CreateTime: Output only. The time at which the BigQuery export was
 	// created. This field is set by the server and will be ignored if
 	// provided on export on creation.
 	CreateTime string `json:"createTime,omitempty"`
@@ -1536,7 +2174,7 @@ type GoogleCloudSecuritycenterV1BigQueryExport struct {
 	Filter string `json:"filter,omitempty"`
 
 	// MostRecentEditor: Output only. Email address of the user who last
-	// edited the big query export. This field is set by the server and will
+	// edited the BigQuery export. This field is set by the server and will
 	// be ignored if provided on export creation or update.
 	MostRecentEditor string `json:"mostRecentEditor,omitempty"`
 
@@ -1551,12 +2189,12 @@ type GoogleCloudSecuritycenterV1BigQueryExport struct {
 	Name string `json:"name,omitempty"`
 
 	// Principal: Output only. The service account that needs permission to
-	// create table, upload data to the big query dataset.
+	// create table and upload data to the BigQuery dataset.
 	Principal string `json:"principal,omitempty"`
 
-	// UpdateTime: Output only. The most recent time at which the big export
-	// was updated. This field is set by the server and will be ignored if
-	// provided on export creation or update.
+	// UpdateTime: Output only. The most recent time at which the BigQuery
+	// export was updated. This field is set by the server and will be
+	// ignored if provided on export creation or update.
 	UpdateTime string `json:"updateTime,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -1586,6 +2224,45 @@ func (s *GoogleCloudSecuritycenterV1BigQueryExport) MarshalJSON() ([]byte, error
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleCloudSecuritycenterV1Binding: Represents a Kubernetes
+// RoleBinding or ClusterRoleBinding.
+type GoogleCloudSecuritycenterV1Binding struct {
+	// Name: Name for binding.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace for binding.
+	Ns string `json:"ns,omitempty"`
+
+	// Role: The Role or ClusterRole referenced by the binding.
+	Role *Role `json:"role,omitempty"`
+
+	// Subjects: Represents one or more subjects that are bound to the role.
+	// Not always available for PATCH requests.
+	Subjects []*Subject `json:"subjects,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleCloudSecuritycenterV1Binding) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleCloudSecuritycenterV1Binding
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleCloudSecuritycenterV1BulkMuteFindingsResponse: The response to
 // a BulkMute request. Contains the LRO information.
 type GoogleCloudSecuritycenterV1BulkMuteFindingsResponse struct {
@@ -1606,10 +2283,10 @@ type GoogleCloudSecuritycenterV1ExternalSystem struct {
 	// external system.
 	ExternalUid string `json:"externalUid,omitempty"`
 
-	// Name: External System Name e.g. jira, demisto, etc. e.g.:
-	// `organizations/1234/sources/5678/findings/123456/externalSystems/jira`
-	//  `folders/1234/sources/5678/findings/123456/externalSystems/jira`
-	// `projects/1234/sources/5678/findings/123456/externalSystems/jira`
+	// Name: Full resource name of the external system, for example:
+	// "organizations/1234/sources/5678/findings/123456/externalSystems/jira"
+	// , "folders/1234/sources/5678/findings/123456/externalSystems/jira",
+	// "projects/1234/sources/5678/findings/123456/externalSystems/jira"
 	Name string `json:"name,omitempty"`
 
 	// Status: Most recent status of the corresponding finding's
@@ -2640,17 +3317,26 @@ func (s *IamPolicy) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Indicator: Represents what's commonly known as an Indicator of
-// compromise (IoC) in computer forensics. This is an artifact observed
+// Indicator: Represents what's commonly known as an _indicator of
+// compromise_ (IoC) in computer forensics. This is an artifact observed
 // on a network or in an operating system that, with high confidence,
-// indicates a computer intrusion. Reference:
-// https://en.wikipedia.org/wiki/Indicator_of_compromise
+// indicates a computer intrusion. For more information, see Indicator
+// of compromise
+// (https://en.wikipedia.org/wiki/Indicator_of_compromise).
 type Indicator struct {
 	// Domains: List of domains associated to the Finding.
 	Domains []string `json:"domains,omitempty"`
 
-	// IpAddresses: List of ip addresses associated to the Finding.
+	// IpAddresses: The list of IP addresses that are associated with the
+	// finding.
 	IpAddresses []string `json:"ipAddresses,omitempty"`
+
+	// Signatures: The list of matched signatures indicating that the given
+	// process is present in the environment.
+	Signatures []*ProcessSignature `json:"signatures,omitempty"`
+
+	// Uris: The list of URIs associated to the Findings.
+	Uris []string `json:"uris,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Domains") to
 	// unconditionally include in API requests. By default, fields with
@@ -2671,6 +3357,150 @@ type Indicator struct {
 
 func (s *Indicator) MarshalJSON() ([]byte, error) {
 	type NoMethod Indicator
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// KernelRootkit: Kernel mode rootkit signatures.
+type KernelRootkit struct {
+	// Name: Rootkit name when available.
+	Name string `json:"name,omitempty"`
+
+	// UnexpectedCodeModification: True when unexpected modifications of
+	// kernel code memory are present.
+	UnexpectedCodeModification bool `json:"unexpectedCodeModification,omitempty"`
+
+	// UnexpectedFtraceHandler: True when `ftrace` points are present with
+	// callbacks pointing to regions that are not in the expected kernel or
+	// module code range.
+	UnexpectedFtraceHandler bool `json:"unexpectedFtraceHandler,omitempty"`
+
+	// UnexpectedInterruptHandler: True when interrupt handlers that are are
+	// not in the expected kernel or module code regions are present.
+	UnexpectedInterruptHandler bool `json:"unexpectedInterruptHandler,omitempty"`
+
+	// UnexpectedKernelCodePages: True when kernel code pages that are not
+	// in the expected kernel or module code regions are present.
+	UnexpectedKernelCodePages bool `json:"unexpectedKernelCodePages,omitempty"`
+
+	// UnexpectedKprobeHandler: True when `kprobe` points are present with
+	// callbacks pointing to regions that are not in the expected kernel or
+	// module code range.
+	UnexpectedKprobeHandler bool `json:"unexpectedKprobeHandler,omitempty"`
+
+	// UnexpectedProcessesInRunqueue: True when unexpected processes in the
+	// scheduler run queue are present. Such processes are in the run queue,
+	// but not in the process task list.
+	UnexpectedProcessesInRunqueue bool `json:"unexpectedProcessesInRunqueue,omitempty"`
+
+	// UnexpectedReadOnlyDataModification: True when unexpected
+	// modifications of kernel read-only data memory are present.
+	UnexpectedReadOnlyDataModification bool `json:"unexpectedReadOnlyDataModification,omitempty"`
+
+	// UnexpectedSystemCallHandler: True when system call handlers that are
+	// are not in the expected kernel or module code regions are present.
+	UnexpectedSystemCallHandler bool `json:"unexpectedSystemCallHandler,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *KernelRootkit) MarshalJSON() ([]byte, error) {
+	type NoMethod KernelRootkit
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Kubernetes: Kubernetes-related attributes.
+type Kubernetes struct {
+	// AccessReviews: Provides information on any Kubernetes access reviews
+	// (i.e. privilege checks) relevant to the finding.
+	AccessReviews []*AccessReview `json:"accessReviews,omitempty"`
+
+	// Bindings: Provides Kubernetes role binding information for findings
+	// that involve RoleBindings or ClusterRoleBindings.
+	Bindings []*GoogleCloudSecuritycenterV1Binding `json:"bindings,omitempty"`
+
+	// NodePools: GKE Node Pools associated with the finding. This field
+	// will contain NodePool information for each Node, when it is
+	// available.
+	NodePools []*NodePool `json:"nodePools,omitempty"`
+
+	// Nodes: Provides Kubernetes Node information.
+	Nodes []*Node `json:"nodes,omitempty"`
+
+	// Pods: Kubernetes Pods associated with the finding. This field will
+	// contain Pod records for each container that is owned by a Pod.
+	Pods []*Pod `json:"pods,omitempty"`
+
+	// Roles: Provides Kubernetes role information for findings that involve
+	// Roles or ClusterRoles.
+	Roles []*Role `json:"roles,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AccessReviews") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AccessReviews") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Kubernetes) MarshalJSON() ([]byte, error) {
+	type NoMethod Kubernetes
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Label: Label represents a generic name=value label. Label has
+// separate name and value fields to support filtering with contains().
+type Label struct {
+	// Name: Label name.
+	Name string `json:"name,omitempty"`
+
+	// Value: Label value.
+	Value string `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Label) MarshalJSON() ([]byte, error) {
+	type NoMethod Label
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3032,6 +3862,38 @@ func (s *ListSourcesResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// MemoryHashSignature: A signature corresponding to memory page hashes.
+type MemoryHashSignature struct {
+	// BinaryFamily: The binary family.
+	BinaryFamily string `json:"binaryFamily,omitempty"`
+
+	// Detections: The list of memory hash detections contributing to the
+	// binary family match.
+	Detections []*Detection `json:"detections,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "BinaryFamily") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "BinaryFamily") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MemoryHashSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod MemoryHashSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // MitreAttack: MITRE ATT&CK tactics and techniques related to this
 // finding. See: https://attack.mitre.org
 type MitreAttack struct {
@@ -3093,6 +3955,10 @@ type MitreAttack struct {
 	//   "DATA_DESTRUCTION" - T1485
 	//   "DOMAIN_POLICY_MODIFICATION" - T1484
 	//   "IMPAIR_DEFENSES" - T1562
+	//   "NETWORK_SERVICE_DISCOVERY" - T1046
+	//   "ACCESS_TOKEN_MANIPULATION" - T1134
+	//   "ABUSE_ELEVATION_CONTROL_MECHANISM" - T1548
+	//   "DEFAULT_ACCOUNTS" - T1078.001
 	AdditionalTechniques []string `json:"additionalTechniques,omitempty"`
 
 	// PrimaryTactic: The MITRE ATT&CK tactic most closely represented by
@@ -3157,6 +4023,10 @@ type MitreAttack struct {
 	//   "DATA_DESTRUCTION" - T1485
 	//   "DOMAIN_POLICY_MODIFICATION" - T1484
 	//   "IMPAIR_DEFENSES" - T1562
+	//   "NETWORK_SERVICE_DISCOVERY" - T1046
+	//   "ACCESS_TOKEN_MANIPULATION" - T1134
+	//   "ABUSE_ELEVATION_CONTROL_MECHANISM" - T1548
+	//   "DEFAULT_ACCOUNTS" - T1078.001
 	PrimaryTechniques []string `json:"primaryTechniques,omitempty"`
 
 	// Version: The MITRE ATT&CK version referenced by the above fields.
@@ -3187,6 +4057,66 @@ func (s *MitreAttack) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Node: Kubernetes Nodes associated with the finding.
+type Node struct {
+	// Name: Full Resource name of the Compute Engine VM running the cluster
+	// node.
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Node) MarshalJSON() ([]byte, error) {
+	type NoMethod Node
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// NodePool: Provides GKE Node Pool information.
+type NodePool struct {
+	// Name: Kubernetes Node pool name.
+	Name string `json:"name,omitempty"`
+
+	// Nodes: Nodes associated with the finding.
+	Nodes []*Node `json:"nodes,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Name") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Name") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *NodePool) MarshalJSON() ([]byte, error) {
+	type NoMethod NodePool
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // NotificationConfig: Cloud Security Command Center (Cloud SCC)
 // notification configs. A notification config is a Cloud SCC resource
 // that contains the configuration to send notifications for
@@ -3200,7 +4130,8 @@ type NotificationConfig struct {
 	// https://cloud.google.com/apis/design/resource_names#relative_resource_name
 	// Example:
 	// "organizations/{organization_id}/notificationConfigs/notify_public_buc
-	// ket".
+	// ket", "folders/{folder_id}/notificationConfigs/notify_public_bucket",
+	// or "projects/{project_id}/notificationConfigs/notify_public_bucket".
 	Name string `json:"name,omitempty"`
 
 	// PubsubTopic: The Pub/Sub topic to send notifications to. Its format
@@ -3351,6 +4282,44 @@ func (s *OrganizationSettings) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Pod: Kubernetes Pod.
+type Pod struct {
+	// Containers: Pod containers associated with this finding, if any.
+	Containers []*Container `json:"containers,omitempty"`
+
+	// Labels: Pod labels. For Kubernetes containers, these are applied to
+	// the container.
+	Labels []*Label `json:"labels,omitempty"`
+
+	// Name: Kubernetes Pod name.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Kubernetes Pod namespace.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Containers") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Containers") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Pod) MarshalJSON() ([]byte, error) {
+	type NoMethod Pod
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Policy: An Identity and Access Management (IAM) policy, which
 // specifies access controls for Google Cloud resources. A `Policy` is a
 // collection of `bindings`. A `binding` binds one or more `members`, or
@@ -3461,6 +4430,99 @@ func (s *Policy) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Process: Represents an operating system process.
+type Process struct {
+	// Args: Process arguments as JSON encoded strings.
+	Args []string `json:"args,omitempty"`
+
+	// ArgumentsTruncated: True if `args` is incomplete.
+	ArgumentsTruncated bool `json:"argumentsTruncated,omitempty"`
+
+	// Binary: File information for the process executable.
+	Binary *File `json:"binary,omitempty"`
+
+	// EnvVariables: Process environment variables.
+	EnvVariables []*EnvironmentVariable `json:"envVariables,omitempty"`
+
+	// EnvVariablesTruncated: True if `env_variables` is incomplete.
+	EnvVariablesTruncated bool `json:"envVariablesTruncated,omitempty"`
+
+	// Libraries: File information for libraries loaded by the process.
+	Libraries []*File `json:"libraries,omitempty"`
+
+	// Name: The process name visible in utilities like `top` and `ps`; it
+	// can be accessed via `/proc/[pid]/comm` and changed with
+	// `prctl(PR_SET_NAME)`.
+	Name string `json:"name,omitempty"`
+
+	// ParentPid: The parent process id.
+	ParentPid int64 `json:"parentPid,omitempty,string"`
+
+	// Pid: The process id.
+	Pid int64 `json:"pid,omitempty,string"`
+
+	// Script: When the process represents the invocation of a script,
+	// `binary` provides information about the interpreter while `script`
+	// provides information about the script file provided to the
+	// interpreter.
+	Script *File `json:"script,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Args") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Args") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Process) MarshalJSON() ([]byte, error) {
+	type NoMethod Process
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ProcessSignature: Indicates what signature matched this process.
+type ProcessSignature struct {
+	// MemoryHashSignature: Signature indicating that a binary family was
+	// matched.
+	MemoryHashSignature *MemoryHashSignature `json:"memoryHashSignature,omitempty"`
+
+	// YaraRuleSignature: Signature indicating that a YARA rule was matched.
+	YaraRuleSignature *YaraRuleSignature `json:"yaraRuleSignature,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "MemoryHashSignature")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "MemoryHashSignature") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ProcessSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod ProcessSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Reference: Additional Links
 type Reference struct {
 	// Source: Source of the reference e.g. NVD
@@ -3543,6 +4605,45 @@ type Resource struct {
 
 func (s *Resource) MarshalJSON() ([]byte, error) {
 	type NoMethod Resource
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Role: Kubernetes Role or ClusterRole.
+type Role struct {
+	// Kind: Role type.
+	//
+	// Possible values:
+	//   "KIND_UNSPECIFIED" - Role type is not specified.
+	//   "ROLE" - Kubernetes Role.
+	//   "CLUSTER_ROLE" - Kubernetes ClusterRole.
+	Kind string `json:"kind,omitempty"`
+
+	// Name: Role name.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Role namespace.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Role) MarshalJSON() ([]byte, error) {
+	type NoMethod Role
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3677,6 +4778,46 @@ type SecurityMarks struct {
 
 func (s *SecurityMarks) MarshalJSON() ([]byte, error) {
 	type NoMethod SecurityMarks
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ServiceAccountDelegationInfo: Identity delegation history of an
+// authenticated service account.
+type ServiceAccountDelegationInfo struct {
+	// PrincipalEmail: The email address of a Google account.
+	PrincipalEmail string `json:"principalEmail,omitempty"`
+
+	// PrincipalSubject: A string representing the principal_subject
+	// associated with the identity. As compared to `principal_email`,
+	// supports principals that aren't associated with email addresses, such
+	// as third party principals. For most identities, the format will be
+	// `principal://iam.googleapis.com/{identity pool
+	// name}/subjects/{subject}` except for some GKE identities
+	// (GKE_WORKLOAD, FREEFORM, GKE_HUB_WORKLOAD) that are still in the
+	// legacy format `serviceAccount:{identity pool name}[{subject}]`
+	PrincipalSubject string `json:"principalSubject,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PrincipalEmail") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PrincipalEmail") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ServiceAccountDelegationInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod ServiceAccountDelegationInfo
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3934,6 +5075,47 @@ func (s *StreamingConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Subject: Represents a Kubernetes Subject.
+type Subject struct {
+	// Kind: Authentication type for subject.
+	//
+	// Possible values:
+	//   "AUTH_TYPE_UNSPECIFIED" - Authentication is not specified.
+	//   "USER" - User with valid certificate.
+	//   "SERVICEACCOUNT" - Users managed by Kubernetes API with credentials
+	// stored as Secrets.
+	//   "GROUP" - Collection of users.
+	Kind string `json:"kind,omitempty"`
+
+	// Name: Name for subject.
+	Name string `json:"name,omitempty"`
+
+	// Ns: Namespace for subject.
+	Ns string `json:"ns,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Subject) MarshalJSON() ([]byte, error) {
+	type NoMethod Subject
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // TestIamPermissionsRequest: Request message for `TestIamPermissions`
 // method.
 type TestIamPermissionsRequest struct {
@@ -4030,6 +5212,34 @@ func (s *Vulnerability) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// YaraRuleSignature: A signature corresponding to a YARA rule.
+type YaraRuleSignature struct {
+	// YaraRule: The name of the YARA rule.
+	YaraRule string `json:"yaraRule,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "YaraRule") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "YaraRule") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *YaraRuleSignature) MarshalJSON() ([]byte, error) {
+	type NoMethod YaraRuleSignature
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // method id "securitycenter.folders.assets.group":
 
 type FoldersAssetsGroupCall struct {
@@ -4044,9 +5254,9 @@ type FoldersAssetsGroupCall struct {
 // Group: Filters an organization's assets and groups them by their
 // specified properties.
 //
-// - parent: Name of the organization to groupBy. Its format is
-//   "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: The name of the parent to group the assets by. Its format
+//     is "organizations/[organization_id]", "folders/[folder_id]", or
+//     "projects/[project_id]".
 func (r *FoldersAssetsService) Group(parent string, groupassetsrequest *GroupAssetsRequest) *FoldersAssetsGroupCall {
 	c := &FoldersAssetsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4121,17 +5331,17 @@ func (c *FoldersAssetsGroupCall) Do(opts ...googleapi.CallOption) (*GroupAssetsR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4154,7 +5364,7 @@ func (c *FoldersAssetsGroupCall) Do(opts ...googleapi.CallOption) (*GroupAssetsR
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "Required. Name of the organization to groupBy. Its format is \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. The name of the parent to group the assets by. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+$",
 	//       "required": true,
@@ -4209,9 +5419,11 @@ type FoldersAssetsListCall struct {
 
 // List: Lists an organization's assets.
 //
-// - parent: Name of the organization assets should belong to. Its
-//   format is "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: The name of the parent resource that contains the assets.
+//     The value that you can specify on parent depends on the method in
+//     which you specify parent. You can specify one of the following
+//     values: "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
 func (r *FoldersAssetsService) List(parent string) *FoldersAssetsListCall {
 	c := &FoldersAssetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4416,17 +5628,17 @@ func (c *FoldersAssetsListCall) Do(opts ...googleapi.CallOption) (*ListAssetsRes
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4482,7 +5694,7 @@ func (c *FoldersAssetsListCall) Do(opts ...googleapi.CallOption) (*ListAssetsRes
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Name of the organization assets should belong to. Its format is \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. The name of the parent resource that contains the assets. The value that you can specify on parent depends on the method in which you specify parent. You can specify one of the following values: \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+$",
 	//       "required": true,
@@ -4540,12 +5752,12 @@ type FoldersAssetsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *FoldersAssetsService) UpdateSecurityMarks(name string, securitymarks *SecurityMarks) *FoldersAssetsUpdateSecurityMarksCall {
 	c := &FoldersAssetsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4639,17 +5851,17 @@ func (c *FoldersAssetsUpdateSecurityMarksCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{
@@ -4716,11 +5928,11 @@ type FoldersBigQueryExportsCreateCall struct {
 	header_                                   http.Header
 }
 
-// Create: Creates a big query export.
+// Create: Creates a BigQuery export.
 //
-// - parent: Resource name of the new big query export's parent. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   or "projects/[project_id]".
+//   - parent: The name of the parent resource of the new BigQuery export.
+//     Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", or "projects/[project_id]".
 func (r *FoldersBigQueryExportsService) Create(parent string, googlecloudsecuritycenterv1bigqueryexport *GoogleCloudSecuritycenterV1BigQueryExport) *FoldersBigQueryExportsCreateCall {
 	c := &FoldersBigQueryExportsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4807,17 +6019,17 @@ func (c *FoldersBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -4831,7 +6043,7 @@ func (c *FoldersBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption) (*Go
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a big query export.",
+	//   "description": "Creates a BigQuery export.",
 	//   "flatPath": "v1/folders/{foldersId}/bigQueryExports",
 	//   "httpMethod": "POST",
 	//   "id": "securitycenter.folders.bigQueryExports.create",
@@ -4845,7 +6057,7 @@ func (c *FoldersBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption) (*Go
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name of the new big query export's parent. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
+	//       "description": "Required. The name of the parent resource of the new BigQuery export. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+$",
 	//       "required": true,
@@ -4876,12 +6088,12 @@ type FoldersBigQueryExportsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: Deletes an existing big query export.
+// Delete: Deletes an existing BigQuery export.
 //
-// - name: Name of the big query export to delete. Its format is
-//   organizations/{organization}/bigQueryExports/{export_id},
-//   folders/{folder}/bigQueryExports/{export_id}, or
-//   projects/{project}/bigQueryExports/{export_id}.
+//   - name: The name of the BigQuery export to delete. Its format is
+//     organizations/{organization}/bigQueryExports/{export_id},
+//     folders/{folder}/bigQueryExports/{export_id}, or
+//     projects/{project}/bigQueryExports/{export_id}.
 func (r *FoldersBigQueryExportsService) Delete(name string) *FoldersBigQueryExportsDeleteCall {
 	c := &FoldersBigQueryExportsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4950,17 +6162,17 @@ func (c *FoldersBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption) (*Em
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4974,7 +6186,7 @@ func (c *FoldersBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption) (*Em
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes an existing big query export.",
+	//   "description": "Deletes an existing BigQuery export.",
 	//   "flatPath": "v1/folders/{foldersId}/bigQueryExports/{bigQueryExportsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "securitycenter.folders.bigQueryExports.delete",
@@ -4983,7 +6195,7 @@ func (c *FoldersBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption) (*Em
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the big query export to delete. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
+	//       "description": "Required. The name of the BigQuery export to delete. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+/bigQueryExports/[^/]+$",
 	//       "required": true,
@@ -5012,12 +6224,12 @@ type FoldersBigQueryExportsGetCall struct {
 	header_      http.Header
 }
 
-// Get: Gets a big query export.
+// Get: Gets a BigQuery export.
 //
-// - name: Name of the big query export to retrieve. Its format is
-//   organizations/{organization}/bigQueryExports/{export_id},
-//   folders/{folder}/bigQueryExports/{export_id}, or
-//   projects/{project}/bigQueryExports/{export_id}.
+//   - name: Name of the BigQuery export to retrieve. Its format is
+//     organizations/{organization}/bigQueryExports/{export_id},
+//     folders/{folder}/bigQueryExports/{export_id}, or
+//     projects/{project}/bigQueryExports/{export_id}.
 func (r *FoldersBigQueryExportsService) Get(name string) *FoldersBigQueryExportsGetCall {
 	c := &FoldersBigQueryExportsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5101,17 +6313,17 @@ func (c *FoldersBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -5125,7 +6337,7 @@ func (c *FoldersBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (*Googl
 	}
 	return ret, nil
 	// {
-	//   "description": "Gets a big query export.",
+	//   "description": "Gets a BigQuery export.",
 	//   "flatPath": "v1/folders/{foldersId}/bigQueryExports/{bigQueryExportsId}",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.folders.bigQueryExports.get",
@@ -5134,7 +6346,7 @@ func (c *FoldersBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (*Googl
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the big query export to retrieve. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
+	//       "description": "Required. Name of the BigQuery export to retrieve. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+/bigQueryExports/[^/]+$",
 	//       "required": true,
@@ -5169,9 +6381,9 @@ type FoldersBigQueryExportsListCall struct {
 // BigQuery exports immediately under the folder plus the ones created
 // under the projects within the folder are returned.
 //
-// - parent: The parent, which owns the collection of BigQuery exports.
-//   Its format is "organizations/[organization_id]",
-//   "folders/[folder_id]", "projects/[project_id]".
+//   - parent: The parent, which owns the collection of BigQuery exports.
+//     Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", "projects/[project_id]".
 func (r *FoldersBigQueryExportsService) List(parent string) *FoldersBigQueryExportsListCall {
 	c := &FoldersBigQueryExportsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5272,17 +6484,17 @@ func (c *FoldersBigQueryExportsListCall) Do(opts ...googleapi.CallOption) (*List
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBigQueryExportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5368,14 +6580,14 @@ type FoldersBigQueryExportsPatchCall struct {
 
 // Patch: Updates a BigQuery export.
 //
-// - name: The relative resource name of this export. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name.
-//   Example format:
-//   "organizations/{organization_id}/bigQueryExports/{export_id}"
-//   Example format: "folders/{folder_id}/bigQueryExports/{export_id}"
-//   Example format: "projects/{project_id}/bigQueryExports/{export_id}"
-//   This field is provided in responses, and is ignored when provided
-//   in create requests.
+//   - name: The relative resource name of this export. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name.
+//     Example format:
+//     "organizations/{organization_id}/bigQueryExports/{export_id}"
+//     Example format: "folders/{folder_id}/bigQueryExports/{export_id}"
+//     Example format: "projects/{project_id}/bigQueryExports/{export_id}"
+//     This field is provided in responses, and is ignored when provided
+//     in create requests.
 func (r *FoldersBigQueryExportsService) Patch(name string, googlecloudsecuritycenterv1bigqueryexport *GoogleCloudSecuritycenterV1BigQueryExport) *FoldersBigQueryExportsPatchCall {
 	c := &FoldersBigQueryExportsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5459,17 +6671,17 @@ func (c *FoldersBigQueryExportsPatchCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -5535,9 +6747,9 @@ type FoldersFindingsBulkMuteCall struct {
 // project. The findings matched by the filter will be muted after the
 // LRO is done.
 //
-// - parent: The parent, at which bulk action needs to be applied. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   "projects/[project_id]".
+//   - parent: The parent, at which bulk action needs to be applied. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     "projects/[project_id]".
 func (r *FoldersFindingsService) BulkMute(parent string, bulkmutefindingsrequest *BulkMuteFindingsRequest) *FoldersFindingsBulkMuteCall {
 	c := &FoldersFindingsBulkMuteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5612,17 +6824,17 @@ func (c *FoldersFindingsBulkMuteCall) Do(opts ...googleapi.CallOption) (*Operati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5679,9 +6891,9 @@ type FoldersMuteConfigsCreateCall struct {
 
 // Create: Creates a mute config.
 //
-// - parent: Resource name of the new mute configs's parent. Its format
-//   is "organizations/[organization_id]", "folders/[folder_id]", or
-//   "projects/[project_id]".
+//   - parent: Resource name of the new mute configs's parent. Its format
+//     is "organizations/[organization_id]", "folders/[folder_id]", or
+//     "projects/[project_id]".
 func (r *FoldersMuteConfigsService) Create(parent string, googlecloudsecuritycenterv1muteconfig *GoogleCloudSecuritycenterV1MuteConfig) *FoldersMuteConfigsCreateCall {
 	c := &FoldersMuteConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5767,17 +6979,17 @@ func (c *FoldersMuteConfigsCreateCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -5838,10 +7050,10 @@ type FoldersMuteConfigsDeleteCall struct {
 
 // Delete: Deletes an existing mute config.
 //
-// - name: Name of the mute config to delete. Its format is
-//   organizations/{organization}/muteConfigs/{config_id},
-//   folders/{folder}/muteConfigs/{config_id}, or
-//   projects/{project}/muteConfigs/{config_id}.
+//   - name: Name of the mute config to delete. Its format is
+//     organizations/{organization}/muteConfigs/{config_id},
+//     folders/{folder}/muteConfigs/{config_id}, or
+//     projects/{project}/muteConfigs/{config_id}.
 func (r *FoldersMuteConfigsService) Delete(name string) *FoldersMuteConfigsDeleteCall {
 	c := &FoldersMuteConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5910,17 +7122,17 @@ func (c *FoldersMuteConfigsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5974,10 +7186,10 @@ type FoldersMuteConfigsGetCall struct {
 
 // Get: Gets a mute config.
 //
-// - name: Name of the mute config to retrieve. Its format is
-//   organizations/{organization}/muteConfigs/{config_id},
-//   folders/{folder}/muteConfigs/{config_id}, or
-//   projects/{project}/muteConfigs/{config_id}.
+//   - name: Name of the mute config to retrieve. Its format is
+//     organizations/{organization}/muteConfigs/{config_id},
+//     folders/{folder}/muteConfigs/{config_id}, or
+//     projects/{project}/muteConfigs/{config_id}.
 func (r *FoldersMuteConfigsService) Get(name string) *FoldersMuteConfigsGetCall {
 	c := &FoldersMuteConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6060,17 +7272,17 @@ func (c *FoldersMuteConfigsGetCall) Do(opts ...googleapi.CallOption) (*GoogleClo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6124,9 +7336,9 @@ type FoldersMuteConfigsListCall struct {
 
 // List: Lists mute configs.
 //
-// - parent: The parent, which owns the collection of mute configs. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   "projects/[project_id]".
+//   - parent: The parent, which owns the collection of mute configs. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     "projects/[project_id]".
 func (r *FoldersMuteConfigsService) List(parent string) *FoldersMuteConfigsListCall {
 	c := &FoldersMuteConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6227,17 +7439,17 @@ func (c *FoldersMuteConfigsListCall) Do(opts ...googleapi.CallOption) (*ListMute
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListMuteConfigsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6323,10 +7535,10 @@ type FoldersMuteConfigsPatchCall struct {
 
 // Patch: Updates a mute config.
 //
-// - name: This field will be ignored if provided on config creation.
-//   Format "organizations/{organization}/muteConfigs/{mute_config}"
-//   "folders/{folder}/muteConfigs/{mute_config}"
-//   "projects/{project}/muteConfigs/{mute_config}".
+//   - name: This field will be ignored if provided on config creation.
+//     Format "organizations/{organization}/muteConfigs/{mute_config}"
+//     "folders/{folder}/muteConfigs/{mute_config}"
+//     "projects/{project}/muteConfigs/{mute_config}".
 func (r *FoldersMuteConfigsService) Patch(name string, googlecloudsecuritycenterv1muteconfig *GoogleCloudSecuritycenterV1MuteConfig) *FoldersMuteConfigsPatchCall {
 	c := &FoldersMuteConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6409,17 +7621,17 @@ func (c *FoldersMuteConfigsPatchCall) Do(opts ...googleapi.CallOption) (*GoogleC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6469,6 +7681,808 @@ func (c *FoldersMuteConfigsPatchCall) Do(opts ...googleapi.CallOption) (*GoogleC
 
 }
 
+// method id "securitycenter.folders.notificationConfigs.create":
+
+type FoldersNotificationConfigsCreateCall struct {
+	s                  *Service
+	parent             string
+	notificationconfig *NotificationConfig
+	urlParams_         gensupport.URLParams
+	ctx_               context.Context
+	header_            http.Header
+}
+
+// Create: Creates a notification config.
+//
+//   - parent: Resource name of the new notification config's parent. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
+func (r *FoldersNotificationConfigsService) Create(parent string, notificationconfig *NotificationConfig) *FoldersNotificationConfigsCreateCall {
+	c := &FoldersNotificationConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.notificationconfig = notificationconfig
+	return c
+}
+
+// ConfigId sets the optional parameter "configId": Required. Unique
+// identifier provided by the client within the parent scope. It must be
+// between 1 and 128 characters and contain alphanumeric characters,
+// underscores, or hyphens only.
+func (c *FoldersNotificationConfigsCreateCall) ConfigId(configId string) *FoldersNotificationConfigsCreateCall {
+	c.urlParams_.Set("configId", configId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersNotificationConfigsCreateCall) Fields(s ...googleapi.Field) *FoldersNotificationConfigsCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersNotificationConfigsCreateCall) Context(ctx context.Context) *FoldersNotificationConfigsCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersNotificationConfigsCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersNotificationConfigsCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.notificationconfig)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/notificationConfigs")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.notificationConfigs.create" call.
+// Exactly one of *NotificationConfig or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *NotificationConfig.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *FoldersNotificationConfigsCreateCall) Do(opts ...googleapi.CallOption) (*NotificationConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &NotificationConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a notification config.",
+	//   "flatPath": "v1/folders/{foldersId}/notificationConfigs",
+	//   "httpMethod": "POST",
+	//   "id": "securitycenter.folders.notificationConfigs.create",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "configId": {
+	//       "description": "Required. Unique identifier provided by the client within the parent scope. It must be between 1 and 128 characters and contain alphanumeric characters, underscores, or hyphens only.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. Resource name of the new notification config's parent. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/notificationConfigs",
+	//   "request": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "response": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "securitycenter.folders.notificationConfigs.delete":
+
+type FoldersNotificationConfigsDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes a notification config.
+//
+//   - name: Name of the notification config to delete. Its format is
+//     "organizations/[organization_id]/notificationConfigs/[config_id]",
+//     "folders/[folder_id]/notificationConfigs/[config_id]", or
+//     "projects/[project_id]/notificationConfigs/[config_id]".
+func (r *FoldersNotificationConfigsService) Delete(name string) *FoldersNotificationConfigsDeleteCall {
+	c := &FoldersNotificationConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersNotificationConfigsDeleteCall) Fields(s ...googleapi.Field) *FoldersNotificationConfigsDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersNotificationConfigsDeleteCall) Context(ctx context.Context) *FoldersNotificationConfigsDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersNotificationConfigsDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersNotificationConfigsDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.notificationConfigs.delete" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *FoldersNotificationConfigsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes a notification config.",
+	//   "flatPath": "v1/folders/{foldersId}/notificationConfigs/{notificationConfigsId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "securitycenter.folders.notificationConfigs.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Name of the notification config to delete. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\", \"folders/[folder_id]/notificationConfigs/[config_id]\", or \"projects/[project_id]/notificationConfigs/[config_id]\".",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+/notificationConfigs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "securitycenter.folders.notificationConfigs.get":
+
+type FoldersNotificationConfigsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets a notification config.
+//
+//   - name: Name of the notification config to get. Its format is
+//     "organizations/[organization_id]/notificationConfigs/[config_id]",
+//     "folders/[folder_id]/notificationConfigs/[config_id]", or
+//     "projects/[project_id]/notificationConfigs/[config_id]".
+func (r *FoldersNotificationConfigsService) Get(name string) *FoldersNotificationConfigsGetCall {
+	c := &FoldersNotificationConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersNotificationConfigsGetCall) Fields(s ...googleapi.Field) *FoldersNotificationConfigsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *FoldersNotificationConfigsGetCall) IfNoneMatch(entityTag string) *FoldersNotificationConfigsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersNotificationConfigsGetCall) Context(ctx context.Context) *FoldersNotificationConfigsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersNotificationConfigsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersNotificationConfigsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.notificationConfigs.get" call.
+// Exactly one of *NotificationConfig or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *NotificationConfig.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *FoldersNotificationConfigsGetCall) Do(opts ...googleapi.CallOption) (*NotificationConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &NotificationConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets a notification config.",
+	//   "flatPath": "v1/folders/{foldersId}/notificationConfigs/{notificationConfigsId}",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.folders.notificationConfigs.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Name of the notification config to get. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\", \"folders/[folder_id]/notificationConfigs/[config_id]\", or \"projects/[project_id]/notificationConfigs/[config_id]\".",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+/notificationConfigs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "securitycenter.folders.notificationConfigs.list":
+
+type FoldersNotificationConfigsListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists notification configs.
+//
+//   - parent: The name of the parent in which to list the notification
+//     configurations. Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", or "projects/[project_id]".
+func (r *FoldersNotificationConfigsService) List(parent string) *FoldersNotificationConfigsListCall {
+	c := &FoldersNotificationConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": The maximum number
+// of results to return in a single response. Default is 10, minimum is
+// 1, maximum is 1000.
+func (c *FoldersNotificationConfigsListCall) PageSize(pageSize int64) *FoldersNotificationConfigsListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": The value returned
+// by the last `ListNotificationConfigsResponse`; indicates that this is
+// a continuation of a prior `ListNotificationConfigs` call, and that
+// the system should return the next page of data.
+func (c *FoldersNotificationConfigsListCall) PageToken(pageToken string) *FoldersNotificationConfigsListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersNotificationConfigsListCall) Fields(s ...googleapi.Field) *FoldersNotificationConfigsListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *FoldersNotificationConfigsListCall) IfNoneMatch(entityTag string) *FoldersNotificationConfigsListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersNotificationConfigsListCall) Context(ctx context.Context) *FoldersNotificationConfigsListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersNotificationConfigsListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersNotificationConfigsListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/notificationConfigs")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.notificationConfigs.list" call.
+// Exactly one of *ListNotificationConfigsResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *ListNotificationConfigsResponse.ServerResponse.Header or (if
+// a response was returned at all) in error.(*googleapi.Error).Header.
+// Use googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *FoldersNotificationConfigsListCall) Do(opts ...googleapi.CallOption) (*ListNotificationConfigsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &ListNotificationConfigsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists notification configs.",
+	//   "flatPath": "v1/folders/{foldersId}/notificationConfigs",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.folders.notificationConfigs.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "pageSize": {
+	//       "description": "The maximum number of results to return in a single response. Default is 10, minimum is 1, maximum is 1000.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "The value returned by the last `ListNotificationConfigsResponse`; indicates that this is a continuation of a prior `ListNotificationConfigs` call, and that the system should return the next page of data.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. The name of the parent in which to list the notification configurations. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/notificationConfigs",
+	//   "response": {
+	//     "$ref": "ListNotificationConfigsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *FoldersNotificationConfigsListCall) Pages(ctx context.Context, f func(*ListNotificationConfigsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "securitycenter.folders.notificationConfigs.patch":
+
+type FoldersNotificationConfigsPatchCall struct {
+	s                  *Service
+	name               string
+	notificationconfig *NotificationConfig
+	urlParams_         gensupport.URLParams
+	ctx_               context.Context
+	header_            http.Header
+}
+
+// Patch:  Updates a notification config. The following update fields
+// are allowed: description, pubsub_topic, streaming_config.filter
+//
+//   - name: The relative resource name of this notification config. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/notificationConfigs/notify_public_b
+//     ucket",
+//     "folders/{folder_id}/notificationConfigs/notify_public_bucket", or
+//     "projects/{project_id}/notificationConfigs/notify_public_bucket".
+func (r *FoldersNotificationConfigsService) Patch(name string, notificationconfig *NotificationConfig) *FoldersNotificationConfigsPatchCall {
+	c := &FoldersNotificationConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.notificationconfig = notificationconfig
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The FieldMask to
+// use when updating the notification config. If empty all mutable
+// fields will be updated.
+func (c *FoldersNotificationConfigsPatchCall) UpdateMask(updateMask string) *FoldersNotificationConfigsPatchCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *FoldersNotificationConfigsPatchCall) Fields(s ...googleapi.Field) *FoldersNotificationConfigsPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *FoldersNotificationConfigsPatchCall) Context(ctx context.Context) *FoldersNotificationConfigsPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *FoldersNotificationConfigsPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *FoldersNotificationConfigsPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.notificationconfig)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.folders.notificationConfigs.patch" call.
+// Exactly one of *NotificationConfig or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *NotificationConfig.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *FoldersNotificationConfigsPatchCall) Do(opts ...googleapi.CallOption) (*NotificationConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &NotificationConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": " Updates a notification config. The following update fields are allowed: description, pubsub_topic, streaming_config.filter",
+	//   "flatPath": "v1/folders/{foldersId}/notificationConfigs/{notificationConfigsId}",
+	//   "httpMethod": "PATCH",
+	//   "id": "securitycenter.folders.notificationConfigs.patch",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The relative resource name of this notification config. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/notificationConfigs/notify_public_bucket\", \"folders/{folder_id}/notificationConfigs/notify_public_bucket\", or \"projects/{project_id}/notificationConfigs/notify_public_bucket\".",
+	//       "location": "path",
+	//       "pattern": "^folders/[^/]+/notificationConfigs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The FieldMask to use when updating the notification config. If empty all mutable fields will be updated.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "request": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "response": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.folders.sources.list":
 
 type FoldersSourcesListCall struct {
@@ -6482,9 +8496,9 @@ type FoldersSourcesListCall struct {
 
 // List: Lists all sources belonging to an organization.
 //
-// - parent: Resource name of the parent of sources to list. Its format
-//   should be "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: Resource name of the parent of sources to list. Its format
+//     should be "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
 func (r *FoldersSourcesService) List(parent string) *FoldersSourcesListCall {
 	c := &FoldersSourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6583,17 +8597,17 @@ func (c *FoldersSourcesListCall) Do(opts ...googleapi.CallOption) (*ListSourcesR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6627,7 +8641,7 @@ func (c *FoldersSourcesListCall) Do(opts ...googleapi.CallOption) (*ListSourcesR
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name of the parent of sources to list. Its format should be \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. Resource name of the parent of sources to list. Its format should be \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+$",
 	//       "required": true,
@@ -6684,13 +8698,13 @@ type FoldersSourcesFindingsGroupCall struct {
 // /v1/folders/{folder_id}/sources/-/findings,
 // /v1/projects/{project_id}/sources/-/findings
 //
-// - parent: Name of the source to groupBy. Its format is
-//   "organizations/[organization_id]/sources/[source_id]",
-//   folders/[folder_id]/sources/[source_id], or
-//   projects/[project_id]/sources/[source_id]. To groupBy across all
-//   sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-,
-//   folders/{folder_id}/sources/-, or projects/{project_id}/sources/-.
+//   - parent: Name of the source to groupBy. Its format is
+//     "organizations/[organization_id]/sources/[source_id]",
+//     folders/[folder_id]/sources/[source_id], or
+//     projects/[project_id]/sources/[source_id]. To groupBy across all
+//     sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-,
+//     folders/{folder_id}/sources/-, or projects/{project_id}/sources/-.
 func (r *FoldersSourcesFindingsService) Group(parent string, groupfindingsrequest *GroupFindingsRequest) *FoldersSourcesFindingsGroupCall {
 	c := &FoldersSourcesFindingsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6765,17 +8779,17 @@ func (c *FoldersSourcesFindingsGroupCall) Do(opts ...googleapi.CallOption) (*Gro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6855,13 +8869,13 @@ type FoldersSourcesFindingsListCall struct {
 // sources provide a `-` as the source id. Example:
 // /v1/organizations/{organization_id}/sources/-/findings
 //
-// - parent: Name of the source the findings belong to. Its format is
-//   "organizations/[organization_id]/sources/[source_id],
-//   folders/[folder_id]/sources/[source_id], or
-//   projects/[project_id]/sources/[source_id]". To list across all
-//   sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-,
-//   folders/{folder_id}/sources/- or projects/{projects_id}/sources/-.
+//   - parent: Name of the source the findings belong to. Its format is
+//     "organizations/[organization_id]/sources/[source_id],
+//     folders/[folder_id]/sources/[source_id], or
+//     projects/[project_id]/sources/[source_id]". To list across all
+//     sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-,
+//     folders/{folder_id}/sources/- or projects/{projects_id}/sources/-.
 func (r *FoldersSourcesFindingsService) List(parent string) *FoldersSourcesFindingsListCall {
 	c := &FoldersSourcesFindingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7057,17 +9071,17 @@ func (c *FoldersSourcesFindingsListCall) Do(opts ...googleapi.CallOption) (*List
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7182,11 +9196,11 @@ type FoldersSourcesFindingsPatchCall struct {
 // Patch: Creates or updates a finding. The corresponding source must
 // exist for a finding creation to succeed.
 //
-// - name: The relative resource name of this finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}".
+//   - name: The relative resource name of this finding. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}".
 func (r *FoldersSourcesFindingsService) Patch(name string, finding *Finding) *FoldersSourcesFindingsPatchCall {
 	c := &FoldersSourcesFindingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7272,17 +9286,17 @@ func (c *FoldersSourcesFindingsPatchCall) Do(opts ...googleapi.CallOption) (*Fin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -7345,13 +9359,13 @@ type FoldersSourcesFindingsSetMuteCall struct {
 
 // SetMute: Updates the mute state of a finding.
 //
-// - name: The relative resource name of the finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/finding/{findin
-//   g_id}",
-//   "folders/{folder_id}/sources/{source_id}/finding/{finding_id}",
-//   "projects/{project_id}/sources/{source_id}/finding/{finding_id}".
+//   - name: The relative resource name
+//     (https://cloud.google.com/apis/design/resource_names#relative_resource_name)
+//     of the finding. Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}",
+//     "folders/{folder_id}/sources/{source_id}/findings/{finding_id}",
+//     "projects/{project_id}/sources/{source_id}/findings/{finding_id}".
 func (r *FoldersSourcesFindingsService) SetMute(name string, setmuterequest *SetMuteRequest) *FoldersSourcesFindingsSetMuteCall {
 	c := &FoldersSourcesFindingsSetMuteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7426,17 +9440,17 @@ func (c *FoldersSourcesFindingsSetMuteCall) Do(opts ...googleapi.CallOption) (*F
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -7459,7 +9473,7 @@ func (c *FoldersSourcesFindingsSetMuteCall) Do(opts ...googleapi.CallOption) (*F
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The relative resource name of the finding. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/sources/{source_id}/finding/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/finding/{finding_id}\", \"projects/{project_id}/sources/{source_id}/finding/{finding_id}\".",
+	//       "description": "Required. The [relative resource name](https://cloud.google.com/apis/design/resource_names#relative_resource_name) of the finding. Example: \"organizations/{organization_id}/sources/{source_id}/findings/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/findings/{finding_id}\", \"projects/{project_id}/sources/{source_id}/findings/{finding_id}\".",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+/sources/[^/]+/findings/[^/]+$",
 	//       "required": true,
@@ -7493,11 +9507,13 @@ type FoldersSourcesFindingsSetStateCall struct {
 
 // SetState: Updates the state of a finding.
 //
-// - name: The relative resource name of the finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/finding/{findin
-//   g_id}".
+//   - name: The relative resource name
+//     (https://cloud.google.com/apis/design/resource_names#relative_resource_name)
+//     of the finding. Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}",
+//     "folders/{folder_id}/sources/{source_id}/findings/{finding_id}",
+//     "projects/{project_id}/sources/{source_id}/findings/{finding_id}".
 func (r *FoldersSourcesFindingsService) SetState(name string, setfindingstaterequest *SetFindingStateRequest) *FoldersSourcesFindingsSetStateCall {
 	c := &FoldersSourcesFindingsSetStateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7572,17 +9588,17 @@ func (c *FoldersSourcesFindingsSetStateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -7605,7 +9621,7 @@ func (c *FoldersSourcesFindingsSetStateCall) Do(opts ...googleapi.CallOption) (*
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The relative resource name of the finding. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/sources/{source_id}/finding/{finding_id}\".",
+	//       "description": "Required. The [relative resource name](https://cloud.google.com/apis/design/resource_names#relative_resource_name) of the finding. Example: \"organizations/{organization_id}/sources/{source_id}/findings/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/findings/{finding_id}\", \"projects/{project_id}/sources/{source_id}/findings/{finding_id}\".",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+/sources/[^/]+/findings/[^/]+$",
 	//       "required": true,
@@ -7639,12 +9655,12 @@ type FoldersSourcesFindingsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *FoldersSourcesFindingsService) UpdateSecurityMarks(name string, securitymarks *SecurityMarks) *FoldersSourcesFindingsUpdateSecurityMarksCall {
 	c := &FoldersSourcesFindingsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7738,17 +9754,17 @@ func (c *FoldersSourcesFindingsUpdateSecurityMarksCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{
@@ -7817,10 +9833,11 @@ type FoldersSourcesFindingsExternalSystemsPatchCall struct {
 
 // Patch: Updates external system. This is for a given finding.
 //
-// - name: External System Name e.g. jira, demisto, etc. e.g.:
-//   `organizations/1234/sources/5678/findings/123456/externalSystems/jir
-//   a` `folders/1234/sources/5678/findings/123456/externalSystems/jira`
-//   `projects/1234/sources/5678/findings/123456/externalSystems/jira`.
+//   - name: Full resource name of the external system, for example:
+//     "organizations/1234/sources/5678/findings/123456/externalSystems/jir
+//     a",
+//     "folders/1234/sources/5678/findings/123456/externalSystems/jira",
+//     "projects/1234/sources/5678/findings/123456/externalSystems/jira".
 func (r *FoldersSourcesFindingsExternalSystemsService) Patch(name string, googlecloudsecuritycenterv1externalsystem *GoogleCloudSecuritycenterV1ExternalSystem) *FoldersSourcesFindingsExternalSystemsPatchCall {
 	c := &FoldersSourcesFindingsExternalSystemsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7905,17 +9922,17 @@ func (c *FoldersSourcesFindingsExternalSystemsPatchCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1ExternalSystem{
 		ServerResponse: googleapi.ServerResponse{
@@ -7938,7 +9955,7 @@ func (c *FoldersSourcesFindingsExternalSystemsPatchCall) Do(opts ...googleapi.Ca
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "External System Name e.g. jira, demisto, etc. e.g.: `organizations/1234/sources/5678/findings/123456/externalSystems/jira` `folders/1234/sources/5678/findings/123456/externalSystems/jira` `projects/1234/sources/5678/findings/123456/externalSystems/jira`",
+	//       "description": "Full resource name of the external system, for example: \"organizations/1234/sources/5678/findings/123456/externalSystems/jira\", \"folders/1234/sources/5678/findings/123456/externalSystems/jira\", \"projects/1234/sources/5678/findings/123456/externalSystems/jira\"",
 	//       "location": "path",
 	//       "pattern": "^folders/[^/]+/sources/[^/]+/findings/[^/]+/externalSystems/[^/]+$",
 	//       "required": true,
@@ -7978,9 +9995,9 @@ type OrganizationsGetOrganizationSettingsCall struct {
 
 // GetOrganizationSettings: Gets the settings for an organization.
 //
-// - name: Name of the organization to get organization settings for.
-//   Its format is
-//   "organizations/[organization_id]/organizationSettings".
+//   - name: Name of the organization to get organization settings for.
+//     Its format is
+//     "organizations/[organization_id]/organizationSettings".
 func (r *OrganizationsService) GetOrganizationSettings(name string) *OrganizationsGetOrganizationSettingsCall {
 	c := &OrganizationsGetOrganizationSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8062,17 +10079,17 @@ func (c *OrganizationsGetOrganizationSettingsCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrganizationSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8126,9 +10143,9 @@ type OrganizationsUpdateOrganizationSettingsCall struct {
 
 // UpdateOrganizationSettings: Updates an organization's settings.
 //
-// - name: The relative resource name of the settings. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example: "organizations/{organization_id}/organizationSettings".
+//   - name: The relative resource name of the settings. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example: "organizations/{organization_id}/organizationSettings".
 func (r *OrganizationsService) UpdateOrganizationSettings(name string, organizationsettings *OrganizationSettings) *OrganizationsUpdateOrganizationSettingsCall {
 	c := &OrganizationsUpdateOrganizationSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8211,17 +10228,17 @@ func (c *OrganizationsUpdateOrganizationSettingsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &OrganizationSettings{
 		ServerResponse: googleapi.ServerResponse{
@@ -8285,9 +10302,9 @@ type OrganizationsAssetsGroupCall struct {
 // Group: Filters an organization's assets and groups them by their
 // specified properties.
 //
-// - parent: Name of the organization to groupBy. Its format is
-//   "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: The name of the parent to group the assets by. Its format
+//     is "organizations/[organization_id]", "folders/[folder_id]", or
+//     "projects/[project_id]".
 func (r *OrganizationsAssetsService) Group(parent string, groupassetsrequest *GroupAssetsRequest) *OrganizationsAssetsGroupCall {
 	c := &OrganizationsAssetsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8362,17 +10379,17 @@ func (c *OrganizationsAssetsGroupCall) Do(opts ...googleapi.CallOption) (*GroupA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8395,7 +10412,7 @@ func (c *OrganizationsAssetsGroupCall) Do(opts ...googleapi.CallOption) (*GroupA
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "Required. Name of the organization to groupBy. Its format is \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. The name of the parent to group the assets by. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+$",
 	//       "required": true,
@@ -8450,9 +10467,11 @@ type OrganizationsAssetsListCall struct {
 
 // List: Lists an organization's assets.
 //
-// - parent: Name of the organization assets should belong to. Its
-//   format is "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: The name of the parent resource that contains the assets.
+//     The value that you can specify on parent depends on the method in
+//     which you specify parent. You can specify one of the following
+//     values: "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
 func (r *OrganizationsAssetsService) List(parent string) *OrganizationsAssetsListCall {
 	c := &OrganizationsAssetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8657,17 +10676,17 @@ func (c *OrganizationsAssetsListCall) Do(opts ...googleapi.CallOption) (*ListAss
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8723,7 +10742,7 @@ func (c *OrganizationsAssetsListCall) Do(opts ...googleapi.CallOption) (*ListAss
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Name of the organization assets should belong to. Its format is \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. The name of the parent resource that contains the assets. The value that you can specify on parent depends on the method in which you specify parent. You can specify one of the following values: \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+$",
 	//       "required": true,
@@ -8784,8 +10803,8 @@ type OrganizationsAssetsRunDiscoveryCall struct {
 // frequency for an organization. If it is called too frequently the
 // caller will receive a TOO_MANY_REQUESTS error.
 //
-// - parent: Name of the organization to run asset discovery for. Its
-//   format is "organizations/[organization_id]".
+//   - parent: Name of the organization to run asset discovery for. Its
+//     format is "organizations/[organization_id]".
 func (r *OrganizationsAssetsService) RunDiscovery(parent string, runassetdiscoveryrequest *RunAssetDiscoveryRequest) *OrganizationsAssetsRunDiscoveryCall {
 	c := &OrganizationsAssetsRunDiscoveryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8860,17 +10879,17 @@ func (c *OrganizationsAssetsRunDiscoveryCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8927,12 +10946,12 @@ type OrganizationsAssetsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *OrganizationsAssetsService) UpdateSecurityMarks(name string, securitymarks *SecurityMarks) *OrganizationsAssetsUpdateSecurityMarksCall {
 	c := &OrganizationsAssetsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9026,17 +11045,17 @@ func (c *OrganizationsAssetsUpdateSecurityMarksCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{
@@ -9103,11 +11122,11 @@ type OrganizationsBigQueryExportsCreateCall struct {
 	header_                                   http.Header
 }
 
-// Create: Creates a big query export.
+// Create: Creates a BigQuery export.
 //
-// - parent: Resource name of the new big query export's parent. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   or "projects/[project_id]".
+//   - parent: The name of the parent resource of the new BigQuery export.
+//     Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", or "projects/[project_id]".
 func (r *OrganizationsBigQueryExportsService) Create(parent string, googlecloudsecuritycenterv1bigqueryexport *GoogleCloudSecuritycenterV1BigQueryExport) *OrganizationsBigQueryExportsCreateCall {
 	c := &OrganizationsBigQueryExportsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9194,17 +11213,17 @@ func (c *OrganizationsBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -9218,7 +11237,7 @@ func (c *OrganizationsBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a big query export.",
+	//   "description": "Creates a BigQuery export.",
 	//   "flatPath": "v1/organizations/{organizationsId}/bigQueryExports",
 	//   "httpMethod": "POST",
 	//   "id": "securitycenter.organizations.bigQueryExports.create",
@@ -9232,7 +11251,7 @@ func (c *OrganizationsBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name of the new big query export's parent. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
+	//       "description": "Required. The name of the parent resource of the new BigQuery export. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+$",
 	//       "required": true,
@@ -9263,12 +11282,12 @@ type OrganizationsBigQueryExportsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: Deletes an existing big query export.
+// Delete: Deletes an existing BigQuery export.
 //
-// - name: Name of the big query export to delete. Its format is
-//   organizations/{organization}/bigQueryExports/{export_id},
-//   folders/{folder}/bigQueryExports/{export_id}, or
-//   projects/{project}/bigQueryExports/{export_id}.
+//   - name: The name of the BigQuery export to delete. Its format is
+//     organizations/{organization}/bigQueryExports/{export_id},
+//     folders/{folder}/bigQueryExports/{export_id}, or
+//     projects/{project}/bigQueryExports/{export_id}.
 func (r *OrganizationsBigQueryExportsService) Delete(name string) *OrganizationsBigQueryExportsDeleteCall {
 	c := &OrganizationsBigQueryExportsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9337,17 +11356,17 @@ func (c *OrganizationsBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -9361,7 +11380,7 @@ func (c *OrganizationsBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes an existing big query export.",
+	//   "description": "Deletes an existing BigQuery export.",
 	//   "flatPath": "v1/organizations/{organizationsId}/bigQueryExports/{bigQueryExportsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "securitycenter.organizations.bigQueryExports.delete",
@@ -9370,7 +11389,7 @@ func (c *OrganizationsBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the big query export to delete. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
+	//       "description": "Required. The name of the BigQuery export to delete. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/bigQueryExports/[^/]+$",
 	//       "required": true,
@@ -9399,12 +11418,12 @@ type OrganizationsBigQueryExportsGetCall struct {
 	header_      http.Header
 }
 
-// Get: Gets a big query export.
+// Get: Gets a BigQuery export.
 //
-// - name: Name of the big query export to retrieve. Its format is
-//   organizations/{organization}/bigQueryExports/{export_id},
-//   folders/{folder}/bigQueryExports/{export_id}, or
-//   projects/{project}/bigQueryExports/{export_id}.
+//   - name: Name of the BigQuery export to retrieve. Its format is
+//     organizations/{organization}/bigQueryExports/{export_id},
+//     folders/{folder}/bigQueryExports/{export_id}, or
+//     projects/{project}/bigQueryExports/{export_id}.
 func (r *OrganizationsBigQueryExportsService) Get(name string) *OrganizationsBigQueryExportsGetCall {
 	c := &OrganizationsBigQueryExportsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9488,17 +11507,17 @@ func (c *OrganizationsBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -9512,7 +11531,7 @@ func (c *OrganizationsBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Gets a big query export.",
+	//   "description": "Gets a BigQuery export.",
 	//   "flatPath": "v1/organizations/{organizationsId}/bigQueryExports/{bigQueryExportsId}",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.bigQueryExports.get",
@@ -9521,7 +11540,7 @@ func (c *OrganizationsBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the big query export to retrieve. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
+	//       "description": "Required. Name of the BigQuery export to retrieve. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/bigQueryExports/[^/]+$",
 	//       "required": true,
@@ -9556,9 +11575,9 @@ type OrganizationsBigQueryExportsListCall struct {
 // BigQuery exports immediately under the folder plus the ones created
 // under the projects within the folder are returned.
 //
-// - parent: The parent, which owns the collection of BigQuery exports.
-//   Its format is "organizations/[organization_id]",
-//   "folders/[folder_id]", "projects/[project_id]".
+//   - parent: The parent, which owns the collection of BigQuery exports.
+//     Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", "projects/[project_id]".
 func (r *OrganizationsBigQueryExportsService) List(parent string) *OrganizationsBigQueryExportsListCall {
 	c := &OrganizationsBigQueryExportsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9659,17 +11678,17 @@ func (c *OrganizationsBigQueryExportsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBigQueryExportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9755,14 +11774,14 @@ type OrganizationsBigQueryExportsPatchCall struct {
 
 // Patch: Updates a BigQuery export.
 //
-// - name: The relative resource name of this export. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name.
-//   Example format:
-//   "organizations/{organization_id}/bigQueryExports/{export_id}"
-//   Example format: "folders/{folder_id}/bigQueryExports/{export_id}"
-//   Example format: "projects/{project_id}/bigQueryExports/{export_id}"
-//   This field is provided in responses, and is ignored when provided
-//   in create requests.
+//   - name: The relative resource name of this export. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name.
+//     Example format:
+//     "organizations/{organization_id}/bigQueryExports/{export_id}"
+//     Example format: "folders/{folder_id}/bigQueryExports/{export_id}"
+//     Example format: "projects/{project_id}/bigQueryExports/{export_id}"
+//     This field is provided in responses, and is ignored when provided
+//     in create requests.
 func (r *OrganizationsBigQueryExportsService) Patch(name string, googlecloudsecuritycenterv1bigqueryexport *GoogleCloudSecuritycenterV1BigQueryExport) *OrganizationsBigQueryExportsPatchCall {
 	c := &OrganizationsBigQueryExportsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9846,17 +11865,17 @@ func (c *OrganizationsBigQueryExportsPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -9922,9 +11941,9 @@ type OrganizationsFindingsBulkMuteCall struct {
 // project. The findings matched by the filter will be muted after the
 // LRO is done.
 //
-// - parent: The parent, at which bulk action needs to be applied. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   "projects/[project_id]".
+//   - parent: The parent, at which bulk action needs to be applied. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     "projects/[project_id]".
 func (r *OrganizationsFindingsService) BulkMute(parent string, bulkmutefindingsrequest *BulkMuteFindingsRequest) *OrganizationsFindingsBulkMuteCall {
 	c := &OrganizationsFindingsBulkMuteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9999,17 +12018,17 @@ func (c *OrganizationsFindingsBulkMuteCall) Do(opts ...googleapi.CallOption) (*O
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -10066,9 +12085,9 @@ type OrganizationsMuteConfigsCreateCall struct {
 
 // Create: Creates a mute config.
 //
-// - parent: Resource name of the new mute configs's parent. Its format
-//   is "organizations/[organization_id]", "folders/[folder_id]", or
-//   "projects/[project_id]".
+//   - parent: Resource name of the new mute configs's parent. Its format
+//     is "organizations/[organization_id]", "folders/[folder_id]", or
+//     "projects/[project_id]".
 func (r *OrganizationsMuteConfigsService) Create(parent string, googlecloudsecuritycenterv1muteconfig *GoogleCloudSecuritycenterV1MuteConfig) *OrganizationsMuteConfigsCreateCall {
 	c := &OrganizationsMuteConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10154,17 +12173,17 @@ func (c *OrganizationsMuteConfigsCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -10225,10 +12244,10 @@ type OrganizationsMuteConfigsDeleteCall struct {
 
 // Delete: Deletes an existing mute config.
 //
-// - name: Name of the mute config to delete. Its format is
-//   organizations/{organization}/muteConfigs/{config_id},
-//   folders/{folder}/muteConfigs/{config_id}, or
-//   projects/{project}/muteConfigs/{config_id}.
+//   - name: Name of the mute config to delete. Its format is
+//     organizations/{organization}/muteConfigs/{config_id},
+//     folders/{folder}/muteConfigs/{config_id}, or
+//     projects/{project}/muteConfigs/{config_id}.
 func (r *OrganizationsMuteConfigsService) Delete(name string) *OrganizationsMuteConfigsDeleteCall {
 	c := &OrganizationsMuteConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10297,17 +12316,17 @@ func (c *OrganizationsMuteConfigsDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -10361,10 +12380,10 @@ type OrganizationsMuteConfigsGetCall struct {
 
 // Get: Gets a mute config.
 //
-// - name: Name of the mute config to retrieve. Its format is
-//   organizations/{organization}/muteConfigs/{config_id},
-//   folders/{folder}/muteConfigs/{config_id}, or
-//   projects/{project}/muteConfigs/{config_id}.
+//   - name: Name of the mute config to retrieve. Its format is
+//     organizations/{organization}/muteConfigs/{config_id},
+//     folders/{folder}/muteConfigs/{config_id}, or
+//     projects/{project}/muteConfigs/{config_id}.
 func (r *OrganizationsMuteConfigsService) Get(name string) *OrganizationsMuteConfigsGetCall {
 	c := &OrganizationsMuteConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10447,17 +12466,17 @@ func (c *OrganizationsMuteConfigsGetCall) Do(opts ...googleapi.CallOption) (*Goo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -10511,9 +12530,9 @@ type OrganizationsMuteConfigsListCall struct {
 
 // List: Lists mute configs.
 //
-// - parent: The parent, which owns the collection of mute configs. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   "projects/[project_id]".
+//   - parent: The parent, which owns the collection of mute configs. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     "projects/[project_id]".
 func (r *OrganizationsMuteConfigsService) List(parent string) *OrganizationsMuteConfigsListCall {
 	c := &OrganizationsMuteConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10614,17 +12633,17 @@ func (c *OrganizationsMuteConfigsListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListMuteConfigsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10710,10 +12729,10 @@ type OrganizationsMuteConfigsPatchCall struct {
 
 // Patch: Updates a mute config.
 //
-// - name: This field will be ignored if provided on config creation.
-//   Format "organizations/{organization}/muteConfigs/{mute_config}"
-//   "folders/{folder}/muteConfigs/{mute_config}"
-//   "projects/{project}/muteConfigs/{mute_config}".
+//   - name: This field will be ignored if provided on config creation.
+//     Format "organizations/{organization}/muteConfigs/{mute_config}"
+//     "folders/{folder}/muteConfigs/{mute_config}"
+//     "projects/{project}/muteConfigs/{mute_config}".
 func (r *OrganizationsMuteConfigsService) Patch(name string, googlecloudsecuritycenterv1muteconfig *GoogleCloudSecuritycenterV1MuteConfig) *OrganizationsMuteConfigsPatchCall {
 	c := &OrganizationsMuteConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10796,17 +12815,17 @@ func (c *OrganizationsMuteConfigsPatchCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -10869,8 +12888,9 @@ type OrganizationsNotificationConfigsCreateCall struct {
 
 // Create: Creates a notification config.
 //
-// - parent: Resource name of the new notification config's parent. Its
-//   format is "organizations/[organization_id]".
+//   - parent: Resource name of the new notification config's parent. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
 func (r *OrganizationsNotificationConfigsService) Create(parent string, notificationconfig *NotificationConfig) *OrganizationsNotificationConfigsCreateCall {
 	c := &OrganizationsNotificationConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10880,8 +12900,8 @@ func (r *OrganizationsNotificationConfigsService) Create(parent string, notifica
 
 // ConfigId sets the optional parameter "configId": Required. Unique
 // identifier provided by the client within the parent scope. It must be
-// between 1 and 128 characters, and contains alphanumeric characters,
-// underscores or hyphens only.
+// between 1 and 128 characters and contain alphanumeric characters,
+// underscores, or hyphens only.
 func (c *OrganizationsNotificationConfigsCreateCall) ConfigId(configId string) *OrganizationsNotificationConfigsCreateCall {
 	c.urlParams_.Set("configId", configId)
 	return c
@@ -10954,17 +12974,17 @@ func (c *OrganizationsNotificationConfigsCreateCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NotificationConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -10987,12 +13007,12 @@ func (c *OrganizationsNotificationConfigsCreateCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "configId": {
-	//       "description": "Required. Unique identifier provided by the client within the parent scope. It must be between 1 and 128 characters, and contains alphanumeric characters, underscores or hyphens only.",
+	//       "description": "Required. Unique identifier provided by the client within the parent scope. It must be between 1 and 128 characters and contain alphanumeric characters, underscores, or hyphens only.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name of the new notification config's parent. Its format is \"organizations/[organization_id]\".",
+	//       "description": "Required. Resource name of the new notification config's parent. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+$",
 	//       "required": true,
@@ -11025,8 +13045,10 @@ type OrganizationsNotificationConfigsDeleteCall struct {
 
 // Delete: Deletes a notification config.
 //
-// - name: Name of the notification config to delete. Its format is
-//   "organizations/[organization_id]/notificationConfigs/[config_id]".
+//   - name: Name of the notification config to delete. Its format is
+//     "organizations/[organization_id]/notificationConfigs/[config_id]",
+//     "folders/[folder_id]/notificationConfigs/[config_id]", or
+//     "projects/[project_id]/notificationConfigs/[config_id]".
 func (r *OrganizationsNotificationConfigsService) Delete(name string) *OrganizationsNotificationConfigsDeleteCall {
 	c := &OrganizationsNotificationConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11095,17 +13117,17 @@ func (c *OrganizationsNotificationConfigsDeleteCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -11128,7 +13150,7 @@ func (c *OrganizationsNotificationConfigsDeleteCall) Do(opts ...googleapi.CallOp
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the notification config to delete. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\".",
+	//       "description": "Required. Name of the notification config to delete. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\", \"folders/[folder_id]/notificationConfigs/[config_id]\", or \"projects/[project_id]/notificationConfigs/[config_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/notificationConfigs/[^/]+$",
 	//       "required": true,
@@ -11159,8 +13181,10 @@ type OrganizationsNotificationConfigsGetCall struct {
 
 // Get: Gets a notification config.
 //
-// - name: Name of the notification config to get. Its format is
-//   "organizations/[organization_id]/notificationConfigs/[config_id]".
+//   - name: Name of the notification config to get. Its format is
+//     "organizations/[organization_id]/notificationConfigs/[config_id]",
+//     "folders/[folder_id]/notificationConfigs/[config_id]", or
+//     "projects/[project_id]/notificationConfigs/[config_id]".
 func (r *OrganizationsNotificationConfigsService) Get(name string) *OrganizationsNotificationConfigsGetCall {
 	c := &OrganizationsNotificationConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11242,17 +13266,17 @@ func (c *OrganizationsNotificationConfigsGetCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NotificationConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -11275,7 +13299,7 @@ func (c *OrganizationsNotificationConfigsGetCall) Do(opts ...googleapi.CallOptio
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the notification config to get. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\".",
+	//       "description": "Required. Name of the notification config to get. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\", \"folders/[folder_id]/notificationConfigs/[config_id]\", or \"projects/[project_id]/notificationConfigs/[config_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/notificationConfigs/[^/]+$",
 	//       "required": true,
@@ -11306,8 +13330,9 @@ type OrganizationsNotificationConfigsListCall struct {
 
 // List: Lists notification configs.
 //
-// - parent: Name of the organization to list notification configs. Its
-//   format is "organizations/[organization_id]".
+//   - parent: The name of the parent in which to list the notification
+//     configurations. Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", or "projects/[project_id]".
 func (r *OrganizationsNotificationConfigsService) List(parent string) *OrganizationsNotificationConfigsListCall {
 	c := &OrganizationsNotificationConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -11406,17 +13431,17 @@ func (c *OrganizationsNotificationConfigsListCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListNotificationConfigsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11450,7 +13475,7 @@ func (c *OrganizationsNotificationConfigsListCall) Do(opts ...googleapi.CallOpti
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Name of the organization to list notification configs. Its format is \"organizations/[organization_id]\".",
+	//       "description": "Required. The name of the parent in which to list the notification configurations. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+$",
 	//       "required": true,
@@ -11503,11 +13528,13 @@ type OrganizationsNotificationConfigsPatchCall struct {
 // Patch:  Updates a notification config. The following update fields
 // are allowed: description, pubsub_topic, streaming_config.filter
 //
-// - name: The relative resource name of this notification config. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/notificationConfigs/notify_public_b
-//   ucket".
+//   - name: The relative resource name of this notification config. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/notificationConfigs/notify_public_b
+//     ucket",
+//     "folders/{folder_id}/notificationConfigs/notify_public_bucket", or
+//     "projects/{project_id}/notificationConfigs/notify_public_bucket".
 func (r *OrganizationsNotificationConfigsService) Patch(name string, notificationconfig *NotificationConfig) *OrganizationsNotificationConfigsPatchCall {
 	c := &OrganizationsNotificationConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -11590,17 +13617,17 @@ func (c *OrganizationsNotificationConfigsPatchCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NotificationConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -11623,7 +13650,7 @@ func (c *OrganizationsNotificationConfigsPatchCall) Do(opts ...googleapi.CallOpt
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The relative resource name of this notification config. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/notificationConfigs/notify_public_bucket\".",
+	//       "description": "The relative resource name of this notification config. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/notificationConfigs/notify_public_bucket\", \"folders/{folder_id}/notificationConfigs/notify_public_bucket\", or \"projects/{project_id}/notificationConfigs/notify_public_bucket\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/notificationConfigs/[^/]+$",
 	//       "required": true,
@@ -11740,17 +13767,17 @@ func (c *OrganizationsOperationsCancelCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -11875,17 +13902,17 @@ func (c *OrganizationsOperationsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -12023,17 +14050,17 @@ func (c *OrganizationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Oper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -12087,14 +14114,7 @@ type OrganizationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *OrganizationsOperationsService) List(name string) *OrganizationsOperationsListCall {
@@ -12199,17 +14219,17 @@ func (c *OrganizationsOperationsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12223,7 +14243,7 @@ func (c *OrganizationsOperationsListCall) Do(opts ...googleapi.CallOption) (*Lis
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/organizations/{organizationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.organizations.operations.list",
@@ -12300,8 +14320,8 @@ type OrganizationsSourcesCreateCall struct {
 
 // Create: Creates a source.
 //
-// - parent: Resource name of the new source's parent. Its format should
-//   be "organizations/[organization_id]".
+//   - parent: Resource name of the new source's parent. Its format should
+//     be "organizations/[organization_id]".
 func (r *OrganizationsSourcesService) Create(parent string, source *Source) *OrganizationsSourcesCreateCall {
 	c := &OrganizationsSourcesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12376,17 +14396,17 @@ func (c *OrganizationsSourcesCreateCall) Do(opts ...googleapi.CallOption) (*Sour
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Source{
 		ServerResponse: googleapi.ServerResponse{
@@ -12443,8 +14463,8 @@ type OrganizationsSourcesGetCall struct {
 
 // Get: Gets a source.
 //
-// - name: Relative resource name of the source. Its format is
-//   "organizations/[organization_id]/source/[source_id]".
+//   - name: Relative resource name of the source. Its format is
+//     "organizations/[organization_id]/source/[source_id]".
 func (r *OrganizationsSourcesService) Get(name string) *OrganizationsSourcesGetCall {
 	c := &OrganizationsSourcesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -12526,17 +14546,17 @@ func (c *OrganizationsSourcesGetCall) Do(opts ...googleapi.CallOption) (*Source,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Source{
 		ServerResponse: googleapi.ServerResponse{
@@ -12590,10 +14610,10 @@ type OrganizationsSourcesGetIamPolicyCall struct {
 
 // GetIamPolicy: Gets the access control policy on the specified Source.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsSourcesService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *OrganizationsSourcesGetIamPolicyCall {
 	c := &OrganizationsSourcesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -12668,17 +14688,17 @@ func (c *OrganizationsSourcesGetIamPolicyCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -12735,9 +14755,9 @@ type OrganizationsSourcesListCall struct {
 
 // List: Lists all sources belonging to an organization.
 //
-// - parent: Resource name of the parent of sources to list. Its format
-//   should be "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: Resource name of the parent of sources to list. Its format
+//     should be "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
 func (r *OrganizationsSourcesService) List(parent string) *OrganizationsSourcesListCall {
 	c := &OrganizationsSourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -12836,17 +14856,17 @@ func (c *OrganizationsSourcesListCall) Do(opts ...googleapi.CallOption) (*ListSo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12880,7 +14900,7 @@ func (c *OrganizationsSourcesListCall) Do(opts ...googleapi.CallOption) (*ListSo
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name of the parent of sources to list. Its format should be \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. Resource name of the parent of sources to list. Its format should be \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+$",
 	//       "required": true,
@@ -12932,9 +14952,9 @@ type OrganizationsSourcesPatchCall struct {
 
 // Patch: Updates a source.
 //
-// - name: The relative resource name of this source. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example: "organizations/{organization_id}/sources/{source_id}".
+//   - name: The relative resource name of this source. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example: "organizations/{organization_id}/sources/{source_id}".
 func (r *OrganizationsSourcesService) Patch(name string, source *Source) *OrganizationsSourcesPatchCall {
 	c := &OrganizationsSourcesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -13017,17 +15037,17 @@ func (c *OrganizationsSourcesPatchCall) Do(opts ...googleapi.CallOption) (*Sourc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Source{
 		ServerResponse: googleapi.ServerResponse{
@@ -13090,10 +15110,10 @@ type OrganizationsSourcesSetIamPolicyCall struct {
 
 // SetIamPolicy: Sets the access control policy on the specified Source.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsSourcesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *OrganizationsSourcesSetIamPolicyCall {
 	c := &OrganizationsSourcesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -13168,17 +15188,17 @@ func (c *OrganizationsSourcesSetIamPolicyCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -13236,10 +15256,10 @@ type OrganizationsSourcesTestIamPermissionsCall struct {
 // TestIamPermissions: Returns the permissions that a caller has on the
 // specified source.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsSourcesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *OrganizationsSourcesTestIamPermissionsCall {
 	c := &OrganizationsSourcesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -13314,17 +15334,17 @@ func (c *OrganizationsSourcesTestIamPermissionsCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13382,8 +15402,8 @@ type OrganizationsSourcesFindingsCreateCall struct {
 // Create: Creates a finding. The corresponding source must exist for
 // finding creation to succeed.
 //
-// - parent: Resource name of the new finding's parent. Its format
-//   should be "organizations/[organization_id]/sources/[source_id]".
+//   - parent: Resource name of the new finding's parent. Its format
+//     should be "organizations/[organization_id]/sources/[source_id]".
 func (r *OrganizationsSourcesFindingsService) Create(parent string, finding *Finding) *OrganizationsSourcesFindingsCreateCall {
 	c := &OrganizationsSourcesFindingsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -13467,17 +15487,17 @@ func (c *OrganizationsSourcesFindingsCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -13544,13 +15564,13 @@ type OrganizationsSourcesFindingsGroupCall struct {
 // /v1/folders/{folder_id}/sources/-/findings,
 // /v1/projects/{project_id}/sources/-/findings
 //
-// - parent: Name of the source to groupBy. Its format is
-//   "organizations/[organization_id]/sources/[source_id]",
-//   folders/[folder_id]/sources/[source_id], or
-//   projects/[project_id]/sources/[source_id]. To groupBy across all
-//   sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-,
-//   folders/{folder_id}/sources/-, or projects/{project_id}/sources/-.
+//   - parent: Name of the source to groupBy. Its format is
+//     "organizations/[organization_id]/sources/[source_id]",
+//     folders/[folder_id]/sources/[source_id], or
+//     projects/[project_id]/sources/[source_id]. To groupBy across all
+//     sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-,
+//     folders/{folder_id}/sources/-, or projects/{project_id}/sources/-.
 func (r *OrganizationsSourcesFindingsService) Group(parent string, groupfindingsrequest *GroupFindingsRequest) *OrganizationsSourcesFindingsGroupCall {
 	c := &OrganizationsSourcesFindingsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -13625,17 +15645,17 @@ func (c *OrganizationsSourcesFindingsGroupCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13715,13 +15735,13 @@ type OrganizationsSourcesFindingsListCall struct {
 // sources provide a `-` as the source id. Example:
 // /v1/organizations/{organization_id}/sources/-/findings
 //
-// - parent: Name of the source the findings belong to. Its format is
-//   "organizations/[organization_id]/sources/[source_id],
-//   folders/[folder_id]/sources/[source_id], or
-//   projects/[project_id]/sources/[source_id]". To list across all
-//   sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-,
-//   folders/{folder_id}/sources/- or projects/{projects_id}/sources/-.
+//   - parent: Name of the source the findings belong to. Its format is
+//     "organizations/[organization_id]/sources/[source_id],
+//     folders/[folder_id]/sources/[source_id], or
+//     projects/[project_id]/sources/[source_id]". To list across all
+//     sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-,
+//     folders/{folder_id}/sources/- or projects/{projects_id}/sources/-.
 func (r *OrganizationsSourcesFindingsService) List(parent string) *OrganizationsSourcesFindingsListCall {
 	c := &OrganizationsSourcesFindingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -13917,17 +15937,17 @@ func (c *OrganizationsSourcesFindingsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14042,11 +16062,11 @@ type OrganizationsSourcesFindingsPatchCall struct {
 // Patch: Creates or updates a finding. The corresponding source must
 // exist for a finding creation to succeed.
 //
-// - name: The relative resource name of this finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}".
+//   - name: The relative resource name of this finding. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}".
 func (r *OrganizationsSourcesFindingsService) Patch(name string, finding *Finding) *OrganizationsSourcesFindingsPatchCall {
 	c := &OrganizationsSourcesFindingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14132,17 +16152,17 @@ func (c *OrganizationsSourcesFindingsPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -14205,13 +16225,13 @@ type OrganizationsSourcesFindingsSetMuteCall struct {
 
 // SetMute: Updates the mute state of a finding.
 //
-// - name: The relative resource name of the finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/finding/{findin
-//   g_id}",
-//   "folders/{folder_id}/sources/{source_id}/finding/{finding_id}",
-//   "projects/{project_id}/sources/{source_id}/finding/{finding_id}".
+//   - name: The relative resource name
+//     (https://cloud.google.com/apis/design/resource_names#relative_resource_name)
+//     of the finding. Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}",
+//     "folders/{folder_id}/sources/{source_id}/findings/{finding_id}",
+//     "projects/{project_id}/sources/{source_id}/findings/{finding_id}".
 func (r *OrganizationsSourcesFindingsService) SetMute(name string, setmuterequest *SetMuteRequest) *OrganizationsSourcesFindingsSetMuteCall {
 	c := &OrganizationsSourcesFindingsSetMuteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14286,17 +16306,17 @@ func (c *OrganizationsSourcesFindingsSetMuteCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -14319,7 +16339,7 @@ func (c *OrganizationsSourcesFindingsSetMuteCall) Do(opts ...googleapi.CallOptio
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The relative resource name of the finding. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/sources/{source_id}/finding/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/finding/{finding_id}\", \"projects/{project_id}/sources/{source_id}/finding/{finding_id}\".",
+	//       "description": "Required. The [relative resource name](https://cloud.google.com/apis/design/resource_names#relative_resource_name) of the finding. Example: \"organizations/{organization_id}/sources/{source_id}/findings/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/findings/{finding_id}\", \"projects/{project_id}/sources/{source_id}/findings/{finding_id}\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/sources/[^/]+/findings/[^/]+$",
 	//       "required": true,
@@ -14353,11 +16373,13 @@ type OrganizationsSourcesFindingsSetStateCall struct {
 
 // SetState: Updates the state of a finding.
 //
-// - name: The relative resource name of the finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/finding/{findin
-//   g_id}".
+//   - name: The relative resource name
+//     (https://cloud.google.com/apis/design/resource_names#relative_resource_name)
+//     of the finding. Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}",
+//     "folders/{folder_id}/sources/{source_id}/findings/{finding_id}",
+//     "projects/{project_id}/sources/{source_id}/findings/{finding_id}".
 func (r *OrganizationsSourcesFindingsService) SetState(name string, setfindingstaterequest *SetFindingStateRequest) *OrganizationsSourcesFindingsSetStateCall {
 	c := &OrganizationsSourcesFindingsSetStateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14432,17 +16454,17 @@ func (c *OrganizationsSourcesFindingsSetStateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -14465,7 +16487,7 @@ func (c *OrganizationsSourcesFindingsSetStateCall) Do(opts ...googleapi.CallOpti
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The relative resource name of the finding. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/sources/{source_id}/finding/{finding_id}\".",
+	//       "description": "Required. The [relative resource name](https://cloud.google.com/apis/design/resource_names#relative_resource_name) of the finding. Example: \"organizations/{organization_id}/sources/{source_id}/findings/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/findings/{finding_id}\", \"projects/{project_id}/sources/{source_id}/findings/{finding_id}\".",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/sources/[^/]+/findings/[^/]+$",
 	//       "required": true,
@@ -14499,12 +16521,12 @@ type OrganizationsSourcesFindingsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *OrganizationsSourcesFindingsService) UpdateSecurityMarks(name string, securitymarks *SecurityMarks) *OrganizationsSourcesFindingsUpdateSecurityMarksCall {
 	c := &OrganizationsSourcesFindingsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14598,17 +16620,17 @@ func (c *OrganizationsSourcesFindingsUpdateSecurityMarksCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{
@@ -14677,10 +16699,11 @@ type OrganizationsSourcesFindingsExternalSystemsPatchCall struct {
 
 // Patch: Updates external system. This is for a given finding.
 //
-// - name: External System Name e.g. jira, demisto, etc. e.g.:
-//   `organizations/1234/sources/5678/findings/123456/externalSystems/jir
-//   a` `folders/1234/sources/5678/findings/123456/externalSystems/jira`
-//   `projects/1234/sources/5678/findings/123456/externalSystems/jira`.
+//   - name: Full resource name of the external system, for example:
+//     "organizations/1234/sources/5678/findings/123456/externalSystems/jir
+//     a",
+//     "folders/1234/sources/5678/findings/123456/externalSystems/jira",
+//     "projects/1234/sources/5678/findings/123456/externalSystems/jira".
 func (r *OrganizationsSourcesFindingsExternalSystemsService) Patch(name string, googlecloudsecuritycenterv1externalsystem *GoogleCloudSecuritycenterV1ExternalSystem) *OrganizationsSourcesFindingsExternalSystemsPatchCall {
 	c := &OrganizationsSourcesFindingsExternalSystemsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -14765,17 +16788,17 @@ func (c *OrganizationsSourcesFindingsExternalSystemsPatchCall) Do(opts ...google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1ExternalSystem{
 		ServerResponse: googleapi.ServerResponse{
@@ -14798,7 +16821,7 @@ func (c *OrganizationsSourcesFindingsExternalSystemsPatchCall) Do(opts ...google
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "External System Name e.g. jira, demisto, etc. e.g.: `organizations/1234/sources/5678/findings/123456/externalSystems/jira` `folders/1234/sources/5678/findings/123456/externalSystems/jira` `projects/1234/sources/5678/findings/123456/externalSystems/jira`",
+	//       "description": "Full resource name of the external system, for example: \"organizations/1234/sources/5678/findings/123456/externalSystems/jira\", \"folders/1234/sources/5678/findings/123456/externalSystems/jira\", \"projects/1234/sources/5678/findings/123456/externalSystems/jira\"",
 	//       "location": "path",
 	//       "pattern": "^organizations/[^/]+/sources/[^/]+/findings/[^/]+/externalSystems/[^/]+$",
 	//       "required": true,
@@ -14839,9 +16862,9 @@ type ProjectsAssetsGroupCall struct {
 // Group: Filters an organization's assets and groups them by their
 // specified properties.
 //
-// - parent: Name of the organization to groupBy. Its format is
-//   "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: The name of the parent to group the assets by. Its format
+//     is "organizations/[organization_id]", "folders/[folder_id]", or
+//     "projects/[project_id]".
 func (r *ProjectsAssetsService) Group(parent string, groupassetsrequest *GroupAssetsRequest) *ProjectsAssetsGroupCall {
 	c := &ProjectsAssetsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -14916,17 +16939,17 @@ func (c *ProjectsAssetsGroupCall) Do(opts ...googleapi.CallOption) (*GroupAssets
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14949,7 +16972,7 @@ func (c *ProjectsAssetsGroupCall) Do(opts ...googleapi.CallOption) (*GroupAssets
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "Required. Name of the organization to groupBy. Its format is \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. The name of the parent to group the assets by. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
@@ -15004,9 +17027,11 @@ type ProjectsAssetsListCall struct {
 
 // List: Lists an organization's assets.
 //
-// - parent: Name of the organization assets should belong to. Its
-//   format is "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: The name of the parent resource that contains the assets.
+//     The value that you can specify on parent depends on the method in
+//     which you specify parent. You can specify one of the following
+//     values: "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
 func (r *ProjectsAssetsService) List(parent string) *ProjectsAssetsListCall {
 	c := &ProjectsAssetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15211,17 +17236,17 @@ func (c *ProjectsAssetsListCall) Do(opts ...googleapi.CallOption) (*ListAssetsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAssetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15277,7 +17302,7 @@ func (c *ProjectsAssetsListCall) Do(opts ...googleapi.CallOption) (*ListAssetsRe
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Name of the organization assets should belong to. Its format is \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. The name of the parent resource that contains the assets. The value that you can specify on parent depends on the method in which you specify parent. You can specify one of the following values: \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
@@ -15335,12 +17360,12 @@ type ProjectsAssetsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *ProjectsAssetsService) UpdateSecurityMarks(name string, securitymarks *SecurityMarks) *ProjectsAssetsUpdateSecurityMarksCall {
 	c := &ProjectsAssetsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15434,17 +17459,17 @@ func (c *ProjectsAssetsUpdateSecurityMarksCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{
@@ -15511,11 +17536,11 @@ type ProjectsBigQueryExportsCreateCall struct {
 	header_                                   http.Header
 }
 
-// Create: Creates a big query export.
+// Create: Creates a BigQuery export.
 //
-// - parent: Resource name of the new big query export's parent. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   or "projects/[project_id]".
+//   - parent: The name of the parent resource of the new BigQuery export.
+//     Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", or "projects/[project_id]".
 func (r *ProjectsBigQueryExportsService) Create(parent string, googlecloudsecuritycenterv1bigqueryexport *GoogleCloudSecuritycenterV1BigQueryExport) *ProjectsBigQueryExportsCreateCall {
 	c := &ProjectsBigQueryExportsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15602,17 +17627,17 @@ func (c *ProjectsBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -15626,7 +17651,7 @@ func (c *ProjectsBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption) (*G
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a big query export.",
+	//   "description": "Creates a BigQuery export.",
 	//   "flatPath": "v1/projects/{projectsId}/bigQueryExports",
 	//   "httpMethod": "POST",
 	//   "id": "securitycenter.projects.bigQueryExports.create",
@@ -15640,7 +17665,7 @@ func (c *ProjectsBigQueryExportsCreateCall) Do(opts ...googleapi.CallOption) (*G
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name of the new big query export's parent. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
+	//       "description": "Required. The name of the parent resource of the new BigQuery export. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
@@ -15671,12 +17696,12 @@ type ProjectsBigQueryExportsDeleteCall struct {
 	header_    http.Header
 }
 
-// Delete: Deletes an existing big query export.
+// Delete: Deletes an existing BigQuery export.
 //
-// - name: Name of the big query export to delete. Its format is
-//   organizations/{organization}/bigQueryExports/{export_id},
-//   folders/{folder}/bigQueryExports/{export_id}, or
-//   projects/{project}/bigQueryExports/{export_id}.
+//   - name: The name of the BigQuery export to delete. Its format is
+//     organizations/{organization}/bigQueryExports/{export_id},
+//     folders/{folder}/bigQueryExports/{export_id}, or
+//     projects/{project}/bigQueryExports/{export_id}.
 func (r *ProjectsBigQueryExportsService) Delete(name string) *ProjectsBigQueryExportsDeleteCall {
 	c := &ProjectsBigQueryExportsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15745,17 +17770,17 @@ func (c *ProjectsBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -15769,7 +17794,7 @@ func (c *ProjectsBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 	}
 	return ret, nil
 	// {
-	//   "description": "Deletes an existing big query export.",
+	//   "description": "Deletes an existing BigQuery export.",
 	//   "flatPath": "v1/projects/{projectsId}/bigQueryExports/{bigQueryExportsId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "securitycenter.projects.bigQueryExports.delete",
@@ -15778,7 +17803,7 @@ func (c *ProjectsBigQueryExportsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the big query export to delete. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
+	//       "description": "Required. The name of the BigQuery export to delete. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/bigQueryExports/[^/]+$",
 	//       "required": true,
@@ -15807,12 +17832,12 @@ type ProjectsBigQueryExportsGetCall struct {
 	header_      http.Header
 }
 
-// Get: Gets a big query export.
+// Get: Gets a BigQuery export.
 //
-// - name: Name of the big query export to retrieve. Its format is
-//   organizations/{organization}/bigQueryExports/{export_id},
-//   folders/{folder}/bigQueryExports/{export_id}, or
-//   projects/{project}/bigQueryExports/{export_id}.
+//   - name: Name of the BigQuery export to retrieve. Its format is
+//     organizations/{organization}/bigQueryExports/{export_id},
+//     folders/{folder}/bigQueryExports/{export_id}, or
+//     projects/{project}/bigQueryExports/{export_id}.
 func (r *ProjectsBigQueryExportsService) Get(name string) *ProjectsBigQueryExportsGetCall {
 	c := &ProjectsBigQueryExportsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -15896,17 +17921,17 @@ func (c *ProjectsBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (*Goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -15920,7 +17945,7 @@ func (c *ProjectsBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (*Goog
 	}
 	return ret, nil
 	// {
-	//   "description": "Gets a big query export.",
+	//   "description": "Gets a BigQuery export.",
 	//   "flatPath": "v1/projects/{projectsId}/bigQueryExports/{bigQueryExportsId}",
 	//   "httpMethod": "GET",
 	//   "id": "securitycenter.projects.bigQueryExports.get",
@@ -15929,7 +17954,7 @@ func (c *ProjectsBigQueryExportsGetCall) Do(opts ...googleapi.CallOption) (*Goog
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Name of the big query export to retrieve. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
+	//       "description": "Required. Name of the BigQuery export to retrieve. Its format is organizations/{organization}/bigQueryExports/{export_id}, folders/{folder}/bigQueryExports/{export_id}, or projects/{project}/bigQueryExports/{export_id}",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/bigQueryExports/[^/]+$",
 	//       "required": true,
@@ -15964,9 +17989,9 @@ type ProjectsBigQueryExportsListCall struct {
 // BigQuery exports immediately under the folder plus the ones created
 // under the projects within the folder are returned.
 //
-// - parent: The parent, which owns the collection of BigQuery exports.
-//   Its format is "organizations/[organization_id]",
-//   "folders/[folder_id]", "projects/[project_id]".
+//   - parent: The parent, which owns the collection of BigQuery exports.
+//     Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", "projects/[project_id]".
 func (r *ProjectsBigQueryExportsService) List(parent string) *ProjectsBigQueryExportsListCall {
 	c := &ProjectsBigQueryExportsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16067,17 +18092,17 @@ func (c *ProjectsBigQueryExportsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListBigQueryExportsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16163,14 +18188,14 @@ type ProjectsBigQueryExportsPatchCall struct {
 
 // Patch: Updates a BigQuery export.
 //
-// - name: The relative resource name of this export. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name.
-//   Example format:
-//   "organizations/{organization_id}/bigQueryExports/{export_id}"
-//   Example format: "folders/{folder_id}/bigQueryExports/{export_id}"
-//   Example format: "projects/{project_id}/bigQueryExports/{export_id}"
-//   This field is provided in responses, and is ignored when provided
-//   in create requests.
+//   - name: The relative resource name of this export. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name.
+//     Example format:
+//     "organizations/{organization_id}/bigQueryExports/{export_id}"
+//     Example format: "folders/{folder_id}/bigQueryExports/{export_id}"
+//     Example format: "projects/{project_id}/bigQueryExports/{export_id}"
+//     This field is provided in responses, and is ignored when provided
+//     in create requests.
 func (r *ProjectsBigQueryExportsService) Patch(name string, googlecloudsecuritycenterv1bigqueryexport *GoogleCloudSecuritycenterV1BigQueryExport) *ProjectsBigQueryExportsPatchCall {
 	c := &ProjectsBigQueryExportsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -16254,17 +18279,17 @@ func (c *ProjectsBigQueryExportsPatchCall) Do(opts ...googleapi.CallOption) (*Go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1BigQueryExport{
 		ServerResponse: googleapi.ServerResponse{
@@ -16330,9 +18355,9 @@ type ProjectsFindingsBulkMuteCall struct {
 // project. The findings matched by the filter will be muted after the
 // LRO is done.
 //
-// - parent: The parent, at which bulk action needs to be applied. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   "projects/[project_id]".
+//   - parent: The parent, at which bulk action needs to be applied. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     "projects/[project_id]".
 func (r *ProjectsFindingsService) BulkMute(parent string, bulkmutefindingsrequest *BulkMuteFindingsRequest) *ProjectsFindingsBulkMuteCall {
 	c := &ProjectsFindingsBulkMuteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16407,17 +18432,17 @@ func (c *ProjectsFindingsBulkMuteCall) Do(opts ...googleapi.CallOption) (*Operat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -16474,9 +18499,9 @@ type ProjectsMuteConfigsCreateCall struct {
 
 // Create: Creates a mute config.
 //
-// - parent: Resource name of the new mute configs's parent. Its format
-//   is "organizations/[organization_id]", "folders/[folder_id]", or
-//   "projects/[project_id]".
+//   - parent: Resource name of the new mute configs's parent. Its format
+//     is "organizations/[organization_id]", "folders/[folder_id]", or
+//     "projects/[project_id]".
 func (r *ProjectsMuteConfigsService) Create(parent string, googlecloudsecuritycenterv1muteconfig *GoogleCloudSecuritycenterV1MuteConfig) *ProjectsMuteConfigsCreateCall {
 	c := &ProjectsMuteConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16562,17 +18587,17 @@ func (c *ProjectsMuteConfigsCreateCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -16633,10 +18658,10 @@ type ProjectsMuteConfigsDeleteCall struct {
 
 // Delete: Deletes an existing mute config.
 //
-// - name: Name of the mute config to delete. Its format is
-//   organizations/{organization}/muteConfigs/{config_id},
-//   folders/{folder}/muteConfigs/{config_id}, or
-//   projects/{project}/muteConfigs/{config_id}.
+//   - name: Name of the mute config to delete. Its format is
+//     organizations/{organization}/muteConfigs/{config_id},
+//     folders/{folder}/muteConfigs/{config_id}, or
+//     projects/{project}/muteConfigs/{config_id}.
 func (r *ProjectsMuteConfigsService) Delete(name string) *ProjectsMuteConfigsDeleteCall {
 	c := &ProjectsMuteConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -16705,17 +18730,17 @@ func (c *ProjectsMuteConfigsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -16769,10 +18794,10 @@ type ProjectsMuteConfigsGetCall struct {
 
 // Get: Gets a mute config.
 //
-// - name: Name of the mute config to retrieve. Its format is
-//   organizations/{organization}/muteConfigs/{config_id},
-//   folders/{folder}/muteConfigs/{config_id}, or
-//   projects/{project}/muteConfigs/{config_id}.
+//   - name: Name of the mute config to retrieve. Its format is
+//     organizations/{organization}/muteConfigs/{config_id},
+//     folders/{folder}/muteConfigs/{config_id}, or
+//     projects/{project}/muteConfigs/{config_id}.
 func (r *ProjectsMuteConfigsService) Get(name string) *ProjectsMuteConfigsGetCall {
 	c := &ProjectsMuteConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -16855,17 +18880,17 @@ func (c *ProjectsMuteConfigsGetCall) Do(opts ...googleapi.CallOption) (*GoogleCl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -16919,9 +18944,9 @@ type ProjectsMuteConfigsListCall struct {
 
 // List: Lists mute configs.
 //
-// - parent: The parent, which owns the collection of mute configs. Its
-//   format is "organizations/[organization_id]", "folders/[folder_id]",
-//   "projects/[project_id]".
+//   - parent: The parent, which owns the collection of mute configs. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     "projects/[project_id]".
 func (r *ProjectsMuteConfigsService) List(parent string) *ProjectsMuteConfigsListCall {
 	c := &ProjectsMuteConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17022,17 +19047,17 @@ func (c *ProjectsMuteConfigsListCall) Do(opts ...googleapi.CallOption) (*ListMut
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListMuteConfigsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17118,10 +19143,10 @@ type ProjectsMuteConfigsPatchCall struct {
 
 // Patch: Updates a mute config.
 //
-// - name: This field will be ignored if provided on config creation.
-//   Format "organizations/{organization}/muteConfigs/{mute_config}"
-//   "folders/{folder}/muteConfigs/{mute_config}"
-//   "projects/{project}/muteConfigs/{mute_config}".
+//   - name: This field will be ignored if provided on config creation.
+//     Format "organizations/{organization}/muteConfigs/{mute_config}"
+//     "folders/{folder}/muteConfigs/{mute_config}"
+//     "projects/{project}/muteConfigs/{mute_config}".
 func (r *ProjectsMuteConfigsService) Patch(name string, googlecloudsecuritycenterv1muteconfig *GoogleCloudSecuritycenterV1MuteConfig) *ProjectsMuteConfigsPatchCall {
 	c := &ProjectsMuteConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -17204,17 +19229,17 @@ func (c *ProjectsMuteConfigsPatchCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1MuteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -17264,6 +19289,808 @@ func (c *ProjectsMuteConfigsPatchCall) Do(opts ...googleapi.CallOption) (*Google
 
 }
 
+// method id "securitycenter.projects.notificationConfigs.create":
+
+type ProjectsNotificationConfigsCreateCall struct {
+	s                  *Service
+	parent             string
+	notificationconfig *NotificationConfig
+	urlParams_         gensupport.URLParams
+	ctx_               context.Context
+	header_            http.Header
+}
+
+// Create: Creates a notification config.
+//
+//   - parent: Resource name of the new notification config's parent. Its
+//     format is "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
+func (r *ProjectsNotificationConfigsService) Create(parent string, notificationconfig *NotificationConfig) *ProjectsNotificationConfigsCreateCall {
+	c := &ProjectsNotificationConfigsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.notificationconfig = notificationconfig
+	return c
+}
+
+// ConfigId sets the optional parameter "configId": Required. Unique
+// identifier provided by the client within the parent scope. It must be
+// between 1 and 128 characters and contain alphanumeric characters,
+// underscores, or hyphens only.
+func (c *ProjectsNotificationConfigsCreateCall) ConfigId(configId string) *ProjectsNotificationConfigsCreateCall {
+	c.urlParams_.Set("configId", configId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsNotificationConfigsCreateCall) Fields(s ...googleapi.Field) *ProjectsNotificationConfigsCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsNotificationConfigsCreateCall) Context(ctx context.Context) *ProjectsNotificationConfigsCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsNotificationConfigsCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsNotificationConfigsCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.notificationconfig)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/notificationConfigs")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.notificationConfigs.create" call.
+// Exactly one of *NotificationConfig or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *NotificationConfig.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsNotificationConfigsCreateCall) Do(opts ...googleapi.CallOption) (*NotificationConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &NotificationConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates a notification config.",
+	//   "flatPath": "v1/projects/{projectsId}/notificationConfigs",
+	//   "httpMethod": "POST",
+	//   "id": "securitycenter.projects.notificationConfigs.create",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "configId": {
+	//       "description": "Required. Unique identifier provided by the client within the parent scope. It must be between 1 and 128 characters and contain alphanumeric characters, underscores, or hyphens only.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. Resource name of the new notification config's parent. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/notificationConfigs",
+	//   "request": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "response": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "securitycenter.projects.notificationConfigs.delete":
+
+type ProjectsNotificationConfigsDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes a notification config.
+//
+//   - name: Name of the notification config to delete. Its format is
+//     "organizations/[organization_id]/notificationConfigs/[config_id]",
+//     "folders/[folder_id]/notificationConfigs/[config_id]", or
+//     "projects/[project_id]/notificationConfigs/[config_id]".
+func (r *ProjectsNotificationConfigsService) Delete(name string) *ProjectsNotificationConfigsDeleteCall {
+	c := &ProjectsNotificationConfigsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsNotificationConfigsDeleteCall) Fields(s ...googleapi.Field) *ProjectsNotificationConfigsDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsNotificationConfigsDeleteCall) Context(ctx context.Context) *ProjectsNotificationConfigsDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsNotificationConfigsDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsNotificationConfigsDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.notificationConfigs.delete" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsNotificationConfigsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes a notification config.",
+	//   "flatPath": "v1/projects/{projectsId}/notificationConfigs/{notificationConfigsId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "securitycenter.projects.notificationConfigs.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Name of the notification config to delete. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\", \"folders/[folder_id]/notificationConfigs/[config_id]\", or \"projects/[project_id]/notificationConfigs/[config_id]\".",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/notificationConfigs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "securitycenter.projects.notificationConfigs.get":
+
+type ProjectsNotificationConfigsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets a notification config.
+//
+//   - name: Name of the notification config to get. Its format is
+//     "organizations/[organization_id]/notificationConfigs/[config_id]",
+//     "folders/[folder_id]/notificationConfigs/[config_id]", or
+//     "projects/[project_id]/notificationConfigs/[config_id]".
+func (r *ProjectsNotificationConfigsService) Get(name string) *ProjectsNotificationConfigsGetCall {
+	c := &ProjectsNotificationConfigsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsNotificationConfigsGetCall) Fields(s ...googleapi.Field) *ProjectsNotificationConfigsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsNotificationConfigsGetCall) IfNoneMatch(entityTag string) *ProjectsNotificationConfigsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsNotificationConfigsGetCall) Context(ctx context.Context) *ProjectsNotificationConfigsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsNotificationConfigsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsNotificationConfigsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.notificationConfigs.get" call.
+// Exactly one of *NotificationConfig or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *NotificationConfig.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsNotificationConfigsGetCall) Do(opts ...googleapi.CallOption) (*NotificationConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &NotificationConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets a notification config.",
+	//   "flatPath": "v1/projects/{projectsId}/notificationConfigs/{notificationConfigsId}",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.projects.notificationConfigs.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Name of the notification config to get. Its format is \"organizations/[organization_id]/notificationConfigs/[config_id]\", \"folders/[folder_id]/notificationConfigs/[config_id]\", or \"projects/[project_id]/notificationConfigs/[config_id]\".",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/notificationConfigs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "securitycenter.projects.notificationConfigs.list":
+
+type ProjectsNotificationConfigsListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists notification configs.
+//
+//   - parent: The name of the parent in which to list the notification
+//     configurations. Its format is "organizations/[organization_id]",
+//     "folders/[folder_id]", or "projects/[project_id]".
+func (r *ProjectsNotificationConfigsService) List(parent string) *ProjectsNotificationConfigsListCall {
+	c := &ProjectsNotificationConfigsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": The maximum number
+// of results to return in a single response. Default is 10, minimum is
+// 1, maximum is 1000.
+func (c *ProjectsNotificationConfigsListCall) PageSize(pageSize int64) *ProjectsNotificationConfigsListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": The value returned
+// by the last `ListNotificationConfigsResponse`; indicates that this is
+// a continuation of a prior `ListNotificationConfigs` call, and that
+// the system should return the next page of data.
+func (c *ProjectsNotificationConfigsListCall) PageToken(pageToken string) *ProjectsNotificationConfigsListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsNotificationConfigsListCall) Fields(s ...googleapi.Field) *ProjectsNotificationConfigsListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsNotificationConfigsListCall) IfNoneMatch(entityTag string) *ProjectsNotificationConfigsListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsNotificationConfigsListCall) Context(ctx context.Context) *ProjectsNotificationConfigsListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsNotificationConfigsListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsNotificationConfigsListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/notificationConfigs")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.notificationConfigs.list" call.
+// Exactly one of *ListNotificationConfigsResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *ListNotificationConfigsResponse.ServerResponse.Header or (if
+// a response was returned at all) in error.(*googleapi.Error).Header.
+// Use googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsNotificationConfigsListCall) Do(opts ...googleapi.CallOption) (*ListNotificationConfigsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &ListNotificationConfigsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists notification configs.",
+	//   "flatPath": "v1/projects/{projectsId}/notificationConfigs",
+	//   "httpMethod": "GET",
+	//   "id": "securitycenter.projects.notificationConfigs.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "pageSize": {
+	//       "description": "The maximum number of results to return in a single response. Default is 10, minimum is 1, maximum is 1000.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "The value returned by the last `ListNotificationConfigsResponse`; indicates that this is a continuation of a prior `ListNotificationConfigs` call, and that the system should return the next page of data.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. The name of the parent in which to list the notification configurations. Its format is \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/notificationConfigs",
+	//   "response": {
+	//     "$ref": "ListNotificationConfigsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *ProjectsNotificationConfigsListCall) Pages(ctx context.Context, f func(*ListNotificationConfigsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "securitycenter.projects.notificationConfigs.patch":
+
+type ProjectsNotificationConfigsPatchCall struct {
+	s                  *Service
+	name               string
+	notificationconfig *NotificationConfig
+	urlParams_         gensupport.URLParams
+	ctx_               context.Context
+	header_            http.Header
+}
+
+// Patch:  Updates a notification config. The following update fields
+// are allowed: description, pubsub_topic, streaming_config.filter
+//
+//   - name: The relative resource name of this notification config. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/notificationConfigs/notify_public_b
+//     ucket",
+//     "folders/{folder_id}/notificationConfigs/notify_public_bucket", or
+//     "projects/{project_id}/notificationConfigs/notify_public_bucket".
+func (r *ProjectsNotificationConfigsService) Patch(name string, notificationconfig *NotificationConfig) *ProjectsNotificationConfigsPatchCall {
+	c := &ProjectsNotificationConfigsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.notificationconfig = notificationconfig
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": The FieldMask to
+// use when updating the notification config. If empty all mutable
+// fields will be updated.
+func (c *ProjectsNotificationConfigsPatchCall) UpdateMask(updateMask string) *ProjectsNotificationConfigsPatchCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsNotificationConfigsPatchCall) Fields(s ...googleapi.Field) *ProjectsNotificationConfigsPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsNotificationConfigsPatchCall) Context(ctx context.Context) *ProjectsNotificationConfigsPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsNotificationConfigsPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsNotificationConfigsPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.notificationconfig)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "securitycenter.projects.notificationConfigs.patch" call.
+// Exactly one of *NotificationConfig or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *NotificationConfig.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsNotificationConfigsPatchCall) Do(opts ...googleapi.CallOption) (*NotificationConfig, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &NotificationConfig{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": " Updates a notification config. The following update fields are allowed: description, pubsub_topic, streaming_config.filter",
+	//   "flatPath": "v1/projects/{projectsId}/notificationConfigs/{notificationConfigsId}",
+	//   "httpMethod": "PATCH",
+	//   "id": "securitycenter.projects.notificationConfigs.patch",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The relative resource name of this notification config. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/notificationConfigs/notify_public_bucket\", \"folders/{folder_id}/notificationConfigs/notify_public_bucket\", or \"projects/{project_id}/notificationConfigs/notify_public_bucket\".",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/notificationConfigs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "The FieldMask to use when updating the notification config. If empty all mutable fields will be updated.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "request": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "response": {
+	//     "$ref": "NotificationConfig"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "securitycenter.projects.sources.list":
 
 type ProjectsSourcesListCall struct {
@@ -17277,9 +20104,9 @@ type ProjectsSourcesListCall struct {
 
 // List: Lists all sources belonging to an organization.
 //
-// - parent: Resource name of the parent of sources to list. Its format
-//   should be "organizations/[organization_id], folders/[folder_id], or
-//   projects/[project_id]".
+//   - parent: Resource name of the parent of sources to list. Its format
+//     should be "organizations/[organization_id]", "folders/[folder_id]",
+//     or "projects/[project_id]".
 func (r *ProjectsSourcesService) List(parent string) *ProjectsSourcesListCall {
 	c := &ProjectsSourcesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17378,17 +20205,17 @@ func (c *ProjectsSourcesListCall) Do(opts ...googleapi.CallOption) (*ListSources
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSourcesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17422,7 +20249,7 @@ func (c *ProjectsSourcesListCall) Do(opts ...googleapi.CallOption) (*ListSources
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name of the parent of sources to list. Its format should be \"organizations/[organization_id], folders/[folder_id], or projects/[project_id]\".",
+	//       "description": "Required. Resource name of the parent of sources to list. Its format should be \"organizations/[organization_id]\", \"folders/[folder_id]\", or \"projects/[project_id]\".",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+$",
 	//       "required": true,
@@ -17479,13 +20306,13 @@ type ProjectsSourcesFindingsGroupCall struct {
 // /v1/folders/{folder_id}/sources/-/findings,
 // /v1/projects/{project_id}/sources/-/findings
 //
-// - parent: Name of the source to groupBy. Its format is
-//   "organizations/[organization_id]/sources/[source_id]",
-//   folders/[folder_id]/sources/[source_id], or
-//   projects/[project_id]/sources/[source_id]. To groupBy across all
-//   sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-,
-//   folders/{folder_id}/sources/-, or projects/{project_id}/sources/-.
+//   - parent: Name of the source to groupBy. Its format is
+//     "organizations/[organization_id]/sources/[source_id]",
+//     folders/[folder_id]/sources/[source_id], or
+//     projects/[project_id]/sources/[source_id]. To groupBy across all
+//     sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-,
+//     folders/{folder_id}/sources/-, or projects/{project_id}/sources/-.
 func (r *ProjectsSourcesFindingsService) Group(parent string, groupfindingsrequest *GroupFindingsRequest) *ProjectsSourcesFindingsGroupCall {
 	c := &ProjectsSourcesFindingsGroupCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17560,17 +20387,17 @@ func (c *ProjectsSourcesFindingsGroupCall) Do(opts ...googleapi.CallOption) (*Gr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17650,13 +20477,13 @@ type ProjectsSourcesFindingsListCall struct {
 // sources provide a `-` as the source id. Example:
 // /v1/organizations/{organization_id}/sources/-/findings
 //
-// - parent: Name of the source the findings belong to. Its format is
-//   "organizations/[organization_id]/sources/[source_id],
-//   folders/[folder_id]/sources/[source_id], or
-//   projects/[project_id]/sources/[source_id]". To list across all
-//   sources provide a source_id of `-`. For example:
-//   organizations/{organization_id}/sources/-,
-//   folders/{folder_id}/sources/- or projects/{projects_id}/sources/-.
+//   - parent: Name of the source the findings belong to. Its format is
+//     "organizations/[organization_id]/sources/[source_id],
+//     folders/[folder_id]/sources/[source_id], or
+//     projects/[project_id]/sources/[source_id]". To list across all
+//     sources provide a source_id of `-`. For example:
+//     organizations/{organization_id}/sources/-,
+//     folders/{folder_id}/sources/- or projects/{projects_id}/sources/-.
 func (r *ProjectsSourcesFindingsService) List(parent string) *ProjectsSourcesFindingsListCall {
 	c := &ProjectsSourcesFindingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17852,17 +20679,17 @@ func (c *ProjectsSourcesFindingsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17977,11 +20804,11 @@ type ProjectsSourcesFindingsPatchCall struct {
 // Patch: Creates or updates a finding. The corresponding source must
 // exist for a finding creation to succeed.
 //
-// - name: The relative resource name of this finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}".
+//   - name: The relative resource name of this finding. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}".
 func (r *ProjectsSourcesFindingsService) Patch(name string, finding *Finding) *ProjectsSourcesFindingsPatchCall {
 	c := &ProjectsSourcesFindingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18067,17 +20894,17 @@ func (c *ProjectsSourcesFindingsPatchCall) Do(opts ...googleapi.CallOption) (*Fi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -18140,13 +20967,13 @@ type ProjectsSourcesFindingsSetMuteCall struct {
 
 // SetMute: Updates the mute state of a finding.
 //
-// - name: The relative resource name of the finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/finding/{findin
-//   g_id}",
-//   "folders/{folder_id}/sources/{source_id}/finding/{finding_id}",
-//   "projects/{project_id}/sources/{source_id}/finding/{finding_id}".
+//   - name: The relative resource name
+//     (https://cloud.google.com/apis/design/resource_names#relative_resource_name)
+//     of the finding. Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}",
+//     "folders/{folder_id}/sources/{source_id}/findings/{finding_id}",
+//     "projects/{project_id}/sources/{source_id}/findings/{finding_id}".
 func (r *ProjectsSourcesFindingsService) SetMute(name string, setmuterequest *SetMuteRequest) *ProjectsSourcesFindingsSetMuteCall {
 	c := &ProjectsSourcesFindingsSetMuteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18221,17 +21048,17 @@ func (c *ProjectsSourcesFindingsSetMuteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -18254,7 +21081,7 @@ func (c *ProjectsSourcesFindingsSetMuteCall) Do(opts ...googleapi.CallOption) (*
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The relative resource name of the finding. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/sources/{source_id}/finding/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/finding/{finding_id}\", \"projects/{project_id}/sources/{source_id}/finding/{finding_id}\".",
+	//       "description": "Required. The [relative resource name](https://cloud.google.com/apis/design/resource_names#relative_resource_name) of the finding. Example: \"organizations/{organization_id}/sources/{source_id}/findings/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/findings/{finding_id}\", \"projects/{project_id}/sources/{source_id}/findings/{finding_id}\".",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/sources/[^/]+/findings/[^/]+$",
 	//       "required": true,
@@ -18288,11 +21115,13 @@ type ProjectsSourcesFindingsSetStateCall struct {
 
 // SetState: Updates the state of a finding.
 //
-// - name: The relative resource name of the finding. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Example:
-//   "organizations/{organization_id}/sources/{source_id}/finding/{findin
-//   g_id}".
+//   - name: The relative resource name
+//     (https://cloud.google.com/apis/design/resource_names#relative_resource_name)
+//     of the finding. Example:
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}",
+//     "folders/{folder_id}/sources/{source_id}/findings/{finding_id}",
+//     "projects/{project_id}/sources/{source_id}/findings/{finding_id}".
 func (r *ProjectsSourcesFindingsService) SetState(name string, setfindingstaterequest *SetFindingStateRequest) *ProjectsSourcesFindingsSetStateCall {
 	c := &ProjectsSourcesFindingsSetStateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18367,17 +21196,17 @@ func (c *ProjectsSourcesFindingsSetStateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Finding{
 		ServerResponse: googleapi.ServerResponse{
@@ -18400,7 +21229,7 @@ func (c *ProjectsSourcesFindingsSetStateCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. The relative resource name of the finding. See: https://cloud.google.com/apis/design/resource_names#relative_resource_name Example: \"organizations/{organization_id}/sources/{source_id}/finding/{finding_id}\".",
+	//       "description": "Required. The [relative resource name](https://cloud.google.com/apis/design/resource_names#relative_resource_name) of the finding. Example: \"organizations/{organization_id}/sources/{source_id}/findings/{finding_id}\", \"folders/{folder_id}/sources/{source_id}/findings/{finding_id}\", \"projects/{project_id}/sources/{source_id}/findings/{finding_id}\".",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/sources/[^/]+/findings/[^/]+$",
 	//       "required": true,
@@ -18434,12 +21263,12 @@ type ProjectsSourcesFindingsUpdateSecurityMarksCall struct {
 
 // UpdateSecurityMarks: Updates security marks.
 //
-// - name: The relative resource name of the SecurityMarks. See:
-//   https://cloud.google.com/apis/design/resource_names#relative_resource_name
-//   Examples:
-//   "organizations/{organization_id}/assets/{asset_id}/securityMarks"
-//   "organizations/{organization_id}/sources/{source_id}/findings/{findi
-//   ng_id}/securityMarks".
+//   - name: The relative resource name of the SecurityMarks. See:
+//     https://cloud.google.com/apis/design/resource_names#relative_resource_name
+//     Examples:
+//     "organizations/{organization_id}/assets/{asset_id}/securityMarks"
+//     "organizations/{organization_id}/sources/{source_id}/findings/{findi
+//     ng_id}/securityMarks".
 func (r *ProjectsSourcesFindingsService) UpdateSecurityMarks(name string, securitymarks *SecurityMarks) *ProjectsSourcesFindingsUpdateSecurityMarksCall {
 	c := &ProjectsSourcesFindingsUpdateSecurityMarksCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18533,17 +21362,17 @@ func (c *ProjectsSourcesFindingsUpdateSecurityMarksCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SecurityMarks{
 		ServerResponse: googleapi.ServerResponse{
@@ -18612,10 +21441,11 @@ type ProjectsSourcesFindingsExternalSystemsPatchCall struct {
 
 // Patch: Updates external system. This is for a given finding.
 //
-// - name: External System Name e.g. jira, demisto, etc. e.g.:
-//   `organizations/1234/sources/5678/findings/123456/externalSystems/jir
-//   a` `folders/1234/sources/5678/findings/123456/externalSystems/jira`
-//   `projects/1234/sources/5678/findings/123456/externalSystems/jira`.
+//   - name: Full resource name of the external system, for example:
+//     "organizations/1234/sources/5678/findings/123456/externalSystems/jir
+//     a",
+//     "folders/1234/sources/5678/findings/123456/externalSystems/jira",
+//     "projects/1234/sources/5678/findings/123456/externalSystems/jira".
 func (r *ProjectsSourcesFindingsExternalSystemsService) Patch(name string, googlecloudsecuritycenterv1externalsystem *GoogleCloudSecuritycenterV1ExternalSystem) *ProjectsSourcesFindingsExternalSystemsPatchCall {
 	c := &ProjectsSourcesFindingsExternalSystemsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18700,17 +21530,17 @@ func (c *ProjectsSourcesFindingsExternalSystemsPatchCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleCloudSecuritycenterV1ExternalSystem{
 		ServerResponse: googleapi.ServerResponse{
@@ -18733,7 +21563,7 @@ func (c *ProjectsSourcesFindingsExternalSystemsPatchCall) Do(opts ...googleapi.C
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "External System Name e.g. jira, demisto, etc. e.g.: `organizations/1234/sources/5678/findings/123456/externalSystems/jira` `folders/1234/sources/5678/findings/123456/externalSystems/jira` `projects/1234/sources/5678/findings/123456/externalSystems/jira`",
+	//       "description": "Full resource name of the external system, for example: \"organizations/1234/sources/5678/findings/123456/externalSystems/jira\", \"folders/1234/sources/5678/findings/123456/externalSystems/jira\", \"projects/1234/sources/5678/findings/123456/externalSystems/jira\"",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/sources/[^/]+/findings/[^/]+/externalSystems/[^/]+$",
 	//       "required": true,

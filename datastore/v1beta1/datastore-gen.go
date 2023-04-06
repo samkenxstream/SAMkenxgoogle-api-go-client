@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/datastore/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/datastore/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   datastoreService, err := datastore.NewService(ctx)
+//	import "google.golang.org/api/datastore/v1beta1"
+//	...
+//	ctx := context.Background()
+//	datastoreService, err := datastore.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   datastoreService, err := datastore.NewService(ctx, option.WithScopes(datastore.DatastoreScope))
+//	datastoreService, err := datastore.NewService(ctx, option.WithScopes(datastore.DatastoreScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   datastoreService, err := datastore.NewService(ctx, option.WithAPIKey("AIza..."))
+//	datastoreService, err := datastore.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   datastoreService, err := datastore.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	datastoreService, err := datastore.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package datastore // import "google.golang.org/api/datastore/v1beta1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "datastore:v1beta1"
 const apiName = "datastore"
@@ -287,9 +288,9 @@ func (s *GoogleDatastoreAdminV1DatastoreFirestoreMigrationMetadata) MarshalJSON(
 // following examples). Example usage: Entire project: kinds=[],
 // namespace_ids=[] Kinds Foo and Bar in all namespaces: kinds=['Foo',
 // 'Bar'], namespace_ids=[] Kinds Foo and Bar only in the default
-// namespace: kinds=['Foo', 'Bar'], namespace_ids=[''] Kinds Foo and Bar
+// namespace: kinds=['Foo', 'Bar'], namespace_ids=[”] Kinds Foo and Bar
 // in both the default and Baz namespaces: kinds=['Foo', 'Bar'],
-// namespace_ids=['', 'Baz'] The entire Baz namespace: kinds=[],
+// namespace_ids=[”, 'Baz'] The entire Baz namespace: kinds=[],
 // namespace_ids=['Baz']
 type GoogleDatastoreAdminV1EntityFilter struct {
 	// Kinds: If empty, then this represents all kinds.
@@ -751,9 +752,9 @@ func (s *GoogleDatastoreAdminV1beta1CommonMetadata) MarshalJSON() ([]byte, error
 // following examples). Example usage: Entire project: kinds=[],
 // namespace_ids=[] Kinds Foo and Bar in all namespaces: kinds=['Foo',
 // 'Bar'], namespace_ids=[] Kinds Foo and Bar only in the default
-// namespace: kinds=['Foo', 'Bar'], namespace_ids=[''] Kinds Foo and Bar
+// namespace: kinds=['Foo', 'Bar'], namespace_ids=[”] Kinds Foo and Bar
 // in both the default and Baz namespaces: kinds=['Foo', 'Bar'],
-// namespace_ids=['', 'Baz'] The entire Baz namespace: kinds=[],
+// namespace_ids=[”, 'Baz'] The entire Baz namespace: kinds=[],
 // namespace_ids=['Baz']
 type GoogleDatastoreAdminV1beta1EntityFilter struct {
 	// Kinds: If empty, then this represents all kinds.
@@ -1248,17 +1249,17 @@ func (c *ProjectsExportCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunnin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1395,17 +1396,17 @@ func (c *ProjectsImportCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunnin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{

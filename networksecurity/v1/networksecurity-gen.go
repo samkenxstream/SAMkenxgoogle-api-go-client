@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/networking
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/networksecurity/v1"
-//   ...
-//   ctx := context.Background()
-//   networksecurityService, err := networksecurity.NewService(ctx)
+//	import "google.golang.org/api/networksecurity/v1"
+//	...
+//	ctx := context.Background()
+//	networksecurityService, err := networksecurity.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   networksecurityService, err := networksecurity.NewService(ctx, option.WithAPIKey("AIza..."))
+//	networksecurityService, err := networksecurity.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   networksecurityService, err := networksecurity.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	networksecurityService, err := networksecurity.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package networksecurity // import "google.golang.org/api/networksecurity/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "networksecurity:v1"
 const apiName = "networksecurity"
@@ -384,8 +385,8 @@ type Destination struct {
 	// Hosts: Required. List of host names to match. Matched against the
 	// ":authority" header in http requests. At least one host should match.
 	// Each host can be an exact match, or a prefix match (example
-	// "mydomain.*") or a suffix match (example // *.myorg.com") or a
-	// presence(any) match "*".
+	// "mydomain.*") or a suffix match (example "*.myorg.com") or a presence
+	// (any) match "*".
 	Hosts []string `json:"hosts,omitempty"`
 
 	// HttpHeaderMatch: Optional. Match against key:value pair in http
@@ -431,8 +432,7 @@ func (s *Destination) MarshalJSON() ([]byte, error) {
 // duplicated empty messages in your APIs. A typical example is to use
 // it as the request or the response type of an API method. For
 // instance: service Foo { rpc Bar(google.protobuf.Empty) returns
-// (google.protobuf.Empty); } The JSON representation for `Empty` is
-// empty JSON object `{}`.
+// (google.protobuf.Empty); }
 type Empty struct {
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -541,7 +541,7 @@ func (s *GoogleCloudNetworksecurityV1CertificateProvider) MarshalJSON() ([]byte,
 // Endpoint.
 type GoogleCloudNetworksecurityV1GrpcEndpoint struct {
 	// TargetUri: Required. The target URI of the gRPC endpoint. Only UDS
-	// path is supported, and should start with “unix:”.
+	// path is supported, and should start with "unix:".
 	TargetUri string `json:"targetUri,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "TargetUri") to
@@ -583,8 +583,8 @@ func (s *GoogleCloudNetworksecurityV1GrpcEndpoint) MarshalJSON() ([]byte, error)
 // "DATA_READ" }, { "log_type": "DATA_WRITE", "exempted_members": [
 // "user:aliya@example.com" ] } ] } ] } For sampleservice, this policy
 // enables DATA_READ, DATA_WRITE and ADMIN_READ logging. It also exempts
-// jose@example.com from DATA_READ logging, and aliya@example.com from
-// DATA_WRITE logging.
+// `jose@example.com` from DATA_READ logging, and `aliya@example.com`
+// from DATA_WRITE logging.
 type GoogleIamV1AuditConfig struct {
 	// AuditLogConfigs: The configuration for logging of each type of
 	// permission.
@@ -677,24 +677,31 @@ type GoogleIamV1Binding struct {
 	// (https://cloud.google.com/iam/help/conditions/resource-policies).
 	Condition *Expr `json:"condition,omitempty"`
 
-	// Members: Specifies the principals requesting access for a Cloud
-	// Platform resource. `members` can have the following values: *
+	// Members: Specifies the principals requesting access for a Google
+	// Cloud resource. `members` can have the following values: *
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -706,9 +713,7 @@ type GoogleIamV1Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -853,7 +858,7 @@ func (s *GoogleIamV1Policy) MarshalJSON() ([]byte, error) {
 type GoogleIamV1SetIamPolicyRequest struct {
 	// Policy: REQUIRED: The complete policy to be applied to the
 	// `resource`. The size of the policy is limited to a few 10s of KB. An
-	// empty policy is a valid policy but certain Cloud Platform services
+	// empty policy is a valid policy but certain Google Cloud services
 	// (such as Projects) might reject them.
 	Policy *GoogleIamV1Policy `json:"policy,omitempty"`
 
@@ -890,7 +895,7 @@ func (s *GoogleIamV1SetIamPolicyRequest) MarshalJSON() ([]byte, error) {
 // `TestIamPermissions` method.
 type GoogleIamV1TestIamPermissionsRequest struct {
 	// Permissions: The set of permissions to check for the `resource`.
-	// Permissions with wildcards (such as '*' or 'storage.*') are not
+	// Permissions with wildcards (such as `*` or `storage.*`) are not
 	// allowed. For more information see IAM Overview
 	// (https://cloud.google.com/iam/docs/overview#permissions).
 	Permissions []string `json:"permissions,omitempty"`
@@ -952,7 +957,7 @@ func (s *GoogleIamV1TestIamPermissionsResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// HttpHeaderMatch: Specification of HTTP header match atrributes.
+// HttpHeaderMatch: Specification of HTTP header match attributes.
 type HttpHeaderMatch struct {
 	// HeaderName: Required. The name of the HTTP header to match. For
 	// matching against the HTTP request's authority, use a headerMatch with
@@ -1419,7 +1424,7 @@ func (s *Rule) MarshalJSON() ([]byte, error) {
 
 // ServerTlsPolicy: ServerTlsPolicy is a resource that specifies how a
 // server should authenticate incoming requests. This resource itself
-// does not affect configuration unless it is attached to a target https
+// does not affect configuration unless it is attached to a target HTTPS
 // proxy or endpoint config selector resource.
 type ServerTlsPolicy struct {
 	// AllowOpen:  Determines if server allows plaintext connections. If set
@@ -1427,7 +1432,9 @@ type ServerTlsPolicy struct {
 	// to false. This setting is not exclusive of other encryption modes.
 	// For example, if `allow_open` and `mtls_policy` are set, server allows
 	// both plain text and mTLS connections. See documentation of other
-	// encryption modes to confirm compatibility.
+	// encryption modes to confirm compatibility. Consider using it if you
+	// wish to upgrade in place your deployment to TLS while having mixed
+	// TLS and non-TLS traffic reaching port :80.
 	AllowOpen bool `json:"allowOpen,omitempty"`
 
 	// CreateTime: Output only. The timestamp when the resource was created.
@@ -1500,8 +1507,8 @@ type Source struct {
 	// Principals: Optional. List of peer identities to match for
 	// authorization. At least one principal should match. Each peer can be
 	// an exact match, or a prefix match (example, "namespace/*") or a
-	// suffix match (example, // */service-account") or a presence match
-	// "*". Authorization based on the principal name without certificate
+	// suffix match (example, "*/service-account") or a presence match "*".
+	// Authorization based on the principal name without certificate
 	// validation (configured by ServerTlsPolicy resource) is considered
 	// insecure.
 	Principals []string `json:"principals,omitempty"`
@@ -1706,17 +1713,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -1771,8 +1778,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1781,8 +1788,8 @@ func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall 
 
 // Filter sets the optional parameter "filter": A filter to narrow down
 // results to a preferred subset. The filtering language accepts strings
-// like "displayName=tokyo", and is documented in more detail in AIP-160
-// (https://google.aip.dev/160).
+// like "displayName=tokyo", and is documented in more detail in
+// AIP-160 (https://google.aip.dev/160).
 func (c *ProjectsLocationsListCall) Filter(filter string) *ProjectsLocationsListCall {
 	c.urlParams_.Set("filter", filter)
 	return c
@@ -1878,17 +1885,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1911,7 +1918,7 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 	//   ],
 	//   "parameters": {
 	//     "filter": {
-	//       "description": "A filter to narrow down results to a preferred subset. The filtering language accepts strings like \"displayName=tokyo\", and is documented in more detail in [AIP-160](https://google.aip.dev/160).",
+	//       "description": "A filter to narrow down results to a preferred subset. The filtering language accepts strings like `\"displayName=tokyo\"`, and is documented in more detail in [AIP-160](https://google.aip.dev/160).",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -1980,8 +1987,8 @@ type ProjectsLocationsAuthorizationPoliciesCreateCall struct {
 // Create: Creates a new AuthorizationPolicy in a given project and
 // location.
 //
-// - parent: The parent resource of the AuthorizationPolicy. Must be in
-//   the format `projects/{project}/locations/{location}`.
+//   - parent: The parent resource of the AuthorizationPolicy. Must be in
+//     the format `projects/{project}/locations/{location}`.
 func (r *ProjectsLocationsAuthorizationPoliciesService) Create(parent string, authorizationpolicy *AuthorizationPolicy) *ProjectsLocationsAuthorizationPoliciesCreateCall {
 	c := &ProjectsLocationsAuthorizationPoliciesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2066,17 +2073,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesCreateCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2137,9 +2144,9 @@ type ProjectsLocationsAuthorizationPoliciesDeleteCall struct {
 
 // Delete: Deletes a single AuthorizationPolicy.
 //
-// - name: A name of the AuthorizationPolicy to delete. Must be in the
-//   format
-//   `projects/{project}/locations/{location}/authorizationPolicies/*`.
+//   - name: A name of the AuthorizationPolicy to delete. Must be in the
+//     format
+//     `projects/{project}/locations/{location}/authorizationPolicies/*`.
 func (r *ProjectsLocationsAuthorizationPoliciesService) Delete(name string) *ProjectsLocationsAuthorizationPoliciesDeleteCall {
 	c := &ProjectsLocationsAuthorizationPoliciesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2208,17 +2215,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesDeleteCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2272,9 +2279,9 @@ type ProjectsLocationsAuthorizationPoliciesGetCall struct {
 
 // Get: Gets details of a single AuthorizationPolicy.
 //
-// - name: A name of the AuthorizationPolicy to get. Must be in the
-//   format
-//   `projects/{project}/locations/{location}/authorizationPolicies/*`.
+//   - name: A name of the AuthorizationPolicy to get. Must be in the
+//     format
+//     `projects/{project}/locations/{location}/authorizationPolicies/*`.
 func (r *ProjectsLocationsAuthorizationPoliciesService) Get(name string) *ProjectsLocationsAuthorizationPoliciesGetCall {
 	c := &ProjectsLocationsAuthorizationPoliciesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2356,17 +2363,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesGetCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuthorizationPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2422,9 +2429,10 @@ type ProjectsLocationsAuthorizationPoliciesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAuthorizationPoliciesService) GetIamPolicy(resource string) *ProjectsLocationsAuthorizationPoliciesGetIamPolicyCall {
 	c := &ProjectsLocationsAuthorizationPoliciesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2524,17 +2532,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesGetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2563,7 +2571,7 @@ func (c *ProjectsLocationsAuthorizationPoliciesGetIamPolicyCall) Do(opts ...goog
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/authorizationPolicies/[^/]+$",
 	//       "required": true,
@@ -2594,9 +2602,9 @@ type ProjectsLocationsAuthorizationPoliciesListCall struct {
 
 // List: Lists AuthorizationPolicies in a given project and location.
 //
-// - parent: The project and location from which the
-//   AuthorizationPolicies should be listed, specified in the format
-//   `projects/{project}/locations/{location}`.
+//   - parent: The project and location from which the
+//     AuthorizationPolicies should be listed, specified in the format
+//     `projects/{project}/locations/{location}`.
 func (r *ProjectsLocationsAuthorizationPoliciesService) List(parent string) *ProjectsLocationsAuthorizationPoliciesListCall {
 	c := &ProjectsLocationsAuthorizationPoliciesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2695,17 +2703,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesListCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAuthorizationPoliciesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2791,8 +2799,8 @@ type ProjectsLocationsAuthorizationPoliciesPatchCall struct {
 
 // Patch: Updates the parameters of a single AuthorizationPolicy.
 //
-// - name: Name of the AuthorizationPolicy resource. It matches pattern
-//   `projects/{project}/locations/{location}/authorizationPolicies/`.
+//   - name: Name of the AuthorizationPolicy resource. It matches pattern
+//     `projects/{project}/locations/{location}/authorizationPolicies/`.
 func (r *ProjectsLocationsAuthorizationPoliciesService) Patch(name string, authorizationpolicy *AuthorizationPolicy) *ProjectsLocationsAuthorizationPoliciesPatchCall {
 	c := &ProjectsLocationsAuthorizationPoliciesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2878,17 +2886,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesPatchCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2953,9 +2961,10 @@ type ProjectsLocationsAuthorizationPoliciesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAuthorizationPoliciesService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsAuthorizationPoliciesSetIamPolicyCall {
 	c := &ProjectsLocationsAuthorizationPoliciesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3030,17 +3039,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesSetIamPolicyCall) Do(opts ...goog
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3063,7 +3072,7 @@ func (c *ProjectsLocationsAuthorizationPoliciesSetIamPolicyCall) Do(opts ...goog
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/authorizationPolicies/[^/]+$",
 	//       "required": true,
@@ -3102,9 +3111,10 @@ type ProjectsLocationsAuthorizationPoliciesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsAuthorizationPoliciesService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsAuthorizationPoliciesTestIamPermissionsCall {
 	c := &ProjectsLocationsAuthorizationPoliciesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3180,17 +3190,17 @@ func (c *ProjectsLocationsAuthorizationPoliciesTestIamPermissionsCall) Do(opts .
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3213,7 +3223,7 @@ func (c *ProjectsLocationsAuthorizationPoliciesTestIamPermissionsCall) Do(opts .
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/authorizationPolicies/[^/]+$",
 	//       "required": true,
@@ -3248,8 +3258,8 @@ type ProjectsLocationsClientTlsPoliciesCreateCall struct {
 // Create: Creates a new ClientTlsPolicy in a given project and
 // location.
 //
-// - parent: The parent resource of the ClientTlsPolicy. Must be in the
-//   format `projects/*/locations/{location}`.
+//   - parent: The parent resource of the ClientTlsPolicy. Must be in the
+//     format `projects/*/locations/{location}`.
 func (r *ProjectsLocationsClientTlsPoliciesService) Create(parent string, clienttlspolicy *ClientTlsPolicy) *ProjectsLocationsClientTlsPoliciesCreateCall {
 	c := &ProjectsLocationsClientTlsPoliciesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3334,17 +3344,17 @@ func (c *ProjectsLocationsClientTlsPoliciesCreateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3405,8 +3415,8 @@ type ProjectsLocationsClientTlsPoliciesDeleteCall struct {
 
 // Delete: Deletes a single ClientTlsPolicy.
 //
-// - name: A name of the ClientTlsPolicy to delete. Must be in the
-//   format `projects/*/locations/{location}/clientTlsPolicies/*`.
+//   - name: A name of the ClientTlsPolicy to delete. Must be in the
+//     format `projects/*/locations/{location}/clientTlsPolicies/*`.
 func (r *ProjectsLocationsClientTlsPoliciesService) Delete(name string) *ProjectsLocationsClientTlsPoliciesDeleteCall {
 	c := &ProjectsLocationsClientTlsPoliciesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3475,17 +3485,17 @@ func (c *ProjectsLocationsClientTlsPoliciesDeleteCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3539,8 +3549,8 @@ type ProjectsLocationsClientTlsPoliciesGetCall struct {
 
 // Get: Gets details of a single ClientTlsPolicy.
 //
-// - name: A name of the ClientTlsPolicy to get. Must be in the format
-//   `projects/*/locations/{location}/clientTlsPolicies/*`.
+//   - name: A name of the ClientTlsPolicy to get. Must be in the format
+//     `projects/*/locations/{location}/clientTlsPolicies/*`.
 func (r *ProjectsLocationsClientTlsPoliciesService) Get(name string) *ProjectsLocationsClientTlsPoliciesGetCall {
 	c := &ProjectsLocationsClientTlsPoliciesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3622,17 +3632,17 @@ func (c *ProjectsLocationsClientTlsPoliciesGetCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClientTlsPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3688,9 +3698,10 @@ type ProjectsLocationsClientTlsPoliciesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientTlsPoliciesService) GetIamPolicy(resource string) *ProjectsLocationsClientTlsPoliciesGetIamPolicyCall {
 	c := &ProjectsLocationsClientTlsPoliciesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3790,17 +3801,17 @@ func (c *ProjectsLocationsClientTlsPoliciesGetIamPolicyCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3829,7 +3840,7 @@ func (c *ProjectsLocationsClientTlsPoliciesGetIamPolicyCall) Do(opts ...googleap
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/clientTlsPolicies/[^/]+$",
 	//       "required": true,
@@ -3860,9 +3871,9 @@ type ProjectsLocationsClientTlsPoliciesListCall struct {
 
 // List: Lists ClientTlsPolicies in a given project and location.
 //
-// - parent: The project and location from which the ClientTlsPolicies
-//   should be listed, specified in the format
-//   `projects/*/locations/{location}`.
+//   - parent: The project and location from which the ClientTlsPolicies
+//     should be listed, specified in the format
+//     `projects/*/locations/{location}`.
 func (r *ProjectsLocationsClientTlsPoliciesService) List(parent string) *ProjectsLocationsClientTlsPoliciesListCall {
 	c := &ProjectsLocationsClientTlsPoliciesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3960,17 +3971,17 @@ func (c *ProjectsLocationsClientTlsPoliciesListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListClientTlsPoliciesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4056,9 +4067,9 @@ type ProjectsLocationsClientTlsPoliciesPatchCall struct {
 
 // Patch: Updates the parameters of a single ClientTlsPolicy.
 //
-// - name: Name of the ClientTlsPolicy resource. It matches the pattern
-//   `projects/*/locations/{location}/clientTlsPolicies/{client_tls_polic
-//   y}`.
+//   - name: Name of the ClientTlsPolicy resource. It matches the pattern
+//     `projects/*/locations/{location}/clientTlsPolicies/{client_tls_polic
+//     y}`.
 func (r *ProjectsLocationsClientTlsPoliciesService) Patch(name string, clienttlspolicy *ClientTlsPolicy) *ProjectsLocationsClientTlsPoliciesPatchCall {
 	c := &ProjectsLocationsClientTlsPoliciesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4144,17 +4155,17 @@ func (c *ProjectsLocationsClientTlsPoliciesPatchCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4219,9 +4230,10 @@ type ProjectsLocationsClientTlsPoliciesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientTlsPoliciesService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsClientTlsPoliciesSetIamPolicyCall {
 	c := &ProjectsLocationsClientTlsPoliciesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4296,17 +4308,17 @@ func (c *ProjectsLocationsClientTlsPoliciesSetIamPolicyCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4329,7 +4341,7 @@ func (c *ProjectsLocationsClientTlsPoliciesSetIamPolicyCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/clientTlsPolicies/[^/]+$",
 	//       "required": true,
@@ -4368,9 +4380,10 @@ type ProjectsLocationsClientTlsPoliciesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsClientTlsPoliciesService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsClientTlsPoliciesTestIamPermissionsCall {
 	c := &ProjectsLocationsClientTlsPoliciesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4446,17 +4459,17 @@ func (c *ProjectsLocationsClientTlsPoliciesTestIamPermissionsCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4479,7 +4492,7 @@ func (c *ProjectsLocationsClientTlsPoliciesTestIamPermissionsCall) Do(opts ...go
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/clientTlsPolicies/[^/]+$",
 	//       "required": true,
@@ -4597,17 +4610,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4735,17 +4748,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4883,17 +4896,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4947,14 +4960,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -5059,17 +5065,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5083,7 +5089,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "networksecurity.projects.locations.operations.list",
@@ -5161,8 +5167,8 @@ type ProjectsLocationsServerTlsPoliciesCreateCall struct {
 // Create: Creates a new ServerTlsPolicy in a given project and
 // location.
 //
-// - parent: The parent resource of the ServerTlsPolicy. Must be in the
-//   format `projects/*/locations/{location}`.
+//   - parent: The parent resource of the ServerTlsPolicy. Must be in the
+//     format `projects/*/locations/{location}`.
 func (r *ProjectsLocationsServerTlsPoliciesService) Create(parent string, servertlspolicy *ServerTlsPolicy) *ProjectsLocationsServerTlsPoliciesCreateCall {
 	c := &ProjectsLocationsServerTlsPoliciesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5247,17 +5253,17 @@ func (c *ProjectsLocationsServerTlsPoliciesCreateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5318,8 +5324,8 @@ type ProjectsLocationsServerTlsPoliciesDeleteCall struct {
 
 // Delete: Deletes a single ServerTlsPolicy.
 //
-// - name: A name of the ServerTlsPolicy to delete. Must be in the
-//   format `projects/*/locations/{location}/serverTlsPolicies/*`.
+//   - name: A name of the ServerTlsPolicy to delete. Must be in the
+//     format `projects/*/locations/{location}/serverTlsPolicies/*`.
 func (r *ProjectsLocationsServerTlsPoliciesService) Delete(name string) *ProjectsLocationsServerTlsPoliciesDeleteCall {
 	c := &ProjectsLocationsServerTlsPoliciesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5388,17 +5394,17 @@ func (c *ProjectsLocationsServerTlsPoliciesDeleteCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5452,8 +5458,8 @@ type ProjectsLocationsServerTlsPoliciesGetCall struct {
 
 // Get: Gets details of a single ServerTlsPolicy.
 //
-// - name: A name of the ServerTlsPolicy to get. Must be in the format
-//   `projects/*/locations/{location}/serverTlsPolicies/*`.
+//   - name: A name of the ServerTlsPolicy to get. Must be in the format
+//     `projects/*/locations/{location}/serverTlsPolicies/*`.
 func (r *ProjectsLocationsServerTlsPoliciesService) Get(name string) *ProjectsLocationsServerTlsPoliciesGetCall {
 	c := &ProjectsLocationsServerTlsPoliciesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5535,17 +5541,17 @@ func (c *ProjectsLocationsServerTlsPoliciesGetCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ServerTlsPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5601,9 +5607,10 @@ type ProjectsLocationsServerTlsPoliciesGetIamPolicyCall struct {
 // an empty policy if the resource exists and does not have a policy
 // set.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsServerTlsPoliciesService) GetIamPolicy(resource string) *ProjectsLocationsServerTlsPoliciesGetIamPolicyCall {
 	c := &ProjectsLocationsServerTlsPoliciesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5703,17 +5710,17 @@ func (c *ProjectsLocationsServerTlsPoliciesGetIamPolicyCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5742,7 +5749,7 @@ func (c *ProjectsLocationsServerTlsPoliciesGetIamPolicyCall) Do(opts ...googleap
 	//       "type": "integer"
 	//     },
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/serverTlsPolicies/[^/]+$",
 	//       "required": true,
@@ -5773,9 +5780,9 @@ type ProjectsLocationsServerTlsPoliciesListCall struct {
 
 // List: Lists ServerTlsPolicies in a given project and location.
 //
-// - parent: The project and location from which the ServerTlsPolicies
-//   should be listed, specified in the format
-//   `projects/*/locations/{location}`.
+//   - parent: The project and location from which the ServerTlsPolicies
+//     should be listed, specified in the format
+//     `projects/*/locations/{location}`.
 func (r *ProjectsLocationsServerTlsPoliciesService) List(parent string) *ProjectsLocationsServerTlsPoliciesListCall {
 	c := &ProjectsLocationsServerTlsPoliciesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5873,17 +5880,17 @@ func (c *ProjectsLocationsServerTlsPoliciesListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListServerTlsPoliciesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5969,9 +5976,9 @@ type ProjectsLocationsServerTlsPoliciesPatchCall struct {
 
 // Patch: Updates the parameters of a single ServerTlsPolicy.
 //
-// - name: Name of the ServerTlsPolicy resource. It matches the pattern
-//   `projects/*/locations/{location}/serverTlsPolicies/{server_tls_polic
-//   y}`.
+//   - name: Name of the ServerTlsPolicy resource. It matches the pattern
+//     `projects/*/locations/{location}/serverTlsPolicies/{server_tls_polic
+//     y}`.
 func (r *ProjectsLocationsServerTlsPoliciesService) Patch(name string, servertlspolicy *ServerTlsPolicy) *ProjectsLocationsServerTlsPoliciesPatchCall {
 	c := &ProjectsLocationsServerTlsPoliciesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6057,17 +6064,17 @@ func (c *ProjectsLocationsServerTlsPoliciesPatchCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6132,9 +6139,10 @@ type ProjectsLocationsServerTlsPoliciesSetIamPolicyCall struct {
 // resource. Replaces any existing policy. Can return `NOT_FOUND`,
 // `INVALID_ARGUMENT`, and `PERMISSION_DENIED` errors.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See the operation documentation for the appropriate
-//   value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsServerTlsPoliciesService) SetIamPolicy(resource string, googleiamv1setiampolicyrequest *GoogleIamV1SetIamPolicyRequest) *ProjectsLocationsServerTlsPoliciesSetIamPolicyCall {
 	c := &ProjectsLocationsServerTlsPoliciesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6209,17 +6217,17 @@ func (c *ProjectsLocationsServerTlsPoliciesSetIamPolicyCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6242,7 +6250,7 @@ func (c *ProjectsLocationsServerTlsPoliciesSetIamPolicyCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy is being specified. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/serverTlsPolicies/[^/]+$",
 	//       "required": true,
@@ -6281,9 +6289,10 @@ type ProjectsLocationsServerTlsPoliciesTestIamPermissionsCall struct {
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See the operation documentation for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsLocationsServerTlsPoliciesService) TestIamPermissions(resource string, googleiamv1testiampermissionsrequest *GoogleIamV1TestIamPermissionsRequest) *ProjectsLocationsServerTlsPoliciesTestIamPermissionsCall {
 	c := &ProjectsLocationsServerTlsPoliciesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6359,17 +6368,17 @@ func (c *ProjectsLocationsServerTlsPoliciesTestIamPermissionsCall) Do(opts ...go
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6392,7 +6401,7 @@ func (c *ProjectsLocationsServerTlsPoliciesTestIamPermissionsCall) Do(opts ...go
 	//   ],
 	//   "parameters": {
 	//     "resource": {
-	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See the operation documentation for the appropriate value for this field.",
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/serverTlsPolicies/[^/]+$",
 	//       "required": true,

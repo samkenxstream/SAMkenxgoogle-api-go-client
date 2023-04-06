@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/vision/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/vision/v1"
-//   ...
-//   ctx := context.Background()
-//   visionService, err := vision.NewService(ctx)
+//	import "google.golang.org/api/vision/v1"
+//	...
+//	ctx := context.Background()
+//	visionService, err := vision.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   visionService, err := vision.NewService(ctx, option.WithScopes(vision.CloudVisionScope))
+//	visionService, err := vision.NewService(ctx, option.WithScopes(vision.CloudVisionScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   visionService, err := vision.NewService(ctx, option.WithAPIKey("AIza..."))
+//	visionService, err := vision.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   visionService, err := vision.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	visionService, err := vision.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package vision // import "google.golang.org/api/vision/v1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "vision:v1"
 const apiName = "vision"
@@ -1143,12 +1144,12 @@ type CancelOperationRequest struct {
 // if (!('alpha' in rgb_color)) { return rgbToCssColor(red, green,
 // blue); } var alphaFrac = rgb_color.alpha.value || 0.0; var rgbParams
 // = [red, green, blue].join(','); return ['rgba(', rgbParams, ',',
-// alphaFrac, ')'].join(''); }; var rgbToCssColor = function(red, green,
+// alphaFrac, ')'].join(”); }; var rgbToCssColor = function(red, green,
 // blue) { var rgbNumber = new Number((red << 16) | (green << 8) |
 // blue); var hexString = rgbNumber.toString(16); var missingZeros = 6 -
 // hexString.length; var resultBuilder = ['#']; for (var i = 0; i <
 // missingZeros; i++) { resultBuilder.push('0'); }
-// resultBuilder.push(hexString); return resultBuilder.join(''); }; //
+// resultBuilder.push(hexString); return resultBuilder.join(”); }; //
 // ...
 type Color struct {
 	// Alpha: The fraction of this color that should be applied to the
@@ -1777,6 +1778,8 @@ type Feature struct {
 
 	// Model: Model to use for the feature. Supported values:
 	// "builtin/stable" (the default if unset) and "builtin/latest".
+	// `DOCUMENT_TEXT_DETECTION` and `TEXT_DETECTION` also support
+	// "builtin/weekly" for the bleeding edge release updated weekly.
 	Model string `json:"model,omitempty"`
 
 	// Type: The feature type.
@@ -13513,27 +13516,30 @@ func (s *TextAnnotation) MarshalJSON() ([]byte, error) {
 // TextDetectionParams: Parameters for text detections. This is used to
 // control TEXT_DETECTION and DOCUMENT_TEXT_DETECTION features.
 type TextDetectionParams struct {
+	// AdvancedOcrOptions: A list of advanced OCR options to fine-tune OCR
+	// behavior.
+	AdvancedOcrOptions []string `json:"advancedOcrOptions,omitempty"`
+
 	// EnableTextDetectionConfidenceScore: By default, Cloud Vision API only
 	// includes confidence score for DOCUMENT_TEXT_DETECTION result. Set the
 	// flag to true to include confidence score for TEXT_DETECTION as well.
 	EnableTextDetectionConfidenceScore bool `json:"enableTextDetectionConfidenceScore,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g.
-	// "EnableTextDetectionConfidenceScore") to unconditionally include in
-	// API requests. By default, fields with empty or default values are
-	// omitted from API requests. However, any non-pointer, non-interface
-	// field appearing in ForceSendFields will be sent to the server
-	// regardless of whether the field is empty or not. This may be used to
-	// include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g. "AdvancedOcrOptions")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g.
-	// "EnableTextDetectionConfidenceScore") to include in API requests with
-	// the JSON null value. By default, fields with empty values are omitted
-	// from API requests. However, any field with an empty value appearing
-	// in NullFields will be sent to the server as null. It is an error if a
-	// field in this list has a non-empty value. This may be used to include
-	// null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AdvancedOcrOptions") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -14019,17 +14025,17 @@ func (c *FilesAnnotateCall) Do(opts ...googleapi.CallOption) (*BatchAnnotateFile
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchAnnotateFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14151,17 +14157,17 @@ func (c *FilesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) (*Operati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14277,17 +14283,17 @@ func (c *ImagesAnnotateCall) Do(opts ...googleapi.CallOption) (*BatchAnnotateIma
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchAnnotateImagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14409,17 +14415,17 @@ func (c *ImagesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) (*Operat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14551,17 +14557,17 @@ func (c *LocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operatio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -14700,17 +14706,17 @@ func (c *OperationsCancelCall) Do(opts ...googleapi.CallOption) (*Empty, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -14839,17 +14845,17 @@ func (c *OperationsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -14988,17 +14994,17 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -15053,14 +15059,7 @@ type OperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *OperationsService) List(name string) *OperationsListCall {
@@ -15165,17 +15164,17 @@ func (c *OperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperationsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15189,7 +15188,7 @@ func (c *OperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperationsRe
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/operations",
 	//   "httpMethod": "GET",
 	//   "id": "vision.operations.list",
@@ -15272,12 +15271,12 @@ type ProjectsFilesAnnotateCall struct {
 // (gif) or pages (pdf or tiff) from each file provided and perform
 // detection and annotation for each image extracted.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsFilesService) Annotate(parent string, batchannotatefilesrequest *BatchAnnotateFilesRequest) *ProjectsFilesAnnotateCall {
 	c := &ProjectsFilesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15352,17 +15351,17 @@ func (c *ProjectsFilesAnnotateCall) Do(opts ...googleapi.CallOption) (*BatchAnno
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchAnnotateFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15426,12 +15425,12 @@ type ProjectsFilesAsyncBatchAnnotateCall struct {
 // `Operation.response` contains `AsyncBatchAnnotateFilesResponse`
 // (results).
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsFilesService) AsyncBatchAnnotate(parent string, asyncbatchannotatefilesrequest *AsyncBatchAnnotateFilesRequest) *ProjectsFilesAsyncBatchAnnotateCall {
 	c := &ProjectsFilesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15506,17 +15505,17 @@ func (c *ProjectsFilesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -15574,12 +15573,12 @@ type ProjectsImagesAnnotateCall struct {
 
 // Annotate: Run image detection and annotation for a batch of images.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsImagesService) Annotate(parent string, batchannotateimagesrequest *BatchAnnotateImagesRequest) *ProjectsImagesAnnotateCall {
 	c := &ProjectsImagesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15654,17 +15653,17 @@ func (c *ProjectsImagesAnnotateCall) Do(opts ...googleapi.CallOption) (*BatchAnn
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchAnnotateImagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15728,12 +15727,12 @@ type ProjectsImagesAsyncBatchAnnotateCall struct {
 // will write image annotation outputs to json files in customer GCS
 // bucket, each json file containing BatchAnnotateImagesResponse proto.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsImagesService) AsyncBatchAnnotate(parent string, asyncbatchannotateimagesrequest *AsyncBatchAnnotateImagesRequest) *ProjectsImagesAsyncBatchAnnotateCall {
 	c := &ProjectsImagesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15808,17 +15807,17 @@ func (c *ProjectsImagesAsyncBatchAnnotateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -15881,12 +15880,12 @@ type ProjectsLocationsFilesAnnotateCall struct {
 // (gif) or pages (pdf or tiff) from each file provided and perform
 // detection and annotation for each image extracted.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsFilesService) Annotate(parent string, batchannotatefilesrequest *BatchAnnotateFilesRequest) *ProjectsLocationsFilesAnnotateCall {
 	c := &ProjectsLocationsFilesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -15961,17 +15960,17 @@ func (c *ProjectsLocationsFilesAnnotateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchAnnotateFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16035,12 +16034,12 @@ type ProjectsLocationsFilesAsyncBatchAnnotateCall struct {
 // `Operation.response` contains `AsyncBatchAnnotateFilesResponse`
 // (results).
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsFilesService) AsyncBatchAnnotate(parent string, asyncbatchannotatefilesrequest *AsyncBatchAnnotateFilesRequest) *ProjectsLocationsFilesAsyncBatchAnnotateCall {
 	c := &ProjectsLocationsFilesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16115,17 +16114,17 @@ func (c *ProjectsLocationsFilesAsyncBatchAnnotateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -16183,12 +16182,12 @@ type ProjectsLocationsImagesAnnotateCall struct {
 
 // Annotate: Run image detection and annotation for a batch of images.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsImagesService) Annotate(parent string, batchannotateimagesrequest *BatchAnnotateImagesRequest) *ProjectsLocationsImagesAnnotateCall {
 	c := &ProjectsLocationsImagesAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16263,17 +16262,17 @@ func (c *ProjectsLocationsImagesAnnotateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchAnnotateImagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -16337,12 +16336,12 @@ type ProjectsLocationsImagesAsyncBatchAnnotateCall struct {
 // will write image annotation outputs to json files in customer GCS
 // bucket, each json file containing BatchAnnotateImagesResponse proto.
 //
-// - parent: Optional. Target project and location to make a call.
-//   Format: `projects/{project-id}/locations/{location-id}`. If no
-//   parent is specified, a region will be chosen automatically.
-//   Supported location-ids: `us`: USA country only, `asia`: East asia
-//   areas, like Japan, Taiwan, `eu`: The European Union. Example:
-//   `projects/project-A/locations/eu`.
+//   - parent: Optional. Target project and location to make a call.
+//     Format: `projects/{project-id}/locations/{location-id}`. If no
+//     parent is specified, a region will be chosen automatically.
+//     Supported location-ids: `us`: USA country only, `asia`: East asia
+//     areas, like Japan, Taiwan, `eu`: The European Union. Example:
+//     `projects/project-A/locations/eu`.
 func (r *ProjectsLocationsImagesService) AsyncBatchAnnotate(parent string, asyncbatchannotateimagesrequest *AsyncBatchAnnotateImagesRequest) *ProjectsLocationsImagesAsyncBatchAnnotateCall {
 	c := &ProjectsLocationsImagesAsyncBatchAnnotateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16417,17 +16416,17 @@ func (c *ProjectsLocationsImagesAsyncBatchAnnotateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -16569,17 +16568,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -16637,8 +16636,8 @@ type ProjectsLocationsProductSetsAddProductCall struct {
 // added to at most 100 ProductSets. Possible errors: * Returns
 // NOT_FOUND if the Product or the ProductSet doesn't exist.
 //
-// - name: The resource name for the ProductSet to modify. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+//   - name: The resource name for the ProductSet to modify. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
 func (r *ProjectsLocationsProductSetsService) AddProduct(name string, addproducttoproductsetrequest *AddProductToProductSetRequest) *ProjectsLocationsProductSetsAddProductCall {
 	c := &ProjectsLocationsProductSetsAddProductCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -16713,17 +16712,17 @@ func (c *ProjectsLocationsProductSetsAddProductCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -16783,8 +16782,8 @@ type ProjectsLocationsProductSetsCreateCall struct {
 // errors: * Returns INVALID_ARGUMENT if display_name is missing, or is
 // longer than 4096 characters.
 //
-// - parent: The project in which the ProductSet should be created.
-//   Format is `projects/PROJECT_ID/locations/LOC_ID`.
+//   - parent: The project in which the ProductSet should be created.
+//     Format is `projects/PROJECT_ID/locations/LOC_ID`.
 func (r *ProjectsLocationsProductSetsService) Create(parent string, productset *ProductSet) *ProjectsLocationsProductSetsCreateCall {
 	c := &ProjectsLocationsProductSetsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -16869,17 +16868,17 @@ func (c *ProjectsLocationsProductSetsCreateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -16943,8 +16942,8 @@ type ProjectsLocationsProductSetsDeleteCall struct {
 // ReferenceImages in the ProductSet are not deleted. The actual image
 // files are not deleted from Google Cloud Storage.
 //
-// - name: Resource name of the ProductSet to delete. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+//   - name: Resource name of the ProductSet to delete. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
 func (r *ProjectsLocationsProductSetsService) Delete(name string) *ProjectsLocationsProductSetsDeleteCall {
 	c := &ProjectsLocationsProductSetsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -17013,17 +17012,17 @@ func (c *ProjectsLocationsProductSetsDeleteCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -17079,8 +17078,8 @@ type ProjectsLocationsProductSetsGetCall struct {
 // Get: Gets information associated with a ProductSet. Possible errors:
 // * Returns NOT_FOUND if the ProductSet does not exist.
 //
-// - name: Resource name of the ProductSet to get. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+//   - name: Resource name of the ProductSet to get. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
 func (r *ProjectsLocationsProductSetsService) Get(name string) *ProjectsLocationsProductSetsGetCall {
 	c := &ProjectsLocationsProductSetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -17162,17 +17161,17 @@ func (c *ProjectsLocationsProductSetsGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -17234,8 +17233,8 @@ type ProjectsLocationsProductSetsImportCall struct {
 // method is a csv file on Google Cloud Storage. For the format of the
 // csv file please see ImportProductSetsGcsSource.csv_file_uri.
 //
-// - parent: The project in which the ProductSets should be imported.
-//   Format is `projects/PROJECT_ID/locations/LOC_ID`.
+//   - parent: The project in which the ProductSets should be imported.
+//     Format is `projects/PROJECT_ID/locations/LOC_ID`.
 func (r *ProjectsLocationsProductSetsService) Import(parent string, importproductsetsrequest *ImportProductSetsRequest) *ProjectsLocationsProductSetsImportCall {
 	c := &ProjectsLocationsProductSetsImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17310,17 +17309,17 @@ func (c *ProjectsLocationsProductSetsImportCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -17380,8 +17379,8 @@ type ProjectsLocationsProductSetsListCall struct {
 // Returns INVALID_ARGUMENT if page_size is greater than 100, or less
 // than 1.
 //
-// - parent: The project from which ProductSets should be listed. Format
-//   is `projects/PROJECT_ID/locations/LOC_ID`.
+//   - parent: The project from which ProductSets should be listed. Format
+//     is `projects/PROJECT_ID/locations/LOC_ID`.
 func (r *ProjectsLocationsProductSetsService) List(parent string) *ProjectsLocationsProductSetsListCall {
 	c := &ProjectsLocationsProductSetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -17477,17 +17476,17 @@ func (c *ProjectsLocationsProductSetsListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProductSetsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -17578,9 +17577,9 @@ type ProjectsLocationsProductSetsPatchCall struct {
 // is present in update_mask but missing from the request or longer than
 // 4096 characters.
 //
-// - name: The resource name of the ProductSet. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
-//   This field is ignored when creating a ProductSet.
+//   - name: The resource name of the ProductSet. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+//     This field is ignored when creating a ProductSet.
 func (r *ProjectsLocationsProductSetsService) Patch(name string, productset *ProductSet) *ProjectsLocationsProductSetsPatchCall {
 	c := &ProjectsLocationsProductSetsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -17664,17 +17663,17 @@ func (c *ProjectsLocationsProductSetsPatchCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -17738,8 +17737,8 @@ type ProjectsLocationsProductSetsRemoveProductCall struct {
 
 // RemoveProduct: Removes a Product from the specified ProductSet.
 //
-// - name: The resource name for the ProductSet to modify. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+//   - name: The resource name for the ProductSet to modify. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
 func (r *ProjectsLocationsProductSetsService) RemoveProduct(name string, removeproductfromproductsetrequest *RemoveProductFromProductSetRequest) *ProjectsLocationsProductSetsRemoveProductCall {
 	c := &ProjectsLocationsProductSetsRemoveProductCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -17814,17 +17813,17 @@ func (c *ProjectsLocationsProductSetsRemoveProductCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -17885,9 +17884,9 @@ type ProjectsLocationsProductSetsProductsListCall struct {
 // will be empty. Possible errors: * Returns INVALID_ARGUMENT if
 // page_size is greater than 100 or less than 1.
 //
-// - name: The ProductSet resource for which to retrieve Products.
-//   Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+//   - name: The ProductSet resource for which to retrieve Products.
+//     Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
 func (r *ProjectsLocationsProductSetsProductsService) List(name string) *ProjectsLocationsProductSetsProductsListCall {
 	c := &ProjectsLocationsProductSetsProductsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -17983,17 +17982,17 @@ func (c *ProjectsLocationsProductSetsProductsListCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProductsInProductSetResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18084,8 +18083,8 @@ type ProjectsLocationsProductsCreateCall struct {
 // than 4096 characters. * Returns INVALID_ARGUMENT if product_category
 // is missing or invalid.
 //
-// - parent: The project in which the Product should be created. Format
-//   is `projects/PROJECT_ID/locations/LOC_ID`.
+//   - parent: The project in which the Product should be created. Format
+//     is `projects/PROJECT_ID/locations/LOC_ID`.
 func (r *ProjectsLocationsProductsService) Create(parent string, product *Product) *ProjectsLocationsProductsCreateCall {
 	c := &ProjectsLocationsProductsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -18170,17 +18169,17 @@ func (c *ProjectsLocationsProductsCreateCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Product{
 		ServerResponse: googleapi.ServerResponse{
@@ -18245,8 +18244,8 @@ type ProjectsLocationsProductsDeleteCall struct {
 // away, but search queries against ProductSets containing the product
 // may still work until all related caches are refreshed.
 //
-// - name: Resource name of product to delete. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
+//   - name: Resource name of product to delete. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
 func (r *ProjectsLocationsProductsService) Delete(name string) *ProjectsLocationsProductsDeleteCall {
 	c := &ProjectsLocationsProductsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18315,17 +18314,17 @@ func (c *ProjectsLocationsProductsDeleteCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -18381,8 +18380,8 @@ type ProjectsLocationsProductsGetCall struct {
 // Get: Gets information associated with a Product. Possible errors: *
 // Returns NOT_FOUND if the Product does not exist.
 //
-// - name: Resource name of the Product to get. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
+//   - name: Resource name of the Product to get. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
 func (r *ProjectsLocationsProductsService) Get(name string) *ProjectsLocationsProductsGetCall {
 	c := &ProjectsLocationsProductsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18464,17 +18463,17 @@ func (c *ProjectsLocationsProductsGetCall) Do(opts ...googleapi.CallOption) (*Pr
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Product{
 		ServerResponse: googleapi.ServerResponse{
@@ -18531,8 +18530,8 @@ type ProjectsLocationsProductsListCall struct {
 // Returns INVALID_ARGUMENT if page_size is greater than 100 or less
 // than 1.
 //
-// - parent: The project OR ProductSet from which Products should be
-//   listed. Format: `projects/PROJECT_ID/locations/LOC_ID`.
+//   - parent: The project OR ProductSet from which Products should be
+//     listed. Format: `projects/PROJECT_ID/locations/LOC_ID`.
 func (r *ProjectsLocationsProductsService) List(parent string) *ProjectsLocationsProductsListCall {
 	c := &ProjectsLocationsProductsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -18628,17 +18627,17 @@ func (c *ProjectsLocationsProductsListCall) Do(opts ...googleapi.CallOption) (*L
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProductsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -18733,9 +18732,9 @@ type ProjectsLocationsProductsPatchCall struct {
 // in update_mask but is longer than 4096 characters. * Returns
 // INVALID_ARGUMENT if product_category is present in update_mask.
 //
-// - name: The resource name of the product. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`. This
-//   field is ignored when creating a product.
+//   - name: The resource name of the product. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`. This
+//     field is ignored when creating a product.
 func (r *ProjectsLocationsProductsService) Patch(name string, product *Product) *ProjectsLocationsProductsPatchCall {
 	c := &ProjectsLocationsProductsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -18819,17 +18818,17 @@ func (c *ProjectsLocationsProductsPatchCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Product{
 		ServerResponse: googleapi.ServerResponse{
@@ -18910,8 +18909,8 @@ type ProjectsLocationsProductsPurgeCall struct {
 // track of the progress and results of the request.
 // `Operation.metadata` contains `BatchOperationMetadata`. (progress)
 //
-// - parent: The project and location in which the Products should be
-//   deleted. Format is `projects/PROJECT_ID/locations/LOC_ID`.
+//   - parent: The project and location in which the Products should be
+//     deleted. Format is `projects/PROJECT_ID/locations/LOC_ID`.
 func (r *ProjectsLocationsProductsService) Purge(parent string, purgeproductsrequest *PurgeProductsRequest) *ProjectsLocationsProductsPurgeCall {
 	c := &ProjectsLocationsProductsPurgeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -18986,17 +18985,17 @@ func (c *ProjectsLocationsProductsPurgeCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -19067,9 +19066,9 @@ type ProjectsLocationsProductsReferenceImagesCreateCall struct {
 // Returns INVALID_ARGUMENT if bounding_poly contains more than 10
 // polygons.
 //
-// - parent: Resource name of the product in which to create the
-//   reference image. Format is
-//   `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
+//   - parent: Resource name of the product in which to create the
+//     reference image. Format is
+//     `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
 func (r *ProjectsLocationsProductsReferenceImagesService) Create(parent string, referenceimage *ReferenceImage) *ProjectsLocationsProductsReferenceImagesCreateCall {
 	c := &ProjectsLocationsProductsReferenceImagesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -19155,17 +19154,17 @@ func (c *ProjectsLocationsProductsReferenceImagesCreateCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReferenceImage{
 		ServerResponse: googleapi.ServerResponse{
@@ -19231,10 +19230,10 @@ type ProjectsLocationsProductsReferenceImagesDeleteCall struct {
 // refreshed. The actual image files are not deleted from Google Cloud
 // Storage.
 //
-// - name: The resource name of the reference image to delete. Format
-//   is:
-//   `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID/referenceI
-//   mages/IMAGE_ID`.
+//   - name: The resource name of the reference image to delete. Format
+//     is:
+//     `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID/referenceI
+//     mages/IMAGE_ID`.
 func (r *ProjectsLocationsProductsReferenceImagesService) Delete(name string) *ProjectsLocationsProductsReferenceImagesDeleteCall {
 	c := &ProjectsLocationsProductsReferenceImagesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19303,17 +19302,17 @@ func (c *ProjectsLocationsProductsReferenceImagesDeleteCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -19369,9 +19368,9 @@ type ProjectsLocationsProductsReferenceImagesGetCall struct {
 // Get: Gets information associated with a ReferenceImage. Possible
 // errors: * Returns NOT_FOUND if the specified image does not exist.
 //
-// - name: The resource name of the ReferenceImage to get. Format is:
-//   `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID/referenceI
-//   mages/IMAGE_ID`.
+//   - name: The resource name of the ReferenceImage to get. Format is:
+//     `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID/referenceI
+//     mages/IMAGE_ID`.
 func (r *ProjectsLocationsProductsReferenceImagesService) Get(name string) *ProjectsLocationsProductsReferenceImagesGetCall {
 	c := &ProjectsLocationsProductsReferenceImagesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -19453,17 +19452,17 @@ func (c *ProjectsLocationsProductsReferenceImagesGetCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReferenceImage{
 		ServerResponse: googleapi.ServerResponse{
@@ -19520,9 +19519,9 @@ type ProjectsLocationsProductsReferenceImagesListCall struct {
 // the parent product does not exist. * Returns INVALID_ARGUMENT if the
 // page_size is greater than 100, or less than 1.
 //
-// - parent: Resource name of the product containing the reference
-//   images. Format is
-//   `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
+//   - parent: Resource name of the product containing the reference
+//     images. Format is
+//     `projects/PROJECT_ID/locations/LOC_ID/products/PRODUCT_ID`.
 func (r *ProjectsLocationsProductsReferenceImagesService) List(parent string) *ProjectsLocationsProductsReferenceImagesListCall {
 	c := &ProjectsLocationsProductsReferenceImagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -19620,17 +19619,17 @@ func (c *ProjectsLocationsProductsReferenceImagesListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReferenceImagesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -19801,17 +19800,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

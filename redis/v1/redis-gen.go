@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,31 +10,31 @@
 //
 // For product documentation, see: https://cloud.google.com/memorystore/docs/redis/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/redis/v1"
-//   ...
-//   ctx := context.Background()
-//   redisService, err := redis.NewService(ctx)
+//	import "google.golang.org/api/redis/v1"
+//	...
+//	ctx := context.Background()
+//	redisService, err := redis.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   redisService, err := redis.NewService(ctx, option.WithAPIKey("AIza..."))
+//	redisService, err := redis.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   redisService, err := redis.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	redisService, err := redis.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package redis // import "google.golang.org/api/redis/v1"
@@ -73,6 +73,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "redis:v1"
 const apiName = "redis"
@@ -487,6 +488,10 @@ type Instance struct {
 	// will be used.
 	AuthorizedNetwork string `json:"authorizedNetwork,omitempty"`
 
+	// AvailableMaintenanceVersions: Optional. The available maintenance
+	// versions that an instance could update to.
+	AvailableMaintenanceVersions []string `json:"availableMaintenanceVersions,omitempty"`
+
 	// ConnectMode: Optional. The network connect mode of the Redis
 	// instance. If not provided, the connect mode defaults to
 	// DIRECT_PEERING.
@@ -509,6 +514,10 @@ type Instance struct {
 	// as [location_id]. In standard tier, this can be the zone of any node
 	// in the instance.
 	CurrentLocationId string `json:"currentLocationId,omitempty"`
+
+	// CustomerManagedKey: Optional. The KMS key reference that the customer
+	// provides when trying to create the instance.
+	CustomerManagedKey string `json:"customerManagedKey,omitempty"`
 
 	// DisplayName: An arbitrary and optional user-provided name for the
 	// instance.
@@ -662,6 +671,15 @@ type Instance struct {
 	// StatusMessage: Output only. Additional information about the current
 	// status of this instance, if available.
 	StatusMessage string `json:"statusMessage,omitempty"`
+
+	// SuspensionReasons: Optional. reasons that causes instance in
+	// "SUSPENDED" state.
+	//
+	// Possible values:
+	//   "SUSPENSION_REASON_UNSPECIFIED" - Not set.
+	//   "CUSTOMER_MANAGED_KEY_ISSUE" - Something wrong with the CMEK key
+	// provided by customer.
+	SuspensionReasons []string `json:"suspensionReasons,omitempty"`
 
 	// Tier: Required. The service tier of the instance.
 	//
@@ -1153,7 +1171,7 @@ type PersistenceConfig struct {
 	//   "ONE_HOUR" - Snapshot every 1 hour.
 	//   "SIX_HOURS" - Snapshot every 6 hours.
 	//   "TWELVE_HOURS" - Snapshot every 12 hours.
-	//   "TWENTY_FOUR_HOURS" - Snapshot every 24 horus.
+	//   "TWENTY_FOUR_HOURS" - Snapshot every 24 hours.
 	RdbSnapshotPeriod string `json:"rdbSnapshotPeriod,omitempty"`
 
 	// RdbSnapshotStartTime: Optional. Date and time that the first snapshot
@@ -1181,6 +1199,49 @@ type PersistenceConfig struct {
 
 func (s *PersistenceConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod PersistenceConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ReconciliationOperationMetadata: Operation metadata returned by the
+// CLH during resource state reconciliation.
+type ReconciliationOperationMetadata struct {
+	// DeleteResource: DEPRECATED. Use exclusive_action instead.
+	DeleteResource bool `json:"deleteResource,omitempty"`
+
+	// ExclusiveAction: Excluisive action returned by the CLH.
+	//
+	// Possible values:
+	//   "UNKNOWN_REPAIR_ACTION" - Unknown repair action.
+	//   "DELETE" - The resource has to be deleted. When using this bit, the
+	// CLH should fail the operation. DEPRECATED. Instead use
+	// DELETE_RESOURCE OperationSignal in SideChannel.
+	//   "RETRY" - This resource could not be repaired but the repair should
+	// be tried again at a later time. This can happen if there is a
+	// dependency that needs to be resolved first- e.g. if a parent resource
+	// must be repaired before a child resource.
+	ExclusiveAction string `json:"exclusiveAction,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DeleteResource") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeleteResource") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ReconciliationOperationMetadata) MarshalJSON() ([]byte, error) {
+	type NoMethod ReconciliationOperationMetadata
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1532,17 +1593,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -1597,8 +1658,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1704,17 +1765,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1813,9 +1874,9 @@ type ProjectsLocationsInstancesCreateCall struct {
 // response field. The returned operation is automatically deleted after
 // a few hours, so there is no need to call DeleteOperation.
 //
-// - parent: The resource name of the instance location using the form:
-//   `projects/{project_id}/locations/{location_id}` where `location_id`
-//   refers to a GCP region.
+//   - parent: The resource name of the instance location using the form:
+//     `projects/{project_id}/locations/{location_id}` where `location_id`
+//     refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) Create(parent string, instance *Instance) *ProjectsLocationsInstancesCreateCall {
 	c := &ProjectsLocationsInstancesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1901,17 +1962,17 @@ func (c *ProjectsLocationsInstancesCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1973,9 +2034,9 @@ type ProjectsLocationsInstancesDeleteCall struct {
 // Delete: Deletes a specific Redis instance. Instance stops serving and
 // data is deleted.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) Delete(name string) *ProjectsLocationsInstancesDeleteCall {
 	c := &ProjectsLocationsInstancesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2044,17 +2105,17 @@ func (c *ProjectsLocationsInstancesDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2111,9 +2172,9 @@ type ProjectsLocationsInstancesExportCall struct {
 // returned operation is automatically deleted after a few hours, so
 // there is no need to call DeleteOperation.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) Export(name string, exportinstancerequest *ExportInstanceRequest) *ProjectsLocationsInstancesExportCall {
 	c := &ProjectsLocationsInstancesExportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2188,17 +2249,17 @@ func (c *ProjectsLocationsInstancesExportCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2257,9 +2318,9 @@ type ProjectsLocationsInstancesFailoverCall struct {
 // node for a specific STANDARD tier Cloud Memorystore for Redis
 // instance.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) Failover(name string, failoverinstancerequest *FailoverInstanceRequest) *ProjectsLocationsInstancesFailoverCall {
 	c := &ProjectsLocationsInstancesFailoverCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2334,17 +2395,17 @@ func (c *ProjectsLocationsInstancesFailoverCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2401,9 +2462,9 @@ type ProjectsLocationsInstancesGetCall struct {
 
 // Get: Gets the details of a specific Redis instance.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) Get(name string) *ProjectsLocationsInstancesGetCall {
 	c := &ProjectsLocationsInstancesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2485,17 +2546,17 @@ func (c *ProjectsLocationsInstancesGetCall) Do(opts ...googleapi.CallOption) (*I
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Instance{
 		ServerResponse: googleapi.ServerResponse{
@@ -2551,9 +2612,9 @@ type ProjectsLocationsInstancesGetAuthStringCall struct {
 // not enabled for the instance the response will be empty. This
 // information is not included in the details returned to GetInstance.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) GetAuthString(name string) *ProjectsLocationsInstancesGetAuthStringCall {
 	c := &ProjectsLocationsInstancesGetAuthStringCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2635,17 +2696,17 @@ func (c *ProjectsLocationsInstancesGetAuthStringCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InstanceAuthString{
 		ServerResponse: googleapi.ServerResponse{
@@ -2704,9 +2765,9 @@ type ProjectsLocationsInstancesImportCall struct {
 // returned operation is automatically deleted after a few hours, so
 // there is no need to call DeleteOperation.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) Import(name string, importinstancerequest *ImportInstanceRequest) *ProjectsLocationsInstancesImportCall {
 	c := &ProjectsLocationsInstancesImportCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2781,17 +2842,17 @@ func (c *ProjectsLocationsInstancesImportCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2853,9 +2914,9 @@ type ProjectsLocationsInstancesListCall struct {
 // specified as `-` (wildcard), then all regions available to the
 // project are queried, and the results are aggregated.
 //
-// - parent: The resource name of the instance location using the form:
-//   `projects/{project_id}/locations/{location_id}` where `location_id`
-//   refers to a GCP region.
+//   - parent: The resource name of the instance location using the form:
+//     `projects/{project_id}/locations/{location_id}` where `location_id`
+//     refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) List(parent string) *ProjectsLocationsInstancesListCall {
 	c := &ProjectsLocationsInstancesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2956,17 +3017,17 @@ func (c *ProjectsLocationsInstancesListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListInstancesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3056,14 +3117,14 @@ type ProjectsLocationsInstancesPatchCall struct {
 // automatically deleted after a few hours, so there is no need to call
 // DeleteOperation.
 //
-// - name: Unique name of the resource in this scope including project
-//   and location using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` Note: Redis instances are managed and addressed at regional
-//   level so location_id here refers to a GCP region; however, users
-//   may choose which specific zone (or collection of zones for
-//   cross-zone instances) an instance should be provisioned in. Refer
-//   to location_id and alternative_location_id fields for more details.
+//   - name: Unique name of the resource in this scope including project
+//     and location using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` Note: Redis instances are managed and addressed at regional
+//     level so location_id here refers to a GCP region; however, users
+//     may choose which specific zone (or collection of zones for
+//     cross-zone instances) an instance should be provisioned in. Refer
+//     to location_id and alternative_location_id fields for more details.
 func (r *ProjectsLocationsInstancesService) Patch(name string, instance *Instance) *ProjectsLocationsInstancesPatchCall {
 	c := &ProjectsLocationsInstancesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3148,17 +3209,17 @@ func (c *ProjectsLocationsInstancesPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3222,9 +3283,9 @@ type ProjectsLocationsInstancesRescheduleMaintenanceCall struct {
 // RescheduleMaintenance: Reschedule maintenance for a given instance in
 // a given project and location.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) RescheduleMaintenance(name string, reschedulemaintenancerequest *RescheduleMaintenanceRequest) *ProjectsLocationsInstancesRescheduleMaintenanceCall {
 	c := &ProjectsLocationsInstancesRescheduleMaintenanceCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3299,17 +3360,17 @@ func (c *ProjectsLocationsInstancesRescheduleMaintenanceCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3367,9 +3428,9 @@ type ProjectsLocationsInstancesUpgradeCall struct {
 // Upgrade: Upgrades Redis instance to the newer Redis version specified
 // in the request.
 //
-// - name: Redis instance resource name using the form:
-//   `projects/{project_id}/locations/{location_id}/instances/{instance_i
-//   d}` where `location_id` refers to a GCP region.
+//   - name: Redis instance resource name using the form:
+//     `projects/{project_id}/locations/{location_id}/instances/{instance_i
+//     d}` where `location_id` refers to a GCP region.
 func (r *ProjectsLocationsInstancesService) Upgrade(name string, upgradeinstancerequest *UpgradeInstanceRequest) *ProjectsLocationsInstancesUpgradeCall {
 	c := &ProjectsLocationsInstancesUpgradeCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3444,17 +3505,17 @@ func (c *ProjectsLocationsInstancesUpgradeCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3588,17 +3649,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3723,17 +3784,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3871,17 +3932,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3935,14 +3996,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -4047,17 +4101,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4071,7 +4125,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "redis.projects.locations.operations.list",

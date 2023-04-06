@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/android/work/play/emm-api
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/androidenterprise/v1"
-//   ...
-//   ctx := context.Background()
-//   androidenterpriseService, err := androidenterprise.NewService(ctx)
+//	import "google.golang.org/api/androidenterprise/v1"
+//	...
+//	ctx := context.Background()
+//	androidenterpriseService, err := androidenterprise.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   androidenterpriseService, err := androidenterprise.NewService(ctx, option.WithAPIKey("AIza..."))
+//	androidenterpriseService, err := androidenterprise.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   androidenterpriseService, err := androidenterprise.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	androidenterpriseService, err := androidenterprise.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package androidenterprise // import "google.golang.org/api/androidenterprise/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "androidenterprise:v1"
 const apiName = "androidenterprise"
@@ -1143,12 +1144,58 @@ func (s *ConfigurationVariables) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// CreateEnrollmentTokenResponse: Response message for create enrollment
+// token.
+type CreateEnrollmentTokenResponse struct {
+	// EnrollmentToken: Enrollment token.
+	EnrollmentToken string `json:"enrollmentToken,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "EnrollmentToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "EnrollmentToken") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CreateEnrollmentTokenResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod CreateEnrollmentTokenResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Device: A Devices resource represents a mobile device managed by the
 // EMM and belonging to a specific enterprise user.
 type Device struct {
 	// AndroidId: The Google Play Services Android ID for the device encoded
 	// as a lowercase hex string. For example, "123456789abcdef0".
 	AndroidId string `json:"androidId,omitempty"`
+
+	// Device: The internal hardware codename of the device. This comes from
+	// android.os.Build.DEVICE. (field named "device" per
+	// logs/wireless/android/android_checkin.proto)
+	Device string `json:"device,omitempty"`
+
+	// LatestBuildFingerprint: The build fingerprint of the device if known.
+	LatestBuildFingerprint string `json:"latestBuildFingerprint,omitempty"`
+
+	// Maker: The manufacturer of the device. This comes from
+	// android.os.Build.MANUFACTURER.
+	Maker string `json:"maker,omitempty"`
 
 	// ManagementType: Identifies the extent to which the device is
 	// controlled by a managed Google Play EMM in various deployment
@@ -1169,11 +1216,26 @@ type Device struct {
 	//   "unmanagedProfile"
 	ManagementType string `json:"managementType,omitempty"`
 
+	// Model: The model name of the device. This comes from
+	// android.os.Build.MODEL.
+	Model string `json:"model,omitempty"`
+
 	// Policy: The policy enforced on the device.
 	Policy *Policy `json:"policy,omitempty"`
 
+	// Product: The product name of the device. This comes from
+	// android.os.Build.PRODUCT.
+	Product string `json:"product,omitempty"`
+
 	// Report: The device report updated with the latest app states.
 	Report *DeviceReport `json:"report,omitempty"`
+
+	// RetailBrand: Retail brand for the device, if set. See
+	// https://developer.android.com/reference/android/os/Build.html#BRAND
+	RetailBrand string `json:"retailBrand,omitempty"`
+
+	// SdkVersion: API compatibility version.
+	SdkVersion int64 `json:"sdkVersion,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -1363,6 +1425,10 @@ type Enterprise struct {
 	// Administrator: Admins of the enterprise. This is only supported for
 	// enterprises created via the EMM-initiated flow.
 	Administrator []*Administrator `json:"administrator,omitempty"`
+
+	// GoogleAuthenticationSettings: Output only. Settings for
+	// Google-provided user authentication.
+	GoogleAuthenticationSettings *GoogleAuthenticationSettings `json:"googleAuthenticationSettings,omitempty"`
 
 	// Id: The unique ID for the enterprise.
 	Id string `json:"id,omitempty"`
@@ -1621,6 +1687,52 @@ type EntitlementsListResponse struct {
 
 func (s *EntitlementsListResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod EntitlementsListResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleAuthenticationSettings: Contains settings for Google-provided
+// user authentication.
+type GoogleAuthenticationSettings struct {
+	// DedicatedDevicesAllowed: Whether dedicated devices are allowed.
+	//
+	// Possible values:
+	//   "dedicatedDevicesAllowedUnspecified" - This value is unused.
+	//   "disallowed" - Dedicated devices are not allowed.
+	//   "allowed" - Dedicated devices are allowed.
+	DedicatedDevicesAllowed string `json:"dedicatedDevicesAllowed,omitempty"`
+
+	// GoogleAuthenticationRequired: Whether Google authentication is
+	// required.
+	//
+	// Possible values:
+	//   "googleAuthenticationRequiredUnspecified" - This value is unused.
+	//   "notRequired" - Google authentication is not required.
+	//   "required" - User is required to be successfully authenticated by
+	// Google.
+	GoogleAuthenticationRequired string `json:"googleAuthenticationRequired,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "DedicatedDevicesAllowed") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DedicatedDevicesAllowed")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleAuthenticationSettings) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleAuthenticationSettings
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2633,8 +2745,9 @@ func (s *Permission) MarshalJSON() ([]byte, error) {
 
 // Policy: The device policy for a given managed device.
 type Policy struct {
-	// AutoUpdatePolicy: Deprecated. Use autoUpdateMode instead. When
-	// autoUpdateMode is set to AUTO_UPDATE_POSTPONED or
+	// AutoUpdatePolicy: Recommended alternative: autoUpdateMode which is
+	// set per app, provides greater flexibility around update frequency.
+	// When autoUpdateMode is set to AUTO_UPDATE_POSTPONED or
 	// AUTO_UPDATE_HIGH_PRIORITY, this field has no effect.
 	// "choiceToTheUser" allows the device's user to configure the app
 	// update policy. "always" enables auto updates. "never" disables auto
@@ -2720,6 +2833,9 @@ func (s *Policy) MarshalJSON() ([]byte, error) {
 // the full Google Play details page) is intended to allow a basic
 // representation of the product within an EMM user interface.
 type Product struct {
+	// AppRestrictionsSchema: The app restriction schema
+	AppRestrictionsSchema *AppRestrictionsSchema `json:"appRestrictionsSchema,omitempty"`
+
 	// AppTracks: The tracks visible to the enterprise.
 	AppTracks []*TrackInfo `json:"appTracks,omitempty"`
 
@@ -2844,20 +2960,22 @@ type Product struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "AppTracks") to
-	// unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "AppRestrictionsSchema") to unconditionally include in API requests.
+	// By default, fields with empty or default values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "AppTracks") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "AppRestrictionsSchema") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -4212,7 +4330,7 @@ func (c *DevicesForceReportUploadCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -4356,17 +4474,17 @@ func (c *DevicesGetCall) Do(opts ...googleapi.CallOption) (*Device, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Device{
 		ServerResponse: googleapi.ServerResponse{
@@ -4528,17 +4646,17 @@ func (c *DevicesGetStateCall) Do(opts ...googleapi.CallOption) (*DeviceState, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DeviceState{
 		ServerResponse: googleapi.ServerResponse{
@@ -4691,17 +4809,17 @@ func (c *DevicesListCall) Do(opts ...googleapi.CallOption) (*DevicesListResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DevicesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4849,17 +4967,17 @@ func (c *DevicesSetStateCall) Do(opts ...googleapi.CallOption) (*DeviceState, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DeviceState{
 		ServerResponse: googleapi.ServerResponse{
@@ -5028,17 +5146,17 @@ func (c *DevicesUpdateCall) Do(opts ...googleapi.CallOption) (*Device, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Device{
 		ServerResponse: googleapi.ServerResponse{
@@ -5179,7 +5297,7 @@ func (c *EnterprisesAcknowledgeNotificationSetCall) Do(opts ...googleapi.CallOpt
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -5293,17 +5411,17 @@ func (c *EnterprisesCompleteSignupCall) Do(opts ...googleapi.CallOption) (*Enter
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Enterprise{
 		ServerResponse: googleapi.ServerResponse{
@@ -5337,6 +5455,171 @@ func (c *EnterprisesCompleteSignupCall) Do(opts ...googleapi.CallOption) (*Enter
 	//   "path": "androidenterprise/v1/enterprises/completeSignup",
 	//   "response": {
 	//     "$ref": "Enterprise"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/androidenterprise"
+	//   ]
+	// }
+
+}
+
+// method id "androidenterprise.enterprises.createEnrollmentToken":
+
+type EnterprisesCreateEnrollmentTokenCall struct {
+	s            *Service
+	enterpriseId string
+	urlParams_   gensupport.URLParams
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// CreateEnrollmentToken: Returns a token for device enrollment. The DPC
+// can encode this token within the QR/NFC/zero-touch enrollment payload
+// or fetch it before calling the on-device API to authenticate the
+// user. The token can be generated for each device or reused across
+// multiple devices.
+//
+// - enterpriseId: The ID of the enterprise.
+func (r *EnterprisesService) CreateEnrollmentToken(enterpriseId string) *EnterprisesCreateEnrollmentTokenCall {
+	c := &EnterprisesCreateEnrollmentTokenCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.enterpriseId = enterpriseId
+	return c
+}
+
+// DeviceType sets the optional parameter "deviceType": Whether it’s a
+// dedicated device or a knowledge worker device.
+//
+// Possible values:
+//
+//	"unknown" - This value is unused
+//	"dedicatedDevice" - This device is a dedicated device.
+//	"knowledgeWorker" - This device is required to have an
+//
+// authenticated user.
+func (c *EnterprisesCreateEnrollmentTokenCall) DeviceType(deviceType string) *EnterprisesCreateEnrollmentTokenCall {
+	c.urlParams_.Set("deviceType", deviceType)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *EnterprisesCreateEnrollmentTokenCall) Fields(s ...googleapi.Field) *EnterprisesCreateEnrollmentTokenCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *EnterprisesCreateEnrollmentTokenCall) Context(ctx context.Context) *EnterprisesCreateEnrollmentTokenCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *EnterprisesCreateEnrollmentTokenCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *EnterprisesCreateEnrollmentTokenCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "androidenterprise/v1/enterprises/{enterpriseId}/createEnrollmentToken")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"enterpriseId": c.enterpriseId,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "androidenterprise.enterprises.createEnrollmentToken" call.
+// Exactly one of *CreateEnrollmentTokenResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *CreateEnrollmentTokenResponse.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *EnterprisesCreateEnrollmentTokenCall) Do(opts ...googleapi.CallOption) (*CreateEnrollmentTokenResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &CreateEnrollmentTokenResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns a token for device enrollment. The DPC can encode this token within the QR/NFC/zero-touch enrollment payload or fetch it before calling the on-device API to authenticate the user. The token can be generated for each device or reused across multiple devices.",
+	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/createEnrollmentToken",
+	//   "httpMethod": "POST",
+	//   "id": "androidenterprise.enterprises.createEnrollmentToken",
+	//   "parameterOrder": [
+	//     "enterpriseId"
+	//   ],
+	//   "parameters": {
+	//     "deviceType": {
+	//       "description": "Whether it’s a dedicated device or a knowledge worker device.",
+	//       "enum": [
+	//         "unknown",
+	//         "dedicatedDevice",
+	//         "knowledgeWorker"
+	//       ],
+	//       "enumDescriptions": [
+	//         "This value is unused",
+	//         "This device is a dedicated device.",
+	//         "This device is required to have an authenticated user."
+	//       ],
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "enterpriseId": {
+	//       "description": "The ID of the enterprise.",
+	//       "location": "path",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "androidenterprise/v1/enterprises/{enterpriseId}/createEnrollmentToken",
+	//   "response": {
+	//     "$ref": "CreateEnrollmentTokenResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/androidenterprise"
@@ -5437,17 +5720,17 @@ func (c *EnterprisesCreateWebTokenCall) Do(opts ...googleapi.CallOption) (*Admin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AdministratorWebToken{
 		ServerResponse: googleapi.ServerResponse{
@@ -5574,17 +5857,17 @@ func (c *EnterprisesEnrollCall) Do(opts ...googleapi.CallOption) (*Enterprise, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Enterprise{
 		ServerResponse: googleapi.ServerResponse{
@@ -5715,17 +5998,17 @@ func (c *EnterprisesGenerateSignupUrlCall) Do(opts ...googleapi.CallOption) (*Si
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SignupInfo{
 		ServerResponse: googleapi.ServerResponse{
@@ -5857,17 +6140,17 @@ func (c *EnterprisesGetCall) Do(opts ...googleapi.CallOption) (*Enterprise, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Enterprise{
 		ServerResponse: googleapi.ServerResponse{
@@ -5942,8 +6225,10 @@ func (r *EnterprisesService) GetServiceAccount(enterpriseId string) *Enterprises
 // to return with the service account. Required.
 //
 // Possible values:
-//   "googleCredentials" - Google Credentials File format.
-//   "pkcs12" - PKCS12 format. The password for the PKCS12 file is
+//
+//	"googleCredentials" - Google Credentials File format.
+//	"pkcs12" - PKCS12 format. The password for the PKCS12 file is
+//
 // 'notasecret'. For more information, see
 // https://tools.ietf.org/html/rfc7292. The data for keys of this type
 // are base64 encoded according to RFC 4648 Section 4. See
@@ -6028,17 +6313,17 @@ func (c *EnterprisesGetServiceAccountCall) Do(opts ...googleapi.CallOption) (*Se
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ServiceAccount{
 		ServerResponse: googleapi.ServerResponse{
@@ -6188,17 +6473,17 @@ func (c *EnterprisesGetStoreLayoutCall) Do(opts ...googleapi.CallOption) (*Store
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StoreLayout{
 		ServerResponse: googleapi.ServerResponse{
@@ -6333,17 +6618,17 @@ func (c *EnterprisesListCall) Do(opts ...googleapi.CallOption) (*EnterprisesList
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EnterprisesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6416,15 +6701,19 @@ func (r *EnterprisesService) PullNotificationSet() *EnterprisesPullNotificationS
 // mode for pulling notifications. Specifying waitForNotifications will
 // cause the request to block and wait until one or more notifications
 // are present, or return an empty notification list if no notifications
-// are present after some time. Speciying returnImmediately will cause
+// are present after some time. Specifying returnImmediately will cause
 // the request to immediately return the pending notifications, or an
 // empty list if no notifications are present. If omitted, defaults to
 // waitForNotifications.
 //
 // Possible values:
-//   "waitForNotifications" - Wait until one or more notifications are
+//
+//	"waitForNotifications" - Wait until one or more notifications are
+//
 // present.
-//   "returnImmediately" - Returns immediately whether notifications are
+//
+//	"returnImmediately" - Returns immediately whether notifications are
+//
 // present or not.
 func (c *EnterprisesPullNotificationSetCall) RequestMode(requestMode string) *EnterprisesPullNotificationSetCall {
 	c.urlParams_.Set("requestMode", requestMode)
@@ -6490,17 +6779,17 @@ func (c *EnterprisesPullNotificationSetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &NotificationSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -6521,7 +6810,7 @@ func (c *EnterprisesPullNotificationSetCall) Do(opts ...googleapi.CallOption) (*
 	//   "parameterOrder": [],
 	//   "parameters": {
 	//     "requestMode": {
-	//       "description": "The request mode for pulling notifications. Specifying waitForNotifications will cause the request to block and wait until one or more notifications are present, or return an empty notification list if no notifications are present after some time. Speciying returnImmediately will cause the request to immediately return the pending notifications, or an empty list if no notifications are present. If omitted, defaults to waitForNotifications.",
+	//       "description": "The request mode for pulling notifications. Specifying waitForNotifications will cause the request to block and wait until one or more notifications are present, or return an empty notification list if no notifications are present after some time. Specifying returnImmediately will cause the request to immediately return the pending notifications, or an empty list if no notifications are present. If omitted, defaults to waitForNotifications.",
 	//       "enum": [
 	//         "waitForNotifications",
 	//         "returnImmediately"
@@ -6630,17 +6919,17 @@ func (c *EnterprisesSendTestPushNotificationCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EnterprisesSendTestPushNotificationResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6769,17 +7058,17 @@ func (c *EnterprisesSetAccountCall) Do(opts ...googleapi.CallOption) (*Enterpris
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EnterpriseAccount{
 		ServerResponse: googleapi.ServerResponse{
@@ -6917,17 +7206,17 @@ func (c *EnterprisesSetStoreLayoutCall) Do(opts ...googleapi.CallOption) (*Store
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StoreLayout{
 		ServerResponse: googleapi.ServerResponse{
@@ -7046,7 +7335,7 @@ func (c *EnterprisesUnenrollCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -7085,12 +7374,14 @@ type EntitlementsDeleteCall struct {
 	header_       http.Header
 }
 
-// Delete: Removes an entitlement to an app for a user.
+// Delete: Removes an entitlement to an app for a user. **Note:** This
+// item has been deprecated. New integrations cannot use this method and
+// can refer to our new recommendations.
 //
-// - enterpriseId: The ID of the enterprise.
-// - entitlementId: The ID of the entitlement (a product ID), e.g.
-//   "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - enterpriseId: The ID of the enterprise.
+//   - entitlementId: The ID of the entitlement (a product ID), e.g.
+//     "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *EntitlementsService) Delete(enterpriseId string, userId string, entitlementId string) *EntitlementsDeleteCall {
 	c := &EntitlementsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -7158,11 +7449,11 @@ func (c *EntitlementsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
-	//   "description": "Removes an entitlement to an app for a user.",
+	//   "description": "Removes an entitlement to an app for a user. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/users/{userId}/entitlements/{entitlementId}",
 	//   "httpMethod": "DELETE",
 	//   "id": "androidenterprise.entitlements.delete",
@@ -7212,12 +7503,14 @@ type EntitlementsGetCall struct {
 	header_       http.Header
 }
 
-// Get: Retrieves details of an entitlement.
+// Get: Retrieves details of an entitlement. **Note:** This item has
+// been deprecated. New integrations cannot use this method and can
+// refer to our new recommendations.
 //
-// - enterpriseId: The ID of the enterprise.
-// - entitlementId: The ID of the entitlement (a product ID), e.g.
-//   "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - enterpriseId: The ID of the enterprise.
+//   - entitlementId: The ID of the entitlement (a product ID), e.g.
+//     "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *EntitlementsService) Get(enterpriseId string, userId string, entitlementId string) *EntitlementsGetCall {
 	c := &EntitlementsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -7303,17 +7596,17 @@ func (c *EntitlementsGetCall) Do(opts ...googleapi.CallOption) (*Entitlement, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Entitlement{
 		ServerResponse: googleapi.ServerResponse{
@@ -7327,7 +7620,7 @@ func (c *EntitlementsGetCall) Do(opts ...googleapi.CallOption) (*Entitlement, er
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves details of an entitlement.",
+	//   "description": "Retrieves details of an entitlement. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/users/{userId}/entitlements/{entitlementId}",
 	//   "httpMethod": "GET",
 	//   "id": "androidenterprise.entitlements.get",
@@ -7380,7 +7673,8 @@ type EntitlementsListCall struct {
 }
 
 // List: Lists all entitlements for the specified user. Only the ID is
-// set.
+// set. **Note:** This item has been deprecated. New integrations cannot
+// use this method and can refer to our new recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 // - userId: The ID of the user.
@@ -7467,17 +7761,17 @@ func (c *EntitlementsListCall) Do(opts ...googleapi.CallOption) (*EntitlementsLi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &EntitlementsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7491,7 +7785,7 @@ func (c *EntitlementsListCall) Do(opts ...googleapi.CallOption) (*EntitlementsLi
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists all entitlements for the specified user. Only the ID is set.",
+	//   "description": "Lists all entitlements for the specified user. Only the ID is set. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/users/{userId}/entitlements",
 	//   "httpMethod": "GET",
 	//   "id": "androidenterprise.entitlements.list",
@@ -7538,11 +7832,13 @@ type EntitlementsUpdateCall struct {
 }
 
 // Update: Adds or updates an entitlement to an app for a user.
+// **Note:** This item has been deprecated. New integrations cannot use
+// this method and can refer to our new recommendations.
 //
-// - enterpriseId: The ID of the enterprise.
-// - entitlementId: The ID of the entitlement (a product ID), e.g.
-//   "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - enterpriseId: The ID of the enterprise.
+//   - entitlementId: The ID of the entitlement (a product ID), e.g.
+//     "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *EntitlementsService) Update(enterpriseId string, userId string, entitlementId string, entitlement *Entitlement) *EntitlementsUpdateCall {
 	c := &EntitlementsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -7631,17 +7927,17 @@ func (c *EntitlementsUpdateCall) Do(opts ...googleapi.CallOption) (*Entitlement,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Entitlement{
 		ServerResponse: googleapi.ServerResponse{
@@ -7655,7 +7951,7 @@ func (c *EntitlementsUpdateCall) Do(opts ...googleapi.CallOption) (*Entitlement,
 	}
 	return ret, nil
 	// {
-	//   "description": "Adds or updates an entitlement to an app for a user.",
+	//   "description": "Adds or updates an entitlement to an app for a user. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/users/{userId}/entitlements/{entitlementId}",
 	//   "httpMethod": "PUT",
 	//   "id": "androidenterprise.entitlements.update",
@@ -7716,11 +8012,12 @@ type GrouplicensesGetCall struct {
 }
 
 // Get: Retrieves details of an enterprise's group license for a
-// product.
+// product. **Note:** This item has been deprecated. New integrations
+// cannot use this method and can refer to our new recommendations.
 //
-// - enterpriseId: The ID of the enterprise.
-// - groupLicenseId: The ID of the product the group license is for,
-//   e.g. "app:com.google.android.gm".
+//   - enterpriseId: The ID of the enterprise.
+//   - groupLicenseId: The ID of the product the group license is for,
+//     e.g. "app:com.google.android.gm".
 func (r *GrouplicensesService) Get(enterpriseId string, groupLicenseId string) *GrouplicensesGetCall {
 	c := &GrouplicensesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -7804,17 +8101,17 @@ func (c *GrouplicensesGetCall) Do(opts ...googleapi.CallOption) (*GroupLicense, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupLicense{
 		ServerResponse: googleapi.ServerResponse{
@@ -7828,7 +8125,7 @@ func (c *GrouplicensesGetCall) Do(opts ...googleapi.CallOption) (*GroupLicense, 
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves details of an enterprise's group license for a product.",
+	//   "description": "Retrieves details of an enterprise's group license for a product. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/groupLicenses/{groupLicenseId}",
 	//   "httpMethod": "GET",
 	//   "id": "androidenterprise.grouplicenses.get",
@@ -7873,7 +8170,9 @@ type GrouplicensesListCall struct {
 }
 
 // List: Retrieves IDs of all products for which the enterprise has a
-// group license.
+// group license. **Note:** This item has been deprecated. New
+// integrations cannot use this method and can refer to our new
+// recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 func (r *GrouplicensesService) List(enterpriseId string) *GrouplicensesListCall {
@@ -7957,17 +8256,17 @@ func (c *GrouplicensesListCall) Do(opts ...googleapi.CallOption) (*GroupLicenses
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupLicensesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7981,7 +8280,7 @@ func (c *GrouplicensesListCall) Do(opts ...googleapi.CallOption) (*GroupLicenses
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves IDs of all products for which the enterprise has a group license.",
+	//   "description": "Retrieves IDs of all products for which the enterprise has a group license. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/groupLicenses",
 	//   "httpMethod": "GET",
 	//   "id": "androidenterprise.grouplicenses.list",
@@ -8020,11 +8319,13 @@ type GrouplicenseusersListCall struct {
 }
 
 // List: Retrieves the IDs of the users who have been granted
-// entitlements under the license.
+// entitlements under the license. **Note:** This item has been
+// deprecated. New integrations cannot use this method and can refer to
+// our new recommendations.
 //
-// - enterpriseId: The ID of the enterprise.
-// - groupLicenseId: The ID of the product the group license is for,
-//   e.g. "app:com.google.android.gm".
+//   - enterpriseId: The ID of the enterprise.
+//   - groupLicenseId: The ID of the product the group license is for,
+//     e.g. "app:com.google.android.gm".
 func (r *GrouplicenseusersService) List(enterpriseId string, groupLicenseId string) *GrouplicenseusersListCall {
 	c := &GrouplicenseusersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -8108,17 +8409,17 @@ func (c *GrouplicenseusersListCall) Do(opts ...googleapi.CallOption) (*GroupLice
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GroupLicenseUsersListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8132,7 +8433,7 @@ func (c *GrouplicenseusersListCall) Do(opts ...googleapi.CallOption) (*GroupLice
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves the IDs of the users who have been granted entitlements under the license.",
+	//   "description": "Retrieves the IDs of the users who have been granted entitlements under the license. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/groupLicenses/{groupLicenseId}/users",
 	//   "httpMethod": "GET",
 	//   "id": "androidenterprise.grouplicenseusers.list",
@@ -8182,11 +8483,11 @@ type InstallsDeleteCall struct {
 // list will still show the app as installed on the device until it is
 // actually removed.
 //
-// - deviceId: The Android ID of the device.
-// - enterpriseId: The ID of the enterprise.
-// - installId: The ID of the product represented by the install, e.g.
-//   "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - deviceId: The Android ID of the device.
+//   - enterpriseId: The ID of the enterprise.
+//   - installId: The ID of the product represented by the install, e.g.
+//     "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *InstallsService) Delete(enterpriseId string, userId string, deviceId string, installId string) *InstallsDeleteCall {
 	c := &InstallsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -8256,7 +8557,7 @@ func (c *InstallsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -8320,11 +8621,11 @@ type InstallsGetCall struct {
 
 // Get: Retrieves details of an installation of an app on a device.
 //
-// - deviceId: The Android ID of the device.
-// - enterpriseId: The ID of the enterprise.
-// - installId: The ID of the product represented by the install, e.g.
-//   "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - deviceId: The Android ID of the device.
+//   - enterpriseId: The ID of the enterprise.
+//   - installId: The ID of the product represented by the install, e.g.
+//     "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *InstallsService) Get(enterpriseId string, userId string, deviceId string, installId string) *InstallsGetCall {
 	c := &InstallsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -8412,17 +8713,17 @@ func (c *InstallsGetCall) Do(opts ...googleapi.CallOption) (*Install, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Install{
 		ServerResponse: googleapi.ServerResponse{
@@ -8587,17 +8888,17 @@ func (c *InstallsListCall) Do(opts ...googleapi.CallOption) (*InstallsListRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &InstallsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8669,11 +8970,11 @@ type InstallsUpdateCall struct {
 // If the app is already installed, then it is updated to the latest
 // version if necessary.
 //
-// - deviceId: The Android ID of the device.
-// - enterpriseId: The ID of the enterprise.
-// - installId: The ID of the product represented by the install, e.g.
-//   "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - deviceId: The Android ID of the device.
+//   - enterpriseId: The ID of the enterprise.
+//   - installId: The ID of the product represented by the install, e.g.
+//     "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *InstallsService) Update(enterpriseId string, userId string, deviceId string, installId string, install *Install) *InstallsUpdateCall {
 	c := &InstallsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -8754,17 +9055,17 @@ func (c *InstallsUpdateCall) Do(opts ...googleapi.CallOption) (*Install, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Install{
 		ServerResponse: googleapi.ServerResponse{
@@ -8844,11 +9145,11 @@ type ManagedconfigurationsfordeviceDeleteCall struct {
 // Delete: Removes a per-device managed configuration for an app for the
 // specified device.
 //
-// - deviceId: The Android ID of the device.
-// - enterpriseId: The ID of the enterprise.
-// - managedConfigurationForDeviceId: The ID of the managed
-//   configuration (a product ID), e.g. "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - deviceId: The Android ID of the device.
+//   - enterpriseId: The ID of the enterprise.
+//   - managedConfigurationForDeviceId: The ID of the managed
+//     configuration (a product ID), e.g. "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *ManagedconfigurationsfordeviceService) Delete(enterpriseId string, userId string, deviceId string, managedConfigurationForDeviceId string) *ManagedconfigurationsfordeviceDeleteCall {
 	c := &ManagedconfigurationsfordeviceDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -8918,7 +9219,7 @@ func (c *ManagedconfigurationsfordeviceDeleteCall) Do(opts ...googleapi.CallOpti
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -8982,11 +9283,11 @@ type ManagedconfigurationsfordeviceGetCall struct {
 
 // Get: Retrieves details of a per-device managed configuration.
 //
-// - deviceId: The Android ID of the device.
-// - enterpriseId: The ID of the enterprise.
-// - managedConfigurationForDeviceId: The ID of the managed
-//   configuration (a product ID), e.g. "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - deviceId: The Android ID of the device.
+//   - enterpriseId: The ID of the enterprise.
+//   - managedConfigurationForDeviceId: The ID of the managed
+//     configuration (a product ID), e.g. "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *ManagedconfigurationsfordeviceService) Get(enterpriseId string, userId string, deviceId string, managedConfigurationForDeviceId string) *ManagedconfigurationsfordeviceGetCall {
 	c := &ManagedconfigurationsfordeviceGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -9074,17 +9375,17 @@ func (c *ManagedconfigurationsfordeviceGetCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedConfiguration{
 		ServerResponse: googleapi.ServerResponse{
@@ -9251,17 +9552,17 @@ func (c *ManagedconfigurationsfordeviceListCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedConfigurationsForDeviceListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9332,11 +9633,11 @@ type ManagedconfigurationsfordeviceUpdateCall struct {
 // Update: Adds or updates a per-device managed configuration for an app
 // for the specified device.
 //
-// - deviceId: The Android ID of the device.
-// - enterpriseId: The ID of the enterprise.
-// - managedConfigurationForDeviceId: The ID of the managed
-//   configuration (a product ID), e.g. "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - deviceId: The Android ID of the device.
+//   - enterpriseId: The ID of the enterprise.
+//   - managedConfigurationForDeviceId: The ID of the managed
+//     configuration (a product ID), e.g. "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *ManagedconfigurationsfordeviceService) Update(enterpriseId string, userId string, deviceId string, managedConfigurationForDeviceId string, managedconfiguration *ManagedConfiguration) *ManagedconfigurationsfordeviceUpdateCall {
 	c := &ManagedconfigurationsfordeviceUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -9417,17 +9718,17 @@ func (c *ManagedconfigurationsfordeviceUpdateCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedConfiguration{
 		ServerResponse: googleapi.ServerResponse{
@@ -9506,10 +9807,10 @@ type ManagedconfigurationsforuserDeleteCall struct {
 // Delete: Removes a per-user managed configuration for an app for the
 // specified user.
 //
-// - enterpriseId: The ID of the enterprise.
-// - managedConfigurationForUserId: The ID of the managed configuration
-//   (a product ID), e.g. "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - enterpriseId: The ID of the enterprise.
+//   - managedConfigurationForUserId: The ID of the managed configuration
+//     (a product ID), e.g. "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *ManagedconfigurationsforuserService) Delete(enterpriseId string, userId string, managedConfigurationForUserId string) *ManagedconfigurationsforuserDeleteCall {
 	c := &ManagedconfigurationsforuserDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -9577,7 +9878,7 @@ func (c *ManagedconfigurationsforuserDeleteCall) Do(opts ...googleapi.CallOption
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -9634,10 +9935,10 @@ type ManagedconfigurationsforuserGetCall struct {
 // Get: Retrieves details of a per-user managed configuration for an app
 // for the specified user.
 //
-// - enterpriseId: The ID of the enterprise.
-// - managedConfigurationForUserId: The ID of the managed configuration
-//   (a product ID), e.g. "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - enterpriseId: The ID of the enterprise.
+//   - managedConfigurationForUserId: The ID of the managed configuration
+//     (a product ID), e.g. "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *ManagedconfigurationsforuserService) Get(enterpriseId string, userId string, managedConfigurationForUserId string) *ManagedconfigurationsforuserGetCall {
 	c := &ManagedconfigurationsforuserGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -9723,17 +10024,17 @@ func (c *ManagedconfigurationsforuserGetCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedConfiguration{
 		ServerResponse: googleapi.ServerResponse{
@@ -9889,17 +10190,17 @@ func (c *ManagedconfigurationsforuserListCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedConfigurationsForUserListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9966,10 +10267,10 @@ type ManagedconfigurationsforuserUpdateCall struct {
 // request. Alternatively, all EMMs can apply managed configurations by
 // passing a list of managed properties.
 //
-// - enterpriseId: The ID of the enterprise.
-// - managedConfigurationForUserId: The ID of the managed configuration
-//   (a product ID), e.g. "app:com.google.android.gm".
-// - userId: The ID of the user.
+//   - enterpriseId: The ID of the enterprise.
+//   - managedConfigurationForUserId: The ID of the managed configuration
+//     (a product ID), e.g. "app:com.google.android.gm".
+//   - userId: The ID of the user.
 func (r *ManagedconfigurationsforuserService) Update(enterpriseId string, userId string, managedConfigurationForUserId string, managedconfiguration *ManagedConfiguration) *ManagedconfigurationsforuserUpdateCall {
 	c := &ManagedconfigurationsforuserUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -10048,17 +10349,17 @@ func (c *ManagedconfigurationsforuserUpdateCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedConfiguration{
 		ServerResponse: googleapi.ServerResponse{
@@ -10130,9 +10431,9 @@ type ManagedconfigurationssettingsListCall struct {
 // List: Lists all the managed configurations settings for the specified
 // app.
 //
-// - enterpriseId: The ID of the enterprise.
-// - productId: The ID of the product for which the managed
-//   configurations settings applies to.
+//   - enterpriseId: The ID of the enterprise.
+//   - productId: The ID of the product for which the managed
+//     configurations settings applies to.
 func (r *ManagedconfigurationssettingsService) List(enterpriseId string, productId string) *ManagedconfigurationssettingsListCall {
 	c := &ManagedconfigurationssettingsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.enterpriseId = enterpriseId
@@ -10218,17 +10519,17 @@ func (c *ManagedconfigurationssettingsListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedConfigurationsSettingsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10378,17 +10679,17 @@ func (c *PermissionsGetCall) Do(opts ...googleapi.CallOption) (*Permission, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Permission{
 		ServerResponse: googleapi.ServerResponse{
@@ -10449,7 +10750,9 @@ type ProductsApproveCall struct {
 // permissions, if any. The maximum number of products that you can
 // approve per enterprise customer is 1,000. To learn how to use managed
 // Google Play to design and create a store layout to display approved
-// products to your users, see Store Layout Design.
+// products to your users, see Store Layout Design. **Note:** This item
+// has been deprecated. New integrations cannot use this method and can
+// refer to our new recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 // - productId: The ID of the product.
@@ -10524,11 +10827,11 @@ func (c *ProductsApproveCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
-	//   "description": " Approves the specified product and the relevant app permissions, if any. The maximum number of products that you can approve per enterprise customer is 1,000. To learn how to use managed Google Play to design and create a store layout to display approved products to your users, see Store Layout Design. ",
+	//   "description": " Approves the specified product and the relevant app permissions, if any. The maximum number of products that you can approve per enterprise customer is 1,000. To learn how to use managed Google Play to design and create a store layout to display approved products to your users, see Store Layout Design. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations. ",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/products/{productId}/approve",
 	//   "httpMethod": "POST",
 	//   "id": "androidenterprise.products.approve",
@@ -10580,7 +10883,9 @@ type ProductsGenerateApprovalUrlCall struct {
 // separate UI element in the EMM console, which in turn should trigger
 // the use of this URL as the approvalUrlInfo.approvalUrl property in a
 // Products.approve call to approve the product. This URL can only be
-// used to display permissions for up to 1 day.
+// used to display permissions for up to 1 day. **Note:** This item has
+// been deprecated. New integrations cannot use this method and can
+// refer to our new recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 // - productId: The ID of the product.
@@ -10663,17 +10968,17 @@ func (c *ProductsGenerateApprovalUrlCall) Do(opts ...googleapi.CallOption) (*Pro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductsGenerateApprovalUrlResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10687,7 +10992,7 @@ func (c *ProductsGenerateApprovalUrlCall) Do(opts ...googleapi.CallOption) (*Pro
 	}
 	return ret, nil
 	// {
-	//   "description": "Generates a URL that can be rendered in an iframe to display the permissions (if any) of a product. An enterprise admin must view these permissions and accept them on behalf of their organization in order to approve that product. Admins should accept the displayed permissions by interacting with a separate UI element in the EMM console, which in turn should trigger the use of this URL as the approvalUrlInfo.approvalUrl property in a Products.approve call to approve the product. This URL can only be used to display permissions for up to 1 day.",
+	//   "description": "Generates a URL that can be rendered in an iframe to display the permissions (if any) of a product. An enterprise admin must view these permissions and accept them on behalf of their organization in order to approve that product. Admins should accept the displayed permissions by interacting with a separate UI element in the EMM console, which in turn should trigger the use of this URL as the approvalUrlInfo.approvalUrl property in a Products.approve call to approve the product. This URL can only be used to display permissions for up to 1 day. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations. ",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/products/{productId}/generateApprovalUrl",
 	//   "httpMethod": "POST",
 	//   "id": "androidenterprise.products.generateApprovalUrl",
@@ -10832,17 +11137,17 @@ func (c *ProductsGetCall) Do(opts ...googleapi.CallOption) (*Product, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Product{
 		ServerResponse: googleapi.ServerResponse{
@@ -11006,17 +11311,17 @@ func (c *ProductsGetAppRestrictionsSchemaCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AppRestrictionsSchema{
 		ServerResponse: googleapi.ServerResponse{
@@ -11168,17 +11473,17 @@ func (c *ProductsGetPermissionsCall) Do(opts ...googleapi.CallOption) (*ProductP
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductPermissions{
 		ServerResponse: googleapi.ServerResponse{
@@ -11237,7 +11542,9 @@ type ProductsListCall struct {
 }
 
 // List: Finds approved products that match a query, or all approved
-// products if there is no query.
+// products if there is no query. **Note:** This item has been
+// deprecated. New integrations cannot use this method and can refer to
+// our new recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 func (r *ProductsService) List(enterpriseId string) *ProductsListCall {
@@ -11363,17 +11670,17 @@ func (c *ProductsListCall) Do(opts ...googleapi.CallOption) (*ProductsListRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -11387,7 +11694,7 @@ func (c *ProductsListCall) Do(opts ...googleapi.CallOption) (*ProductsListRespon
 	}
 	return ret, nil
 	// {
-	//   "description": "Finds approved products that match a query, or all approved products if there is no query.",
+	//   "description": "Finds approved products that match a query, or all approved products if there is no query. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations. ",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/products",
 	//   "httpMethod": "GET",
 	//   "id": "androidenterprise.products.list",
@@ -11451,7 +11758,9 @@ type ProductsUnapproveCall struct {
 }
 
 // Unapprove: Unapproves the specified product (and the relevant app
-// permissions, if any)
+// permissions, if any) **Note:** This item has been deprecated. New
+// integrations cannot use this method and can refer to our new
+// recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 // - productId: The ID of the product.
@@ -11520,11 +11829,11 @@ func (c *ProductsUnapproveCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
-	//   "description": "Unapproves the specified product (and the relevant app permissions, if any)",
+	//   "description": "Unapproves the specified product (and the relevant app permissions, if any) **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/products/{productId}/unapprove",
 	//   "httpMethod": "POST",
 	//   "id": "androidenterprise.products.unapprove",
@@ -11638,7 +11947,7 @@ func (c *ServiceaccountkeysDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -11765,17 +12074,17 @@ func (c *ServiceaccountkeysInsertCall) Do(opts ...googleapi.CallOption) (*Servic
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ServiceAccountKey{
 		ServerResponse: googleapi.ServerResponse{
@@ -11917,17 +12226,17 @@ func (c *ServiceaccountkeysListCall) Do(opts ...googleapi.CallOption) (*ServiceA
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ServiceAccountKeysListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12051,7 +12360,7 @@ func (c *StorelayoutclustersDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -12195,17 +12504,17 @@ func (c *StorelayoutclustersGetCall) Do(opts ...googleapi.CallOption) (*StoreClu
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StoreCluster{
 		ServerResponse: googleapi.ServerResponse{
@@ -12351,17 +12660,17 @@ func (c *StorelayoutclustersInsertCall) Do(opts ...googleapi.CallOption) (*Store
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StoreCluster{
 		ServerResponse: googleapi.ServerResponse{
@@ -12510,17 +12819,17 @@ func (c *StorelayoutclustersListCall) Do(opts ...googleapi.CallOption) (*StoreLa
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StoreLayoutClustersListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -12663,17 +12972,17 @@ func (c *StorelayoutclustersUpdateCall) Do(opts ...googleapi.CallOption) (*Store
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StoreCluster{
 		ServerResponse: googleapi.ServerResponse{
@@ -12810,7 +13119,7 @@ func (c *StorelayoutpagesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -12943,17 +13252,17 @@ func (c *StorelayoutpagesGetCall) Do(opts ...googleapi.CallOption) (*StorePage, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StorePage{
 		ServerResponse: googleapi.ServerResponse{
@@ -13088,17 +13397,17 @@ func (c *StorelayoutpagesInsertCall) Do(opts ...googleapi.CallOption) (*StorePag
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StorePage{
 		ServerResponse: googleapi.ServerResponse{
@@ -13236,17 +13545,17 @@ func (c *StorelayoutpagesListCall) Do(opts ...googleapi.CallOption) (*StoreLayou
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StoreLayoutPagesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -13378,17 +13687,17 @@ func (c *StorelayoutpagesUpdateCall) Do(opts ...googleapi.CallOption) (*StorePag
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StorePage{
 		ServerResponse: googleapi.ServerResponse{
@@ -13518,7 +13827,7 @@ func (c *UsersDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -13641,17 +13950,17 @@ func (c *UsersGenerateAuthenticationTokenCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AuthenticationToken{
 		ServerResponse: googleapi.ServerResponse{
@@ -13797,17 +14106,17 @@ func (c *UsersGetCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -13867,7 +14176,9 @@ type UsersGetAvailableProductSetCall struct {
 }
 
 // GetAvailableProductSet: Retrieves the set of products a user is
-// entitled to access.
+// entitled to access. **Note:** This item has been deprecated. New
+// integrations cannot use this method and can refer to our new
+// recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 // - userId: The ID of the user.
@@ -13954,17 +14265,17 @@ func (c *UsersGetAvailableProductSetCall) Do(opts ...googleapi.CallOption) (*Pro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -13978,7 +14289,7 @@ func (c *UsersGetAvailableProductSetCall) Do(opts ...googleapi.CallOption) (*Pro
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves the set of products a user is entitled to access.",
+	//   "description": "Retrieves the set of products a user is entitled to access. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/users/{userId}/availableProductSet",
 	//   "httpMethod": "GET",
 	//   "id": "androidenterprise.users.getAvailableProductSet",
@@ -14103,17 +14414,17 @@ func (c *UsersInsertCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -14256,17 +14567,17 @@ func (c *UsersListCall) Do(opts ...googleapi.CallOption) (*UsersListResponse, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &UsersListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -14396,7 +14707,7 @@ func (c *UsersRevokeDeviceAccessCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -14445,7 +14756,9 @@ type UsersSetAvailableProductSetCall struct {
 // SetAvailableProductSet: Modifies the set of products that a user is
 // entitled to access (referred to as *whitelisted* products). Only
 // products that are approved or products that were previously approved
-// (products with revoked approval) can be whitelisted.
+// (products with revoked approval) can be whitelisted. **Note:** This
+// item has been deprecated. New integrations cannot use this method and
+// can refer to our new recommendations.
 //
 // - enterpriseId: The ID of the enterprise.
 // - userId: The ID of the user.
@@ -14525,17 +14838,17 @@ func (c *UsersSetAvailableProductSetCall) Do(opts ...googleapi.CallOption) (*Pro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ProductSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -14549,7 +14862,7 @@ func (c *UsersSetAvailableProductSetCall) Do(opts ...googleapi.CallOption) (*Pro
 	}
 	return ret, nil
 	// {
-	//   "description": "Modifies the set of products that a user is entitled to access (referred to as *whitelisted* products). Only products that are approved or products that were previously approved (products with revoked approval) can be whitelisted.",
+	//   "description": "Modifies the set of products that a user is entitled to access (referred to as *whitelisted* products). Only products that are approved or products that were previously approved (products with revoked approval) can be whitelisted. **Note:** This item has been deprecated. New integrations cannot use this method and can refer to our new recommendations.",
 	//   "flatPath": "androidenterprise/v1/enterprises/{enterpriseId}/users/{userId}/availableProductSet",
 	//   "httpMethod": "PUT",
 	//   "id": "androidenterprise.users.setAvailableProductSet",
@@ -14681,17 +14994,17 @@ func (c *UsersUpdateCall) Do(opts ...googleapi.CallOption) (*User, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &User{
 		ServerResponse: googleapi.ServerResponse{
@@ -14821,7 +15134,7 @@ func (c *WebappsDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -14954,17 +15267,17 @@ func (c *WebappsGetCall) Do(opts ...googleapi.CallOption) (*WebApp, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -15099,17 +15412,17 @@ func (c *WebappsInsertCall) Do(opts ...googleapi.CallOption) (*WebApp, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebApp{
 		ServerResponse: googleapi.ServerResponse{
@@ -15247,17 +15560,17 @@ func (c *WebappsListCall) Do(opts ...googleapi.CallOption) (*WebAppsListResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebAppsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -15389,17 +15702,17 @@ func (c *WebappsUpdateCall) Do(opts ...googleapi.CallOption) (*WebApp, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WebApp{
 		ServerResponse: googleapi.ServerResponse{

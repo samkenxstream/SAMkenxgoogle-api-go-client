@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://firebase.google.com/docs/storage/security
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/firebaserules/v1"
-//   ...
-//   ctx := context.Background()
-//   firebaserulesService, err := firebaserules.NewService(ctx)
+//	import "google.golang.org/api/firebaserules/v1"
+//	...
+//	ctx := context.Background()
+//	firebaserulesService, err := firebaserules.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   firebaserulesService, err := firebaserules.NewService(ctx, option.WithScopes(firebaserules.FirebaseReadonlyScope))
+//	firebaserulesService, err := firebaserules.NewService(ctx, option.WithScopes(firebaserules.FirebaseReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   firebaserulesService, err := firebaserules.NewService(ctx, option.WithAPIKey("AIza..."))
+//	firebaserulesService, err := firebaserules.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   firebaserulesService, err := firebaserules.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	firebaserulesService, err := firebaserules.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package firebaserules // import "google.golang.org/api/firebaserules/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "firebaserules:v1"
 const apiName = "firebaserules"
@@ -591,7 +592,7 @@ type Release struct {
 	Name string `json:"name,omitempty"`
 
 	// RulesetName: Required. Name of the `Ruleset` referred to by this
-	// `Release`. The `Ruleset` must exist the `Release` to be created.
+	// `Release`. The `Ruleset` must exist for the `Release` to be created.
 	RulesetName string `json:"rulesetName,omitempty"`
 
 	// UpdateTime: Output only. Time the release was updated.
@@ -1155,11 +1156,11 @@ type ProjectsTestCall struct {
 // imageName.matches('*.jpg$')) && resource.mimeType.matches('^image/')
 // } }
 //
-// - name: Tests may either provide `source` or a `Ruleset` resource
-//   name. For tests against `source`, the resource name must refer to
-//   the project: Format: `projects/{project_id}` For tests against a
-//   `Ruleset`, this must be the `Ruleset` resource name: Format:
-//   `projects/{project_id}/rulesets/{ruleset_id}`.
+//   - name: Tests may either provide `source` or a `Ruleset` resource
+//     name. For tests against `source`, the resource name must refer to
+//     the project: Format: `projects/{project_id}` For tests against a
+//     `Ruleset`, this must be the `Ruleset` resource name: Format:
+//     `projects/{project_id}/rulesets/{ruleset_id}`.
 func (r *ProjectsService) Test(name string, testrulesetrequest *TestRulesetRequest) *ProjectsTestCall {
 	c := &ProjectsTestCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1234,17 +1235,17 @@ func (c *ProjectsTestCall) Do(opts ...googleapi.CallOption) (*TestRulesetRespons
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestRulesetResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1318,8 +1319,8 @@ type ProjectsReleasesCreateCall struct {
 // `Ruleset` reference for a `Release` may be updated using the
 // UpdateRelease method.
 //
-// - name: Resource name for the project which owns this `Release`.
-//   Format: `projects/{project_id}`.
+//   - name: Resource name for the project which owns this `Release`.
+//     Format: `projects/{project_id}`.
 func (r *ProjectsReleasesService) Create(name string, release *Release) *ProjectsReleasesCreateCall {
 	c := &ProjectsReleasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1394,17 +1395,17 @@ func (c *ProjectsReleasesCreateCall) Do(opts ...googleapi.CallOption) (*Release,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Release{
 		ServerResponse: googleapi.ServerResponse{
@@ -1461,8 +1462,8 @@ type ProjectsReleasesDeleteCall struct {
 
 // Delete: Delete a `Release` by resource name.
 //
-// - name: Resource name for the `Release` to delete. Format:
-//   `projects/{project_id}/releases/{release_id}`.
+//   - name: Resource name for the `Release` to delete. Format:
+//     `projects/{project_id}/releases/{release_id}`.
 func (r *ProjectsReleasesService) Delete(name string) *ProjectsReleasesDeleteCall {
 	c := &ProjectsReleasesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1531,17 +1532,17 @@ func (c *ProjectsReleasesDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -1596,8 +1597,8 @@ type ProjectsReleasesGetCall struct {
 
 // Get: Get a `Release` by name.
 //
-// - name: Resource name of the `Release`. Format:
-//   `projects/{project_id}/releases/{release_id}`.
+//   - name: Resource name of the `Release`. Format:
+//     `projects/{project_id}/releases/{release_id}`.
 func (r *ProjectsReleasesService) Get(name string) *ProjectsReleasesGetCall {
 	c := &ProjectsReleasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1679,17 +1680,17 @@ func (c *ProjectsReleasesGetCall) Do(opts ...googleapi.CallOption) (*Release, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Release{
 		ServerResponse: googleapi.ServerResponse{
@@ -1746,8 +1747,8 @@ type ProjectsReleasesGetExecutableCall struct {
 // GetExecutable: Get the `Release` executable to use when enforcing
 // rules.
 //
-// - name: Resource name of the `Release`. Format:
-//   `projects/{project_id}/releases/{release_id}`.
+//   - name: Resource name of the `Release`. Format:
+//     `projects/{project_id}/releases/{release_id}`.
 func (r *ProjectsReleasesService) GetExecutable(name string) *ProjectsReleasesGetExecutableCall {
 	c := &ProjectsReleasesGetExecutableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1759,11 +1760,17 @@ func (r *ProjectsReleasesService) GetExecutable(name string) *ProjectsReleasesGe
 // FIREBASE_RULES_EXECUTABLE_V1.
 //
 // Possible values:
-//   "RELEASE_EXECUTABLE_VERSION_UNSPECIFIED" - Executable format
+//
+//	"RELEASE_EXECUTABLE_VERSION_UNSPECIFIED" - Executable format
+//
 // unspecified. Defaults to FIREBASE_RULES_EXECUTABLE_V1
-//   "FIREBASE_RULES_EXECUTABLE_V1" - Firebase Rules syntax 'rules2'
+//
+//	"FIREBASE_RULES_EXECUTABLE_V1" - Firebase Rules syntax 'rules2'
+//
 // executable versions: Custom AST for use with Java clients.
-//   "FIREBASE_RULES_EXECUTABLE_V2" - CEL-based executable for use with
+//
+//	"FIREBASE_RULES_EXECUTABLE_V2" - CEL-based executable for use with
+//
 // C++ clients.
 func (c *ProjectsReleasesGetExecutableCall) ExecutableVersion(executableVersion string) *ProjectsReleasesGetExecutableCall {
 	c.urlParams_.Set("executableVersion", executableVersion)
@@ -1845,17 +1852,17 @@ func (c *ProjectsReleasesGetExecutableCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GetReleaseExecutableResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1928,8 +1935,8 @@ type ProjectsReleasesListCall struct {
 // optionally be filtered by `Release` name, `Ruleset` name, `TestSuite`
 // name, or any combination thereof.
 //
-// - name: Resource name for the project. Format:
-//   `projects/{project_id}`.
+//   - name: Resource name for the project. Format:
+//     `projects/{project_id}`.
 func (r *ProjectsReleasesService) List(name string) *ProjectsReleasesListCall {
 	c := &ProjectsReleasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2048,17 +2055,17 @@ func (c *ProjectsReleasesListCall) Do(opts ...googleapi.CallOption) (*ListReleas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReleasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2153,8 +2160,8 @@ type ProjectsReleasesPatchCall struct {
 // will be honored. `Release` rename is not supported. To create a
 // `Release` use the CreateRelease method.
 //
-// - name: Resource name for the project which owns this `Release`.
-//   Format: `projects/{project_id}`.
+//   - name: Resource name for the project which owns this `Release`.
+//     Format: `projects/{project_id}`.
 func (r *ProjectsReleasesService) Patch(name string, updatereleaserequest *UpdateReleaseRequest) *ProjectsReleasesPatchCall {
 	c := &ProjectsReleasesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2229,17 +2236,17 @@ func (c *ProjectsReleasesPatchCall) Do(opts ...googleapi.CallOption) (*Release, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Release{
 		ServerResponse: googleapi.ServerResponse{
@@ -2301,8 +2308,8 @@ type ProjectsRulesetsCreateCall struct {
 // response indicating the first error encountered. For a detailed view
 // of `Source` issues, use TestRuleset.
 //
-// - name: Resource name for Project which owns this `Ruleset`. Format:
-//   `projects/{project_id}`.
+//   - name: Resource name for Project which owns this `Ruleset`. Format:
+//     `projects/{project_id}`.
 func (r *ProjectsRulesetsService) Create(name string, ruleset *Ruleset) *ProjectsRulesetsCreateCall {
 	c := &ProjectsRulesetsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2377,17 +2384,17 @@ func (c *ProjectsRulesetsCreateCall) Do(opts ...googleapi.CallOption) (*Ruleset,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Ruleset{
 		ServerResponse: googleapi.ServerResponse{
@@ -2445,8 +2452,8 @@ type ProjectsRulesetsDeleteCall struct {
 // Delete: Delete a `Ruleset` by resource name. If the `Ruleset` is
 // referenced by a `Release` the operation will fail.
 //
-// - name: Resource name for the ruleset to delete. Format:
-//   `projects/{project_id}/rulesets/{ruleset_id}`.
+//   - name: Resource name for the ruleset to delete. Format:
+//     `projects/{project_id}/rulesets/{ruleset_id}`.
 func (r *ProjectsRulesetsService) Delete(name string) *ProjectsRulesetsDeleteCall {
 	c := &ProjectsRulesetsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2515,17 +2522,17 @@ func (c *ProjectsRulesetsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2580,8 +2587,8 @@ type ProjectsRulesetsGetCall struct {
 
 // Get: Get a `Ruleset` by name including the full `Source` contents.
 //
-// - name: Resource name for the ruleset to get. Format:
-//   `projects/{project_id}/rulesets/{ruleset_id}`.
+//   - name: Resource name for the ruleset to get. Format:
+//     `projects/{project_id}/rulesets/{ruleset_id}`.
 func (r *ProjectsRulesetsService) Get(name string) *ProjectsRulesetsGetCall {
 	c := &ProjectsRulesetsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2663,17 +2670,17 @@ func (c *ProjectsRulesetsGetCall) Do(opts ...googleapi.CallOption) (*Ruleset, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Ruleset{
 		ServerResponse: googleapi.ServerResponse{
@@ -2731,8 +2738,8 @@ type ProjectsRulesetsListCall struct {
 // by `Ruleset` name. The full `Source` contents of a `Ruleset` may be
 // retrieved with GetRuleset.
 //
-// - name: Resource name for the project. Format:
-//   `projects/{project_id}`.
+//   - name: Resource name for the project. Format:
+//     `projects/{project_id}`.
 func (r *ProjectsRulesetsService) List(name string) *ProjectsRulesetsListCall {
 	c := &ProjectsRulesetsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2841,17 +2848,17 @@ func (c *ProjectsRulesetsListCall) Do(opts ...googleapi.CallOption) (*ListRulese
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListRulesetsResponse{
 		ServerResponse: googleapi.ServerResponse{

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/bid-manager/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/doubleclickbidmanager/v1.1"
-//   ...
-//   ctx := context.Background()
-//   doubleclickbidmanagerService, err := doubleclickbidmanager.NewService(ctx)
+//	import "google.golang.org/api/doubleclickbidmanager/v1.1"
+//	...
+//	ctx := context.Background()
+//	doubleclickbidmanagerService, err := doubleclickbidmanager.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   doubleclickbidmanagerService, err := doubleclickbidmanager.NewService(ctx, option.WithAPIKey("AIza..."))
+//	doubleclickbidmanagerService, err := doubleclickbidmanager.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   doubleclickbidmanagerService, err := doubleclickbidmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	doubleclickbidmanagerService, err := doubleclickbidmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package doubleclickbidmanager // import "google.golang.org/api/doubleclickbidmanager/v1.1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "doubleclickbidmanager:v1.1"
 const apiName = "doubleclickbidmanager"
@@ -552,6 +553,7 @@ type FilterPair struct {
 	//   "FILTER_MEDIA_TYPE"
 	//   "FILTER_AUDIO_FEED_TYPE_NAME"
 	//   "FILTER_TRUEVIEW_TARGETING_EXPANSION"
+	//   "FILTER_PUBLISHER_TRAFFIC_SOURCE"
 	Type string `json:"type,omitempty"`
 
 	// Value: Filter value.
@@ -995,6 +997,7 @@ type Parameters struct {
 	//   "FILTER_MEDIA_TYPE"
 	//   "FILTER_AUDIO_FEED_TYPE_NAME"
 	//   "FILTER_TRUEVIEW_TARGETING_EXPANSION"
+	//   "FILTER_PUBLISHER_TRAFFIC_SOURCE"
 	GroupBys []string `json:"groupBys,omitempty"`
 
 	// IncludeInviteData: Deprecated. This field is no longer in use.
@@ -1494,6 +1497,18 @@ type Parameters struct {
 	//   "METRIC_WIN_LOSS_LINEITEM_TARGETED_IMPRESSIONS"
 	//   "METRIC_VERIFICATION_VIDEO_PLAYER_SIZE_MEASURABLE_IMPRESSIONS"
 	//   "METRIC_TRUEVIEW_ALL_AD_SEQUENCE_IMPRESSIONS"
+	//   "METRIC_IMPRESSIONS_COVIEWED"
+	//   "METRIC_UNIQUE_REACH_IMPRESSION_REACH_COVIEWED"
+	//   "METRIC_UNIQUE_REACH_TOTAL_REACH_COVIEWED"
+	//   "METRIC_UNIQUE_REACH_AVERAGE_IMPRESSION_FREQUENCY_COVIEWED"
+	//   "METRIC_GRP_CORRECTED_IMPRESSIONS_COVIEWED"
+	//   "METRIC_VIRTUAL_PEOPLE_IMPRESSION_REACH_BY_DEMO_COVIEWED"
+	//
+	// "METRIC_VIRTUAL_PEOPLE_AVERAGE_IMPRESSION_FREQUENCY_BY_DEMO_COVIEWED"
+	//   "METRIC_TARGET_RATING_POINTS_COVIEWED"
+	//   "METRIC_DEMO_COMPOSITION_IMPRESSION_COVIEWED"
+	//   "METRIC_VIRTUAL_PEOPLE_IMPRESSION_REACH_SHARE_PERCENT_COVIEWED"
+	//   "METRIC_VIRTUAL_PEOPLE_IMPRESSION_REACH_PERCENT_COVIEWED"
 	Metrics []string `json:"metrics,omitempty"`
 
 	// Options: Additional query options.
@@ -1934,6 +1949,7 @@ type PathQueryOptionsFilter struct {
 	//   "FILTER_MEDIA_TYPE"
 	//   "FILTER_AUDIO_FEED_TYPE_NAME"
 	//   "FILTER_TRUEVIEW_TARGETING_EXPANSION"
+	//   "FILTER_PUBLISHER_TRAFFIC_SOURCE"
 	Filter string `json:"filter,omitempty"`
 
 	// Match: Indicates how the filter should be matched to the value.
@@ -2573,17 +2589,17 @@ func (c *QueriesCreatequeryCall) Do(opts ...googleapi.CallOption) (*Query, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Query{
 		ServerResponse: googleapi.ServerResponse{
@@ -2701,7 +2717,7 @@ func (c *QueriesDeletequeryCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -2824,17 +2840,17 @@ func (c *QueriesGetqueryCall) Do(opts ...googleapi.CallOption) (*Query, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Query{
 		ServerResponse: googleapi.ServerResponse{
@@ -2978,17 +2994,17 @@ func (c *QueriesListqueriesCall) Do(opts ...googleapi.CallOption) (*ListQueriesR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListQueriesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3142,7 +3158,7 @@ func (c *QueriesRunqueryCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -3289,17 +3305,17 @@ func (c *ReportsListreportsCall) Do(opts ...googleapi.CallOption) (*ListReportsR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReportsResponse{
 		ServerResponse: googleapi.ServerResponse{

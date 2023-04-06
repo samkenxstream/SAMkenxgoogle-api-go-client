@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/zero-touch/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/androiddeviceprovisioning/v1"
-//   ...
-//   ctx := context.Background()
-//   androiddeviceprovisioningService, err := androiddeviceprovisioning.NewService(ctx)
+//	import "google.golang.org/api/androiddeviceprovisioning/v1"
+//	...
+//	ctx := context.Background()
+//	androiddeviceprovisioningService, err := androiddeviceprovisioning.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   androiddeviceprovisioningService, err := androiddeviceprovisioning.NewService(ctx, option.WithAPIKey("AIza..."))
+//	androiddeviceprovisioningService, err := androiddeviceprovisioning.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   androiddeviceprovisioningService, err := androiddeviceprovisioning.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	androiddeviceprovisioningService, err := androiddeviceprovisioning.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package androiddeviceprovisioning // import "google.golang.org/api/androiddeviceprovisioning/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "androiddeviceprovisioning:v1"
 const apiName = "androiddeviceprovisioning"
@@ -245,8 +246,8 @@ type PartnersVendorsCustomersService struct {
 // ClaimDeviceRequest: Request message to claim a device on behalf of a
 // customer.
 type ClaimDeviceRequest struct {
-	// CustomerId: Required. The ID of the customer for whom the device is
-	// being claimed.
+	// CustomerId: The ID of the customer for whom the device is being
+	// claimed.
 	CustomerId int64 `json:"customerId,omitempty,string"`
 
 	// DeviceIdentifier: Required. Required. The device identifier of the
@@ -256,6 +257,13 @@ type ClaimDeviceRequest struct {
 	// DeviceMetadata: Optional. The metadata to attach to the device.
 	DeviceMetadata *DeviceMetadata `json:"deviceMetadata,omitempty"`
 
+	// GoogleWorkspaceCustomerId: The Google Workspace customer ID.
+	GoogleWorkspaceCustomerId string `json:"googleWorkspaceCustomerId,omitempty"`
+
+	// PreProvisioningToken: Optional. Must and can only be set for Chrome
+	// OS devices.
+	PreProvisioningToken string `json:"preProvisioningToken,omitempty"`
+
 	// SectionType: Required. The section type of the device's provisioning
 	// record.
 	//
@@ -264,6 +272,11 @@ type ClaimDeviceRequest struct {
 	//   "SECTION_TYPE_SIM_LOCK" - SIM-lock section type.
 	//   "SECTION_TYPE_ZERO_TOUCH" - Zero-touch enrollment section type.
 	SectionType string `json:"sectionType,omitempty"`
+
+	// SimlockProfileId: Optional. Must and can only be set when
+	// DeviceProvisioningSectionType is SECTION_TYPE_SIM_LOCK. The unique
+	// identifier of the SimLock profile.
+	SimlockProfileId int64 `json:"simlockProfileId,omitempty,string"`
 
 	// ForceSendFields is a list of field names (e.g. "CustomerId") to
 	// unconditionally include in API requests. By default, fields with
@@ -370,6 +383,10 @@ type Company struct {
 	// Corp_. Displayed to the company's employees in the zero-touch
 	// enrollment portal.
 	CompanyName string `json:"companyName,omitempty"`
+
+	// GoogleWorkspaceAccount: Output only. The Google Workspace account
+	// associated with this customer. Only used for customer Companies.
+	GoogleWorkspaceAccount *GoogleWorkspaceAccount `json:"googleWorkspaceAccount,omitempty"`
 
 	// LanguageCode: Input only. The preferred locale of the customer
 	// represented as a BCP47 language code. This field is validated on
@@ -806,7 +823,8 @@ func (s *CustomerUnclaimDeviceRequest) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Device: An Android device registered for zero-touch enrollment.
+// Device: An Android or Chrome OS device registered for zero-touch
+// enrollment.
 type Device struct {
 	// Claims: Output only. The provisioning claims for a device. Devices
 	// claimed for zero-touch enrollment have a claim with the type
@@ -876,6 +894,10 @@ type DeviceClaim struct {
 	// protection service you must enroll with the partnership team.
 	AdditionalService string `json:"additionalService,omitempty"`
 
+	// GoogleWorkspaceCustomerId: The ID of the Google Workspace account
+	// that owns the Chrome OS device.
+	GoogleWorkspaceCustomerId string `json:"googleWorkspaceCustomerId,omitempty"`
+
 	// OwnerCompanyId: The ID of the Customer that purchased the device.
 	OwnerCompanyId int64 `json:"ownerCompanyId,omitempty,string"`
 
@@ -929,41 +951,57 @@ func (s *DeviceClaim) MarshalJSON() ([]byte, error) {
 // read Identifiers
 // (https://developers.google.com/zero-touch/guides/identifiers).
 type DeviceIdentifier struct {
+	// ChromeOsAttestedDeviceId: An identifier provided by OEMs, carried
+	// through the production and sales process. Only applicable to Chrome
+	// OS devices.
+	ChromeOsAttestedDeviceId string `json:"chromeOsAttestedDeviceId,omitempty"`
+
+	// DeviceType: The type of the device
+	//
+	// Possible values:
+	//   "DEVICE_TYPE_UNSPECIFIED" - Device type is not specified.
+	//   "DEVICE_TYPE_ANDROID" - Android device
+	//   "DEVICE_TYPE_CHROME_OS" - Chrome OS device
+	DeviceType string `json:"deviceType,omitempty"`
+
 	// Imei: The device’s IMEI number. Validated on input.
 	Imei string `json:"imei,omitempty"`
 
 	// Manufacturer: The device manufacturer’s name. Matches the device's
 	// built-in value returned from `android.os.Build.MANUFACTURER`. Allowed
-	// values are listed in manufacturers
+	// values are listed in Android manufacturers
 	// (/zero-touch/resources/manufacturer-names#manufacturers-names).
 	Manufacturer string `json:"manufacturer,omitempty"`
 
 	// Meid: The device’s MEID number.
 	Meid string `json:"meid,omitempty"`
 
-	// Model: The device model's name. Matches the device's built-in value
-	// returned from `android.os.Build.MODEL`. Allowed values are listed in
-	// models (/zero-touch/resources/manufacturer-names#model-names).
+	// Model: The device model's name. Allowed values are listed in Android
+	// models (/zero-touch/resources/manufacturer-names#model-names) and
+	// Chrome OS models
+	// (https://support.google.com/chrome/a/answer/10130175#identify_compatible).
 	Model string `json:"model,omitempty"`
 
 	// SerialNumber: The manufacturer's serial number for the device. This
 	// value might not be unique across different device models.
 	SerialNumber string `json:"serialNumber,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Imei") to
-	// unconditionally include in API requests. By default, fields with
-	// empty or default values are omitted from API requests. However, any
-	// non-pointer, non-interface field appearing in ForceSendFields will be
-	// sent to the server regardless of whether the field is empty or not.
-	// This may be used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "ChromeOsAttestedDeviceId") to unconditionally include in API
+	// requests. By default, fields with empty or default values are omitted
+	// from API requests. However, any non-pointer, non-interface field
+	// appearing in ForceSendFields will be sent to the server regardless of
+	// whether the field is empty or not. This may be used to include empty
+	// fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Imei") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "ChromeOsAttestedDeviceId")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -1068,8 +1106,8 @@ type DevicesLongRunningOperationMetadata struct {
 	ProcessingStatus string `json:"processingStatus,omitempty"`
 
 	// Progress: The processing progress of the operation. Measured as a
-	// number from 0 to 100. A value of 10O doesnt always mean the operation
-	// completed—check for the inclusion of a `done` field.
+	// number from 0 to 100. A value of 10O doesn't always mean the
+	// operation completed—check for the inclusion of a `done` field.
 	Progress int64 `json:"progress,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DevicesCount") to
@@ -1270,8 +1308,12 @@ func (s *FindDevicesByDeviceIdentifierResponse) MarshalJSON() ([]byte, error) {
 
 // FindDevicesByOwnerRequest: Request to find devices by customers.
 type FindDevicesByOwnerRequest struct {
-	// CustomerId: Required. The list of customer IDs to search for.
+	// CustomerId: The list of customer IDs to search for.
 	CustomerId googleapi.Int64s `json:"customerId,omitempty"`
+
+	// GoogleWorkspaceCustomerId: The list of IDs of Google Workspace
+	// accounts to search for.
+	GoogleWorkspaceCustomerId []string `json:"googleWorkspaceCustomerId,omitempty"`
 
 	// Limit: Required. The maximum number of devices to show in a page of
 	// results. Must be between 1 and 100 inclusive.
@@ -1348,6 +1390,38 @@ type FindDevicesByOwnerResponse struct {
 
 func (s *FindDevicesByOwnerResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod FindDevicesByOwnerResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleWorkspaceAccount: A Google Workspace customer.
+type GoogleWorkspaceAccount struct {
+	// CustomerId: Required. The customer ID.
+	CustomerId string `json:"customerId,omitempty"`
+
+	// PreProvisioningTokens: Output only. The pre-provisioning tokens
+	// previously used to claim devices.
+	PreProvisioningTokens []string `json:"preProvisioningTokens,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CustomerId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CustomerId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleWorkspaceAccount) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleWorkspaceAccount
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1575,8 +1649,8 @@ func (s *OperationPerDevice) MarshalJSON() ([]byte, error) {
 
 // PartnerClaim: Identifies one claim request.
 type PartnerClaim struct {
-	// CustomerId: Required. The ID of the customer for whom the device is
-	// being claimed.
+	// CustomerId: The ID of the customer for whom the device is being
+	// claimed.
 	CustomerId int64 `json:"customerId,omitempty,string"`
 
 	// DeviceIdentifier: Required. Required. Device identifier of the
@@ -1587,6 +1661,13 @@ type PartnerClaim struct {
 	// claim.
 	DeviceMetadata *DeviceMetadata `json:"deviceMetadata,omitempty"`
 
+	// GoogleWorkspaceCustomerId: The Google Workspace customer ID.
+	GoogleWorkspaceCustomerId string `json:"googleWorkspaceCustomerId,omitempty"`
+
+	// PreProvisioningToken: Optional. Must and can only be set for Chrome
+	// OS devices.
+	PreProvisioningToken string `json:"preProvisioningToken,omitempty"`
+
 	// SectionType: Required. The section type of the device's provisioning
 	// record.
 	//
@@ -1595,6 +1676,11 @@ type PartnerClaim struct {
 	//   "SECTION_TYPE_SIM_LOCK" - SIM-lock section type.
 	//   "SECTION_TYPE_ZERO_TOUCH" - Zero-touch enrollment section type.
 	SectionType string `json:"sectionType,omitempty"`
+
+	// SimlockProfileId: Optional. Must and can only be set when
+	// DeviceProvisioningSectionType is SECTION_TYPE_SIM_LOCK. The unique
+	// identifier of the SimLock profile.
+	SimlockProfileId int64 `json:"simlockProfileId,omitempty,string"`
 
 	// ForceSendFields is a list of field names (e.g. "CustomerId") to
 	// unconditionally include in API requests. By default, fields with
@@ -1697,6 +1783,10 @@ type PerDeviceStatusInBatch struct {
 	//   "SINGLE_DEVICE_STATUS_INVALID_SECTION_TYPE" - Invalid section type.
 	//   "SINGLE_DEVICE_STATUS_SECTION_NOT_YOURS" - This section is claimed
 	// by another company.
+	//   "SINGLE_DEVICE_STATUS_INVALID_TOKEN" - Invalid pre-provisioning
+	// token.
+	//   "SINGLE_DEVICE_STATUS_REVOKED_TOKEN" - Revoked pre-provisioning
+	// token.
 	Status string `json:"status,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "DeviceId") to
@@ -2039,17 +2129,17 @@ func (c *CustomersListCall) Do(opts ...googleapi.CallOption) (*CustomerListCusto
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomerListCustomersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2124,9 +2214,9 @@ type CustomersConfigurationsCreateCall struct {
 // Create: Creates a new configuration. Once created, a customer can
 // apply the configuration to devices.
 //
-// - parent: The customer that manages the configuration. An API
-//   resource name in the format `customers/[CUSTOMER_ID]`. This field
-//   has custom validation in CreateConfigurationRequestValidator.
+//   - parent: The customer that manages the configuration. An API
+//     resource name in the format `customers/[CUSTOMER_ID]`. This field
+//     has custom validation in CreateConfigurationRequestValidator.
 func (r *CustomersConfigurationsService) Create(parent string, configuration *Configuration) *CustomersConfigurationsCreateCall {
 	c := &CustomersConfigurationsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2201,17 +2291,17 @@ func (c *CustomersConfigurationsCreateCall) Do(opts ...googleapi.CallOption) (*C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Configuration{
 		ServerResponse: googleapi.ServerResponse{
@@ -2265,9 +2355,9 @@ type CustomersConfigurationsDeleteCall struct {
 // Delete: Deletes an unused configuration. The API call fails if the
 // customer has devices with the configuration applied.
 //
-// - name: The configuration to delete. An API resource name in the
-//   format `customers/[CUSTOMER_ID]/configurations/[CONFIGURATION_ID]`.
-//   If the configuration is applied to any devices, the API call fails.
+//   - name: The configuration to delete. An API resource name in the
+//     format `customers/[CUSTOMER_ID]/configurations/[CONFIGURATION_ID]`.
+//     If the configuration is applied to any devices, the API call fails.
 func (r *CustomersConfigurationsService) Delete(name string) *CustomersConfigurationsDeleteCall {
 	c := &CustomersConfigurationsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2336,17 +2426,17 @@ func (c *CustomersConfigurationsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2397,8 +2487,8 @@ type CustomersConfigurationsGetCall struct {
 
 // Get: Gets the details of a configuration.
 //
-// - name: The configuration to get. An API resource name in the format
-//   `customers/[CUSTOMER_ID]/configurations/[CONFIGURATION_ID]`.
+//   - name: The configuration to get. An API resource name in the format
+//     `customers/[CUSTOMER_ID]/configurations/[CONFIGURATION_ID]`.
 func (r *CustomersConfigurationsService) Get(name string) *CustomersConfigurationsGetCall {
 	c := &CustomersConfigurationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2480,17 +2570,17 @@ func (c *CustomersConfigurationsGetCall) Do(opts ...googleapi.CallOption) (*Conf
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Configuration{
 		ServerResponse: googleapi.ServerResponse{
@@ -2541,8 +2631,8 @@ type CustomersConfigurationsListCall struct {
 
 // List: Lists a customer's configurations.
 //
-// - parent: The customer that manages the listed configurations. An API
-//   resource name in the format `customers/[CUSTOMER_ID]`.
+//   - parent: The customer that manages the listed configurations. An API
+//     resource name in the format `customers/[CUSTOMER_ID]`.
 func (r *CustomersConfigurationsService) List(parent string) *CustomersConfigurationsListCall {
 	c := &CustomersConfigurationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2625,17 +2715,17 @@ func (c *CustomersConfigurationsListCall) Do(opts ...googleapi.CallOption) (*Cus
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomerListConfigurationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2686,9 +2776,9 @@ type CustomersConfigurationsPatchCall struct {
 
 // Patch: Updates a configuration's field values.
 //
-// - name: Output only. The API resource name in the format
-//   `customers/[CUSTOMER_ID]/configurations/[CONFIGURATION_ID]`.
-//   Assigned by the server.
+//   - name: Output only. The API resource name in the format
+//     `customers/[CUSTOMER_ID]/configurations/[CONFIGURATION_ID]`.
+//     Assigned by the server.
 func (r *CustomersConfigurationsService) Patch(name string, configuration *Configuration) *CustomersConfigurationsPatchCall {
 	c := &CustomersConfigurationsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2773,17 +2863,17 @@ func (c *CustomersConfigurationsPatchCall) Do(opts ...googleapi.CallOption) (*Co
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Configuration{
 		ServerResponse: googleapi.ServerResponse{
@@ -2846,8 +2936,8 @@ type CustomersDevicesApplyConfigurationCall struct {
 // to a device, the device automatically provisions itself on first
 // boot, or next factory reset.
 //
-// - parent: The customer managing the device. An API resource name in
-//   the format `customers/[CUSTOMER_ID]`.
+//   - parent: The customer managing the device. An API resource name in
+//     the format `customers/[CUSTOMER_ID]`.
 func (r *CustomersDevicesService) ApplyConfiguration(parent string, customerapplyconfigurationrequest *CustomerApplyConfigurationRequest) *CustomersDevicesApplyConfigurationCall {
 	c := &CustomersDevicesApplyConfigurationCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2922,17 +3012,17 @@ func (c *CustomersDevicesApplyConfigurationCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2986,8 +3076,8 @@ type CustomersDevicesGetCall struct {
 
 // Get: Gets the details of a device.
 //
-// - name: The device to get. An API resource name in the format
-//   `customers/[CUSTOMER_ID]/devices/[DEVICE_ID]`.
+//   - name: The device to get. An API resource name in the format
+//     `customers/[CUSTOMER_ID]/devices/[DEVICE_ID]`.
 func (r *CustomersDevicesService) Get(name string) *CustomersDevicesGetCall {
 	c := &CustomersDevicesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3069,17 +3159,17 @@ func (c *CustomersDevicesGetCall) Do(opts ...googleapi.CallOption) (*Device, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Device{
 		ServerResponse: googleapi.ServerResponse{
@@ -3130,8 +3220,8 @@ type CustomersDevicesListCall struct {
 
 // List: Lists a customer's devices.
 //
-// - parent: The customer managing the devices. An API resource name in
-//   the format `customers/[CUSTOMER_ID]`.
+//   - parent: The customer managing the devices. An API resource name in
+//     the format `customers/[CUSTOMER_ID]`.
 func (r *CustomersDevicesService) List(parent string) *CustomersDevicesListCall {
 	c := &CustomersDevicesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3228,17 +3318,17 @@ func (c *CustomersDevicesListCall) Do(opts ...googleapi.CallOption) (*CustomerLi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomerListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3321,8 +3411,8 @@ type CustomersDevicesRemoveConfigurationCall struct {
 
 // RemoveConfiguration: Removes a configuration from device.
 //
-// - parent: The customer managing the device in the format
-//   `customers/[CUSTOMER_ID]`.
+//   - parent: The customer managing the device in the format
+//     `customers/[CUSTOMER_ID]`.
 func (r *CustomersDevicesService) RemoveConfiguration(parent string, customerremoveconfigurationrequest *CustomerRemoveConfigurationRequest) *CustomersDevicesRemoveConfigurationCall {
 	c := &CustomersDevicesRemoveConfigurationCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3397,17 +3487,17 @@ func (c *CustomersDevicesRemoveConfigurationCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3464,8 +3554,8 @@ type CustomersDevicesUnclaimCall struct {
 // contact their reseller to register the device into zero-touch
 // enrollment again.
 //
-// - parent: The customer managing the device. An API resource name in
-//   the format `customers/[CUSTOMER_ID]`.
+//   - parent: The customer managing the device. An API resource name in
+//     the format `customers/[CUSTOMER_ID]`.
 func (r *CustomersDevicesService) Unclaim(parent string, customerunclaimdevicerequest *CustomerUnclaimDeviceRequest) *CustomersDevicesUnclaimCall {
 	c := &CustomersDevicesUnclaimCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3540,17 +3630,17 @@ func (c *CustomersDevicesUnclaimCall) Do(opts ...googleapi.CallOption) (*Empty, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3605,8 +3695,8 @@ type CustomersDpcsListCall struct {
 // List: Lists the DPCs (device policy controllers) that support
 // zero-touch enrollment.
 //
-// - parent: The customer that can use the DPCs in configurations. An
-//   API resource name in the format `customers/[CUSTOMER_ID]`.
+//   - parent: The customer that can use the DPCs in configurations. An
+//     API resource name in the format `customers/[CUSTOMER_ID]`.
 func (r *CustomersDpcsService) List(parent string) *CustomersDpcsListCall {
 	c := &CustomersDpcsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3688,17 +3778,17 @@ func (c *CustomersDpcsListCall) Do(opts ...googleapi.CallOption) (*CustomerListD
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CustomerListDpcsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3833,17 +3923,17 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3898,8 +3988,8 @@ type PartnersCustomersCreateCall struct {
 // enrollment portal. The customer receives an email that welcomes them
 // to zero-touch enrollment and explains how to sign into the portal.
 //
-// - parent: The parent resource ID in the format
-//   `partners/[PARTNER_ID]` that identifies the reseller.
+//   - parent: The parent resource ID in the format
+//     `partners/[PARTNER_ID]` that identifies the reseller.
 func (r *PartnersCustomersService) Create(parent string, createcustomerrequest *CreateCustomerRequest) *PartnersCustomersCreateCall {
 	c := &PartnersCustomersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3974,17 +4064,17 @@ func (c *PartnersCustomersCreateCall) Do(opts ...googleapi.CallOption) (*Company
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Company{
 		ServerResponse: googleapi.ServerResponse{
@@ -4138,17 +4228,17 @@ func (c *PartnersCustomersListCall) Do(opts ...googleapi.CallOption) (*ListCusto
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCustomersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4309,17 +4399,17 @@ func (c *PartnersDevicesClaimCall) Do(opts ...googleapi.CallOption) (*ClaimDevic
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ClaimDeviceResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4452,17 +4542,17 @@ func (c *PartnersDevicesClaimAsyncCall) Do(opts ...googleapi.CallOption) (*Opera
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4594,17 +4684,17 @@ func (c *PartnersDevicesFindByIdentifierCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FindDevicesByDeviceIdentifierResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4758,17 +4848,17 @@ func (c *PartnersDevicesFindByOwnerCall) Do(opts ...googleapi.CallOption) (*Find
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FindDevicesByOwnerResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4844,8 +4934,8 @@ type PartnersDevicesGetCall struct {
 
 // Get: Gets a device.
 //
-// - name: The device API resource name in the format
-//   `partners/[PARTNER_ID]/devices/[DEVICE_ID]`.
+//   - name: The device API resource name in the format
+//     `partners/[PARTNER_ID]/devices/[DEVICE_ID]`.
 func (r *PartnersDevicesService) Get(name string) *PartnersDevicesGetCall {
 	c := &PartnersDevicesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4927,17 +5017,17 @@ func (c *PartnersDevicesGetCall) Do(opts ...googleapi.CallOption) (*Device, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Device{
 		ServerResponse: googleapi.ServerResponse{
@@ -4988,10 +5078,11 @@ type PartnersDevicesMetadataCall struct {
 }
 
 // Metadata: Updates reseller metadata associated with the device.
+// Android devices only.
 //
-// - deviceId: The ID of the device.
-// - metadataOwnerId: The owner of the newly set metadata. Set this to
-//   the partner ID.
+//   - deviceId: The ID of the device.
+//   - metadataOwnerId: The owner of the newly set metadata. Set this to
+//     the partner ID.
 func (r *PartnersDevicesService) Metadata(metadataOwnerId int64, deviceId int64, updatedevicemetadatarequest *UpdateDeviceMetadataRequest) *PartnersDevicesMetadataCall {
 	c := &PartnersDevicesMetadataCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.metadataOwnerId = metadataOwnerId
@@ -5068,17 +5159,17 @@ func (c *PartnersDevicesMetadataCall) Do(opts ...googleapi.CallOption) (*DeviceM
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DeviceMetadata{
 		ServerResponse: googleapi.ServerResponse{
@@ -5092,7 +5183,7 @@ func (c *PartnersDevicesMetadataCall) Do(opts ...googleapi.CallOption) (*DeviceM
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates reseller metadata associated with the device.",
+	//   "description": "Updates reseller metadata associated with the device. Android devices only.",
 	//   "flatPath": "v1/partners/{partnersId}/devices/{devicesId}/metadata",
 	//   "httpMethod": "POST",
 	//   "id": "androiddeviceprovisioning.partners.devices.metadata",
@@ -5218,17 +5309,17 @@ func (c *PartnersDevicesUnclaimCall) Do(opts ...googleapi.CallOption) (*Empty, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5361,17 +5452,17 @@ func (c *PartnersDevicesUnclaimAsyncCall) Do(opts ...googleapi.CallOption) (*Ope
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5428,7 +5519,7 @@ type PartnersDevicesUpdateMetadataAsyncCall struct {
 // batch of devices. This method updates devices asynchronously and
 // returns an `Operation` that can be used to track progress. Read
 // Long‑running batch operations
-// (/zero-touch/guides/how-it-works#operations).
+// (/zero-touch/guides/how-it-works#operations). Android Devices only.
 //
 // - partnerId: The reseller partner ID.
 func (r *PartnersDevicesService) UpdateMetadataAsync(partnerId int64, updatedevicemetadatainbatchrequest *UpdateDeviceMetadataInBatchRequest) *PartnersDevicesUpdateMetadataAsyncCall {
@@ -5505,17 +5596,17 @@ func (c *PartnersDevicesUpdateMetadataAsyncCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5529,7 +5620,7 @@ func (c *PartnersDevicesUpdateMetadataAsyncCall) Do(opts ...googleapi.CallOption
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates the reseller metadata attached to a batch of devices. This method updates devices asynchronously and returns an `Operation` that can be used to track progress. Read [Long‑running batch operations](/zero-touch/guides/how-it-works#operations).",
+	//   "description": "Updates the reseller metadata attached to a batch of devices. This method updates devices asynchronously and returns an `Operation` that can be used to track progress. Read [Long‑running batch operations](/zero-touch/guides/how-it-works#operations). Android Devices only.",
 	//   "flatPath": "v1/partners/{partnersId}/devices:updateMetadataAsync",
 	//   "httpMethod": "POST",
 	//   "id": "androiddeviceprovisioning.partners.devices.updateMetadataAsync",
@@ -5666,17 +5757,17 @@ func (c *PartnersVendorsListCall) Do(opts ...googleapi.CallOption) (*ListVendors
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVendorsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5759,8 +5850,8 @@ type PartnersVendorsCustomersListCall struct {
 
 // List: Lists the customers of the vendor.
 //
-// - parent: The resource name in the format
-//   `partners/[PARTNER_ID]/vendors/[VENDOR_ID]`.
+//   - parent: The resource name in the format
+//     `partners/[PARTNER_ID]/vendors/[VENDOR_ID]`.
 func (r *PartnersVendorsCustomersService) List(parent string) *PartnersVendorsCustomersListCall {
 	c := &PartnersVendorsCustomersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5856,17 +5947,17 @@ func (c *PartnersVendorsCustomersListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVendorCustomersResponse{
 		ServerResponse: googleapi.ServerResponse{

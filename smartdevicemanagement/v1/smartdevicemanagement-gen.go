@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,31 @@
 //
 // For product documentation, see: https://developers.google.com/nest/device-access
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/smartdevicemanagement/v1"
-//   ...
-//   ctx := context.Background()
-//   smartdevicemanagementService, err := smartdevicemanagement.NewService(ctx)
+//	import "google.golang.org/api/smartdevicemanagement/v1"
+//	...
+//	ctx := context.Background()
+//	smartdevicemanagementService, err := smartdevicemanagement.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
-//
-// By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
-//
-//   smartdevicemanagementService, err := smartdevicemanagement.NewService(ctx, option.WithScopes(smartdevicemanagement.SdmThermostatServiceScope))
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   smartdevicemanagementService, err := smartdevicemanagement.NewService(ctx, option.WithAPIKey("AIza..."))
+//	smartdevicemanagementService, err := smartdevicemanagement.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   smartdevicemanagementService, err := smartdevicemanagement.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	smartdevicemanagementService, err := smartdevicemanagement.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package smartdevicemanagement // import "google.golang.org/api/smartdevicemanagement/v1"
@@ -75,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "smartdevicemanagement:v1"
 const apiName = "smartdevicemanagement"
@@ -86,16 +83,12 @@ const mtlsBasePath = "https://smartdevicemanagement.mtls.googleapis.com/"
 const (
 	// See and/or control the devices that you selected
 	SdmServiceScope = "https://www.googleapis.com/auth/sdm.service"
-
-	// See and control the Nest thermostats that you select
-	SdmThermostatServiceScope = "https://www.googleapis.com/auth/sdm.thermostat.service"
 )
 
 // NewService creates a new Service.
 func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, error) {
 	scopesOption := internaloption.WithDefaultScopes(
 		"https://www.googleapis.com/auth/sdm.service",
-		"https://www.googleapis.com/auth/sdm.thermostat.service",
 	)
 	// NOTE: prepend, so we don't override user-specified scopes.
 	opts = append([]option.ClientOption{scopesOption}, opts...)
@@ -538,8 +531,8 @@ type EnterprisesDevicesExecuteCommandCall struct {
 // ExecuteCommand: Executes a command to device managed by the
 // enterprise.
 //
-// - name: The name of the device requested. For example:
-//   "enterprises/XYZ/devices/123".
+//   - name: The name of the device requested. For example:
+//     "enterprises/XYZ/devices/123".
 func (r *EnterprisesDevicesService) ExecuteCommand(name string, googlehomeenterprisesdmv1executedevicecommandrequest *GoogleHomeEnterpriseSdmV1ExecuteDeviceCommandRequest) *EnterprisesDevicesExecuteCommandCall {
 	c := &EnterprisesDevicesExecuteCommandCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -616,17 +609,17 @@ func (c *EnterprisesDevicesExecuteCommandCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleHomeEnterpriseSdmV1ExecuteDeviceCommandResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -664,8 +657,7 @@ func (c *EnterprisesDevicesExecuteCommandCall) Do(opts ...googleapi.CallOption) 
 	//     "$ref": "GoogleHomeEnterpriseSdmV1ExecuteDeviceCommandResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/sdm.service",
-	//     "https://www.googleapis.com/auth/sdm.thermostat.service"
+	//     "https://www.googleapis.com/auth/sdm.service"
 	//   ]
 	// }
 
@@ -684,8 +676,8 @@ type EnterprisesDevicesGetCall struct {
 
 // Get: Gets a device managed by the enterprise.
 //
-// - name: The name of the device requested. For example:
-//   "enterprises/XYZ/devices/123".
+//   - name: The name of the device requested. For example:
+//     "enterprises/XYZ/devices/123".
 func (r *EnterprisesDevicesService) Get(name string) *EnterprisesDevicesGetCall {
 	c := &EnterprisesDevicesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -767,17 +759,17 @@ func (c *EnterprisesDevicesGetCall) Do(opts ...googleapi.CallOption) (*GoogleHom
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleHomeEnterpriseSdmV1Device{
 		ServerResponse: googleapi.ServerResponse{
@@ -812,8 +804,7 @@ func (c *EnterprisesDevicesGetCall) Do(opts ...googleapi.CallOption) (*GoogleHom
 	//     "$ref": "GoogleHomeEnterpriseSdmV1Device"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/sdm.service",
-	//     "https://www.googleapis.com/auth/sdm.thermostat.service"
+	//     "https://www.googleapis.com/auth/sdm.service"
 	//   ]
 	// }
 
@@ -832,8 +823,8 @@ type EnterprisesDevicesListCall struct {
 
 // List: Lists devices managed by the enterprise.
 //
-// - parent: The parent enterprise to list devices under. E.g.
-//   "enterprises/XYZ".
+//   - parent: The parent enterprise to list devices under. E.g.
+//     "enterprises/XYZ".
 func (r *EnterprisesDevicesService) List(parent string) *EnterprisesDevicesListCall {
 	c := &EnterprisesDevicesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -940,17 +931,17 @@ func (c *EnterprisesDevicesListCall) Do(opts ...googleapi.CallOption) (*GoogleHo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleHomeEnterpriseSdmV1ListDevicesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1001,8 +992,7 @@ func (c *EnterprisesDevicesListCall) Do(opts ...googleapi.CallOption) (*GoogleHo
 	//     "$ref": "GoogleHomeEnterpriseSdmV1ListDevicesResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/sdm.service",
-	//     "https://www.googleapis.com/auth/sdm.thermostat.service"
+	//     "https://www.googleapis.com/auth/sdm.service"
 	//   ]
 	// }
 
@@ -1042,8 +1032,8 @@ type EnterprisesStructuresGetCall struct {
 
 // Get: Gets a structure managed by the enterprise.
 //
-// - name: The name of the structure requested. For example:
-//   "enterprises/XYZ/structures/ABC".
+//   - name: The name of the structure requested. For example:
+//     "enterprises/XYZ/structures/ABC".
 func (r *EnterprisesStructuresService) Get(name string) *EnterprisesStructuresGetCall {
 	c := &EnterprisesStructuresGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1126,17 +1116,17 @@ func (c *EnterprisesStructuresGetCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleHomeEnterpriseSdmV1Structure{
 		ServerResponse: googleapi.ServerResponse{
@@ -1171,8 +1161,7 @@ func (c *EnterprisesStructuresGetCall) Do(opts ...googleapi.CallOption) (*Google
 	//     "$ref": "GoogleHomeEnterpriseSdmV1Structure"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/sdm.service",
-	//     "https://www.googleapis.com/auth/sdm.thermostat.service"
+	//     "https://www.googleapis.com/auth/sdm.service"
 	//   ]
 	// }
 
@@ -1191,8 +1180,8 @@ type EnterprisesStructuresListCall struct {
 
 // List: Lists structures managed by the enterprise.
 //
-// - parent: The parent enterprise to list structures under. E.g.
-//   "enterprises/XYZ".
+//   - parent: The parent enterprise to list structures under. E.g.
+//     "enterprises/XYZ".
 func (r *EnterprisesStructuresService) List(parent string) *EnterprisesStructuresListCall {
 	c := &EnterprisesStructuresListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1287,7 +1276,9 @@ func (c *EnterprisesStructuresListCall) doRequest(alt string) (*http.Response, e
 // error will be non-nil. Any non-2xx status code is an error. Response
 // headers are in either
 // *GoogleHomeEnterpriseSdmV1ListStructuresResponse.ServerResponse.Header
-//  or (if a response was returned at all) in
+//
+//	or (if a response was returned at all) in
+//
 // error.(*googleapi.Error).Header. Use googleapi.IsNotModified to check
 // whether the returned error was because http.StatusNotModified was
 // returned.
@@ -1298,17 +1289,17 @@ func (c *EnterprisesStructuresListCall) Do(opts ...googleapi.CallOption) (*Googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleHomeEnterpriseSdmV1ListStructuresResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1359,8 +1350,7 @@ func (c *EnterprisesStructuresListCall) Do(opts ...googleapi.CallOption) (*Googl
 	//     "$ref": "GoogleHomeEnterpriseSdmV1ListStructuresResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/sdm.service",
-	//     "https://www.googleapis.com/auth/sdm.thermostat.service"
+	//     "https://www.googleapis.com/auth/sdm.service"
 	//   ]
 	// }
 
@@ -1400,8 +1390,8 @@ type EnterprisesStructuresRoomsGetCall struct {
 
 // Get: Gets a room managed by the enterprise.
 //
-// - name: The name of the room requested. For example:
-//   "enterprises/XYZ/structures/ABC/rooms/123".
+//   - name: The name of the room requested. For example:
+//     "enterprises/XYZ/structures/ABC/rooms/123".
 func (r *EnterprisesStructuresRoomsService) Get(name string) *EnterprisesStructuresRoomsGetCall {
 	c := &EnterprisesStructuresRoomsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1483,17 +1473,17 @@ func (c *EnterprisesStructuresRoomsGetCall) Do(opts ...googleapi.CallOption) (*G
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleHomeEnterpriseSdmV1Room{
 		ServerResponse: googleapi.ServerResponse{
@@ -1528,8 +1518,7 @@ func (c *EnterprisesStructuresRoomsGetCall) Do(opts ...googleapi.CallOption) (*G
 	//     "$ref": "GoogleHomeEnterpriseSdmV1Room"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/sdm.service",
-	//     "https://www.googleapis.com/auth/sdm.thermostat.service"
+	//     "https://www.googleapis.com/auth/sdm.service"
 	//   ]
 	// }
 
@@ -1548,8 +1537,8 @@ type EnterprisesStructuresRoomsListCall struct {
 
 // List: Lists rooms managed by the enterprise.
 //
-// - parent: The parent resource name of the rooms requested. For
-//   example: "enterprises/XYZ/structures/ABC".
+//   - parent: The parent resource name of the rooms requested. For
+//     example: "enterprises/XYZ/structures/ABC".
 func (r *EnterprisesStructuresRoomsService) List(parent string) *EnterprisesStructuresRoomsListCall {
 	c := &EnterprisesStructuresRoomsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1648,17 +1637,17 @@ func (c *EnterprisesStructuresRoomsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleHomeEnterpriseSdmV1ListRoomsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1704,8 +1693,7 @@ func (c *EnterprisesStructuresRoomsListCall) Do(opts ...googleapi.CallOption) (*
 	//     "$ref": "GoogleHomeEnterpriseSdmV1ListRoomsResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/sdm.service",
-	//     "https://www.googleapis.com/auth/sdm.thermostat.service"
+	//     "https://www.googleapis.com/auth/sdm.service"
 	//   ]
 	// }
 

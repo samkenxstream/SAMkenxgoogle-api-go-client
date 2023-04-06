@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://cloud.google.com/resource-manager
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/cloudresourcemanager/v3"
-//   ...
-//   ctx := context.Background()
-//   cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx)
+//	import "google.golang.org/api/cloudresourcemanager/v3"
+//	...
+//	ctx := context.Background()
+//	cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx, option.WithScopes(cloudresourcemanager.CloudPlatformReadOnlyScope))
+//	cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx, option.WithScopes(cloudresourcemanager.CloudPlatformReadOnlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx, option.WithAPIKey("AIza..."))
+//	cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	cloudresourcemanagerService, err := cloudresourcemanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package cloudresourcemanager // import "google.golang.org/api/cloudresourcemanager/v3"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "cloudresourcemanager:v3"
 const apiName = "cloudresourcemanager"
@@ -377,19 +378,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -401,9 +409,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -434,7 +440,8 @@ func (s *Binding) MarshalJSON() ([]byte, error) {
 }
 
 // CloudresourcemanagerGoogleCloudResourcemanagerV2alpha1FolderOperation:
-//  Metadata describing a long running folder operation
+//
+//	Metadata describing a long running folder operation
 type CloudresourcemanagerGoogleCloudResourcemanagerV2alpha1FolderOperation struct {
 	// DestinationParent: The resource name of the folder or organization we
 	// are either creating the folder under or moving the folder to.
@@ -655,18 +662,24 @@ type EffectiveTag struct {
 	// value is directly attached to the resource, inherited will be false.
 	Inherited bool `json:"inherited,omitempty"`
 
-	// NamespacedTagKey: The namespaced_name of the TagKey, in the format of
-	// `{organization_id}/{tag_key_short_name}`
+	// NamespacedTagKey: The namespaced_name of the TagKey. Now only
+	// supported in the format of `{organization_id}/{tag_key_short_name}`.
+	// Other formats will be supported when we add non-org parented tags.
 	NamespacedTagKey string `json:"namespacedTagKey,omitempty"`
 
-	// NamespacedTagValue: Namespaced name of the TagValue. Must be in the
-	// format
+	// NamespacedTagValue: Namespaced name of the TagValue. Now only
+	// supported in the format
 	// `{organization_id}/{tag_key_short_name}/{tag_value_short_name}`.
+	// Other formats will be supported when we add non-org parented tags.
 	NamespacedTagValue string `json:"namespacedTagValue,omitempty"`
 
 	// TagKey: The name of the TagKey, in the format `tagKeys/{id}`, such as
 	// `tagKeys/123`.
 	TagKey string `json:"tagKey,omitempty"`
+
+	// TagKeyParentName: The parent name of the tag key. Must be in the
+	// format `organizations/{organization_id}`.
+	TagKeyParentName string `json:"tagKeyParentName,omitempty"`
 
 	// TagValue: Resource name for TagValue in the format `tagValues/456`.
 	TagValue string `json:"tagValue,omitempty"`
@@ -1760,7 +1773,7 @@ type Project struct {
 	// following regular expression: \a-z\ (\[-a-z0-9\]*\[a-z0-9\])?. Label
 	// values must be between 0 and 63 characters long and must conform to
 	// the regular expression (\a-z\ (\[-a-z0-9\]*\[a-z0-9\])?)?. No more
-	// than 256 labels can be associated with a given resource. Clients
+	// than 64 labels can be associated with a given resource. Clients
 	// should store labels in a representation such as JSON that does not
 	// depend on specific characters being disallowed. Example:
 	// "myBusinessDimension" : "businessValue"
@@ -2069,9 +2082,8 @@ func (s *Status) MarshalJSON() ([]byte, error) {
 }
 
 // TagBinding: A TagBinding represents a connection between a TagValue
-// and a cloud resource (currently project, folder, or organization).
-// Once a TagBinding is created, the TagValue is applied to all the
-// descendants of the cloud resource.
+// and a cloud resource Once a TagBinding is created, the TagValue is
+// applied to all the descendants of the Google Cloud resource.
 type TagBinding struct {
 	// Name: Output only. The name of the TagBinding. This is a String of
 	// the form: `tagBindings/{full-resource-name}/{tag-value-name}` (e.g.
@@ -2192,6 +2204,32 @@ type TagKey struct {
 	// be of the form `organizations/{org_id}`.
 	Parent string `json:"parent,omitempty"`
 
+	// Purpose: Optional. A purpose denotes that this Tag is intended for
+	// use in policies of a specific policy engine, and will involve that
+	// policy engine in management operations involving this Tag. A purpose
+	// does not grant a policy engine exclusive rights to the Tag, and it
+	// may be referenced by other policy engines. A purpose cannot be
+	// changed once set.
+	//
+	// Possible values:
+	//   "PURPOSE_UNSPECIFIED" - Unspecified purpose.
+	//   "GCE_FIREWALL" - Purpose for Compute Engine firewalls. A
+	// corresponding purpose_data should be set for the network the tag is
+	// intended for. The key should be 'network' and the value should be in
+	// either of these two formats:
+	// -https://www.googleapis.com/compute/{compute_version}/projects/{projec
+	// t_id}/global/networks/{network_id} -{project_id}/{network_name}
+	// Examples:
+	// -https://www.googleapis.com/compute/staging_v1/projects/fail-closed-lo
+	// ad-testing/global/networks/6992953698831725600
+	// -fail-closed-load-testing/load-testing-network
+	Purpose string `json:"purpose,omitempty"`
+
+	// PurposeData: Optional. Purpose data corresponds to the policy system
+	// that the tag is intended for. See documentation for `Purpose` for
+	// formatting of this field. Purpose data cannot be changed once set.
+	PurposeData map[string]string `json:"purposeData,omitempty"`
+
 	// ShortName: Required. Immutable. The user friendly name for a TagKey.
 	// The short name should be unique for TagKeys within the same tag
 	// namespace. The short name must be 1-63 characters, beginning and
@@ -2249,8 +2287,10 @@ type TagValue struct {
 	// `tagValues/456`.
 	Name string `json:"name,omitempty"`
 
-	// NamespacedName: Output only. Namespaced name of the TagValue. Must be
-	// in the format `{organization_id}/{tag_key_short_name}/{short_name}`.
+	// NamespacedName: Output only. Namespaced name of the TagValue. Now
+	// only supported in the format
+	// `{organization_id}/{tag_key_short_name}/{short_name}`. Other formats
+	// will be supported when we add non-org parented tags.
 	NamespacedName string `json:"namespacedName,omitempty"`
 
 	// Parent: Immutable. The resource name of the new TagValue's parent
@@ -2415,8 +2455,8 @@ type EffectiveTagsListCall struct {
 	header_      http.Header
 }
 
-// List: Return a list of effective tags for the given cloud resource,
-// as specified in `parent`.
+// List: Return a list of effective tags for the given Google Cloud
+// resource, as specified in `parent`.
 func (r *EffectiveTagsService) List() *EffectiveTagsListCall {
 	c := &EffectiveTagsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	return c
@@ -2519,17 +2559,17 @@ func (c *EffectiveTagsListCall) Do(opts ...googleapi.CallOption) (*ListEffective
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListEffectiveTagsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2543,7 +2583,7 @@ func (c *EffectiveTagsListCall) Do(opts ...googleapi.CallOption) (*ListEffective
 	}
 	return ret, nil
 	// {
-	//   "description": "Return a list of effective tags for the given cloud resource, as specified in `parent`.",
+	//   "description": "Return a list of effective tags for the given Google Cloud resource, as specified in `parent`.",
 	//   "flatPath": "v3/effectiveTags",
 	//   "httpMethod": "GET",
 	//   "id": "cloudresourcemanager.effectiveTags.list",
@@ -2699,17 +2739,17 @@ func (c *FoldersCreateCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2761,8 +2801,8 @@ type FoldersDeleteCall struct {
 // operation will result in a no-op success. The caller must have
 // `resourcemanager.folders.delete` permission on the identified folder.
 //
-// - name: The resource name of the folder to be deleted. Must be of the
-//   form `folders/{folder_id}`.
+//   - name: The resource name of the folder to be deleted. Must be of the
+//     form `folders/{folder_id}`.
 func (r *FoldersService) Delete(name string) *FoldersDeleteCall {
 	c := &FoldersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2831,17 +2871,17 @@ func (c *FoldersDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2898,8 +2938,8 @@ type FoldersGetCall struct {
 // (for example, `folders/1234`). The caller must have
 // `resourcemanager.folders.get` permission on the identified folder.
 //
-// - name: The resource name of the folder to retrieve. Must be of the
-//   form `folders/{folder_id}`.
+//   - name: The resource name of the folder to retrieve. Must be of the
+//     form `folders/{folder_id}`.
 func (r *FoldersService) Get(name string) *FoldersGetCall {
 	c := &FoldersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2981,17 +3021,17 @@ func (c *FoldersGetCall) Do(opts ...googleapi.CallOption) (*Folder, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Folder{
 		ServerResponse: googleapi.ServerResponse{
@@ -3051,10 +3091,10 @@ type FoldersGetIamPolicyCall struct {
 // `resourcemanager.folders.getIamPolicy` permission on the identified
 // folder.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *FoldersService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *FoldersGetIamPolicyCall {
 	c := &FoldersGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3129,17 +3169,17 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3222,12 +3262,13 @@ func (c *FoldersListCall) PageToken(pageToken string) *FoldersListCall {
 	return c
 }
 
-// Parent sets the optional parameter "parent": Required. The resource
-// name of the organization or folder whose folders are being listed.
-// Must be of the form `folders/{folder_id}` or
-// `organizations/{org_id}`. Access to this method is controlled by
-// checking the `resourcemanager.folders.list` permission on the
-// `parent`.
+// Parent sets the optional parameter "parent": Required. The name of
+// the parent resource whose folders are being listed. Only children of
+// this parent resource are listed; descendants are not listed. If the
+// parent is a folder, use the value `folders/{folder_id}`. If the
+// parent is an organization, use the value `organizations/{org_id}`.
+// Access to this method is controlled by checking the
+// `resourcemanager.folders.list` permission on the `parent`.
 func (c *FoldersListCall) Parent(parent string) *FoldersListCall {
 	c.urlParams_.Set("parent", parent)
 	return c
@@ -3313,17 +3354,17 @@ func (c *FoldersListCall) Do(opts ...googleapi.CallOption) (*ListFoldersResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListFoldersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3355,7 +3396,7 @@ func (c *FoldersListCall) Do(opts ...googleapi.CallOption) (*ListFoldersResponse
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The resource name of the organization or folder whose folders are being listed. Must be of the form `folders/{folder_id}` or `organizations/{org_id}`. Access to this method is controlled by checking the `resourcemanager.folders.list` permission on the `parent`.",
+	//       "description": "Required. The name of the parent resource whose folders are being listed. Only children of this parent resource are listed; descendants are not listed. If the parent is a folder, use the value `folders/{folder_id}`. If the parent is an organization, use the value `organizations/{org_id}`. Access to this method is controlled by checking the `resourcemanager.folders.list` permission on the `parent`.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -3425,8 +3466,8 @@ type FoldersMoveCall struct {
 // `resourcemanager.folders.move` permission on the folder's current and
 // proposed new parent.
 //
-// - name: The resource name of the Folder to move. Must be of the form
-//   folders/{folder_id}.
+//   - name: The resource name of the Folder to move. Must be of the form
+//     folders/{folder_id}.
 func (r *FoldersService) Move(name string, movefolderrequest *MoveFolderRequest) *FoldersMoveCall {
 	c := &FoldersMoveCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3501,17 +3542,17 @@ func (c *FoldersMoveCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3579,8 +3620,8 @@ type FoldersPatchCall struct {
 // `PreconditionFailure` explaining this violation will be returned in
 // the Status.details field.
 //
-// - name: Output only. The resource name of the folder. Its format is
-//   `folders/{folder_id}`, for example: "folders/1234".
+//   - name: Output only. The resource name of the folder. Its format is
+//     `folders/{folder_id}`, for example: "folders/1234".
 func (r *FoldersService) Patch(name string, folder *Folder) *FoldersPatchCall {
 	c := &FoldersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3662,17 +3703,17 @@ func (c *FoldersPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3857,17 +3898,17 @@ func (c *FoldersSearchCall) Do(opts ...googleapi.CallOption) (*SearchFoldersResp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchFoldersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3954,10 +3995,10 @@ type FoldersSetIamPolicyCall struct {
 // `resourcemanager.folders.setIamPolicy` permission on the identified
 // folder.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *FoldersSetIamPolicyCall {
 	c := &FoldersSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4032,17 +4073,17 @@ func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -4102,10 +4143,10 @@ type FoldersTestIamPermissionsCall struct {
 // resource name, for example: "folders/1234". There are no permissions
 // required for making this API call.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *FoldersService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *FoldersTestIamPermissionsCall {
 	c := &FoldersTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4180,17 +4221,17 @@ func (c *FoldersTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*TestI
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4255,8 +4296,8 @@ type FoldersUndeleteCall struct {
 // `resourcemanager.folders.undelete` permission on the identified
 // folder.
 //
-// - name: The resource name of the folder to undelete. Must be of the
-//   form `folders/{folder_id}`.
+//   - name: The resource name of the folder to undelete. Must be of the
+//     form `folders/{folder_id}`.
 func (r *FoldersService) Undelete(name string, undeletefolderrequest *UndeleteFolderRequest) *FoldersUndeleteCall {
 	c := &FoldersUndeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4331,17 +4372,17 @@ func (c *FoldersUndeleteCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4470,17 +4511,17 @@ func (c *LiensCreateCall) Do(opts ...googleapi.CallOption) (*Lien, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Lien{
 		ServerResponse: googleapi.ServerResponse{
@@ -4599,17 +4640,17 @@ func (c *LiensDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4749,17 +4790,17 @@ func (c *LiensGetCall) Do(opts ...googleapi.CallOption) (*Lien, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Lien{
 		ServerResponse: googleapi.ServerResponse{
@@ -4919,17 +4960,17 @@ func (c *LiensListCall) Do(opts ...googleapi.CallOption) (*ListLiensResponse, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLiensResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5096,17 +5137,17 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5162,10 +5203,10 @@ type OrganizationsGetCall struct {
 // Get: Fetches an organization resource identified by the specified
 // resource name.
 //
-// - name: The resource name of the Organization to fetch. This is the
-//   organization's relative path in the API, formatted as
-//   "organizations/[organizationId]". For example,
-//   "organizations/1234".
+//   - name: The resource name of the Organization to fetch. This is the
+//     organization's relative path in the API, formatted as
+//     "organizations/[organizationId]". For example,
+//     "organizations/1234".
 func (r *OrganizationsService) Get(name string) *OrganizationsGetCall {
 	c := &OrganizationsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5247,17 +5288,17 @@ func (c *OrganizationsGetCall) Do(opts ...googleapi.CallOption) (*Organization, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Organization{
 		ServerResponse: googleapi.ServerResponse{
@@ -5317,10 +5358,10 @@ type OrganizationsGetIamPolicyCall struct {
 // IAM permission `resourcemanager.organizations.getIamPolicy` on the
 // specified organization.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *OrganizationsGetIamPolicyCall {
 	c := &OrganizationsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5395,17 +5436,17 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Polic
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5577,17 +5618,17 @@ func (c *OrganizationsSearchCall) Do(opts ...googleapi.CallOption) (*SearchOrgan
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchOrganizationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5675,10 +5716,10 @@ type OrganizationsSetIamPolicyCall struct {
 // `resourcemanager.organizations.setIamPolicy` on the specified
 // organization.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *OrganizationsSetIamPolicyCall {
 	c := &OrganizationsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5753,17 +5794,17 @@ func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Polic
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5823,10 +5864,10 @@ type OrganizationsTestIamPermissionsCall struct {
 // organization's resource name, for example: "organizations/123". There
 // are no permissions required for making this API call.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *OrganizationsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *OrganizationsTestIamPermissionsCall {
 	c := &OrganizationsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5901,17 +5942,17 @@ func (c *OrganizationsTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6041,17 +6082,17 @@ func (c *ProjectsCreateCall) Do(opts ...googleapi.CallOption) (*Operation, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6110,8 +6151,8 @@ type ProjectsDeleteCall struct {
 // not cause an error, but also won't do anything. The caller must have
 // `resourcemanager.projects.delete` permissions for this project.
 //
-// - name: The name of the Project (for example,
-//   `projects/415104041262`).
+//   - name: The name of the Project (for example,
+//     `projects/415104041262`).
 func (r *ProjectsService) Delete(name string) *ProjectsDeleteCall {
 	c := &ProjectsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6180,17 +6221,17 @@ func (c *ProjectsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6246,8 +6287,8 @@ type ProjectsGetCall struct {
 // example, `projects/415104041262`). The caller must have
 // `resourcemanager.projects.get` permission for this project.
 //
-// - name: The name of the project (for example,
-//   `projects/415104041262`).
+//   - name: The name of the project (for example,
+//     `projects/415104041262`).
 func (r *ProjectsService) Get(name string) *ProjectsGetCall {
 	c := &ProjectsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6329,17 +6370,17 @@ func (c *ProjectsGetCall) Do(opts ...googleapi.CallOption) (*Project, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Project{
 		ServerResponse: googleapi.ServerResponse{
@@ -6397,10 +6438,10 @@ type ProjectsGetIamPolicyCall struct {
 // projects/123. Permission is denied if the policy or the resource do
 // not exist.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *ProjectsGetIamPolicyCall {
 	c := &ProjectsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -6475,17 +6516,17 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6569,9 +6610,10 @@ func (c *ProjectsListCall) PageToken(pageToken string) *ProjectsListCall {
 }
 
 // Parent sets the optional parameter "parent": Required. The name of
-// the parent resource to list projects under. For example, setting this
-// field to 'folders/1234' would list all projects directly under that
-// folder.
+// the parent resource whose projects are being listed. Only children of
+// this parent resource are listed; descendants are not listed. If the
+// parent is a folder, use the value `folders/{folder_id}`. If the
+// parent is an organization, use the value `organizations/{org_id}`.
 func (c *ProjectsListCall) Parent(parent string) *ProjectsListCall {
 	c.urlParams_.Set("parent", parent)
 	return c
@@ -6657,17 +6699,17 @@ func (c *ProjectsListCall) Do(opts ...googleapi.CallOption) (*ListProjectsRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListProjectsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6699,7 +6741,7 @@ func (c *ProjectsListCall) Do(opts ...googleapi.CallOption) (*ListProjectsRespon
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. The name of the parent resource to list projects under. For example, setting this field to 'folders/1234' would list all projects directly under that folder.",
+	//       "description": "Required. The name of the parent resource whose projects are being listed. Only children of this parent resource are listed; descendants are not listed. If the parent is a folder, use the value `folders/{folder_id}`. If the parent is an organization, use the value `organizations/{org_id}`.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -6838,17 +6880,17 @@ func (c *ProjectsMoveCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6909,9 +6951,9 @@ type ProjectsPatchCall struct {
 // for labels field. The caller must have
 // `resourcemanager.projects.update` permission for this project.
 //
-// - name: Output only. The unique resource name of the project. It is
-//   an int64 generated number prefixed by "projects/". Example:
-//   `projects/415104041262`.
+//   - name: Output only. The unique resource name of the project. It is
+//     an int64 generated number prefixed by "projects/". Example:
+//     `projects/415104041262`.
 func (r *ProjectsService) Patch(name string, project *Project) *ProjectsPatchCall {
 	c := &ProjectsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6993,17 +7035,17 @@ func (c *ProjectsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7115,7 +7157,7 @@ func (c *ProjectsSearchCall) PageToken(pageToken string) *ProjectsSearchCall {
 // labels.color:* | The project has the label `color`. | |
 // labels.color:red | The project's label `color` has the value `red`. |
 // | labels.color:red labels.size:big | The project's label `color` has
-// the value `red` and its label `size` has the value `big`.| ``` If no
+// the value `red` or its label `size` has the value `big`. | ``` If no
 // query is specified, the call will return projects for which the user
 // has the `resourcemanager.projects.get` permission.
 func (c *ProjectsSearchCall) Query(query string) *ProjectsSearchCall {
@@ -7195,17 +7237,17 @@ func (c *ProjectsSearchCall) Do(opts ...googleapi.CallOption) (*SearchProjectsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SearchProjectsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7237,7 +7279,7 @@ func (c *ProjectsSearchCall) Do(opts ...googleapi.CallOption) (*SearchProjectsRe
 	//       "type": "string"
 	//     },
 	//     "query": {
-	//       "description": "Optional. A query string for searching for projects that the caller has `resourcemanager.projects.get` permission to. If multiple fields are included in the query, then it will return results that match any of the fields. Some eligible fields are: ``` | Field | Description | |-------------------------|----------------------------------------------| | displayName, name | Filters by displayName. | | parent | Project's parent (for example: folders/123, organizations/*). Prefer parent field over parent.type and parent.id.| | parent.type | Parent's type: `folder` or `organization`. | | parent.id | Parent's id number (for example: 123) | | id, projectId | Filters by projectId. | | state, lifecycleState | Filters by state. | | labels | Filters by label name or value. | | labels.\\ (where *key* is the name of a label) | Filters by label name.| ``` Search expressions are case insensitive. Some examples queries: ``` | Query | Description | |------------------|-----------------------------------------------------| | name:how* | The project's name starts with \"how\". | | name:Howl | The project's name is `Howl` or `howl`. | | name:HOWL | Equivalent to above. | | NAME:howl | Equivalent to above. | | labels.color:* | The project has the label `color`. | | labels.color:red | The project's label `color` has the value `red`. | | labels.color:red labels.size:big | The project's label `color` has the value `red` and its label `size` has the value `big`.| ``` If no query is specified, the call will return projects for which the user has the `resourcemanager.projects.get` permission.",
+	//       "description": "Optional. A query string for searching for projects that the caller has `resourcemanager.projects.get` permission to. If multiple fields are included in the query, then it will return results that match any of the fields. Some eligible fields are: ``` | Field | Description | |-------------------------|----------------------------------------------| | displayName, name | Filters by displayName. | | parent | Project's parent (for example: folders/123, organizations/*). Prefer parent field over parent.type and parent.id.| | parent.type | Parent's type: `folder` or `organization`. | | parent.id | Parent's id number (for example: 123) | | id, projectId | Filters by projectId. | | state, lifecycleState | Filters by state. | | labels | Filters by label name or value. | | labels.\\ (where *key* is the name of a label) | Filters by label name.| ``` Search expressions are case insensitive. Some examples queries: ``` | Query | Description | |------------------|-----------------------------------------------------| | name:how* | The project's name starts with \"how\". | | name:Howl | The project's name is `Howl` or `howl`. | | name:HOWL | Equivalent to above. | | NAME:howl | Equivalent to above. | | labels.color:* | The project has the label `color`. | | labels.color:red | The project's label `color` has the value `red`. | | labels.color:red labels.size:big | The project's label `color` has the value `red` or its label `size` has the value `big`. | ``` If no query is specified, the call will return projects for which the user has the `resourcemanager.projects.get` permission.",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -7247,7 +7289,8 @@ func (c *ProjectsSearchCall) Do(opts ...googleapi.CallOption) (*SearchProjectsRe
 	//     "$ref": "SearchProjectsResponse"
 	//   },
 	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform"
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only"
 	//   ]
 	// }
 
@@ -7315,13 +7358,12 @@ type ProjectsSetIamPolicyCall struct {
 // accepted the ToS. Edits to IAM policies will be rejected until the
 // lack of a ToS-accepting owner is rectified. If the project is part of
 // an organization, you can remove all owners, potentially making the
-// organization inaccessible. + Calling this method requires enabling
-// the App Engine Admin API.
+// organization inaccessible.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
 	c := &ProjectsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7396,17 +7438,17 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -7420,7 +7462,7 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, er
 	}
 	return ret, nil
 	// {
-	//   "description": "Sets the IAM access control policy for the specified project, in the format `projects/{ProjectIdOrNumber}` e.g. projects/123. CAUTION: This method will replace the existing policy, and cannot be used to append additional IAM settings. Note: Removing service accounts from policies or changing their roles can render services completely inoperable. It is important to understand how the service account is being used before removing or updating its roles. The following constraints apply when using `setIamPolicy()`: + Project does not support `allUsers` and `allAuthenticatedUsers` as `members` in a `Binding` of a `Policy`. + The owner role can be granted to a `user`, `serviceAccount`, or a group that is part of an organization. For example, group@myownpersonaldomain.com could be added as an owner to a project in the myownpersonaldomain.com organization, but not the examplepetstore.com organization. + Service accounts can be made owners of a project directly without any restrictions. However, to be added as an owner, a user must be invited using the Cloud Platform console and must accept the invitation. + A user cannot be granted the owner role using `setIamPolicy()`. The user must be granted the owner role using the Cloud Platform Console and must explicitly accept the invitation. + Invitations to grant the owner role cannot be sent using `setIamPolicy()`; they must be sent only using the Cloud Platform Console. + If the project is not part of an organization, there must be at least one owner who has accepted the Terms of Service (ToS) agreement in the policy. Calling `setIamPolicy()` to remove the last ToS-accepted owner from the policy will fail. This restriction also applies to legacy projects that no longer have owners who have accepted the ToS. Edits to IAM policies will be rejected until the lack of a ToS-accepting owner is rectified. If the project is part of an organization, you can remove all owners, potentially making the organization inaccessible. + Calling this method requires enabling the App Engine Admin API.",
+	//   "description": "Sets the IAM access control policy for the specified project, in the format `projects/{ProjectIdOrNumber}` e.g. projects/123. CAUTION: This method will replace the existing policy, and cannot be used to append additional IAM settings. Note: Removing service accounts from policies or changing their roles can render services completely inoperable. It is important to understand how the service account is being used before removing or updating its roles. The following constraints apply when using `setIamPolicy()`: + Project does not support `allUsers` and `allAuthenticatedUsers` as `members` in a `Binding` of a `Policy`. + The owner role can be granted to a `user`, `serviceAccount`, or a group that is part of an organization. For example, group@myownpersonaldomain.com could be added as an owner to a project in the myownpersonaldomain.com organization, but not the examplepetstore.com organization. + Service accounts can be made owners of a project directly without any restrictions. However, to be added as an owner, a user must be invited using the Cloud Platform console and must accept the invitation. + A user cannot be granted the owner role using `setIamPolicy()`. The user must be granted the owner role using the Cloud Platform Console and must explicitly accept the invitation. + Invitations to grant the owner role cannot be sent using `setIamPolicy()`; they must be sent only using the Cloud Platform Console. + If the project is not part of an organization, there must be at least one owner who has accepted the Terms of Service (ToS) agreement in the policy. Calling `setIamPolicy()` to remove the last ToS-accepted owner from the policy will fail. This restriction also applies to legacy projects that no longer have owners who have accepted the ToS. Edits to IAM policies will be rejected until the lack of a ToS-accepting owner is rectified. If the project is part of an organization, you can remove all owners, potentially making the organization inaccessible.",
 	//   "flatPath": "v3/projects/{projectsId}:setIamPolicy",
 	//   "httpMethod": "POST",
 	//   "id": "cloudresourcemanager.projects.setIamPolicy",
@@ -7465,10 +7507,10 @@ type ProjectsTestIamPermissionsCall struct {
 // specified project, in the format `projects/{ProjectIdOrNumber}` e.g.
 // projects/123..
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *ProjectsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *ProjectsTestIamPermissionsCall {
 	c := &ProjectsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -7543,17 +7585,17 @@ func (c *ProjectsTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*Test
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7615,8 +7657,8 @@ type ProjectsUndeleteCall struct {
 // deletion starts, the project cannot be restored. The caller must have
 // `resourcemanager.projects.undelete` permission for this project.
 //
-// - name: The name of the project (for example,
-//   `projects/415104041262`). Required.
+//   - name: The name of the project (for example,
+//     `projects/415104041262`). Required.
 func (r *ProjectsService) Undelete(name string, undeleteprojectrequest *UndeleteProjectRequest) *ProjectsUndeleteCall {
 	c := &ProjectsUndeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7691,17 +7733,17 @@ func (c *ProjectsUndeleteCall) Do(opts ...googleapi.CallOption) (*Operation, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7755,8 +7797,8 @@ type TagBindingsCreateCall struct {
 	header_    http.Header
 }
 
-// Create: Creates a TagBinding between a TagValue and a cloud resource
-// (currently project, folder, or organization).
+// Create: Creates a TagBinding between a TagValue and a Google Cloud
+// resource.
 func (r *TagBindingsService) Create(tagbinding *TagBinding) *TagBindingsCreateCall {
 	c := &TagBindingsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.tagbinding = tagbinding
@@ -7835,17 +7877,17 @@ func (c *TagBindingsCreateCall) Do(opts ...googleapi.CallOption) (*Operation, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7859,7 +7901,7 @@ func (c *TagBindingsCreateCall) Do(opts ...googleapi.CallOption) (*Operation, er
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a TagBinding between a TagValue and a cloud resource (currently project, folder, or organization).",
+	//   "description": "Creates a TagBinding between a TagValue and a Google Cloud resource.",
 	//   "flatPath": "v3/tagBindings",
 	//   "httpMethod": "POST",
 	//   "id": "cloudresourcemanager.tagBindings.create",
@@ -7897,10 +7939,10 @@ type TagBindingsDeleteCall struct {
 
 // Delete: Deletes a TagBinding.
 //
-// - name: The name of the TagBinding. This is a String of the form:
-//   `tagBindings/{id}` (e.g.
-//   `tagBindings/%2F%2Fcloudresourcemanager.googleapis.com%2Fprojects%2F
-//   123/tagValues/456`).
+//   - name: The name of the TagBinding. This is a String of the form:
+//     `tagBindings/{id}` (e.g.
+//     `tagBindings/%2F%2Fcloudresourcemanager.googleapis.com%2Fprojects%2F
+//     123/tagValues/456`).
 func (r *TagBindingsService) Delete(name string) *TagBindingsDeleteCall {
 	c := &TagBindingsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7969,17 +8011,17 @@ func (c *TagBindingsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8030,7 +8072,7 @@ type TagBindingsListCall struct {
 	header_      http.Header
 }
 
-// List: Lists the TagBindings for the given cloud resource, as
+// List: Lists the TagBindings for the given Google Cloud resource, as
 // specified with `parent`. NOTE: The `parent` field is expected to be a
 // full resource name:
 // https://cloud.google.com/apis/design/resource_names#full_resource_name
@@ -8042,8 +8084,7 @@ func (r *TagBindingsService) List() *TagBindingsListCall {
 // PageSize sets the optional parameter "pageSize": The maximum number
 // of TagBindings to return in the response. The server allows a maximum
 // of 300 TagBindings to return. If unspecified, the server will use 100
-// as the default. Currently this api returns unpaginated response and
-// `page_size` is ignored.
+// as the default.
 func (c *TagBindingsListCall) PageSize(pageSize int64) *TagBindingsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
@@ -8051,8 +8092,7 @@ func (c *TagBindingsListCall) PageSize(pageSize int64) *TagBindingsListCall {
 
 // PageToken sets the optional parameter "pageToken": A pagination token
 // returned from a previous call to `ListTagBindings` that indicates
-// where this listing should continue from. Currently this api returns
-// unpaginated response and `page_token` is ignored.
+// where this listing should continue from.
 func (c *TagBindingsListCall) PageToken(pageToken string) *TagBindingsListCall {
 	c.urlParams_.Set("pageToken", pageToken)
 	return c
@@ -8139,17 +8179,17 @@ func (c *TagBindingsListCall) Do(opts ...googleapi.CallOption) (*ListTagBindings
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTagBindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8163,20 +8203,20 @@ func (c *TagBindingsListCall) Do(opts ...googleapi.CallOption) (*ListTagBindings
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists the TagBindings for the given cloud resource, as specified with `parent`. NOTE: The `parent` field is expected to be a full resource name: https://cloud.google.com/apis/design/resource_names#full_resource_name",
+	//   "description": "Lists the TagBindings for the given Google Cloud resource, as specified with `parent`. NOTE: The `parent` field is expected to be a full resource name: https://cloud.google.com/apis/design/resource_names#full_resource_name",
 	//   "flatPath": "v3/tagBindings",
 	//   "httpMethod": "GET",
 	//   "id": "cloudresourcemanager.tagBindings.list",
 	//   "parameterOrder": [],
 	//   "parameters": {
 	//     "pageSize": {
-	//       "description": "Optional. The maximum number of TagBindings to return in the response. The server allows a maximum of 300 TagBindings to return. If unspecified, the server will use 100 as the default. Currently this api returns unpaginated response and `page_size` is ignored.",
+	//       "description": "Optional. The maximum number of TagBindings to return in the response. The server allows a maximum of 300 TagBindings to return. If unspecified, the server will use 100 as the default.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
 	//     },
 	//     "pageToken": {
-	//       "description": "Optional. A pagination token returned from a previous call to `ListTagBindings` that indicates where this listing should continue from. Currently this api returns unpaginated response and `page_token` is ignored.",
+	//       "description": "Optional. A pagination token returned from a previous call to `ListTagBindings` that indicates where this listing should continue from.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8231,7 +8271,7 @@ type TagKeysCreateCall struct {
 
 // Create: Creates a new TagKey. If another request with the same
 // parameters is sent while the original request is in process, the
-// second request will receive an error. A maximum of 300 TagKeys can
+// second request will receive an error. A maximum of 1000 TagKeys can
 // exist under a parent at any given time.
 func (r *TagKeysService) Create(tagkey *TagKey) *TagKeysCreateCall {
 	c := &TagKeysCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -8311,17 +8351,17 @@ func (c *TagKeysCreateCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8335,7 +8375,7 @@ func (c *TagKeysCreateCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a new TagKey. If another request with the same parameters is sent while the original request is in process, the second request will receive an error. A maximum of 300 TagKeys can exist under a parent at any given time.",
+	//   "description": "Creates a new TagKey. If another request with the same parameters is sent while the original request is in process, the second request will receive an error. A maximum of 1000 TagKeys can exist under a parent at any given time.",
 	//   "flatPath": "v3/tagKeys",
 	//   "httpMethod": "POST",
 	//   "id": "cloudresourcemanager.tagKeys.create",
@@ -8374,9 +8414,9 @@ type TagKeysDeleteCall struct {
 // Delete: Deletes a TagKey. The TagKey cannot be deleted if it has any
 // child TagValues.
 //
-// - name: The resource name of a TagKey to be deleted in the format
-//   `tagKeys/123`. The TagKey cannot be a parent of any existing
-//   TagValues or it will not be deleted successfully.
+//   - name: The resource name of a TagKey to be deleted in the format
+//     `tagKeys/123`. The TagKey cannot be a parent of any existing
+//     TagValues or it will not be deleted successfully.
 func (r *TagKeysService) Delete(name string) *TagKeysDeleteCall {
 	c := &TagKeysDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8461,17 +8501,17 @@ func (c *TagKeysDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8537,8 +8577,8 @@ type TagKeysGetCall struct {
 // if the key does not exist or the user does not have permission to
 // view it.
 //
-// - name: A resource name in the format `tagKeys/{id}`, such as
-//   `tagKeys/123`.
+//   - name: A resource name in the format `tagKeys/{id}`, such as
+//     `tagKeys/123`.
 func (r *TagKeysService) Get(name string) *TagKeysGetCall {
 	c := &TagKeysGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8620,17 +8660,17 @@ func (c *TagKeysGetCall) Do(opts ...googleapi.CallOption) (*TagKey, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TagKey{
 		ServerResponse: googleapi.ServerResponse{
@@ -8690,10 +8730,10 @@ type TagKeysGetIamPolicyCall struct {
 // `cloudresourcemanager.googleapis.com/tagKeys.getIamPolicy` permission
 // on the specified TagKey.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *TagKeysService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *TagKeysGetIamPolicyCall {
 	c := &TagKeysGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -8768,17 +8808,17 @@ func (c *TagKeysGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8936,17 +8976,17 @@ func (c *TagKeysListCall) Do(opts ...googleapi.CallOption) (*ListTagKeysResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTagKeysResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9029,9 +9069,9 @@ type TagKeysPatchCall struct {
 
 // Patch: Updates the attributes of the TagKey resource.
 //
-// - name: Immutable. The resource name for a TagKey. Must be in the
-//   format `tagKeys/{tag_key_id}`, where `tag_key_id` is the generated
-//   numeric id for the TagKey.
+//   - name: Immutable. The resource name for a TagKey. Must be in the
+//     format `tagKeys/{tag_key_id}`, where `tag_key_id` is the generated
+//     numeric id for the TagKey.
 func (r *TagKeysService) Patch(name string, tagkey *TagKey) *TagKeysPatchCall {
 	c := &TagKeysPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9123,17 +9163,17 @@ func (c *TagKeysPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9205,10 +9245,10 @@ type TagKeysSetIamPolicyCall struct {
 // `resourcemanager.tagKeys.setIamPolicy` permission on the identified
 // tagValue.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *TagKeysService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *TagKeysSetIamPolicyCall {
 	c := &TagKeysSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9283,17 +9323,17 @@ func (c *TagKeysSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -9353,10 +9393,10 @@ type TagKeysTestIamPermissionsCall struct {
 // resource name. For example, "tagKeys/1234". There are no permissions
 // required for making this API call.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *TagKeysService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *TagKeysTestIamPermissionsCall {
 	c := &TagKeysTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -9431,17 +9471,17 @@ func (c *TagKeysTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*TestI
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9498,7 +9538,7 @@ type TagValuesCreateCall struct {
 // Create: Creates a TagValue as a child of the specified TagKey. If a
 // another request with the same parameters is sent while the original
 // request is in process the second request will receive an error. A
-// maximum of 300 TagValues can exist under a TagKey at any given time.
+// maximum of 1000 TagValues can exist under a TagKey at any given time.
 func (r *TagValuesService) Create(tagvalue *TagValue) *TagValuesCreateCall {
 	c := &TagValuesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.tagvalue = tagvalue
@@ -9577,17 +9617,17 @@ func (c *TagValuesCreateCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9601,7 +9641,7 @@ func (c *TagValuesCreateCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a TagValue as a child of the specified TagKey. If a another request with the same parameters is sent while the original request is in process the second request will receive an error. A maximum of 300 TagValues can exist under a TagKey at any given time.",
+	//   "description": "Creates a TagValue as a child of the specified TagKey. If a another request with the same parameters is sent while the original request is in process the second request will receive an error. A maximum of 1000 TagValues can exist under a TagKey at any given time.",
 	//   "flatPath": "v3/tagValues",
 	//   "httpMethod": "POST",
 	//   "id": "cloudresourcemanager.tagValues.create",
@@ -9640,8 +9680,8 @@ type TagValuesDeleteCall struct {
 // Delete: Deletes a TagValue. The TagValue cannot have any bindings
 // when it is deleted.
 //
-// - name: Resource name for TagValue to be deleted in the format
-//   tagValues/456.
+//   - name: Resource name for TagValue to be deleted in the format
+//     tagValues/456.
 func (r *TagValuesService) Delete(name string) *TagValuesDeleteCall {
 	c := &TagValuesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9726,17 +9766,17 @@ func (c *TagValuesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9798,12 +9838,12 @@ type TagValuesGetCall struct {
 	header_      http.Header
 }
 
-// Get: Retrieves TagValue. If the TagValue or namespaced name does not
-// exist, or if the user does not have permission to view it, this
-// method will return `PERMISSION_DENIED`.
+// Get: Retrieves a TagValue. This method will return
+// `PERMISSION_DENIED` if the value does not exist or the user does not
+// have permission to view it.
 //
-// - name: Resource name for TagValue to be fetched in the format
-//   `tagValues/456`.
+//   - name: Resource name for TagValue to be fetched in the format
+//     `tagValues/456`.
 func (r *TagValuesService) Get(name string) *TagValuesGetCall {
 	c := &TagValuesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9885,17 +9925,17 @@ func (c *TagValuesGetCall) Do(opts ...googleapi.CallOption) (*TagValue, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TagValue{
 		ServerResponse: googleapi.ServerResponse{
@@ -9909,7 +9949,7 @@ func (c *TagValuesGetCall) Do(opts ...googleapi.CallOption) (*TagValue, error) {
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves TagValue. If the TagValue or namespaced name does not exist, or if the user does not have permission to view it, this method will return `PERMISSION_DENIED`.",
+	//   "description": "Retrieves a TagValue. This method will return `PERMISSION_DENIED` if the value does not exist or the user does not have permission to view it.",
 	//   "flatPath": "v3/tagValues/{tagValuesId}",
 	//   "httpMethod": "GET",
 	//   "id": "cloudresourcemanager.tagValues.get",
@@ -9956,10 +9996,10 @@ type TagValuesGetIamPolicyCall struct {
 // permission on the identified TagValue to get the access control
 // policy.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *TagValuesService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *TagValuesGetIamPolicyCall {
 	c := &TagValuesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10034,17 +10074,17 @@ func (c *TagValuesGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -10122,9 +10162,7 @@ func (c *TagValuesListCall) PageToken(pageToken string) *TagValuesListCall {
 	return c
 }
 
-// Parent sets the optional parameter "parent": Required. Resource name
-// for TagKey, parent of the TagValues to be listed, in the format
-// `tagKeys/123`.
+// Parent sets the optional parameter "parent": Required.
 func (c *TagValuesListCall) Parent(parent string) *TagValuesListCall {
 	c.urlParams_.Set("parent", parent)
 	return c
@@ -10202,17 +10240,17 @@ func (c *TagValuesListCall) Do(opts ...googleapi.CallOption) (*ListTagValuesResp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTagValuesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10244,7 +10282,7 @@ func (c *TagValuesListCall) Do(opts ...googleapi.CallOption) (*ListTagValuesResp
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "Required. Resource name for TagKey, parent of the TagValues to be listed, in the format `tagKeys/123`.",
+	//       "description": "Required.",
 	//       "location": "query",
 	//       "type": "string"
 	//     }
@@ -10295,8 +10333,8 @@ type TagValuesPatchCall struct {
 
 // Patch: Updates the attributes of the TagValue resource.
 //
-// - name: Immutable. Resource name for TagValue in the format
-//   `tagValues/456`.
+//   - name: Immutable. Resource name for TagValue in the format
+//     `tagValues/456`.
 func (r *TagValuesService) Patch(name string, tagvalue *TagValue) *TagValuesPatchCall {
 	c := &TagValuesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10386,17 +10424,17 @@ func (c *TagValuesPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -10468,10 +10506,10 @@ type TagValuesSetIamPolicyCall struct {
 // `resourcemanager.tagValues.setIamPolicy` permission on the identified
 // tagValue.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *TagValuesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *TagValuesSetIamPolicyCall {
 	c := &TagValuesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10546,17 +10584,17 @@ func (c *TagValuesSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -10616,10 +10654,10 @@ type TagValuesTestIamPermissionsCall struct {
 // resource name. For example: `tagValues/1234`. There are no
 // permissions required for making this API call.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *TagValuesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *TagValuesTestIamPermissionsCall {
 	c := &TagValuesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -10694,17 +10732,17 @@ func (c *TagValuesTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*Tes
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10762,8 +10800,8 @@ type TagValuesTagHoldsCreateCall struct {
 // Create: Creates a TagHold. Returns ALREADY_EXISTS if a TagHold with
 // the same resource and origin exists under the same TagValue.
 //
-// - parent: The resource name of the TagHold's parent TagValue. Must be
-//   of the form: `tagValues/{tag-value-id}`.
+//   - parent: The resource name of the TagHold's parent TagValue. Must be
+//     of the form: `tagValues/{tag-value-id}`.
 func (r *TagValuesTagHoldsService) Create(parent string, taghold *TagHold) *TagValuesTagHoldsCreateCall {
 	c := &TagValuesTagHoldsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10846,17 +10884,17 @@ func (c *TagValuesTagHoldsCreateCall) Do(opts ...googleapi.CallOption) (*Operati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -10917,8 +10955,8 @@ type TagValuesTagHoldsDeleteCall struct {
 
 // Delete: Deletes a TagHold.
 //
-// - name: The resource name of the TagHold to delete. Must be of the
-//   form: `tagValues/{tag-value-id}/tagHolds/{tag-hold-id}`.
+//   - name: The resource name of the TagHold to delete. Must be of the
+//     form: `tagValues/{tag-value-id}/tagHolds/{tag-hold-id}`.
 func (r *TagValuesTagHoldsService) Delete(name string) *TagValuesTagHoldsDeleteCall {
 	c := &TagValuesTagHoldsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -10995,17 +11033,17 @@ func (c *TagValuesTagHoldsDeleteCall) Do(opts ...googleapi.CallOption) (*Operati
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -11064,8 +11102,8 @@ type TagValuesTagHoldsListCall struct {
 
 // List: Lists TagHolds under a TagValue.
 //
-// - parent: The resource name of the parent TagValue. Must be of the
-//   form: `tagValues/{tag-value-id}`.
+//   - parent: The resource name of the parent TagValue. Must be of the
+//     form: `tagValues/{tag-value-id}`.
 func (r *TagValuesTagHoldsService) List(parent string) *TagValuesTagHoldsListCall {
 	c := &TagValuesTagHoldsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -11179,17 +11217,17 @@ func (c *TagValuesTagHoldsListCall) Do(opts ...googleapi.CallOption) (*ListTagHo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListTagHoldsResponse{
 		ServerResponse: googleapi.ServerResponse{

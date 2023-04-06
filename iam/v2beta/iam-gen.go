@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/iam/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/iam/v2beta"
-//   ...
-//   ctx := context.Background()
-//   iamService, err := iam.NewService(ctx)
+//	import "google.golang.org/api/iam/v2beta"
+//	...
+//	ctx := context.Background()
+//	iamService, err := iam.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   iamService, err := iam.NewService(ctx, option.WithAPIKey("AIza..."))
+//	iamService, err := iam.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   iamService, err := iam.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	iamService, err := iam.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package iam // import "google.golang.org/api/iam/v2beta"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "iam:v2beta"
 const apiName = "iam"
@@ -329,6 +330,11 @@ func (s *GoogleIamV1PolicyDelta) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleIamV1betaWorkloadIdentityPoolOperationMetadata: Metadata for
+// long-running WorkloadIdentityPool operations.
+type GoogleIamV1betaWorkloadIdentityPoolOperationMetadata struct {
+}
+
 // GoogleIamV2betaDenyRule: A deny rule in an IAM deny policy.
 type GoogleIamV2betaDenyRule struct {
 	// DenialCondition: The condition that determines whether this deny rule
@@ -351,8 +357,8 @@ type GoogleIamV2betaDenyRule struct {
 	// DeniedPrincipals: The identities that are prevented from using one or
 	// more permissions on Google Cloud resources. This field can contain
 	// the following values: * `principalSet://goog/public:all`: A special
-	// identifier that represents any user who is on the internet, even if
-	// they do not have a Google Account or are not logged in. *
+	// identifier that represents any principal that is on the internet,
+	// even if they do not have a Google Account or are not logged in. *
 	// `principal://goog/subject/{email_id}`: A specific Google Account.
 	// Includes Gmail, Cloud Identity, and Google Workspace user accounts.
 	// For example, `principal://goog/subject/alice@example.com`. *
@@ -785,16 +791,16 @@ type PoliciesCreatePolicyCall struct {
 
 // CreatePolicy: Creates a policy.
 //
-// - parent: The resource that the policy is attached to, along with the
-//   kind of policy to create. Format:
-//   `policies/{attachment_point}/denypolicies` The attachment point is
-//   identified by its URL-encoded full resource name, which means that
-//   the forward-slash character, `/`, must be written as `%2F`. For
-//   example,
-//   `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
-//   t/denypolicies`. For organizations and folders, use the numeric ID
-//   in the full resource name. For projects, you can use the
-//   alphanumeric or the numeric ID.
+//   - parent: The resource that the policy is attached to, along with the
+//     kind of policy to create. Format:
+//     `policies/{attachment_point}/denypolicies` The attachment point is
+//     identified by its URL-encoded full resource name, which means that
+//     the forward-slash character, `/`, must be written as `%2F`. For
+//     example,
+//     `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
+//     t/denypolicies`. For organizations and folders, use the numeric ID
+//     in the full resource name. For projects, you can use the
+//     alphanumeric or the numeric ID.
 func (r *PoliciesService) CreatePolicy(parent string, googleiamv2betapolicy *GoogleIamV2betaPolicy) *PoliciesCreatePolicyCall {
 	c := &PoliciesCreatePolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -879,17 +885,17 @@ func (c *PoliciesCreatePolicyCall) Do(opts ...googleapi.CallOption) (*GoogleLong
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -950,14 +956,14 @@ type PoliciesDeleteCall struct {
 
 // Delete: Deletes a policy. This action is permanent.
 //
-// - name: The resource name of the policy to delete. Format:
-//   `policies/{attachment_point}/denypolicies/{policy_id}` Use the
-//   URL-encoded full resource name, which means that the forward-slash
-//   character, `/`, must be written as `%2F`. For example,
-//   `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
-//   t/denypolicies/my-policy`. For organizations and folders, use the
-//   numeric ID in the full resource name. For projects, you can use the
-//   alphanumeric or the numeric ID.
+//   - name: The resource name of the policy to delete. Format:
+//     `policies/{attachment_point}/denypolicies/{policy_id}` Use the
+//     URL-encoded full resource name, which means that the forward-slash
+//     character, `/`, must be written as `%2F`. For example,
+//     `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
+//     t/denypolicies/my-policy`. For organizations and folders, use the
+//     numeric ID in the full resource name. For projects, you can use the
+//     alphanumeric or the numeric ID.
 func (r *PoliciesService) Delete(name string) *PoliciesDeleteCall {
 	c := &PoliciesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1036,17 +1042,17 @@ func (c *PoliciesDeleteCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunnin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1105,14 +1111,14 @@ type PoliciesGetCall struct {
 
 // Get: Gets a policy.
 //
-// - name: The resource name of the policy to retrieve. Format:
-//   `policies/{attachment_point}/denypolicies/{policy_id}` Use the
-//   URL-encoded full resource name, which means that the forward-slash
-//   character, `/`, must be written as `%2F`. For example,
-//   `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
-//   t/denypolicies/my-policy`. For organizations and folders, use the
-//   numeric ID in the full resource name. For projects, you can use the
-//   alphanumeric or the numeric ID.
+//   - name: The resource name of the policy to retrieve. Format:
+//     `policies/{attachment_point}/denypolicies/{policy_id}` Use the
+//     URL-encoded full resource name, which means that the forward-slash
+//     character, `/`, must be written as `%2F`. For example,
+//     `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
+//     t/denypolicies/my-policy`. For organizations and folders, use the
+//     numeric ID in the full resource name. For projects, you can use the
+//     alphanumeric or the numeric ID.
 func (r *PoliciesService) Get(name string) *PoliciesGetCall {
 	c := &PoliciesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1194,17 +1200,17 @@ func (c *PoliciesGetCall) Do(opts ...googleapi.CallOption) (*GoogleIamV2betaPoli
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV2betaPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -1260,16 +1266,16 @@ type PoliciesListPoliciesCall struct {
 // attached to a resource. The response lists only policy metadata. In
 // particular, policy rules are omitted.
 //
-// - parent: The resource that the policy is attached to, along with the
-//   kind of policy to list. Format:
-//   `policies/{attachment_point}/denypolicies` The attachment point is
-//   identified by its URL-encoded full resource name, which means that
-//   the forward-slash character, `/`, must be written as `%2F`. For
-//   example,
-//   `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
-//   t/denypolicies`. For organizations and folders, use the numeric ID
-//   in the full resource name. For projects, you can use the
-//   alphanumeric or the numeric ID.
+//   - parent: The resource that the policy is attached to, along with the
+//     kind of policy to list. Format:
+//     `policies/{attachment_point}/denypolicies` The attachment point is
+//     identified by its URL-encoded full resource name, which means that
+//     the forward-slash character, `/`, must be written as `%2F`. For
+//     example,
+//     `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
+//     t/denypolicies`. For organizations and folders, use the numeric ID
+//     in the full resource name. For projects, you can use the
+//     alphanumeric or the numeric ID.
 func (r *PoliciesService) ListPolicies(parent string) *PoliciesListPoliciesCall {
 	c := &PoliciesListPoliciesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1368,17 +1374,17 @@ func (c *PoliciesListPoliciesCall) Do(opts ...googleapi.CallOption) (*GoogleIamV
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV2betaListPoliciesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1469,17 +1475,17 @@ type PoliciesUpdateCall struct {
 // `UpdatePolicy` to write the updated policy. This pattern helps
 // prevent conflicts between concurrent updates.
 //
-// - name: Immutable. The resource name of the `Policy`, which must be
-//   unique. Format:
-//   `policies/{attachment_point}/denypolicies/{policy_id}` The
-//   attachment point is identified by its URL-encoded full resource
-//   name, which means that the forward-slash character, `/`, must be
-//   written as `%2F`. For example,
-//   `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
-//   t/denypolicies/my-deny-policy`. For organizations and folders, use
-//   the numeric ID in the full resource name. For projects, requests
-//   can use the alphanumeric or the numeric ID. Responses always
-//   contain the numeric ID.
+//   - name: Immutable. The resource name of the `Policy`, which must be
+//     unique. Format:
+//     `policies/{attachment_point}/denypolicies/{policy_id}` The
+//     attachment point is identified by its URL-encoded full resource
+//     name, which means that the forward-slash character, `/`, must be
+//     written as `%2F`. For example,
+//     `policies/cloudresourcemanager.googleapis.com%2Fprojects%2Fmy-projec
+//     t/denypolicies/my-deny-policy`. For organizations and folders, use
+//     the numeric ID in the full resource name. For projects, requests
+//     can use the alphanumeric or the numeric ID. Responses always
+//     contain the numeric ID.
 func (r *PoliciesService) Update(name string, googleiamv2betapolicy *GoogleIamV2betaPolicy) *PoliciesUpdateCall {
 	c := &PoliciesUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1554,17 +1560,17 @@ func (c *PoliciesUpdateCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunnin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1705,17 +1711,17 @@ func (c *PoliciesOperationsGetCall) Do(opts ...googleapi.CallOption) (*GoogleLon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{

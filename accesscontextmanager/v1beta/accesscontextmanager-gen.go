@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/access-context-manager/docs/reference/rest/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/accesscontextmanager/v1beta"
-//   ...
-//   ctx := context.Background()
-//   accesscontextmanagerService, err := accesscontextmanager.NewService(ctx)
+//	import "google.golang.org/api/accesscontextmanager/v1beta"
+//	...
+//	ctx := context.Background()
+//	accesscontextmanagerService, err := accesscontextmanager.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithAPIKey("AIza..."))
+//	accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package accesscontextmanager // import "google.golang.org/api/accesscontextmanager/v1beta"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "accesscontextmanager:v1beta"
 const apiName = "accesscontextmanager"
@@ -201,10 +202,11 @@ type AccessLevel struct {
 	// affect behavior.
 	Description string `json:"description,omitempty"`
 
-	// Name: Required. Resource name for the Access Level. The `short_name`
-	// component must begin with a letter and only include alphanumeric and
-	// '_'. Format: `accessPolicies/{policy_id}/accessLevels/{short_name}`.
-	// The maximum length // of the `short_name` component is 50 characters.
+	// Name: Resource name for the `AccessLevel`. Format:
+	// `accessPolicies/{access_policy}/accessLevels/{access_level}`. The
+	// `access_level` component must begin with a letter, followed by
+	// alphanumeric characters or `_`. Its maximum length is 50 characters.
+	// After you create an `AccessLevel`, you cannot change its `name`.
 	Name string `json:"name,omitempty"`
 
 	// Title: Human readable title. Must be unique within the Policy.
@@ -805,10 +807,11 @@ type ServicePerimeter struct {
 	// not affect behavior.
 	Description string `json:"description,omitempty"`
 
-	// Name: Required. Resource name for the ServicePerimeter. The
-	// `short_name` component must begin with a letter and only include
-	// alphanumeric and '_'. Format:
-	// `accessPolicies/{policy_id}/servicePerimeters/{short_name}`
+	// Name: Resource name for the `ServicePerimeter`. Format:
+	// `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`
+	// . The `service_perimeter` component must begin with a letter,
+	// followed by alphanumeric characters or `_`. After you create a
+	// `ServicePerimeter`, you cannot change its `name`.
 	Name string `json:"name,omitempty"`
 
 	// PerimeterType: Perimeter type indicator. A single project is allowed
@@ -819,7 +822,8 @@ type ServicePerimeter struct {
 	// lists must be empty.
 	//
 	// Possible values:
-	//   "PERIMETER_TYPE_REGULAR" - Regular Perimeter.
+	//   "PERIMETER_TYPE_REGULAR" - Regular Perimeter. When no value is
+	// specified, the perimeter uses this type.
 	//   "PERIMETER_TYPE_BRIDGE" - Perimeter Bridge.
 	PerimeterType string `json:"perimeterType,omitempty"`
 
@@ -1086,17 +1090,17 @@ func (c *AccessPoliciesCreateCall) Do(opts ...googleapi.CallOption) (*Operation,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1144,8 +1148,8 @@ type AccessPoliciesDeleteCall struct {
 // Operation will have a successful status once the AccessPolicy has
 // been removed from long-lasting storage.
 //
-// - name: Resource name for the access policy to delete. Format
-//   `accessPolicies/{policy_id}`.
+//   - name: Resource name for the access policy to delete. Format
+//     `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesService) Delete(name string) *AccessPoliciesDeleteCall {
 	c := &AccessPoliciesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1214,17 +1218,17 @@ func (c *AccessPoliciesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1278,8 +1282,8 @@ type AccessPoliciesGetCall struct {
 
 // Get: Get an AccessPolicy by name.
 //
-// - name: Resource name for the access policy to get. Format
-//   `accessPolicies/{policy_id}`.
+//   - name: Resource name for the access policy to get. Format
+//     `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesService) Get(name string) *AccessPoliciesGetCall {
 	c := &AccessPoliciesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1361,17 +1365,17 @@ func (c *AccessPoliciesGetCall) Do(opts ...googleapi.CallOption) (*AccessPolicy,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccessPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -1523,17 +1527,17 @@ func (c *AccessPoliciesListCall) Do(opts ...googleapi.CallOption) (*ListAccessPo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAccessPoliciesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -1619,8 +1623,8 @@ type AccessPoliciesPatchCall struct {
 // basic semantic errors will be returned in `metadata` as a BadRequest
 // proto.
 //
-// - name: Output only. Resource name of the `AccessPolicy`. Format:
-//   `accessPolicies/{policy_id}`.
+//   - name: Output only. Resource name of the `AccessPolicy`. Format:
+//     `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesService) Patch(name string, accesspolicy *AccessPolicy) *AccessPoliciesPatchCall {
 	c := &AccessPoliciesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1702,17 +1706,17 @@ func (c *AccessPoliciesPatchCall) Do(opts ...googleapi.CallOption) (*Operation, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1778,8 +1782,8 @@ type AccessPoliciesAccessLevelsCreateCall struct {
 // propagated to long-lasting storage. Access Levels containing errors
 // will result in an error response for the first error encountered.
 //
-// - parent: Resource name for the access policy which owns this Access
-//   Level. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy which owns this Access
+//     Level. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesAccessLevelsService) Create(parent string, accesslevel *AccessLevel) *AccessPoliciesAccessLevelsCreateCall {
 	c := &AccessPoliciesAccessLevelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -1854,17 +1858,17 @@ func (c *AccessPoliciesAccessLevelsCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1922,8 +1926,8 @@ type AccessPoliciesAccessLevelsDeleteCall struct {
 // operation from this RPC will have a successful status once the Access
 // Level has been removed from long-lasting storage.
 //
-// - name: Resource name for the Access Level. Format:
-//   `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
+//   - name: Resource name for the Access Level. Format:
+//     `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
 func (r *AccessPoliciesAccessLevelsService) Delete(name string) *AccessPoliciesAccessLevelsDeleteCall {
 	c := &AccessPoliciesAccessLevelsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -1992,17 +1996,17 @@ func (c *AccessPoliciesAccessLevelsDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2056,8 +2060,8 @@ type AccessPoliciesAccessLevelsGetCall struct {
 
 // Get: Get an Access Level by resource name.
 //
-// - name: Resource name for the Access Level. Format:
-//   `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
+//   - name: Resource name for the Access Level. Format:
+//     `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
 func (r *AccessPoliciesAccessLevelsService) Get(name string) *AccessPoliciesAccessLevelsGetCall {
 	c := &AccessPoliciesAccessLevelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2073,11 +2077,15 @@ func (r *AccessPoliciesAccessLevelsService) Get(name string) *AccessPoliciesAcce
 // translated to equivalent `CustomLevels`.
 //
 // Possible values:
-//   "LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
-//   "AS_DEFINED" - Uses the format the resource was defined in.
+//
+//	"LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
+//	"AS_DEFINED" - Uses the format the resource was defined in.
+//
 // BasicLevels are returned as BasicLevels, CustomLevels are returned as
 // CustomLevels.
-//   "CEL" - Use Cloud Common Expression Language when returning the
+//
+//	"CEL" - Use Cloud Common Expression Language when returning the
+//
 // resource. Both BasicLevels and CustomLevels are returned as
 // CustomLevels.
 func (c *AccessPoliciesAccessLevelsGetCall) AccessLevelFormat(accessLevelFormat string) *AccessPoliciesAccessLevelsGetCall {
@@ -2160,17 +2168,17 @@ func (c *AccessPoliciesAccessLevelsGetCall) Do(opts ...googleapi.CallOption) (*A
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccessLevel{
 		ServerResponse: googleapi.ServerResponse{
@@ -2239,8 +2247,8 @@ type AccessPoliciesAccessLevelsListCall struct {
 
 // List: List all Access Levels for an access policy.
 //
-// - parent: Resource name for the access policy to list Access Levels
-//   from. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy to list Access Levels
+//     from. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesAccessLevelsService) List(parent string) *AccessPoliciesAccessLevelsListCall {
 	c := &AccessPoliciesAccessLevelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2253,11 +2261,15 @@ func (r *AccessPoliciesAccessLevelsService) List(parent string) *AccessPoliciesA
 // to returning `AccessLevels` in the format they were defined.
 //
 // Possible values:
-//   "LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
-//   "AS_DEFINED" - Uses the format the resource was defined in.
+//
+//	"LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
+//	"AS_DEFINED" - Uses the format the resource was defined in.
+//
 // BasicLevels are returned as BasicLevels, CustomLevels are returned as
 // CustomLevels.
-//   "CEL" - Use Cloud Common Expression Language when returning the
+//
+//	"CEL" - Use Cloud Common Expression Language when returning the
+//
 // resource. Both BasicLevels and CustomLevels are returned as
 // CustomLevels.
 func (c *AccessPoliciesAccessLevelsListCall) AccessLevelFormat(accessLevelFormat string) *AccessPoliciesAccessLevelsListCall {
@@ -2355,17 +2367,17 @@ func (c *AccessPoliciesAccessLevelsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAccessLevelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2470,11 +2482,12 @@ type AccessPoliciesAccessLevelsPatchCall struct {
 // containing errors will result in an error response for the first
 // error encountered.
 //
-// - name: Resource name for the Access Level. The `short_name`
-//   component must begin with a letter and only include alphanumeric
-//   and '_'. Format:
-//   `accessPolicies/{policy_id}/accessLevels/{short_name}`. The maximum
-//   length // of the `short_name` component is 50 characters.
+//   - name: Resource name for the `AccessLevel`. Format:
+//     `accessPolicies/{access_policy}/accessLevels/{access_level}`. The
+//     `access_level` component must begin with a letter, followed by
+//     alphanumeric characters or `_`. Its maximum length is 50
+//     characters. After you create an `AccessLevel`, you cannot change
+//     its `name`.
 func (r *AccessPoliciesAccessLevelsService) Patch(name string, accesslevel *AccessLevel) *AccessPoliciesAccessLevelsPatchCall {
 	c := &AccessPoliciesAccessLevelsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2556,17 +2569,17 @@ func (c *AccessPoliciesAccessLevelsPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2589,7 +2602,7 @@ func (c *AccessPoliciesAccessLevelsPatchCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Resource name for the Access Level. The `short_name` component must begin with a letter and only include alphanumeric and '_'. Format: `accessPolicies/{policy_id}/accessLevels/{short_name}`. The maximum length // of the `short_name` component is 50 characters.",
+	//       "description": "Resource name for the `AccessLevel`. Format: `accessPolicies/{access_policy}/accessLevels/{access_level}`. The `access_level` component must begin with a letter, followed by alphanumeric characters or `_`. Its maximum length is 50 characters. After you create an `AccessLevel`, you cannot change its `name`.",
 	//       "location": "path",
 	//       "pattern": "^accessPolicies/[^/]+/accessLevels/[^/]+$",
 	//       "required": true,
@@ -2633,8 +2646,8 @@ type AccessPoliciesServicePerimetersCreateCall struct {
 // errors will result in an error response for the first error
 // encountered.
 //
-// - parent: Resource name for the access policy which owns this Service
-//   Perimeter. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy which owns this Service
+//     Perimeter. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesServicePerimetersService) Create(parent string, serviceperimeter *ServicePerimeter) *AccessPoliciesServicePerimetersCreateCall {
 	c := &AccessPoliciesServicePerimetersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2709,17 +2722,17 @@ func (c *AccessPoliciesServicePerimetersCreateCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2777,9 +2790,9 @@ type AccessPoliciesServicePerimetersDeleteCall struct {
 // operation from this RPC will have a successful status once the
 // Service Perimeter has been removed from long-lasting storage.
 //
-// - name: Resource name for the Service Perimeter. Format:
-//   `accessPolicies/{policy_id}/servicePerimeters/{service_perimeter_id}
-//   `.
+//   - name: Resource name for the Service Perimeter. Format:
+//     `accessPolicies/{policy_id}/servicePerimeters/{service_perimeter_id}
+//     `.
 func (r *AccessPoliciesServicePerimetersService) Delete(name string) *AccessPoliciesServicePerimetersDeleteCall {
 	c := &AccessPoliciesServicePerimetersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2848,17 +2861,17 @@ func (c *AccessPoliciesServicePerimetersDeleteCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2912,9 +2925,9 @@ type AccessPoliciesServicePerimetersGetCall struct {
 
 // Get: Get a Service Perimeter by resource name.
 //
-// - name: Resource name for the Service Perimeter. Format:
-//   `accessPolicies/{policy_id}/servicePerimeters/{service_perimeters_id
-//   }`.
+//   - name: Resource name for the Service Perimeter. Format:
+//     `accessPolicies/{policy_id}/servicePerimeters/{service_perimeters_id
+//     }`.
 func (r *AccessPoliciesServicePerimetersService) Get(name string) *AccessPoliciesServicePerimetersGetCall {
 	c := &AccessPoliciesServicePerimetersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2996,17 +3009,17 @@ func (c *AccessPoliciesServicePerimetersGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ServicePerimeter{
 		ServerResponse: googleapi.ServerResponse{
@@ -3060,8 +3073,8 @@ type AccessPoliciesServicePerimetersListCall struct {
 
 // List: List all Service Perimeters for an access policy.
 //
-// - parent: Resource name for the access policy to list Service
-//   Perimeters from. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy to list Service
+//     Perimeters from. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesServicePerimetersService) List(parent string) *AccessPoliciesServicePerimetersListCall {
 	c := &AccessPoliciesServicePerimetersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3158,17 +3171,17 @@ func (c *AccessPoliciesServicePerimetersListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListServicePerimetersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3258,10 +3271,11 @@ type AccessPoliciesServicePerimetersPatchCall struct {
 // Perimeter containing errors will result in an error response for the
 // first error encountered.
 //
-// - name: Resource name for the ServicePerimeter. The `short_name`
-//   component must begin with a letter and only include alphanumeric
-//   and '_'. Format:
-//   `accessPolicies/{policy_id}/servicePerimeters/{short_name}`.
+//   - name: Resource name for the `ServicePerimeter`. Format:
+//     `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter
+//     }`. The `service_perimeter` component must begin with a letter,
+//     followed by alphanumeric characters or `_`. After you create a
+//     `ServicePerimeter`, you cannot change its `name`.
 func (r *AccessPoliciesServicePerimetersService) Patch(name string, serviceperimeter *ServicePerimeter) *AccessPoliciesServicePerimetersPatchCall {
 	c := &AccessPoliciesServicePerimetersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3343,17 +3357,17 @@ func (c *AccessPoliciesServicePerimetersPatchCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3376,7 +3390,7 @@ func (c *AccessPoliciesServicePerimetersPatchCall) Do(opts ...googleapi.CallOpti
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Resource name for the ServicePerimeter. The `short_name` component must begin with a letter and only include alphanumeric and '_'. Format: `accessPolicies/{policy_id}/servicePerimeters/{short_name}`",
+	//       "description": "Resource name for the `ServicePerimeter`. Format: `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`. The `service_perimeter` component must begin with a letter, followed by alphanumeric characters or `_`. After you create a `ServicePerimeter`, you cannot change its `name`.",
 	//       "location": "path",
 	//       "pattern": "^accessPolicies/[^/]+/servicePerimeters/[^/]+$",
 	//       "required": true,
@@ -3500,17 +3514,17 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{

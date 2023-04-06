@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://developers.google.com/slides/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/slides/v1"
-//   ...
-//   ctx := context.Background()
-//   slidesService, err := slides.NewService(ctx)
+//	import "google.golang.org/api/slides/v1"
+//	...
+//	ctx := context.Background()
+//	slidesService, err := slides.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   slidesService, err := slides.NewService(ctx, option.WithScopes(slides.SpreadsheetsReadonlyScope))
+//	slidesService, err := slides.NewService(ctx, option.WithScopes(slides.SpreadsheetsReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   slidesService, err := slides.NewService(ctx, option.WithAPIKey("AIza..."))
+//	slidesService, err := slides.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   slidesService, err := slides.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	slidesService, err := slides.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package slides // import "google.golang.org/api/slides/v1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "slides:v1"
 const apiName = "slides"
@@ -574,12 +575,12 @@ type CreateImageRequest struct {
 	// ElementProperties: The element properties for the image. When the
 	// aspect ratio of the provided size does not match the image aspect
 	// ratio, the image is scaled and centered with respect to the size in
-	// order to maintain aspect ratio. The provided transform is applied
+	// order to maintain the aspect ratio. The provided transform is applied
 	// after this operation. The PageElementProperties.size property is
 	// optional. If you don't specify the size, the default size of the
 	// image is used. The PageElementProperties.transform property is
 	// optional. If you don't specify a transform, the image will be placed
-	// at the top left corner of the page.
+	// at the top-left corner of the page.
 	ElementProperties *PageElementProperties `json:"elementProperties,omitempty"`
 
 	// ObjectId: A user-supplied object ID. If you specify an ID, it must be
@@ -593,10 +594,10 @@ type CreateImageRequest struct {
 
 	// Url: The image URL. The image is fetched once at insertion time and a
 	// copy is stored for display inside the presentation. Images must be
-	// less than 50MB in size, cannot exceed 25 megapixels, and must be in
-	// one of PNG, JPEG, or GIF format. The provided URL can be at most 2 kB
-	// in length. The URL itself is saved with the image, and exposed via
-	// the Image.source_url field.
+	// less than 50 MB in size, can't exceed 25 megapixels, and must be in
+	// one of PNG, JPEG, or GIF formats. The provided URL must be publicly
+	// accessible and up to 2 KB in length. The URL is saved with the image,
+	// and exposed through the Image.source_url field.
 	Url string `json:"url,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ElementProperties")
@@ -1272,10 +1273,10 @@ func (s *CreateSheetsChartResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// CreateSlideRequest: Creates a new slide.
+// CreateSlideRequest: Creates a slide.
 type CreateSlideRequest struct {
 	// InsertionIndex: The optional zero-based index indicating where to
-	// insert the slides. If you don't specify an index, the new slide is
+	// insert the slides. If you don't specify an index, the slide is
 	// created at the end.
 	InsertionIndex int64 `json:"insertionIndex,omitempty"`
 
@@ -1283,15 +1284,15 @@ type CreateSlideRequest struct {
 	// unique among all pages and page elements in the presentation. The ID
 	// must start with an alphanumeric character or an underscore (matches
 	// regex `[a-zA-Z0-9_]`); remaining characters may include those as well
-	// as a hyphen or colon (matches regex `[a-zA-Z0-9_-:]`). The length of
-	// the ID must not be less than 5 or greater than 50. If you don't
-	// specify an ID, a unique one is generated.
+	// as a hyphen or colon (matches regex `[a-zA-Z0-9_-:]`). The ID length
+	// must be between 5 and 50 characters, inclusive. If you don't specify
+	// an ID, a unique one is generated.
 	ObjectId string `json:"objectId,omitempty"`
 
 	// PlaceholderIdMappings: An optional list of object ID mappings from
-	// the placeholder(s) on the layout to the placeholder(s) that will be
-	// created on the new slide from that specified layout. Can only be used
-	// when `slide_layout_reference` is specified.
+	// the placeholder(s) on the layout to the placeholders that are created
+	// on the slide from the specified layout. Can only be used when
+	// `slide_layout_reference` is specified.
 	PlaceholderIdMappings []*LayoutPlaceholderIdMapping `json:"placeholderIdMappings,omitempty"`
 
 	// SlideLayoutReference: Layout reference of the slide to be inserted,
@@ -1300,8 +1301,8 @@ type CreateSlideRequest struct {
 	// if the insertion_index is zero. - The first master in the
 	// presentation, if there are no slides. If the LayoutReference is not
 	// found in the current master, a 400 bad request error is returned. If
-	// you don't specify a layout reference, then the new slide will use the
-	// predefined layout `BLANK`.
+	// you don't specify a layout reference, the slide uses the predefined
+	// `BLANK` layout.
 	SlideLayoutReference *LayoutReference `json:"slideLayoutReference,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "InsertionIndex") to
@@ -7267,17 +7268,17 @@ func (c *PresentationsBatchUpdateCall) Do(opts ...googleapi.CallOption) (*BatchU
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchUpdatePresentationResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7410,17 +7411,17 @@ func (c *PresentationsCreateCall) Do(opts ...googleapi.CallOption) (*Presentatio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Presentation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7551,17 +7552,17 @@ func (c *PresentationsGetCall) Do(opts ...googleapi.CallOption) (*Presentation, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Presentation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7706,17 +7707,17 @@ func (c *PresentationsPagesGetCall) Do(opts ...googleapi.CallOption) (*Page, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Page{
 		ServerResponse: googleapi.ServerResponse{
@@ -7784,9 +7785,9 @@ type PresentationsPagesGetThumbnailCall struct {
 // image. This request counts as an expensive read request
 // (/slides/limits) for quota purposes.
 //
-// - pageObjectId: The object ID of the page whose thumbnail to
-//   retrieve.
-// - presentationId: The ID of the presentation to retrieve.
+//   - pageObjectId: The object ID of the page whose thumbnail to
+//     retrieve.
+//   - presentationId: The ID of the presentation to retrieve.
 func (r *PresentationsPagesService) GetThumbnail(presentationId string, pageObjectId string) *PresentationsPagesGetThumbnailCall {
 	c := &PresentationsPagesGetThumbnailCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.presentationId = presentationId
@@ -7800,7 +7801,8 @@ func (r *PresentationsPagesService) GetThumbnail(presentationId string, pageObje
 // defaults to PNG.
 //
 // Possible values:
-//   "PNG" - The default mime type.
+//
+//	"PNG" - The default mime type.
 func (c *PresentationsPagesGetThumbnailCall) ThumbnailPropertiesMimeType(thumbnailPropertiesMimeType string) *PresentationsPagesGetThumbnailCall {
 	c.urlParams_.Set("thumbnailProperties.mimeType", thumbnailPropertiesMimeType)
 	return c
@@ -7812,12 +7814,15 @@ func (c *PresentationsPagesGetThumbnailCall) ThumbnailPropertiesMimeType(thumbna
 // size of the image.
 //
 // Possible values:
-//   "THUMBNAIL_SIZE_UNSPECIFIED" - The default thumbnail image size.
+//
+//	"THUMBNAIL_SIZE_UNSPECIFIED" - The default thumbnail image size.
+//
 // The unspecified thumbnail size implies that the server chooses the
 // size of the image in a way that might vary in the future.
-//   "LARGE" - The thumbnail image width of 1600px.
-//   "MEDIUM" - The thumbnail image width of 800px.
-//   "SMALL" - The thumbnail image width of 200px.
+//
+//	"LARGE" - The thumbnail image width of 1600px.
+//	"MEDIUM" - The thumbnail image width of 800px.
+//	"SMALL" - The thumbnail image width of 200px.
 func (c *PresentationsPagesGetThumbnailCall) ThumbnailPropertiesThumbnailSize(thumbnailPropertiesThumbnailSize string) *PresentationsPagesGetThumbnailCall {
 	c.urlParams_.Set("thumbnailProperties.thumbnailSize", thumbnailPropertiesThumbnailSize)
 	return c
@@ -7899,17 +7904,17 @@ func (c *PresentationsPagesGetThumbnailCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Thumbnail{
 		ServerResponse: googleapi.ServerResponse{

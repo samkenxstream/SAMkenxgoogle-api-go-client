@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/access-context-manager/docs/reference/rest/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/accesscontextmanager/v1"
-//   ...
-//   ctx := context.Background()
-//   accesscontextmanagerService, err := accesscontextmanager.NewService(ctx)
+//	import "google.golang.org/api/accesscontextmanager/v1"
+//	...
+//	ctx := context.Background()
+//	accesscontextmanagerService, err := accesscontextmanager.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithAPIKey("AIza..."))
+//	accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	accesscontextmanagerService, err := accesscontextmanager.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package accesscontextmanager // import "google.golang.org/api/accesscontextmanager/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "accesscontextmanager:v1"
 const apiName = "accesscontextmanager"
@@ -146,6 +147,7 @@ func (s *Service) userAgent() string {
 func NewAccessPoliciesService(s *Service) *AccessPoliciesService {
 	rs := &AccessPoliciesService{s: s}
 	rs.AccessLevels = NewAccessPoliciesAccessLevelsService(s)
+	rs.AuthorizedOrgsDescs = NewAccessPoliciesAuthorizedOrgsDescsService(s)
 	rs.ServicePerimeters = NewAccessPoliciesServicePerimetersService(s)
 	return rs
 }
@@ -154,6 +156,8 @@ type AccessPoliciesService struct {
 	s *Service
 
 	AccessLevels *AccessPoliciesAccessLevelsService
+
+	AuthorizedOrgsDescs *AccessPoliciesAuthorizedOrgsDescsService
 
 	ServicePerimeters *AccessPoliciesServicePerimetersService
 }
@@ -164,6 +168,15 @@ func NewAccessPoliciesAccessLevelsService(s *Service) *AccessPoliciesAccessLevel
 }
 
 type AccessPoliciesAccessLevelsService struct {
+	s *Service
+}
+
+func NewAccessPoliciesAuthorizedOrgsDescsService(s *Service) *AccessPoliciesAuthorizedOrgsDescsService {
+	rs := &AccessPoliciesAuthorizedOrgsDescsService{s: s}
+	return rs
+}
+
+type AccessPoliciesAuthorizedOrgsDescsService struct {
 	s *Service
 }
 
@@ -225,11 +238,11 @@ type AccessLevel struct {
 	// affect behavior.
 	Description string `json:"description,omitempty"`
 
-	// Name: Required. Resource name for the Access Level. The `short_name`
-	// component must begin with a letter and only include alphanumeric and
-	// '_'. Format:
+	// Name: Resource name for the `AccessLevel`. Format:
 	// `accessPolicies/{access_policy}/accessLevels/{access_level}`. The
-	// maximum length of the `access_level` component is 50 characters.
+	// `access_level` component must begin with a letter, followed by
+	// alphanumeric characters or `_`. Its maximum length is 50 characters.
+	// After you create an `AccessLevel`, you cannot change its `name`.
 	Name string `json:"name,omitempty"`
 
 	// Title: Human readable title. Must be unique within the Policy.
@@ -466,6 +479,88 @@ func (s *AuditLogConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// AuthorizedOrgsDesc: `AuthorizedOrgsDesc` contains data for an
+// organization's authorization policy.
+type AuthorizedOrgsDesc struct {
+	// AssetType: The asset type of this authorized orgs desc. Valid values
+	// are `ASSET_TYPE_DEVICE`, and `ASSET_TYPE_CREDENTIAL_STRENGTH`.
+	//
+	// Possible values:
+	//   "ASSET_TYPE_UNSPECIFIED" - No asset type specified.
+	//   "ASSET_TYPE_DEVICE" - Device asset type.
+	//   "ASSET_TYPE_CREDENTIAL_STRENGTH" - Credential strength asset type.
+	AssetType string `json:"assetType,omitempty"`
+
+	// AuthorizationDirection: The direction of the authorization
+	// relationship between this organization and the organizations listed
+	// in the `orgs` field. The valid values for this field include the
+	// following: `AUTHORIZATION_DIRECTION_FROM`: Allows this organization
+	// to evaluate traffic in the organizations listed in the `orgs` field.
+	// `AUTHORIZATION_DIRECTION_TO`: Allows the organizations listed in the
+	// `orgs` field to evaluate the traffic in this organization. For the
+	// authorization relationship to take effect, all of the organizations
+	// must authorize and specify the appropriate relationship direction.
+	// For example, if organization A authorized organization B and C to
+	// evaluate its traffic, by specifying `AUTHORIZATION_DIRECTION_TO` as
+	// the authorization direction, organizations B and C must specify
+	// `AUTHORIZATION_DIRECTION_FROM` as the authorization direction in
+	// their `AuthorizedOrgsDesc` resource.
+	//
+	// Possible values:
+	//   "AUTHORIZATION_DIRECTION_UNSPECIFIED" - No direction specified.
+	//   "AUTHORIZATION_DIRECTION_TO" - The specified organizations are
+	// authorized to evaluate traffic in this organization.
+	//   "AUTHORIZATION_DIRECTION_FROM" - The traffic of the specified
+	// organizations can be evaluated by this organization.
+	AuthorizationDirection string `json:"authorizationDirection,omitempty"`
+
+	// AuthorizationType: A granular control type for authorization levels.
+	// Valid value is `AUTHORIZATION_TYPE_TRUST`.
+	//
+	// Possible values:
+	//   "AUTHORIZATION_TYPE_UNSPECIFIED" - No authorization type specified.
+	//   "AUTHORIZATION_TYPE_TRUST" - This authorization relationship is
+	// "trust".
+	AuthorizationType string `json:"authorizationType,omitempty"`
+
+	// Name: Resource name for the `AuthorizedOrgsDesc`. Format:
+	// `accessPolicies/{access_policy}/authorizedOrgsDescs/{authorized_orgs_d
+	// esc}`. The `authorized_orgs_desc` component must begin with a letter,
+	// followed by alphanumeric characters or `_`. After you create an
+	// `AuthorizedOrgsDesc`, you cannot change its `name`.
+	Name string `json:"name,omitempty"`
+
+	// Orgs: The list of organization ids in this AuthorizedOrgsDesc.
+	// Format: `organizations/` Example: `organizations/123456`
+	Orgs []string `json:"orgs,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "AssetType") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AssetType") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AuthorizedOrgsDesc) MarshalJSON() ([]byte, error) {
+	type NoMethod AuthorizedOrgsDesc
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // BasicLevel: `BasicLevel` is an `AccessLevel` using a set of
 // recommended features.
 type BasicLevel struct {
@@ -528,19 +623,26 @@ type Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a
-	// service account. For example,
-	// `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An
-	// email address that represents a Google group. For example,
-	// `admins@example.com`. * `deleted:user:{emailid}?uid={uniqueid}`: An
-	// email address (plus unique identifier) representing a user that has
-	// been recently deleted. For example,
-	// `alice@example.com?uid=123456789012345678901`. If the user is
-	// recovered, this value reverts to `user:{emailid}` and the recovered
-	// user retains the role in the binding. *
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
+	// `my-other-app@appspot.gserviceaccount.com`. *
+	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
+	//  An identifier for a Kubernetes service account
+	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
+	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
+	// * `group:{emailid}`: An email address that represents a Google group.
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
+	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique identifier) representing a user that has been recently
+	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
+	// If the user is recovered, this value reverts to `user:{emailid}` and
+	// the recovered user retains the role in the binding. *
 	// `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
 	// (plus unique identifier) representing a service account that has been
 	// recently deleted. For example,
@@ -552,9 +654,7 @@ type Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -936,6 +1036,15 @@ func (s *EgressPolicy) MarshalJSON() ([]byte, error) {
 // succeed. The request must match `operations` AND `resources` fields
 // in order to be allowed egress out of the perimeter.
 type EgressTo struct {
+	// ExternalResources: A list of external resources that are allowed to
+	// be accessed. Only AWS and Azure resources are supported. For Amazon
+	// S3, the supported format is s3://BUCKET_NAME. For Azure Storage, the
+	// supported format is
+	// azure://myaccount.blob.core.windows.net/CONTAINER_NAME. A request
+	// matches if it contains an external resource in this list (Example:
+	// s3://bucket/path). Currently '*' is not allowed.
+	ExternalResources []string `json:"externalResources,omitempty"`
+
 	// Operations: A list of ApiOperations allowed to be performed by the
 	// sources specified in the corresponding EgressFrom. A request matches
 	// if it uses an operation/service in this list.
@@ -949,20 +1058,21 @@ type EgressTo struct {
 	// perimeter.
 	Resources []string `json:"resources,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Operations") to
-	// unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "ExternalResources")
+	// to unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Operations") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "ExternalResources") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -1046,11 +1156,18 @@ func (s *Expr) MarshalJSON() ([]byte, error) {
 // GcpUserAccessBinding: Restricts access to Cloud Console and Google
 // Cloud APIs for a set of users using Context-Aware Access.
 type GcpUserAccessBinding struct {
-	// AccessLevels: Required. Access level that a user must have to be
+	// AccessLevels: Optional. Access level that a user must have to be
 	// granted access. Only one access level is supported, not multiple.
 	// This repeated field must have exactly one element. Example:
 	// "accessPolicies/9522/accessLevels/device_trusted"
 	AccessLevels []string `json:"accessLevels,omitempty"`
+
+	// DryRunAccessLevels: Optional. Dry run access level that will be
+	// evaluated but will not be enforced. The access denial based on dry
+	// run policy will be logged. Only one access level is supported, not
+	// multiple. This list must have exactly one element. Example:
+	// "accessPolicies/9522/accessLevels/device_trusted"
+	DryRunAccessLevels []string `json:"dryRunAccessLevels,omitempty"`
 
 	// GroupKey: Required. Immutable. Google Group id whose members are
 	// subject to this binding's restrictions. See "id" in the [G Suite
@@ -1282,11 +1399,13 @@ type IngressSource struct {
 
 	// Resource: A Google Cloud resource that is allowed to ingress the
 	// perimeter. Requests from these resources will be allowed to access
-	// perimeter data. Currently only projects are allowed. Format:
-	// `projects/{project_number}` The project may be in any Google Cloud
-	// organization, not just the organization that the perimeter is defined
-	// in. `*` is not allowed, the case of allowing all Google Cloud
-	// resources only is not supported.
+	// perimeter data. Currently only projects and VPCs are allowed. Project
+	// format: `projects/{project_number}` VPC network format:
+	// `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}
+	// `. The project may be in any Google Cloud organization, not just the
+	// organization that the perimeter is defined in. `*` is not allowed,
+	// the case of allowing all Google Cloud resources only is not
+	// supported.
 	Resource string `json:"resource,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "AccessLevel") to
@@ -1423,6 +1542,44 @@ type ListAccessPoliciesResponse struct {
 
 func (s *ListAccessPoliciesResponse) MarshalJSON() ([]byte, error) {
 	type NoMethod ListAccessPoliciesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ListAuthorizedOrgsDescsResponse: A response to
+// `ListAuthorizedOrgsDescsRequest`.
+type ListAuthorizedOrgsDescsResponse struct {
+	// AuthorizedOrgsDescs: List of all the Authorized Orgs Desc instances.
+	AuthorizedOrgsDescs []*AuthorizedOrgsDesc `json:"authorizedOrgsDescs,omitempty"`
+
+	// NextPageToken: The pagination token to retrieve the next page of
+	// results. If the value is empty, no further results remain.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "AuthorizedOrgsDescs")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AuthorizedOrgsDescs") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ListAuthorizedOrgsDescsResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod ListAuthorizedOrgsDescsResponse
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1946,30 +2103,32 @@ func (s *ReplaceServicePerimetersResponse) MarshalJSON() ([]byte, error) {
 // `ServicePerimeter`, the request will be blocked. Otherwise the
 // request is allowed. There are two types of Service Perimeter -
 // Regular and Bridge. Regular Service Perimeters cannot overlap, a
-// single Google Cloud project can only belong to a single regular
-// Service Perimeter. Service Perimeter Bridges can contain only Google
-// Cloud projects as members, a single Google Cloud project may belong
-// to multiple Service Perimeter Bridges.
+// single Google Cloud project or VPC network can only belong to a
+// single regular Service Perimeter. Service Perimeter Bridges can
+// contain only Google Cloud projects as members, a single Google Cloud
+// project may belong to multiple Service Perimeter Bridges.
 type ServicePerimeter struct {
 	// Description: Description of the `ServicePerimeter` and its use. Does
 	// not affect behavior.
 	Description string `json:"description,omitempty"`
 
-	// Name: Required. Resource name for the ServicePerimeter. The
-	// `short_name` component must begin with a letter and only include
-	// alphanumeric and '_'. Format:
+	// Name: Resource name for the `ServicePerimeter`. Format:
 	// `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`
+	// . The `service_perimeter` component must begin with a letter,
+	// followed by alphanumeric characters or `_`. After you create a
+	// `ServicePerimeter`, you cannot change its `name`.
 	Name string `json:"name,omitempty"`
 
-	// PerimeterType: Perimeter type indicator. A single project is allowed
-	// to be a member of single regular perimeter, but multiple service
-	// perimeter bridges. A project cannot be a included in a perimeter
-	// bridge without being included in regular perimeter. For perimeter
-	// bridges, the restricted service list as well as access level lists
-	// must be empty.
+	// PerimeterType: Perimeter type indicator. A single project or VPC
+	// network is allowed to be a member of single regular perimeter, but
+	// multiple service perimeter bridges. A project cannot be a included in
+	// a perimeter bridge without being included in regular perimeter. For
+	// perimeter bridges, the restricted service list as well as access
+	// level lists must be empty.
 	//
 	// Possible values:
-	//   "PERIMETER_TYPE_REGULAR" - Regular Perimeter.
+	//   "PERIMETER_TYPE_REGULAR" - Regular Perimeter. When no value is
+	// specified, the perimeter uses this type.
 	//   "PERIMETER_TYPE_BRIDGE" - Perimeter Bridge.
 	PerimeterType string `json:"perimeterType,omitempty"`
 
@@ -2055,8 +2214,10 @@ type ServicePerimeterConfig struct {
 	IngressPolicies []*IngressPolicy `json:"ingressPolicies,omitempty"`
 
 	// Resources: A list of Google Cloud resources that are inside of the
-	// service perimeter. Currently only projects are allowed. Format:
-	// `projects/{project_number}`
+	// service perimeter. Currently only projects and VPCs are allowed.
+	// Project format: `projects/{project_number}` VPC network format:
+	// `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}
+	// `.
 	Resources []string `json:"resources,omitempty"`
 
 	// RestrictedServices: Google Cloud services that are subject to the
@@ -2362,17 +2523,17 @@ func (c *AccessPoliciesCreateCall) Do(opts ...googleapi.CallOption) (*Operation,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2420,8 +2581,8 @@ type AccessPoliciesDeleteCall struct {
 // long-running operation has a successful status after the access
 // policy is removed from long-lasting storage.
 //
-// - name: Resource name for the access policy to delete. Format
-//   `accessPolicies/{policy_id}`.
+//   - name: Resource name for the access policy to delete. Format
+//     `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesService) Delete(name string) *AccessPoliciesDeleteCall {
 	c := &AccessPoliciesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2490,17 +2651,17 @@ func (c *AccessPoliciesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -2554,8 +2715,8 @@ type AccessPoliciesGetCall struct {
 
 // Get: Returns an access policy based on the name.
 //
-// - name: Resource name for the access policy to get. Format
-//   `accessPolicies/{policy_id}`.
+//   - name: Resource name for the access policy to get. Format
+//     `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesService) Get(name string) *AccessPoliciesGetCall {
 	c := &AccessPoliciesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2637,17 +2798,17 @@ func (c *AccessPoliciesGetCall) Do(opts ...googleapi.CallOption) (*AccessPolicy,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccessPolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2702,10 +2863,10 @@ type AccessPoliciesGetIamPolicyCall struct {
 // GetIamPolicy: Gets the IAM policy for the specified Access Context
 // Manager access policy.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *AccessPoliciesService) GetIamPolicy(resource string, getiampolicyrequest *GetIamPolicyRequest) *AccessPoliciesGetIamPolicyCall {
 	c := &AccessPoliciesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -2780,17 +2941,17 @@ func (c *AccessPoliciesGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Poli
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -2945,17 +3106,17 @@ func (c *AccessPoliciesListCall) Do(opts ...googleapi.CallOption) (*ListAccessPo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAccessPoliciesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3039,8 +3200,8 @@ type AccessPoliciesPatchCall struct {
 // RPC has a successful status after the changes to the access policy
 // propagate to long-lasting storage.
 //
-// - name: Output only. Resource name of the `AccessPolicy`. Format:
-//   `accessPolicies/{access_policy}`.
+//   - name: Output only. Resource name of the `AccessPolicy`. Format:
+//     `accessPolicies/{access_policy}`.
 func (r *AccessPoliciesService) Patch(name string, accesspolicy *AccessPolicy) *AccessPoliciesPatchCall {
 	c := &AccessPoliciesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3122,17 +3283,17 @@ func (c *AccessPoliciesPatchCall) Do(opts ...googleapi.CallOption) (*Operation, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3199,10 +3360,10 @@ type AccessPoliciesSetIamPolicyCall struct {
 // can perform specific operations on the Access Context Manager access
 // policy.
 //
-// - resource: REQUIRED: The resource for which the policy is being
-//   specified. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy is being
+//     specified. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *AccessPoliciesService) SetIamPolicy(resource string, setiampolicyrequest *SetIamPolicyRequest) *AccessPoliciesSetIamPolicyCall {
 	c := &AccessPoliciesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3277,17 +3438,17 @@ func (c *AccessPoliciesSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Poli
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -3347,10 +3508,10 @@ type AccessPoliciesTestIamPermissionsCall struct {
 // an AccessPolicy, AccessLevel, or ServicePerimeter. This method does
 // not support other resources.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *AccessPoliciesService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *AccessPoliciesTestIamPermissionsCall {
 	c := &AccessPoliciesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -3425,17 +3586,17 @@ func (c *AccessPoliciesTestIamPermissionsCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3495,8 +3656,8 @@ type AccessPoliciesAccessLevelsCreateCall struct {
 // long-lasting storage. If access levels contain errors, an error
 // response is returned for the first error encountered.
 //
-// - parent: Resource name for the access policy which owns this Access
-//   Level. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy which owns this Access
+//     Level. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesAccessLevelsService) Create(parent string, accesslevel *AccessLevel) *AccessPoliciesAccessLevelsCreateCall {
 	c := &AccessPoliciesAccessLevelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3571,17 +3732,17 @@ func (c *AccessPoliciesAccessLevelsCreateCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3639,8 +3800,8 @@ type AccessPoliciesAccessLevelsDeleteCall struct {
 // long-running operation from this RPC has a successful status after
 // the access level has been removed from long-lasting storage.
 //
-// - name: Resource name for the Access Level. Format:
-//   `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
+//   - name: Resource name for the Access Level. Format:
+//     `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
 func (r *AccessPoliciesAccessLevelsService) Delete(name string) *AccessPoliciesAccessLevelsDeleteCall {
 	c := &AccessPoliciesAccessLevelsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3709,17 +3870,17 @@ func (c *AccessPoliciesAccessLevelsDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3773,8 +3934,8 @@ type AccessPoliciesAccessLevelsGetCall struct {
 
 // Get: Gets an access level based on the resource name.
 //
-// - name: Resource name for the Access Level. Format:
-//   `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
+//   - name: Resource name for the Access Level. Format:
+//     `accessPolicies/{policy_id}/accessLevels/{access_level_id}`.
 func (r *AccessPoliciesAccessLevelsService) Get(name string) *AccessPoliciesAccessLevelsGetCall {
 	c := &AccessPoliciesAccessLevelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3790,11 +3951,15 @@ func (r *AccessPoliciesAccessLevelsService) Get(name string) *AccessPoliciesAcce
 // translated to equivalent `CustomLevels`.
 //
 // Possible values:
-//   "LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
-//   "AS_DEFINED" - Uses the format the resource was defined in.
+//
+//	"LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
+//	"AS_DEFINED" - Uses the format the resource was defined in.
+//
 // BasicLevels are returned as BasicLevels, CustomLevels are returned as
 // CustomLevels.
-//   "CEL" - Use Cloud Common Expression Language when returning the
+//
+//	"CEL" - Use Cloud Common Expression Language when returning the
+//
 // resource. Both BasicLevels and CustomLevels are returned as
 // CustomLevels.
 func (c *AccessPoliciesAccessLevelsGetCall) AccessLevelFormat(accessLevelFormat string) *AccessPoliciesAccessLevelsGetCall {
@@ -3877,17 +4042,17 @@ func (c *AccessPoliciesAccessLevelsGetCall) Do(opts ...googleapi.CallOption) (*A
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AccessLevel{
 		ServerResponse: googleapi.ServerResponse{
@@ -3956,8 +4121,8 @@ type AccessPoliciesAccessLevelsListCall struct {
 
 // List: Lists all access levels for an access policy.
 //
-// - parent: Resource name for the access policy to list Access Levels
-//   from. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy to list Access Levels
+//     from. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesAccessLevelsService) List(parent string) *AccessPoliciesAccessLevelsListCall {
 	c := &AccessPoliciesAccessLevelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3970,11 +4135,15 @@ func (r *AccessPoliciesAccessLevelsService) List(parent string) *AccessPoliciesA
 // to returning `AccessLevels` in the format they were defined.
 //
 // Possible values:
-//   "LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
-//   "AS_DEFINED" - Uses the format the resource was defined in.
+//
+//	"LEVEL_FORMAT_UNSPECIFIED" - The format was not specified.
+//	"AS_DEFINED" - Uses the format the resource was defined in.
+//
 // BasicLevels are returned as BasicLevels, CustomLevels are returned as
 // CustomLevels.
-//   "CEL" - Use Cloud Common Expression Language when returning the
+//
+//	"CEL" - Use Cloud Common Expression Language when returning the
+//
 // resource. Both BasicLevels and CustomLevels are returned as
 // CustomLevels.
 func (c *AccessPoliciesAccessLevelsListCall) AccessLevelFormat(accessLevelFormat string) *AccessPoliciesAccessLevelsListCall {
@@ -4072,17 +4241,17 @@ func (c *AccessPoliciesAccessLevelsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListAccessLevelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4186,11 +4355,12 @@ type AccessPoliciesAccessLevelsPatchCall struct {
 // propagate to long-lasting storage. If access levels contain errors,
 // an error response is returned for the first error encountered.
 //
-// - name: Resource name for the Access Level. The `short_name`
-//   component must begin with a letter and only include alphanumeric
-//   and '_'. Format:
-//   `accessPolicies/{access_policy}/accessLevels/{access_level}`. The
-//   maximum length of the `access_level` component is 50 characters.
+//   - name: Resource name for the `AccessLevel`. Format:
+//     `accessPolicies/{access_policy}/accessLevels/{access_level}`. The
+//     `access_level` component must begin with a letter, followed by
+//     alphanumeric characters or `_`. Its maximum length is 50
+//     characters. After you create an `AccessLevel`, you cannot change
+//     its `name`.
 func (r *AccessPoliciesAccessLevelsService) Patch(name string, accesslevel *AccessLevel) *AccessPoliciesAccessLevelsPatchCall {
 	c := &AccessPoliciesAccessLevelsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4272,17 +4442,17 @@ func (c *AccessPoliciesAccessLevelsPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4305,7 +4475,7 @@ func (c *AccessPoliciesAccessLevelsPatchCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Resource name for the Access Level. The `short_name` component must begin with a letter and only include alphanumeric and '_'. Format: `accessPolicies/{access_policy}/accessLevels/{access_level}`. The maximum length of the `access_level` component is 50 characters.",
+	//       "description": "Resource name for the `AccessLevel`. Format: `accessPolicies/{access_policy}/accessLevels/{access_level}`. The `access_level` component must begin with a letter, followed by alphanumeric characters or `_`. Its maximum length is 50 characters. After you create an `AccessLevel`, you cannot change its `name`.",
 	//       "location": "path",
 	//       "pattern": "^accessPolicies/[^/]+/accessLevels/[^/]+$",
 	//       "required": true,
@@ -4353,8 +4523,8 @@ type AccessPoliciesAccessLevelsReplaceAllCall struct {
 // field contains ReplaceAccessLevelsResponse. Removing access levels
 // contained in existing service perimeters result in an error.
 //
-// - parent: Resource name for the access policy which owns these Access
-//   Levels. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy which owns these Access
+//     Levels. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesAccessLevelsService) ReplaceAll(parent string, replaceaccesslevelsrequest *ReplaceAccessLevelsRequest) *AccessPoliciesAccessLevelsReplaceAllCall {
 	c := &AccessPoliciesAccessLevelsReplaceAllCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4429,17 +4599,17 @@ func (c *AccessPoliciesAccessLevelsReplaceAllCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4499,10 +4669,10 @@ type AccessPoliciesAccessLevelsTestIamPermissionsCall struct {
 // an AccessPolicy, AccessLevel, or ServicePerimeter. This method does
 // not support other resources.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *AccessPoliciesAccessLevelsService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *AccessPoliciesAccessLevelsTestIamPermissionsCall {
 	c := &AccessPoliciesAccessLevelsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -4577,17 +4747,17 @@ func (c *AccessPoliciesAccessLevelsTestIamPermissionsCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4631,6 +4801,797 @@ func (c *AccessPoliciesAccessLevelsTestIamPermissionsCall) Do(opts ...googleapi.
 
 }
 
+// method id "accesscontextmanager.accessPolicies.authorizedOrgsDescs.create":
+
+type AccessPoliciesAuthorizedOrgsDescsCreateCall struct {
+	s                  *Service
+	parent             string
+	authorizedorgsdesc *AuthorizedOrgsDesc
+	urlParams_         gensupport.URLParams
+	ctx_               context.Context
+	header_            http.Header
+}
+
+// Create: Creates an authorized orgs desc. The long-running operation
+// from this RPC has a successful status after the authorized orgs desc
+// propagates to long-lasting storage. If a authorized orgs desc
+// contains errors, an error response is returned for the first error
+// encountered. The name of this `AuthorizedOrgsDesc` will be assigned
+// during creation.
+//
+//   - parent: Resource name for the access policy which owns this
+//     Authorized Orgs Desc. Format: `accessPolicies/{policy_id}`.
+func (r *AccessPoliciesAuthorizedOrgsDescsService) Create(parent string, authorizedorgsdesc *AuthorizedOrgsDesc) *AccessPoliciesAuthorizedOrgsDescsCreateCall {
+	c := &AccessPoliciesAuthorizedOrgsDescsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.authorizedorgsdesc = authorizedorgsdesc
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *AccessPoliciesAuthorizedOrgsDescsCreateCall) Fields(s ...googleapi.Field) *AccessPoliciesAuthorizedOrgsDescsCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *AccessPoliciesAuthorizedOrgsDescsCreateCall) Context(ctx context.Context) *AccessPoliciesAuthorizedOrgsDescsCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *AccessPoliciesAuthorizedOrgsDescsCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *AccessPoliciesAuthorizedOrgsDescsCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.authorizedorgsdesc)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/authorizedOrgsDescs")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "accesscontextmanager.accessPolicies.authorizedOrgsDescs.create" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *AccessPoliciesAuthorizedOrgsDescsCreateCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates an authorized orgs desc. The long-running operation from this RPC has a successful status after the authorized orgs desc propagates to long-lasting storage. If a authorized orgs desc contains errors, an error response is returned for the first error encountered. The name of this `AuthorizedOrgsDesc` will be assigned during creation.",
+	//   "flatPath": "v1/accessPolicies/{accessPoliciesId}/authorizedOrgsDescs",
+	//   "httpMethod": "POST",
+	//   "id": "accesscontextmanager.accessPolicies.authorizedOrgsDescs.create",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Required. Resource name for the access policy which owns this Authorized Orgs Desc. Format: `accessPolicies/{policy_id}`",
+	//       "location": "path",
+	//       "pattern": "^accessPolicies/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/authorizedOrgsDescs",
+	//   "request": {
+	//     "$ref": "AuthorizedOrgsDesc"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "accesscontextmanager.accessPolicies.authorizedOrgsDescs.delete":
+
+type AccessPoliciesAuthorizedOrgsDescsDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes an authorized orgs desc based on the resource name.
+// The long-running operation from this RPC has a successful status
+// after the authorized orgs desc is removed from long-lasting storage.
+//
+//   - name: Resource name for the Authorized Orgs Desc. Format:
+//     `accessPolicies/{policy_id}/authorizedOrgsDesc/{authorized_orgs_desc
+//     _id}`.
+func (r *AccessPoliciesAuthorizedOrgsDescsService) Delete(name string) *AccessPoliciesAuthorizedOrgsDescsDeleteCall {
+	c := &AccessPoliciesAuthorizedOrgsDescsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *AccessPoliciesAuthorizedOrgsDescsDeleteCall) Fields(s ...googleapi.Field) *AccessPoliciesAuthorizedOrgsDescsDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *AccessPoliciesAuthorizedOrgsDescsDeleteCall) Context(ctx context.Context) *AccessPoliciesAuthorizedOrgsDescsDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *AccessPoliciesAuthorizedOrgsDescsDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *AccessPoliciesAuthorizedOrgsDescsDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "accesscontextmanager.accessPolicies.authorizedOrgsDescs.delete" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *AccessPoliciesAuthorizedOrgsDescsDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes an authorized orgs desc based on the resource name. The long-running operation from this RPC has a successful status after the authorized orgs desc is removed from long-lasting storage.",
+	//   "flatPath": "v1/accessPolicies/{accessPoliciesId}/authorizedOrgsDescs/{authorizedOrgsDescsId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "accesscontextmanager.accessPolicies.authorizedOrgsDescs.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Resource name for the Authorized Orgs Desc. Format: `accessPolicies/{policy_id}/authorizedOrgsDesc/{authorized_orgs_desc_id}`",
+	//       "location": "path",
+	//       "pattern": "^accessPolicies/[^/]+/authorizedOrgsDescs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "accesscontextmanager.accessPolicies.authorizedOrgsDescs.get":
+
+type AccessPoliciesAuthorizedOrgsDescsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets an authorized orgs desc based on the resource name.
+//
+//   - name: Resource name for the Authorized Orgs Desc. Format:
+//     `accessPolicies/{policy_id}/authorizedOrgsDescs/{authorized_orgs_des
+//     cs_id}`.
+func (r *AccessPoliciesAuthorizedOrgsDescsService) Get(name string) *AccessPoliciesAuthorizedOrgsDescsGetCall {
+	c := &AccessPoliciesAuthorizedOrgsDescsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *AccessPoliciesAuthorizedOrgsDescsGetCall) Fields(s ...googleapi.Field) *AccessPoliciesAuthorizedOrgsDescsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *AccessPoliciesAuthorizedOrgsDescsGetCall) IfNoneMatch(entityTag string) *AccessPoliciesAuthorizedOrgsDescsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *AccessPoliciesAuthorizedOrgsDescsGetCall) Context(ctx context.Context) *AccessPoliciesAuthorizedOrgsDescsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *AccessPoliciesAuthorizedOrgsDescsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *AccessPoliciesAuthorizedOrgsDescsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "accesscontextmanager.accessPolicies.authorizedOrgsDescs.get" call.
+// Exactly one of *AuthorizedOrgsDesc or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *AuthorizedOrgsDesc.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *AccessPoliciesAuthorizedOrgsDescsGetCall) Do(opts ...googleapi.CallOption) (*AuthorizedOrgsDesc, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &AuthorizedOrgsDesc{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets an authorized orgs desc based on the resource name.",
+	//   "flatPath": "v1/accessPolicies/{accessPoliciesId}/authorizedOrgsDescs/{authorizedOrgsDescsId}",
+	//   "httpMethod": "GET",
+	//   "id": "accesscontextmanager.accessPolicies.authorizedOrgsDescs.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. Resource name for the Authorized Orgs Desc. Format: `accessPolicies/{policy_id}/authorizedOrgsDescs/{authorized_orgs_descs_id}`",
+	//       "location": "path",
+	//       "pattern": "^accessPolicies/[^/]+/authorizedOrgsDescs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "AuthorizedOrgsDesc"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "accesscontextmanager.accessPolicies.authorizedOrgsDescs.list":
+
+type AccessPoliciesAuthorizedOrgsDescsListCall struct {
+	s            *Service
+	parent       string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Lists all authorized orgs descs for an access policy.
+//
+//   - parent: Resource name for the access policy to list Authorized Orgs
+//     Desc from. Format: `accessPolicies/{policy_id}`.
+func (r *AccessPoliciesAuthorizedOrgsDescsService) List(parent string) *AccessPoliciesAuthorizedOrgsDescsListCall {
+	c := &AccessPoliciesAuthorizedOrgsDescsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	return c
+}
+
+// PageSize sets the optional parameter "pageSize": Number of Authorized
+// Orgs Descs to include in the list. Default 100.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) PageSize(pageSize int64) *AccessPoliciesAuthorizedOrgsDescsListCall {
+	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Next page token
+// for the next batch of Authorized Orgs Desc instances. Defaults to the
+// first page of results.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) PageToken(pageToken string) *AccessPoliciesAuthorizedOrgsDescsListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) Fields(s ...googleapi.Field) *AccessPoliciesAuthorizedOrgsDescsListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) IfNoneMatch(entityTag string) *AccessPoliciesAuthorizedOrgsDescsListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) Context(ctx context.Context) *AccessPoliciesAuthorizedOrgsDescsListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/authorizedOrgsDescs")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "accesscontextmanager.accessPolicies.authorizedOrgsDescs.list" call.
+// Exactly one of *ListAuthorizedOrgsDescsResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *ListAuthorizedOrgsDescsResponse.ServerResponse.Header or (if
+// a response was returned at all) in error.(*googleapi.Error).Header.
+// Use googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) Do(opts ...googleapi.CallOption) (*ListAuthorizedOrgsDescsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &ListAuthorizedOrgsDescsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Lists all authorized orgs descs for an access policy.",
+	//   "flatPath": "v1/accessPolicies/{accessPoliciesId}/authorizedOrgsDescs",
+	//   "httpMethod": "GET",
+	//   "id": "accesscontextmanager.accessPolicies.authorizedOrgsDescs.list",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "pageSize": {
+	//       "description": "Number of Authorized Orgs Descs to include in the list. Default 100.",
+	//       "format": "int32",
+	//       "location": "query",
+	//       "type": "integer"
+	//     },
+	//     "pageToken": {
+	//       "description": "Next page token for the next batch of Authorized Orgs Desc instances. Defaults to the first page of results.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. Resource name for the access policy to list Authorized Orgs Desc from. Format: `accessPolicies/{policy_id}`",
+	//       "location": "path",
+	//       "pattern": "^accessPolicies/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/authorizedOrgsDescs",
+	//   "response": {
+	//     "$ref": "ListAuthorizedOrgsDescsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *AccessPoliciesAuthorizedOrgsDescsListCall) Pages(ctx context.Context, f func(*ListAuthorizedOrgsDescsResponse) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "accesscontextmanager.accessPolicies.authorizedOrgsDescs.patch":
+
+type AccessPoliciesAuthorizedOrgsDescsPatchCall struct {
+	s                  *Service
+	name               string
+	authorizedorgsdesc *AuthorizedOrgsDesc
+	urlParams_         gensupport.URLParams
+	ctx_               context.Context
+	header_            http.Header
+}
+
+// Patch: Updates an authorized orgs desc. The long-running operation
+// from this RPC has a successful status after the authorized orgs desc
+// propagates to long-lasting storage. If a authorized orgs desc
+// contains errors, an error response is returned for the first error
+// encountered. Only the organization list in `AuthorizedOrgsDesc` can
+// be updated. The name, authorization_type, asset_type and
+// authorization_direction cannot be updated.
+//
+//   - name: Resource name for the `AuthorizedOrgsDesc`. Format:
+//     `accessPolicies/{access_policy}/authorizedOrgsDescs/{authorized_orgs
+//     _desc}`. The `authorized_orgs_desc` component must begin with a
+//     letter, followed by alphanumeric characters or `_`. After you
+//     create an `AuthorizedOrgsDesc`, you cannot change its `name`.
+func (r *AccessPoliciesAuthorizedOrgsDescsService) Patch(name string, authorizedorgsdesc *AuthorizedOrgsDesc) *AccessPoliciesAuthorizedOrgsDescsPatchCall {
+	c := &AccessPoliciesAuthorizedOrgsDescsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.authorizedorgsdesc = authorizedorgsdesc
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": Required. Mask
+// to control which fields get updated. Must be non-empty.
+func (c *AccessPoliciesAuthorizedOrgsDescsPatchCall) UpdateMask(updateMask string) *AccessPoliciesAuthorizedOrgsDescsPatchCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *AccessPoliciesAuthorizedOrgsDescsPatchCall) Fields(s ...googleapi.Field) *AccessPoliciesAuthorizedOrgsDescsPatchCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *AccessPoliciesAuthorizedOrgsDescsPatchCall) Context(ctx context.Context) *AccessPoliciesAuthorizedOrgsDescsPatchCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *AccessPoliciesAuthorizedOrgsDescsPatchCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *AccessPoliciesAuthorizedOrgsDescsPatchCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.authorizedorgsdesc)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "accesscontextmanager.accessPolicies.authorizedOrgsDescs.patch" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *AccessPoliciesAuthorizedOrgsDescsPatchCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates an authorized orgs desc. The long-running operation from this RPC has a successful status after the authorized orgs desc propagates to long-lasting storage. If a authorized orgs desc contains errors, an error response is returned for the first error encountered. Only the organization list in `AuthorizedOrgsDesc` can be updated. The name, authorization_type, asset_type and authorization_direction cannot be updated.",
+	//   "flatPath": "v1/accessPolicies/{accessPoliciesId}/authorizedOrgsDescs/{authorizedOrgsDescsId}",
+	//   "httpMethod": "PATCH",
+	//   "id": "accesscontextmanager.accessPolicies.authorizedOrgsDescs.patch",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Resource name for the `AuthorizedOrgsDesc`. Format: `accessPolicies/{access_policy}/authorizedOrgsDescs/{authorized_orgs_desc}`. The `authorized_orgs_desc` component must begin with a letter, followed by alphanumeric characters or `_`. After you create an `AuthorizedOrgsDesc`, you cannot change its `name`.",
+	//       "location": "path",
+	//       "pattern": "^accessPolicies/[^/]+/authorizedOrgsDescs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "Required. Mask to control which fields get updated. Must be non-empty.",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "request": {
+	//     "$ref": "AuthorizedOrgsDesc"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "accesscontextmanager.accessPolicies.servicePerimeters.commit":
 
 type AccessPoliciesServicePerimetersCommitCall struct {
@@ -4656,9 +5617,9 @@ type AccessPoliciesServicePerimetersCommitCall struct {
 // The `dry_run` and the `spec` fields are cleared after a successful
 // commit operation.
 //
-// - parent: Resource name for the parent Access Policy which owns all
-//   Service Perimeters in scope for the commit operation. Format:
-//   `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the parent Access Policy which owns all
+//     Service Perimeters in scope for the commit operation. Format:
+//     `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesServicePerimetersService) Commit(parent string, commitserviceperimetersrequest *CommitServicePerimetersRequest) *AccessPoliciesServicePerimetersCommitCall {
 	c := &AccessPoliciesServicePerimetersCommitCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4733,17 +5694,17 @@ func (c *AccessPoliciesServicePerimetersCommitCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4804,8 +5765,8 @@ type AccessPoliciesServicePerimetersCreateCall struct {
 // errors, an error response is returned for the first error
 // encountered.
 //
-// - parent: Resource name for the access policy which owns this Service
-//   Perimeter. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy which owns this Service
+//     Perimeter. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesServicePerimetersService) Create(parent string, serviceperimeter *ServicePerimeter) *AccessPoliciesServicePerimetersCreateCall {
 	c := &AccessPoliciesServicePerimetersCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4880,17 +5841,17 @@ func (c *AccessPoliciesServicePerimetersCreateCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4948,9 +5909,9 @@ type AccessPoliciesServicePerimetersDeleteCall struct {
 // long-running operation from this RPC has a successful status after
 // the service perimeter is removed from long-lasting storage.
 //
-// - name: Resource name for the Service Perimeter. Format:
-//   `accessPolicies/{policy_id}/servicePerimeters/{service_perimeter_id}
-//   `.
+//   - name: Resource name for the Service Perimeter. Format:
+//     `accessPolicies/{policy_id}/servicePerimeters/{service_perimeter_id}
+//     `.
 func (r *AccessPoliciesServicePerimetersService) Delete(name string) *AccessPoliciesServicePerimetersDeleteCall {
 	c := &AccessPoliciesServicePerimetersDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5019,17 +5980,17 @@ func (c *AccessPoliciesServicePerimetersDeleteCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5083,9 +6044,9 @@ type AccessPoliciesServicePerimetersGetCall struct {
 
 // Get: Gets a service perimeter based on the resource name.
 //
-// - name: Resource name for the Service Perimeter. Format:
-//   `accessPolicies/{policy_id}/servicePerimeters/{service_perimeters_id
-//   }`.
+//   - name: Resource name for the Service Perimeter. Format:
+//     `accessPolicies/{policy_id}/servicePerimeters/{service_perimeters_id
+//     }`.
 func (r *AccessPoliciesServicePerimetersService) Get(name string) *AccessPoliciesServicePerimetersGetCall {
 	c := &AccessPoliciesServicePerimetersGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5167,17 +6128,17 @@ func (c *AccessPoliciesServicePerimetersGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ServicePerimeter{
 		ServerResponse: googleapi.ServerResponse{
@@ -5231,8 +6192,8 @@ type AccessPoliciesServicePerimetersListCall struct {
 
 // List: Lists all service perimeters for an access policy.
 //
-// - parent: Resource name for the access policy to list Service
-//   Perimeters from. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy to list Service
+//     Perimeters from. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesServicePerimetersService) List(parent string) *AccessPoliciesServicePerimetersListCall {
 	c := &AccessPoliciesServicePerimetersListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5329,17 +6290,17 @@ func (c *AccessPoliciesServicePerimetersListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListServicePerimetersResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5429,11 +6390,11 @@ type AccessPoliciesServicePerimetersPatchCall struct {
 // errors, an error response is returned for the first error
 // encountered.
 //
-// - name: Resource name for the ServicePerimeter. The `short_name`
-//   component must begin with a letter and only include alphanumeric
-//   and '_'. Format:
-//   `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter
-//   }`.
+//   - name: Resource name for the `ServicePerimeter`. Format:
+//     `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter
+//     }`. The `service_perimeter` component must begin with a letter,
+//     followed by alphanumeric characters or `_`. After you create a
+//     `ServicePerimeter`, you cannot change its `name`.
 func (r *AccessPoliciesServicePerimetersService) Patch(name string, serviceperimeter *ServicePerimeter) *AccessPoliciesServicePerimetersPatchCall {
 	c := &AccessPoliciesServicePerimetersPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5515,17 +6476,17 @@ func (c *AccessPoliciesServicePerimetersPatchCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5548,7 +6509,7 @@ func (c *AccessPoliciesServicePerimetersPatchCall) Do(opts ...googleapi.CallOpti
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Required. Resource name for the ServicePerimeter. The `short_name` component must begin with a letter and only include alphanumeric and '_'. Format: `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`",
+	//       "description": "Resource name for the `ServicePerimeter`. Format: `accessPolicies/{access_policy}/servicePerimeters/{service_perimeter}`. The `service_perimeter` component must begin with a letter, followed by alphanumeric characters or `_`. After you create a `ServicePerimeter`, you cannot change its `name`.",
 	//       "location": "path",
 	//       "pattern": "^accessPolicies/[^/]+/servicePerimeters/[^/]+$",
 	//       "required": true,
@@ -5595,8 +6556,8 @@ type AccessPoliciesServicePerimetersReplaceAllCall struct {
 // existing service perimeters are not affected. The Operation.response
 // field contains ReplaceServicePerimetersResponse.
 //
-// - parent: Resource name for the access policy which owns these
-//   Service Perimeters. Format: `accessPolicies/{policy_id}`.
+//   - parent: Resource name for the access policy which owns these
+//     Service Perimeters. Format: `accessPolicies/{policy_id}`.
 func (r *AccessPoliciesServicePerimetersService) ReplaceAll(parent string, replaceserviceperimetersrequest *ReplaceServicePerimetersRequest) *AccessPoliciesServicePerimetersReplaceAllCall {
 	c := &AccessPoliciesServicePerimetersReplaceAllCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5671,17 +6632,17 @@ func (c *AccessPoliciesServicePerimetersReplaceAllCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5741,10 +6702,10 @@ type AccessPoliciesServicePerimetersTestIamPermissionsCall struct {
 // an AccessPolicy, AccessLevel, or ServicePerimeter. This method does
 // not support other resources.
 //
-// - resource: REQUIRED: The resource for which the policy detail is
-//   being requested. See Resource names
-//   (https://cloud.google.com/apis/design/resource_names) for the
-//   appropriate value for this field.
+//   - resource: REQUIRED: The resource for which the policy detail is
+//     being requested. See Resource names
+//     (https://cloud.google.com/apis/design/resource_names) for the
+//     appropriate value for this field.
 func (r *AccessPoliciesServicePerimetersService) TestIamPermissions(resource string, testiampermissionsrequest *TestIamPermissionsRequest) *AccessPoliciesServicePerimetersTestIamPermissionsCall {
 	c := &AccessPoliciesServicePerimetersTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.resource = resource
@@ -5819,17 +6780,17 @@ func (c *AccessPoliciesServicePerimetersTestIamPermissionsCall) Do(opts ...googl
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5970,17 +6931,17 @@ func (c *OperationsCancelCall) Do(opts ...googleapi.CallOption) (*Empty, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6108,17 +7069,17 @@ func (c *OperationsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6256,17 +7217,17 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6320,14 +7281,7 @@ type OperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *OperationsService) List(name string) *OperationsListCall {
@@ -6432,17 +7386,17 @@ func (c *OperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperationsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6456,7 +7410,7 @@ func (c *OperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperationsRe
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/operations",
 	//   "httpMethod": "GET",
 	//   "id": "accesscontextmanager.operations.list",
@@ -6612,17 +7566,17 @@ func (c *OrganizationsGcpUserAccessBindingsCreateCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6681,8 +7635,8 @@ type OrganizationsGcpUserAccessBindingsDeleteCall struct {
 // deletion is deployed onto all affected users, which may take more
 // time.
 //
-// - name: Example:
-//   "organizations/256/gcpUserAccessBindings/b3-BhcX_Ud5N".
+//   - name: Example:
+//     "organizations/256/gcpUserAccessBindings/b3-BhcX_Ud5N".
 func (r *OrganizationsGcpUserAccessBindingsService) Delete(name string) *OrganizationsGcpUserAccessBindingsDeleteCall {
 	c := &OrganizationsGcpUserAccessBindingsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6751,17 +7705,17 @@ func (c *OrganizationsGcpUserAccessBindingsDeleteCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6815,8 +7769,8 @@ type OrganizationsGcpUserAccessBindingsGetCall struct {
 
 // Get: Gets the GcpUserAccessBinding with the given name.
 //
-// - name: Example:
-//   "organizations/256/gcpUserAccessBindings/b3-BhcX_Ud5N".
+//   - name: Example:
+//     "organizations/256/gcpUserAccessBindings/b3-BhcX_Ud5N".
 func (r *OrganizationsGcpUserAccessBindingsService) Get(name string) *OrganizationsGcpUserAccessBindingsGetCall {
 	c := &OrganizationsGcpUserAccessBindingsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6898,17 +7852,17 @@ func (c *OrganizationsGcpUserAccessBindingsGetCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GcpUserAccessBinding{
 		ServerResponse: googleapi.ServerResponse{
@@ -7062,17 +8016,17 @@ func (c *OrganizationsGcpUserAccessBindingsListCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListGcpUserAccessBindingsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7161,12 +8115,12 @@ type OrganizationsGcpUserAccessBindingsPatchCall struct {
 // binding is deployed onto all affected users, which may take more
 // time.
 //
-// - name: Immutable. Assigned by the server during creation. The last
-//   segment has an arbitrary length and has only URI unreserved
-//   characters (as defined by RFC 3986 Section 2.3
-//   (https://tools.ietf.org/html/rfc3986#section-2.3)). Should not be
-//   specified by the client during creation. Example:
-//   "organizations/256/gcpUserAccessBindings/b3-BhcX_Ud5N".
+//   - name: Immutable. Assigned by the server during creation. The last
+//     segment has an arbitrary length and has only URI unreserved
+//     characters (as defined by RFC 3986 Section 2.3
+//     (https://tools.ietf.org/html/rfc3986#section-2.3)). Should not be
+//     specified by the client during creation. Example:
+//     "organizations/256/gcpUserAccessBindings/b3-BhcX_Ud5N".
 func (r *OrganizationsGcpUserAccessBindingsService) Patch(name string, gcpuseraccessbinding *GcpUserAccessBinding) *OrganizationsGcpUserAccessBindingsPatchCall {
 	c := &OrganizationsGcpUserAccessBindingsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7176,8 +8130,9 @@ func (r *OrganizationsGcpUserAccessBindingsService) Patch(name string, gcpuserac
 
 // UpdateMask sets the optional parameter "updateMask": Required. Only
 // the fields specified in this mask are updated. Because name and
-// group_key cannot be changed, update_mask is required and must always
-// be: update_mask { paths: "access_levels" }
+// group_key cannot be changed, update_mask is required and may only
+// contain the following fields: `access_levels`,
+// `dry_run_access_levels`. update_mask { paths: "access_levels" }
 func (c *OrganizationsGcpUserAccessBindingsPatchCall) UpdateMask(updateMask string) *OrganizationsGcpUserAccessBindingsPatchCall {
 	c.urlParams_.Set("updateMask", updateMask)
 	return c
@@ -7250,17 +8205,17 @@ func (c *OrganizationsGcpUserAccessBindingsPatchCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7290,7 +8245,7 @@ func (c *OrganizationsGcpUserAccessBindingsPatchCall) Do(opts ...googleapi.CallO
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Required. Only the fields specified in this mask are updated. Because name and group_key cannot be changed, update_mask is required and must always be: update_mask { paths: \"access_levels\" }",
+	//       "description": "Required. Only the fields specified in this mask are updated. Because name and group_key cannot be changed, update_mask is required and may only contain the following fields: `access_levels`, `dry_run_access_levels`. update_mask { paths: \"access_levels\" }",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"

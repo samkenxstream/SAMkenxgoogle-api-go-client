@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,31 +8,31 @@
 //
 // For product documentation, see: https://cloud.google.com/datastream/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/datastream/v1"
-//   ...
-//   ctx := context.Background()
-//   datastreamService, err := datastream.NewService(ctx)
+//	import "google.golang.org/api/datastream/v1"
+//	...
+//	ctx := context.Background()
+//	datastreamService, err := datastream.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   datastreamService, err := datastream.NewService(ctx, option.WithAPIKey("AIza..."))
+//	datastreamService, err := datastream.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   datastreamService, err := datastream.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	datastreamService, err := datastream.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package datastream // import "google.golang.org/api/datastream/v1"
@@ -71,6 +71,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "datastream:v1"
 const apiName = "datastream"
@@ -244,6 +245,10 @@ type BackfillAllStrategy struct {
 	// backfilling.
 	OracleExcludedObjects *OracleRdbms `json:"oracleExcludedObjects,omitempty"`
 
+	// PostgresqlExcludedObjects: PostgreSQL data source objects to avoid
+	// backfilling.
+	PostgresqlExcludedObjects *PostgresqlRdbms `json:"postgresqlExcludedObjects,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g.
 	// "MysqlExcludedObjects") to unconditionally include in API requests.
 	// By default, fields with empty or default values are omitted from API
@@ -335,6 +340,48 @@ func (s *BackfillJob) MarshalJSON() ([]byte, error) {
 type BackfillNoneStrategy struct {
 }
 
+// BigQueryDestinationConfig: BigQuery destination configuration
+type BigQueryDestinationConfig struct {
+	// DataFreshness: The guaranteed data freshness (in seconds) when
+	// querying tables created by the stream. Editing this field will only
+	// affect new tables created in the future, but existing tables will not
+	// be impacted. Lower values mean that queries will return fresher data,
+	// but may result in higher cost.
+	DataFreshness string `json:"dataFreshness,omitempty"`
+
+	// SingleTargetDataset: Single destination dataset.
+	SingleTargetDataset *SingleTargetDataset `json:"singleTargetDataset,omitempty"`
+
+	// SourceHierarchyDatasets: Source hierarchy datasets.
+	SourceHierarchyDatasets *SourceHierarchyDatasets `json:"sourceHierarchyDatasets,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DataFreshness") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DataFreshness") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BigQueryDestinationConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod BigQueryDestinationConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BigQueryProfile: BigQuery warehouse profile.
+type BigQueryProfile struct {
+}
+
 // CancelOperationRequest: The request message for
 // Operations.CancelOperation.
 type CancelOperationRequest struct {
@@ -343,6 +390,9 @@ type CancelOperationRequest struct {
 // ConnectionProfile: A set of reusable connection configurations to be
 // used as a source or destination for a stream.
 type ConnectionProfile struct {
+	// BigqueryProfile: BigQuery Connection Profile configuration.
+	BigqueryProfile *BigQueryProfile `json:"bigqueryProfile,omitempty"`
+
 	// CreateTime: Output only. The create time of the resource.
 	CreateTime string `json:"createTime,omitempty"`
 
@@ -367,6 +417,9 @@ type ConnectionProfile struct {
 	// OracleProfile: Oracle ConnectionProfile configuration.
 	OracleProfile *OracleProfile `json:"oracleProfile,omitempty"`
 
+	// PostgresqlProfile: PostgreSQL Connection Profile configuration.
+	PostgresqlProfile *PostgresqlProfile `json:"postgresqlProfile,omitempty"`
+
 	// PrivateConnectivity: Private connectivity.
 	PrivateConnectivity *PrivateConnectivity `json:"privateConnectivity,omitempty"`
 
@@ -380,7 +433,7 @@ type ConnectionProfile struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "CreateTime") to
+	// ForceSendFields is a list of field names (e.g. "BigqueryProfile") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -388,12 +441,13 @@ type ConnectionProfile struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "CreateTime") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "BigqueryProfile") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -403,8 +457,57 @@ func (s *ConnectionProfile) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// DatasetTemplate: Dataset template used for dynamic dataset creation.
+type DatasetTemplate struct {
+	// DatasetIdPrefix: If supplied, every created dataset will have its
+	// name prefixed by the provided value. The prefix and name will be
+	// separated by an underscore. i.e. _.
+	DatasetIdPrefix string `json:"datasetIdPrefix,omitempty"`
+
+	// KmsKeyName: Describes the Cloud KMS encryption key that will be used
+	// to protect destination BigQuery table. The BigQuery Service Account
+	// associated with your project requires access to this encryption key.
+	// i.e.
+	// projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys
+	// /{cryptoKey}. See
+	// https://cloud.google.com/bigquery/docs/customer-managed-encryption
+	// for more information.
+	KmsKeyName string `json:"kmsKeyName,omitempty"`
+
+	// Location: Required. The geographic location where the dataset should
+	// reside. See https://cloud.google.com/bigquery/docs/locations for
+	// supported locations.
+	Location string `json:"location,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DatasetIdPrefix") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DatasetIdPrefix") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *DatasetTemplate) MarshalJSON() ([]byte, error) {
+	type NoMethod DatasetTemplate
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // DestinationConfig: The configuration of the stream destination.
 type DestinationConfig struct {
+	// BigqueryDestinationConfig: BigQuery destination configuration.
+	BigqueryDestinationConfig *BigQueryDestinationConfig `json:"bigqueryDestinationConfig,omitempty"`
+
 	// DestinationConnectionProfile: Required. Destination connection
 	// profile resource. Format:
 	// `projects/{project}/locations/{location}/connectionProfiles/{name}`
@@ -415,7 +518,7 @@ type DestinationConfig struct {
 	GcsDestinationConfig *GcsDestinationConfig `json:"gcsDestinationConfig,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
-	// "DestinationConnectionProfile") to unconditionally include in API
+	// "BigqueryDestinationConfig") to unconditionally include in API
 	// requests. By default, fields with empty or default values are omitted
 	// from API requests. However, any non-pointer, non-interface field
 	// appearing in ForceSendFields will be sent to the server regardless of
@@ -424,10 +527,10 @@ type DestinationConfig struct {
 	ForceSendFields []string `json:"-"`
 
 	// NullFields is a list of field names (e.g.
-	// "DestinationConnectionProfile") to include in API requests with the
-	// JSON null value. By default, fields with empty values are omitted
-	// from API requests. However, any field with an empty value appearing
-	// in NullFields will be sent to the server as null. It is an error if a
+	// "BigqueryDestinationConfig") to include in API requests with the JSON
+	// null value. By default, fields with empty values are omitted from API
+	// requests. However, any field with an empty value appearing in
+	// NullFields will be sent to the server as null. It is an error if a
 	// field in this list has a non-empty value. This may be used to include
 	// null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -464,6 +567,10 @@ type DiscoverConnectionProfileRequest struct {
 	// metadata.
 	OracleRdbms *OracleRdbms `json:"oracleRdbms,omitempty"`
 
+	// PostgresqlRdbms: PostgreSQL RDBMS to enrich with child data objects
+	// and metadata.
+	PostgresqlRdbms *PostgresqlRdbms `json:"postgresqlRdbms,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "ConnectionProfile")
 	// to unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
@@ -495,6 +602,9 @@ type DiscoverConnectionProfileResponse struct {
 
 	// OracleRdbms: Enriched Oracle RDBMS object.
 	OracleRdbms *OracleRdbms `json:"oracleRdbms,omitempty"`
+
+	// PostgresqlRdbms: Enriched PostgreSQL RDBMS object.
+	PostgresqlRdbms *PostgresqlRdbms `json:"postgresqlRdbms,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -1314,6 +1424,16 @@ type MysqlSourceConfig struct {
 	// IncludeObjects: MySQL objects to retrieve from the source.
 	IncludeObjects *MysqlRdbms `json:"includeObjects,omitempty"`
 
+	// MaxConcurrentBackfillTasks: Maximum number of concurrent backfill
+	// tasks. The number should be non negative. If not set (or set to 0),
+	// the system's default value will be used.
+	MaxConcurrentBackfillTasks int64 `json:"maxConcurrentBackfillTasks,omitempty"`
+
+	// MaxConcurrentCdcTasks: Maximum number of concurrent CDC tasks. The
+	// number should be non negative. If not set (or set to 0), the system's
+	// default value will be used.
+	MaxConcurrentCdcTasks int64 `json:"maxConcurrentCdcTasks,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "ExcludeObjects") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
@@ -1738,6 +1858,20 @@ type OracleSourceConfig struct {
 	// IncludeObjects: Oracle objects to include in the stream.
 	IncludeObjects *OracleRdbms `json:"includeObjects,omitempty"`
 
+	// MaxConcurrentBackfillTasks: Maximum number of concurrent backfill
+	// tasks. The number should be non-negative. If not set (or set to 0),
+	// the system's default value is used.
+	MaxConcurrentBackfillTasks int64 `json:"maxConcurrentBackfillTasks,omitempty"`
+
+	// MaxConcurrentCdcTasks: Maximum number of concurrent CDC tasks. The
+	// number should be non-negative. If not set (or set to 0), the system's
+	// default value is used.
+	MaxConcurrentCdcTasks int64 `json:"maxConcurrentCdcTasks,omitempty"`
+
+	// StreamLargeObjects: Stream large object values. NOTE: This feature is
+	// currently experimental.
+	StreamLargeObjects *StreamLargeObjects `json:"streamLargeObjects,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "DropLargeObjects") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
@@ -1790,6 +1924,265 @@ type OracleTable struct {
 
 func (s *OracleTable) MarshalJSON() ([]byte, error) {
 	type NoMethod OracleTable
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PostgresqlColumn: PostgreSQL Column.
+type PostgresqlColumn struct {
+	// Column: Column name.
+	Column string `json:"column,omitempty"`
+
+	// DataType: The PostgreSQL data type.
+	DataType string `json:"dataType,omitempty"`
+
+	// Length: Column length.
+	Length int64 `json:"length,omitempty"`
+
+	// Nullable: Whether or not the column can accept a null value.
+	Nullable bool `json:"nullable,omitempty"`
+
+	// OrdinalPosition: The ordinal position of the column in the table.
+	OrdinalPosition int64 `json:"ordinalPosition,omitempty"`
+
+	// Precision: Column precision.
+	Precision int64 `json:"precision,omitempty"`
+
+	// PrimaryKey: Whether or not the column represents a primary key.
+	PrimaryKey bool `json:"primaryKey,omitempty"`
+
+	// Scale: Column scale.
+	Scale int64 `json:"scale,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Column") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Column") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PostgresqlColumn) MarshalJSON() ([]byte, error) {
+	type NoMethod PostgresqlColumn
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PostgresqlObjectIdentifier: PostgreSQL data source object identifier.
+type PostgresqlObjectIdentifier struct {
+	// Schema: Required. The schema name.
+	Schema string `json:"schema,omitempty"`
+
+	// Table: Required. The table name.
+	Table string `json:"table,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Schema") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Schema") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PostgresqlObjectIdentifier) MarshalJSON() ([]byte, error) {
+	type NoMethod PostgresqlObjectIdentifier
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PostgresqlProfile: PostgreSQL database profile.
+type PostgresqlProfile struct {
+	// Database: Required. Database for the PostgreSQL connection.
+	Database string `json:"database,omitempty"`
+
+	// Hostname: Required. Hostname for the PostgreSQL connection.
+	Hostname string `json:"hostname,omitempty"`
+
+	// Password: Required. Password for the PostgreSQL connection.
+	Password string `json:"password,omitempty"`
+
+	// Port: Port for the PostgreSQL connection, default value is 5432.
+	Port int64 `json:"port,omitempty"`
+
+	// Username: Required. Username for the PostgreSQL connection.
+	Username string `json:"username,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Database") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Database") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PostgresqlProfile) MarshalJSON() ([]byte, error) {
+	type NoMethod PostgresqlProfile
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PostgresqlRdbms: PostgreSQL database structure.
+type PostgresqlRdbms struct {
+	// PostgresqlSchemas: PostgreSQL schemas in the database server.
+	PostgresqlSchemas []*PostgresqlSchema `json:"postgresqlSchemas,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PostgresqlSchemas")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PostgresqlSchemas") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PostgresqlRdbms) MarshalJSON() ([]byte, error) {
+	type NoMethod PostgresqlRdbms
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PostgresqlSchema: PostgreSQL schema.
+type PostgresqlSchema struct {
+	// PostgresqlTables: Tables in the schema.
+	PostgresqlTables []*PostgresqlTable `json:"postgresqlTables,omitempty"`
+
+	// Schema: Schema name.
+	Schema string `json:"schema,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PostgresqlTables") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PostgresqlTables") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PostgresqlSchema) MarshalJSON() ([]byte, error) {
+	type NoMethod PostgresqlSchema
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PostgresqlSourceConfig: PostgreSQL data source configuration
+type PostgresqlSourceConfig struct {
+	// ExcludeObjects: PostgreSQL objects to exclude from the stream.
+	ExcludeObjects *PostgresqlRdbms `json:"excludeObjects,omitempty"`
+
+	// IncludeObjects: PostgreSQL objects to include in the stream.
+	IncludeObjects *PostgresqlRdbms `json:"includeObjects,omitempty"`
+
+	// MaxConcurrentBackfillTasks: Maximum number of concurrent backfill
+	// tasks. The number should be non negative. If not set (or set to 0),
+	// the system's default value will be used.
+	MaxConcurrentBackfillTasks int64 `json:"maxConcurrentBackfillTasks,omitempty"`
+
+	// Publication: Required. The name of the publication that includes the
+	// set of all tables that are defined in the stream's include_objects.
+	Publication string `json:"publication,omitempty"`
+
+	// ReplicationSlot: Required. Immutable. The name of the logical
+	// replication slot that's configured with the pgoutput plugin.
+	ReplicationSlot string `json:"replicationSlot,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ExcludeObjects") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ExcludeObjects") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PostgresqlSourceConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod PostgresqlSourceConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// PostgresqlTable: PostgreSQL table.
+type PostgresqlTable struct {
+	// PostgresqlColumns: PostgreSQL columns in the schema. When unspecified
+	// as part of include/exclude objects, includes/excludes everything.
+	PostgresqlColumns []*PostgresqlColumn `json:"postgresqlColumns,omitempty"`
+
+	// Table: Table name.
+	Table string `json:"table,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "PostgresqlColumns")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "PostgresqlColumns") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PostgresqlTable) MarshalJSON() ([]byte, error) {
+	type NoMethod PostgresqlTable
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1943,6 +2336,35 @@ func (s *Route) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// SingleTargetDataset: A single target dataset to which all data will
+// be streamed.
+type SingleTargetDataset struct {
+	// DatasetId: The dataset ID of the target dataset.
+	DatasetId string `json:"datasetId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DatasetId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DatasetId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SingleTargetDataset) MarshalJSON() ([]byte, error) {
+	type NoMethod SingleTargetDataset
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SourceConfig: The configuration of the stream source.
 type SourceConfig struct {
 	// MysqlSourceConfig: MySQL data source configuration.
@@ -1950,6 +2372,9 @@ type SourceConfig struct {
 
 	// OracleSourceConfig: Oracle data source configuration.
 	OracleSourceConfig *OracleSourceConfig `json:"oracleSourceConfig,omitempty"`
+
+	// PostgresqlSourceConfig: PostgreSQL data source configuration.
+	PostgresqlSourceConfig *PostgresqlSourceConfig `json:"postgresqlSourceConfig,omitempty"`
 
 	// SourceConnectionProfile: Required. Source connection profile
 	// resoource. Format:
@@ -1980,6 +2405,38 @@ func (s *SourceConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// SourceHierarchyDatasets: Destination datasets are created so that
+// hierarchy of the destination data objects matches the source
+// hierarchy.
+type SourceHierarchyDatasets struct {
+	// DatasetTemplate: The dataset template to use for dynamic dataset
+	// creation.
+	DatasetTemplate *DatasetTemplate `json:"datasetTemplate,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DatasetTemplate") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DatasetTemplate") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SourceHierarchyDatasets) MarshalJSON() ([]byte, error) {
+	type NoMethod SourceHierarchyDatasets
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SourceObjectIdentifier: Represents an identifier of an object in the
 // data source.
 type SourceObjectIdentifier struct {
@@ -1988,6 +2445,9 @@ type SourceObjectIdentifier struct {
 
 	// OracleIdentifier: Oracle data source object identifier.
 	OracleIdentifier *OracleObjectIdentifier `json:"oracleIdentifier,omitempty"`
+
+	// PostgresqlIdentifier: PostgreSQL data source object identifier.
+	PostgresqlIdentifier *PostgresqlObjectIdentifier `json:"postgresqlIdentifier,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "MysqlIdentifier") to
 	// unconditionally include in API requests. By default, fields with
@@ -2051,7 +2511,10 @@ func (s *StartBackfillJobResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// StaticServiceIpConnectivity: Static IP address connectivity.
+// StaticServiceIpConnectivity: Static IP address connectivity. Used
+// when the source database is configured to allow incoming connections
+// from the Datastream public IP addresses for the region specified in
+// the connection profile.
 type StaticServiceIpConnectivity struct {
 }
 
@@ -2224,6 +2687,10 @@ func (s *Stream) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// StreamLargeObjects: Configuration to stream large object values.
+type StreamLargeObjects struct {
+}
+
 // StreamObject: A specific stream object (e.g a specific DB table).
 type StreamObject struct {
 	// BackfillJob: The latest backfill job that was initiated for the
@@ -2393,7 +2860,6 @@ func (s *ValidationResult) MarshalJSON() ([]byte, error) {
 // peering between Datastream and the consumer's VPC.
 type VpcPeeringConfig struct {
 	// Subnet: Required. A free subnet for peering. (CIDR of /29)
-	// TODO(b/172995841) add validators.
 	Subnet string `json:"subnet,omitempty"`
 
 	// Vpc: Required. Fully qualified name of the VPC that Datastream will
@@ -2437,8 +2903,8 @@ type ProjectsLocationsFetchStaticIpsCall struct {
 // FetchStaticIps: The FetchStaticIps API call exposes the static IP
 // addresses used by Datastream.
 //
-// - name: The resource name for the location for which static IPs
-//   should be returned. Must be in the format `projects/*/locations/*`.
+//   - name: The resource name for the location for which static IPs
+//     should be returned. Must be in the format `projects/*/locations/*`.
 func (r *ProjectsLocationsService) FetchStaticIps(name string) *ProjectsLocationsFetchStaticIpsCall {
 	c := &ProjectsLocationsFetchStaticIpsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2535,17 +3001,17 @@ func (c *ProjectsLocationsFetchStaticIpsCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &FetchStaticIpsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2713,17 +3179,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -2778,8 +3244,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2885,17 +3351,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3101,17 +3567,17 @@ func (c *ProjectsLocationsConnectionProfilesCreateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3273,17 +3739,17 @@ func (c *ProjectsLocationsConnectionProfilesDeleteCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3345,8 +3811,8 @@ type ProjectsLocationsConnectionProfilesDiscoverCall struct {
 // the profile. Typically, a request returns children data objects of a
 // parent data object that's optionally supplied in the request.
 //
-// - parent: The parent resource of the connection profile type. Must be
-//   in the format `projects/*/locations/*`.
+//   - parent: The parent resource of the connection profile type. Must be
+//     in the format `projects/*/locations/*`.
 func (r *ProjectsLocationsConnectionProfilesService) Discover(parent string, discoverconnectionprofilerequest *DiscoverConnectionProfileRequest) *ProjectsLocationsConnectionProfilesDiscoverCall {
 	c := &ProjectsLocationsConnectionProfilesDiscoverCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3422,17 +3888,17 @@ func (c *ProjectsLocationsConnectionProfilesDiscoverCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DiscoverConnectionProfileResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3571,17 +4037,17 @@ func (c *ProjectsLocationsConnectionProfilesGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ConnectionProfile{
 		ServerResponse: googleapi.ServerResponse{
@@ -3750,17 +4216,17 @@ func (c *ProjectsLocationsConnectionProfilesListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListConnectionProfilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3975,17 +4441,17 @@ func (c *ProjectsLocationsConnectionProfilesPatchCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4147,17 +4613,17 @@ func (c *ProjectsLocationsOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4285,17 +4751,17 @@ func (c *ProjectsLocationsOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4433,17 +4899,17 @@ func (c *ProjectsLocationsOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4497,14 +4963,7 @@ type ProjectsLocationsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsLocationsOperationsService) List(name string) *ProjectsLocationsOperationsListCall {
@@ -4609,17 +5068,17 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4633,7 +5092,7 @@ func (c *ProjectsLocationsOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "datastream.projects.locations.operations.list",
@@ -4716,6 +5175,13 @@ func (r *ProjectsLocationsPrivateConnectionsService) Create(parent string, priva
 	c := &ProjectsLocationsPrivateConnectionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
 	c.privateconnection = privateconnection
+	return c
+}
+
+// Force sets the optional parameter "force": If set to true, will skip
+// validations.
+func (c *ProjectsLocationsPrivateConnectionsCreateCall) Force(force bool) *ProjectsLocationsPrivateConnectionsCreateCall {
+	c.urlParams_.Set("force", fmt.Sprint(force))
 	return c
 }
 
@@ -4810,17 +5276,17 @@ func (c *ProjectsLocationsPrivateConnectionsCreateCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4842,6 +5308,11 @@ func (c *ProjectsLocationsPrivateConnectionsCreateCall) Do(opts ...googleapi.Cal
 	//     "parent"
 	//   ],
 	//   "parameters": {
+	//     "force": {
+	//       "description": "Optional. If set to true, will skip validations.",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     },
 	//     "parent": {
 	//       "description": "Required. The parent that owns the collection of PrivateConnections.",
 	//       "location": "path",
@@ -4980,17 +5451,17 @@ func (c *ProjectsLocationsPrivateConnectionsDeleteCall) Do(opts ...googleapi.Cal
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5137,17 +5608,17 @@ func (c *ProjectsLocationsPrivateConnectionsGetCall) Do(opts ...googleapi.CallOp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PrivateConnection{
 		ServerResponse: googleapi.ServerResponse{
@@ -5202,8 +5673,8 @@ type ProjectsLocationsPrivateConnectionsListCall struct {
 // List: Use this method to list private connectivity configurations in
 // a project and location.
 //
-// - parent: The parent that owns the collection of private connectivity
-//   configurations.
+//   - parent: The parent that owns the collection of private connectivity
+//     configurations.
 func (r *ProjectsLocationsPrivateConnectionsService) List(parent string) *ProjectsLocationsPrivateConnectionsListCall {
 	c := &ProjectsLocationsPrivateConnectionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5317,17 +5788,17 @@ func (c *ProjectsLocationsPrivateConnectionsListCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListPrivateConnectionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5523,17 +5994,17 @@ func (c *ProjectsLocationsPrivateConnectionsRoutesCreateCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5685,17 +6156,17 @@ func (c *ProjectsLocationsPrivateConnectionsRoutesDeleteCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5836,17 +6307,17 @@ func (c *ProjectsLocationsPrivateConnectionsRoutesGetCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Route{
 		ServerResponse: googleapi.ServerResponse{
@@ -6014,17 +6485,17 @@ func (c *ProjectsLocationsPrivateConnectionsRoutesListCall) Do(opts ...googleapi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListRoutesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6234,17 +6705,17 @@ func (c *ProjectsLocationsStreamsCreateCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6406,17 +6877,17 @@ func (c *ProjectsLocationsStreamsDeleteCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6557,17 +7028,17 @@ func (c *ProjectsLocationsStreamsGetCall) Do(opts ...googleapi.CallOption) (*Str
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Stream{
 		ServerResponse: googleapi.ServerResponse{
@@ -6734,17 +7205,17 @@ func (c *ProjectsLocationsStreamsListCall) Do(opts ...googleapi.CallOption) (*Li
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListStreamsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6958,17 +7429,17 @@ func (c *ProjectsLocationsStreamsPatchCall) Do(opts ...googleapi.CallOption) (*O
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -7128,17 +7599,17 @@ func (c *ProjectsLocationsStreamsObjectsGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StreamObject{
 		ServerResponse: googleapi.ServerResponse{
@@ -7292,17 +7763,17 @@ func (c *ProjectsLocationsStreamsObjectsListCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListStreamObjectsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7464,17 +7935,17 @@ func (c *ProjectsLocationsStreamsObjectsLookupCall) Do(opts ...googleapi.CallOpt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StreamObject{
 		ServerResponse: googleapi.ServerResponse{
@@ -7532,8 +8003,8 @@ type ProjectsLocationsStreamsObjectsStartBackfillJobCall struct {
 // StartBackfillJob: Use this method to start a backfill job for the
 // specified stream object.
 //
-// - object: The name of the stream object resource to start a backfill
-//   job for.
+//   - object: The name of the stream object resource to start a backfill
+//     job for.
 func (r *ProjectsLocationsStreamsObjectsService) StartBackfillJob(object string, startbackfilljobrequest *StartBackfillJobRequest) *ProjectsLocationsStreamsObjectsStartBackfillJobCall {
 	c := &ProjectsLocationsStreamsObjectsStartBackfillJobCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.object = object
@@ -7608,17 +8079,17 @@ func (c *ProjectsLocationsStreamsObjectsStartBackfillJobCall) Do(opts ...googlea
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StartBackfillJobResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7676,8 +8147,8 @@ type ProjectsLocationsStreamsObjectsStopBackfillJobCall struct {
 // StopBackfillJob: Use this method to stop a backfill job for the
 // specified stream object.
 //
-// - object: The name of the stream object resource to stop the backfill
-//   job for.
+//   - object: The name of the stream object resource to stop the backfill
+//     job for.
 func (r *ProjectsLocationsStreamsObjectsService) StopBackfillJob(object string, stopbackfilljobrequest *StopBackfillJobRequest) *ProjectsLocationsStreamsObjectsStopBackfillJobCall {
 	c := &ProjectsLocationsStreamsObjectsStopBackfillJobCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.object = object
@@ -7752,17 +8223,17 @@ func (c *ProjectsLocationsStreamsObjectsStopBackfillJobCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &StopBackfillJobResponse{
 		ServerResponse: googleapi.ServerResponse{

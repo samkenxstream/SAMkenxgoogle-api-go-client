@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/datastore/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/datastore/v1"
-//   ...
-//   ctx := context.Background()
-//   datastoreService, err := datastore.NewService(ctx)
+//	import "google.golang.org/api/datastore/v1"
+//	...
+//	ctx := context.Background()
+//	datastoreService, err := datastore.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   datastoreService, err := datastore.NewService(ctx, option.WithScopes(datastore.DatastoreScope))
+//	datastoreService, err := datastore.NewService(ctx, option.WithScopes(datastore.DatastoreScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   datastoreService, err := datastore.NewService(ctx, option.WithAPIKey("AIza..."))
+//	datastoreService, err := datastore.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   datastoreService, err := datastore.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	datastoreService, err := datastore.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package datastore // import "google.golang.org/api/datastore/v1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "datastore:v1"
 const apiName = "datastore"
@@ -180,13 +181,23 @@ type ProjectsOperationsService struct {
 	s *Service
 }
 
-// AllocateIdsRequest: The request for Datastore.AllocateIds.
-type AllocateIdsRequest struct {
-	// Keys: Required. A list of keys with incomplete key paths for which to
-	// allocate IDs. No key may be reserved/read-only.
-	Keys []*Key `json:"keys,omitempty"`
+// Aggregation: Defines an aggregation that produces a single result.
+type Aggregation struct {
+	// Alias: Optional. Optional name of the property to store the result of
+	// the aggregation. If not provided, Datastore will pick a default name
+	// following the format `property_`. For example: ``` AGGREGATE
+	// COUNT_UP_TO(1) AS count_up_to_1, COUNT_UP_TO(2), COUNT_UP_TO(3) AS
+	// count_up_to_3, COUNT(*) OVER ( ... ); ``` becomes: ``` AGGREGATE
+	// COUNT_UP_TO(1) AS count_up_to_1, COUNT_UP_TO(2) AS property_1,
+	// COUNT_UP_TO(3) AS count_up_to_3, COUNT(*) AS property_2 OVER ( ... );
+	// ``` Requires: * Must be unique across all aggregation aliases. *
+	// Conform to entity property name limitations.
+	Alias string `json:"alias,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Keys") to
+	// Count: Count aggregator.
+	Count *Count `json:"count,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Alias") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -194,8 +205,164 @@ type AllocateIdsRequest struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Keys") to include in API
+	// NullFields is a list of field names (e.g. "Alias") to include in API
 	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Aggregation) MarshalJSON() ([]byte, error) {
+	type NoMethod Aggregation
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AggregationQuery: Datastore query for running an aggregation over a
+// Query.
+type AggregationQuery struct {
+	// Aggregations: Optional. Series of aggregations to apply over the
+	// results of the `nested_query`. Requires: * A minimum of one and
+	// maximum of five aggregations per query.
+	Aggregations []*Aggregation `json:"aggregations,omitempty"`
+
+	// NestedQuery: Nested query for aggregation
+	NestedQuery *Query `json:"nestedQuery,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Aggregations") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Aggregations") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AggregationQuery) MarshalJSON() ([]byte, error) {
+	type NoMethod AggregationQuery
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AggregationResult: The result of a single bucket from a Datastore
+// aggregation query. The keys of `aggregate_properties` are the same
+// for all results in an aggregation query, unlike entity queries which
+// can have different fields present for each result.
+type AggregationResult struct {
+	// AggregateProperties: The result of the aggregation functions, ex:
+	// `COUNT(*) AS total_entities`. The key is the alias assigned to the
+	// aggregation function on input and the size of this map equals the
+	// number of aggregation functions in the query.
+	AggregateProperties map[string]Value `json:"aggregateProperties,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AggregateProperties")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AggregateProperties") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AggregationResult) MarshalJSON() ([]byte, error) {
+	type NoMethod AggregationResult
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AggregationResultBatch: A batch of aggregation results produced by an
+// aggregation query.
+type AggregationResultBatch struct {
+	// AggregationResults: The aggregation results for this batch.
+	AggregationResults []*AggregationResult `json:"aggregationResults,omitempty"`
+
+	// MoreResults: The state of the query after the current batch. Only
+	// COUNT(*) aggregations are supported in the initial launch. Therefore,
+	// expected result type is limited to `NO_MORE_RESULTS`.
+	//
+	// Possible values:
+	//   "MORE_RESULTS_TYPE_UNSPECIFIED" - Unspecified. This value is never
+	// used.
+	//   "NOT_FINISHED" - There may be additional batches to fetch from this
+	// query.
+	//   "MORE_RESULTS_AFTER_LIMIT" - The query is finished, but there may
+	// be more results after the limit.
+	//   "MORE_RESULTS_AFTER_CURSOR" - The query is finished, but there may
+	// be more results after the end cursor.
+	//   "NO_MORE_RESULTS" - The query is finished, and there are no more
+	// results.
+	MoreResults string `json:"moreResults,omitempty"`
+
+	// ReadTime: Read timestamp this batch was returned from. In a single
+	// transaction, subsequent query result batches for the same query can
+	// have a greater timestamp. Each batch's read timestamp is valid for
+	// all preceding batches.
+	ReadTime string `json:"readTime,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AggregationResults")
+	// to unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AggregationResults") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AggregationResultBatch) MarshalJSON() ([]byte, error) {
+	type NoMethod AggregationResultBatch
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AllocateIdsRequest: The request for Datastore.AllocateIds.
+type AllocateIdsRequest struct {
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
+	DatabaseId string `json:"databaseId,omitempty"`
+
+	// Keys: Required. A list of keys with incomplete key paths for which to
+	// allocate IDs. No key may be reserved/read-only.
+	Keys []*Key `json:"keys,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DatabaseId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DatabaseId") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -274,24 +441,28 @@ func (s *ArrayValue) MarshalJSON() ([]byte, error) {
 
 // BeginTransactionRequest: The request for Datastore.BeginTransaction.
 type BeginTransactionRequest struct {
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
+	DatabaseId string `json:"databaseId,omitempty"`
+
 	// TransactionOptions: Options for a new transaction.
 	TransactionOptions *TransactionOptions `json:"transactionOptions,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "TransactionOptions")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "DatabaseId") to
+	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
 	// sent to the server regardless of whether the field is empty or not.
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "TransactionOptions") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "DatabaseId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -336,6 +507,11 @@ func (s *BeginTransactionResponse) MarshalJSON() ([]byte, error) {
 
 // CommitRequest: The request for Datastore.Commit.
 type CommitRequest struct {
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
+	DatabaseId string `json:"databaseId,omitempty"`
+
 	// Mode: The type of commit to perform. Defaults to `TRANSACTIONAL`.
 	//
 	// Possible values:
@@ -356,12 +532,18 @@ type CommitRequest struct {
 	// `NON_TRANSACTIONAL`, no two mutations may affect a single entity.
 	Mutations []*Mutation `json:"mutations,omitempty"`
 
+	// SingleUseTransaction: Options for beginning a new transaction for
+	// this request. The transaction is committed when the request
+	// completes. If specified, TransactionOptions.mode must be
+	// TransactionOptions.ReadWrite.
+	SingleUseTransaction *TransactionOptions `json:"singleUseTransaction,omitempty"`
+
 	// Transaction: The identifier of the transaction associated with the
 	// commit. A transaction identifier is returned by a call to
 	// Datastore.BeginTransaction.
 	Transaction string `json:"transaction,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Mode") to
+	// ForceSendFields is a list of field names (e.g. "DatabaseId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -369,8 +551,8 @@ type CommitRequest struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Mode") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "DatabaseId") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -428,8 +610,8 @@ func (s *CommitResponse) MarshalJSON() ([]byte, error) {
 // CompositeFilter: A filter that merges multiple other filters using
 // the given operator.
 type CompositeFilter struct {
-	// Filters: The list of filters to combine. Must contain at least one
-	// filter.
+	// Filters: The list of filters to combine. Requires: * At least one
+	// filter is present.
 	Filters []*Filter `json:"filters,omitempty"`
 
 	// Op: The operator for combining multiple filters.
@@ -438,6 +620,8 @@ type CompositeFilter struct {
 	//   "OPERATOR_UNSPECIFIED" - Unspecified. This value must not be used.
 	//   "AND" - The results are required to satisfy each of the combined
 	// filters.
+	//   "OR" - Documents are required to satisfy at least one of the
+	// combined filters.
 	Op string `json:"op,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Filters") to
@@ -459,6 +643,42 @@ type CompositeFilter struct {
 
 func (s *CompositeFilter) MarshalJSON() ([]byte, error) {
 	type NoMethod CompositeFilter
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Count: Count of entities that match the query. The `COUNT(*)`
+// aggregation function operates on the entire entity so it does not
+// require a field reference.
+type Count struct {
+	// UpTo: Optional. Optional constraint on the maximum number of entities
+	// to count. This provides a way to set an upper bound on the number of
+	// entities to scan, limiting latency, and cost. Unspecified is
+	// interpreted as no bound. If a zero value is provided, a count result
+	// of zero should always be expected. High-Level Example: ``` AGGREGATE
+	// COUNT_UP_TO(1000) OVER ( SELECT * FROM k ); ``` Requires: * Must be
+	// non-negative when present.
+	UpTo int64 `json:"upTo,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "UpTo") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "UpTo") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Count) MarshalJSON() ([]byte, error) {
+	type NoMethod Count
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -487,8 +707,8 @@ type Entity struct {
 	// Properties: The entity's properties. The map's keys are property
 	// names. A property name matching regex `__.*__` is reserved. A
 	// reserved property name is forbidden in certain documented contexts.
-	// The name must not contain more than 500 characters. The name cannot
-	// be "".
+	// The map keys, represented as UTF-8, must not exceed 1,500 bytes and
+	// cannot be empty.
 	Properties map[string]Value `json:"properties,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Key") to
@@ -516,6 +736,11 @@ func (s *Entity) MarshalJSON() ([]byte, error) {
 
 // EntityResult: The result of fetching an entity from Datastore.
 type EntityResult struct {
+	// CreateTime: The time at which the entity was created. This field is
+	// set for `FULL` entity results. If this entity is missing, this field
+	// will not be set.
+	CreateTime string `json:"createTime,omitempty"`
+
 	// Cursor: A cursor that points to the position after the result entity.
 	// Set only when the `EntityResult` is part of a `QueryResultBatch`
 	// message.
@@ -536,7 +761,7 @@ type EntityResult struct {
 	// entity, and it is always set except for eventually consistent reads.
 	Version int64 `json:"version,omitempty,string"`
 
-	// ForceSendFields is a list of field names (e.g. "Cursor") to
+	// ForceSendFields is a list of field names (e.g. "CreateTime") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -544,8 +769,8 @@ type EntityResult struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Cursor") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "CreateTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -722,9 +947,9 @@ func (s *GoogleDatastoreAdminV1DatastoreFirestoreMigrationMetadata) MarshalJSON(
 // following examples). Example usage: Entire project: kinds=[],
 // namespace_ids=[] Kinds Foo and Bar in all namespaces: kinds=['Foo',
 // 'Bar'], namespace_ids=[] Kinds Foo and Bar only in the default
-// namespace: kinds=['Foo', 'Bar'], namespace_ids=[''] Kinds Foo and Bar
+// namespace: kinds=['Foo', 'Bar'], namespace_ids=[”] Kinds Foo and Bar
 // in both the default and Baz namespaces: kinds=['Foo', 'Bar'],
-// namespace_ids=['', 'Baz'] The entire Baz namespace: kinds=[],
+// namespace_ids=[”, 'Baz'] The entire Baz namespace: kinds=[],
 // namespace_ids=['Baz']
 type GoogleDatastoreAdminV1EntityFilter struct {
 	// Kinds: If empty, then this represents all kinds.
@@ -1004,7 +1229,7 @@ type GoogleDatastoreAdminV1Index struct {
 	ProjectId string `json:"projectId,omitempty"`
 
 	// Properties: Required. An ordered sequence of property names and their
-	// index attributes.
+	// index attributes. Requires: * A maximum of 100 properties.
 	Properties []*GoogleDatastoreAdminV1IndexedProperty `json:"properties,omitempty"`
 
 	// State: Output only. The state of the index.
@@ -1435,9 +1660,9 @@ func (s *GoogleDatastoreAdminV1beta1CommonMetadata) MarshalJSON() ([]byte, error
 // following examples). Example usage: Entire project: kinds=[],
 // namespace_ids=[] Kinds Foo and Bar in all namespaces: kinds=['Foo',
 // 'Bar'], namespace_ids=[] Kinds Foo and Bar only in the default
-// namespace: kinds=['Foo', 'Bar'], namespace_ids=[''] Kinds Foo and Bar
+// namespace: kinds=['Foo', 'Bar'], namespace_ids=[”] Kinds Foo and Bar
 // in both the default and Baz namespaces: kinds=['Foo', 'Bar'],
-// namespace_ids=['', 'Baz'] The entire Baz namespace: kinds=[],
+// namespace_ids=[”, 'Baz'] The entire Baz namespace: kinds=[],
 // namespace_ids=['Baz']
 type GoogleDatastoreAdminV1beta1EntityFilter struct {
 	// Kinds: If empty, then this represents all kinds.
@@ -1940,13 +2165,18 @@ func (s *LatLng) UnmarshalJSON(data []byte) error {
 
 // LookupRequest: The request for Datastore.Lookup.
 type LookupRequest struct {
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
+	DatabaseId string `json:"databaseId,omitempty"`
+
 	// Keys: Required. Keys of entities to look up.
 	Keys []*Key `json:"keys,omitempty"`
 
 	// ReadOptions: The options for this lookup request.
 	ReadOptions *ReadOptions `json:"readOptions,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Keys") to
+	// ForceSendFields is a list of field names (e.g. "DatabaseId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -1954,8 +2184,8 @@ type LookupRequest struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Keys") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "DatabaseId") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -1989,6 +2219,11 @@ type LookupResponse struct {
 	// ReadTime: The time at which these entities were read or found
 	// missing.
 	ReadTime string `json:"readTime,omitempty"`
+
+	// Transaction: The identifier of the transaction that was started as
+	// part of this Lookup request. Set only when
+	// ReadOptions.new_transaction was set in LookupRequest.read_options.
+	Transaction string `json:"transaction,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -2076,6 +2311,10 @@ type MutationResult struct {
 	// the mutation.
 	ConflictDetected bool `json:"conflictDetected,omitempty"`
 
+	// CreateTime: The create time of the entity. This field will not be set
+	// after a 'delete'.
+	CreateTime string `json:"createTime,omitempty"`
+
 	// Key: The automatically allocated key. Set only when the mutation
 	// allocated a key.
 	Key *Key `json:"key,omitempty"`
@@ -2130,6 +2369,10 @@ func (s *MutationResult) MarshalJSON() ([]byte, error) {
 // project ID ) are discouraged. Reads and writes of foreign partition
 // IDs may fail if the project is not in an active state.
 type PartitionId struct {
+	// DatabaseId: If not empty, the ID of the database to which the
+	// entities belong.
+	DatabaseId string `json:"databaseId,omitempty"`
+
 	// NamespaceId: If not empty, the ID of the namespace to which the
 	// entities belong.
 	NamespaceId string `json:"namespaceId,omitempty"`
@@ -2137,7 +2380,7 @@ type PartitionId struct {
 	// ProjectId: The ID of the project to which the entities belong.
 	ProjectId string `json:"projectId,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "NamespaceId") to
+	// ForceSendFields is a list of field names (e.g. "DatabaseId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -2145,10 +2388,10 @@ type PartitionId struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "NamespaceId") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "DatabaseId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -2171,12 +2414,16 @@ type PathElement struct {
 
 	// Kind: The kind of the entity. A kind matching regex `__.*__` is
 	// reserved/read-only. A kind must not contain more than 1500 bytes when
-	// UTF-8 encoded. Cannot be "".
+	// UTF-8 encoded. Cannot be "". Must be valid UTF-8 bytes. Legacy
+	// values that are not valid UTF-8 are encoded as `__bytes__` where ``
+	// is the base-64 encoding of the bytes.
 	Kind string `json:"kind,omitempty"`
 
 	// Name: The name of the entity. A name matching regex `__.*__` is
 	// reserved/read-only. A name must not be more than 1500 bytes when
-	// UTF-8 encoded. Cannot be "".
+	// UTF-8 encoded. Cannot be "". Must be valid UTF-8 bytes. Legacy
+	// values that are not valid UTF-8 are encoded as `__bytes__` where ``
+	// is the base-64 encoding of the bytes.
 	Name string `json:"name,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Id") to
@@ -2248,18 +2495,18 @@ type PropertyFilter struct {
 	// in `order_by`.
 	//   "EQUAL" - The given `property` is equal to the given `value`.
 	//   "IN" - The given `property` is equal to at least one value in the
-	// given array. Requires: * That `value` is a non-empty `ArrayValue`
-	// with at most 10 values. * No other `IN` or `NOT_IN` is in the same
-	// query.
+	// given array. Requires: * That `value` is a non-empty `ArrayValue`,
+	// subject to disjunction limits. * No `NOT_IN` is in the same query.
 	//   "NOT_EQUAL" - The given `property` is not equal to the given
 	// `value`. Requires: * No other `NOT_EQUAL` or `NOT_IN` is in the same
 	// query. * That `property` comes first in the `order_by`.
 	//   "HAS_ANCESTOR" - Limit the result set to the given entity and its
-	// descendants. Requires: * That `value` is an entity key.
+	// descendants. Requires: * That `value` is an entity key. * All
+	// evaluated disjunctions must have the same `HAS_ANCESTOR` filter.
 	//   "NOT_IN" - The value of the `property` is not in the given array.
 	// Requires: * That `value` is a non-empty `ArrayValue` with at most 10
-	// values. * No other `IN`, `NOT_IN`, `NOT_EQUAL` is in the same query.
-	// * That `field` comes first in the `order_by`.
+	// values. * No other `OR`, `IN`, `NOT_IN`, `NOT_EQUAL` is in the same
+	// query. * That `field` comes first in the `order_by`.
 	Op string `json:"op,omitempty"`
 
 	// Property: The property to filter by.
@@ -2361,7 +2608,9 @@ func (s *PropertyReference) MarshalJSON() ([]byte, error) {
 type Query struct {
 	// DistinctOn: The properties to make distinct. The query results will
 	// contain the first result for each distinct combination of values for
-	// the given properties (if empty, all results are returned).
+	// the given properties (if empty, all results are returned). Requires:
+	// * If `order` is specified, the set of distinct on properties must
+	// appear before the non-distinct on properties in `order`.
 	DistinctOn []*PropertyReference `json:"distinctOn,omitempty"`
 
 	// EndCursor: An ending point for the query results. Query cursors are
@@ -2540,8 +2789,13 @@ func (s *ReadOnly) MarshalJSON() ([]byte, error) {
 
 // ReadOptions: The options shared by read requests.
 type ReadOptions struct {
+	// NewTransaction: Options for beginning a new transaction for this
+	// request. The new transaction identifier will be returned in the
+	// corresponding response as either LookupResponse.transaction or
+	// RunQueryResponse.transaction.
+	NewTransaction *TransactionOptions `json:"newTransaction,omitempty"`
+
 	// ReadConsistency: The non-transactional read consistency to use.
-	// Cannot be set to `STRONG` for global queries.
 	//
 	// Possible values:
 	//   "READ_CONSISTENCY_UNSPECIFIED" - Unspecified. This value must not
@@ -2560,7 +2814,7 @@ type ReadOptions struct {
 	// Datastore.BeginTransaction.
 	Transaction string `json:"transaction,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "ReadConsistency") to
+	// ForceSendFields is a list of field names (e.g. "NewTransaction") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -2568,7 +2822,7 @@ type ReadOptions struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "ReadConsistency") to
+	// NullFields is a list of field names (e.g. "NewTransaction") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -2616,8 +2870,9 @@ func (s *ReadWrite) MarshalJSON() ([]byte, error) {
 
 // ReserveIdsRequest: The request for Datastore.ReserveIds.
 type ReserveIdsRequest struct {
-	// DatabaseId: If not empty, the ID of the database against which to
-	// make the request.
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
 	DatabaseId string `json:"databaseId,omitempty"`
 
 	// Keys: Required. A list of keys with complete key paths whose numeric
@@ -2656,11 +2911,16 @@ type ReserveIdsResponse struct {
 
 // RollbackRequest: The request for Datastore.Rollback.
 type RollbackRequest struct {
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
+	DatabaseId string `json:"databaseId,omitempty"`
+
 	// Transaction: Required. The transaction identifier, returned by a call
 	// to Datastore.BeginTransaction.
 	Transaction string `json:"transaction,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Transaction") to
+	// ForceSendFields is a list of field names (e.g. "DatabaseId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -2668,10 +2928,10 @@ type RollbackRequest struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Transaction") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "DatabaseId") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -2691,8 +2951,104 @@ type RollbackResponse struct {
 	googleapi.ServerResponse `json:"-"`
 }
 
+// RunAggregationQueryRequest: The request for
+// Datastore.RunAggregationQuery.
+type RunAggregationQueryRequest struct {
+	// AggregationQuery: The query to run.
+	AggregationQuery *AggregationQuery `json:"aggregationQuery,omitempty"`
+
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
+	DatabaseId string `json:"databaseId,omitempty"`
+
+	// GqlQuery: The GQL query to run. This query must be an aggregation
+	// query.
+	GqlQuery *GqlQuery `json:"gqlQuery,omitempty"`
+
+	// PartitionId: Entities are partitioned into subsets, identified by a
+	// partition ID. Queries are scoped to a single partition. This
+	// partition ID is normalized with the standard default context
+	// partition ID.
+	PartitionId *PartitionId `json:"partitionId,omitempty"`
+
+	// ReadOptions: The options for this query.
+	ReadOptions *ReadOptions `json:"readOptions,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AggregationQuery") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AggregationQuery") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RunAggregationQueryRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod RunAggregationQueryRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// RunAggregationQueryResponse: The response for
+// Datastore.RunAggregationQuery.
+type RunAggregationQueryResponse struct {
+	// Batch: A batch of aggregation results. Always present.
+	Batch *AggregationResultBatch `json:"batch,omitempty"`
+
+	// Query: The parsed form of the `GqlQuery` from the request, if it was
+	// set.
+	Query *AggregationQuery `json:"query,omitempty"`
+
+	// Transaction: The identifier of the transaction that was started as
+	// part of this RunAggregationQuery request. Set only when
+	// ReadOptions.new_transaction was set in
+	// RunAggregationQueryRequest.read_options.
+	Transaction string `json:"transaction,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Batch") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Batch") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RunAggregationQueryResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod RunAggregationQueryResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // RunQueryRequest: The request for Datastore.RunQuery.
 type RunQueryRequest struct {
+	// DatabaseId: The ID of the database against which to make the request.
+	// '(default)' is not allowed; please use empty string '' to refer the
+	// default database.
+	DatabaseId string `json:"databaseId,omitempty"`
+
 	// GqlQuery: The GQL query to run. This query must be a non-aggregation
 	// query.
 	GqlQuery *GqlQuery `json:"gqlQuery,omitempty"`
@@ -2709,7 +3065,7 @@ type RunQueryRequest struct {
 	// ReadOptions: The options for this query.
 	ReadOptions *ReadOptions `json:"readOptions,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "GqlQuery") to
+	// ForceSendFields is a list of field names (e.g. "DatabaseId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -2717,7 +3073,7 @@ type RunQueryRequest struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "GqlQuery") to include in
+	// NullFields is a list of field names (e.g. "DatabaseId") to include in
 	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
@@ -2740,6 +3096,11 @@ type RunQueryResponse struct {
 	// Query: The parsed form of the `GqlQuery` from the request, if it was
 	// set.
 	Query *Query `json:"query,omitempty"`
+
+	// Transaction: The identifier of the transaction that was started as
+	// part of this RunQuery request. Set only when
+	// ReadOptions.new_transaction was set in RunQueryRequest.read_options.
+	Transaction string `json:"transaction,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -3029,17 +3390,17 @@ func (c *ProjectsAllocateIdsCall) Do(opts ...googleapi.CallOption) (*AllocateIds
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &AllocateIdsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3171,17 +3532,17 @@ func (c *ProjectsBeginTransactionCall) Do(opts ...googleapi.CallOption) (*BeginT
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BeginTransactionResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3314,17 +3675,17 @@ func (c *ProjectsCommitCall) Do(opts ...googleapi.CallOption) (*CommitResponse, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CommitResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3463,17 +3824,17 @@ func (c *ProjectsExportCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunnin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3610,17 +3971,17 @@ func (c *ProjectsImportCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunnin
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3752,17 +4113,17 @@ func (c *ProjectsLookupCall) Do(opts ...googleapi.CallOption) (*LookupResponse, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &LookupResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3895,17 +4256,17 @@ func (c *ProjectsReserveIdsCall) Do(opts ...googleapi.CallOption) (*ReserveIdsRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ReserveIdsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4037,17 +4398,17 @@ func (c *ProjectsRollbackCall) Do(opts ...googleapi.CallOption) (*RollbackRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RollbackResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4082,6 +4443,148 @@ func (c *ProjectsRollbackCall) Do(opts ...googleapi.CallOption) (*RollbackRespon
 	//   },
 	//   "response": {
 	//     "$ref": "RollbackResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/datastore"
+	//   ]
+	// }
+
+}
+
+// method id "datastore.projects.runAggregationQuery":
+
+type ProjectsRunAggregationQueryCall struct {
+	s                          *Service
+	projectId                  string
+	runaggregationqueryrequest *RunAggregationQueryRequest
+	urlParams_                 gensupport.URLParams
+	ctx_                       context.Context
+	header_                    http.Header
+}
+
+// RunAggregationQuery: Runs an aggregation query.
+//
+// - projectId: The ID of the project against which to make the request.
+func (r *ProjectsService) RunAggregationQuery(projectId string, runaggregationqueryrequest *RunAggregationQueryRequest) *ProjectsRunAggregationQueryCall {
+	c := &ProjectsRunAggregationQueryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.projectId = projectId
+	c.runaggregationqueryrequest = runaggregationqueryrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsRunAggregationQueryCall) Fields(s ...googleapi.Field) *ProjectsRunAggregationQueryCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsRunAggregationQueryCall) Context(ctx context.Context) *ProjectsRunAggregationQueryCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsRunAggregationQueryCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsRunAggregationQueryCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.runaggregationqueryrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/projects/{projectId}:runAggregationQuery")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"projectId": c.projectId,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "datastore.projects.runAggregationQuery" call.
+// Exactly one of *RunAggregationQueryResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *RunAggregationQueryResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsRunAggregationQueryCall) Do(opts ...googleapi.CallOption) (*RunAggregationQueryResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RunAggregationQueryResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Runs an aggregation query.",
+	//   "flatPath": "v1/projects/{projectId}:runAggregationQuery",
+	//   "httpMethod": "POST",
+	//   "id": "datastore.projects.runAggregationQuery",
+	//   "parameterOrder": [
+	//     "projectId"
+	//   ],
+	//   "parameters": {
+	//     "projectId": {
+	//       "description": "Required. The ID of the project against which to make the request.",
+	//       "location": "path",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/projects/{projectId}:runAggregationQuery",
+	//   "request": {
+	//     "$ref": "RunAggregationQueryRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "RunAggregationQueryResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
@@ -4179,17 +4682,17 @@ func (c *ProjectsRunQueryCall) Do(opts ...googleapi.CallOption) (*RunQueryRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RunQueryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4329,17 +4832,17 @@ func (c *ProjectsIndexesCreateCall) Do(opts ...googleapi.CallOption) (*GoogleLon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4475,17 +4978,17 @@ func (c *ProjectsIndexesDeleteCall) Do(opts ...googleapi.CallOption) (*GoogleLon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4632,17 +5135,17 @@ func (c *ProjectsIndexesGetCall) Do(opts ...googleapi.CallOption) (*GoogleDatast
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleDatastoreAdminV1Index{
 		ServerResponse: googleapi.ServerResponse{
@@ -4809,17 +5312,17 @@ func (c *ProjectsIndexesListCall) Do(opts ...googleapi.CallOption) (*GoogleDatas
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleDatastoreAdminV1ListIndexesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4986,17 +5489,17 @@ func (c *ProjectsOperationsCancelCall) Do(opts ...googleapi.CallOption) (*Empty,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5122,17 +5625,17 @@ func (c *ProjectsOperationsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5271,17 +5774,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*GoogleLon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5336,14 +5839,7 @@ type ProjectsOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsOperationsService) List(name string) *ProjectsOperationsListCall {
@@ -5449,17 +5945,17 @@ func (c *ProjectsOperationsListCall) Do(opts ...googleapi.CallOption) (*GoogleLo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5473,7 +5969,7 @@ func (c *ProjectsOperationsListCall) Do(opts ...googleapi.CallOption) (*GoogleLo
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "datastore.projects.operations.list",

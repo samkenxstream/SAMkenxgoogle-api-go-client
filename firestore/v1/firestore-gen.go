@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,35 +10,35 @@
 //
 // For product documentation, see: https://cloud.google.com/firestore
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/firestore/v1"
-//   ...
-//   ctx := context.Background()
-//   firestoreService, err := firestore.NewService(ctx)
+//	import "google.golang.org/api/firestore/v1"
+//	...
+//	ctx := context.Background()
+//	firestoreService, err := firestore.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   firestoreService, err := firestore.NewService(ctx, option.WithScopes(firestore.DatastoreScope))
+//	firestoreService, err := firestore.NewService(ctx, option.WithScopes(firestore.DatastoreScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   firestoreService, err := firestore.NewService(ctx, option.WithAPIKey("AIza..."))
+//	firestoreService, err := firestore.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   firestoreService, err := firestore.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	firestoreService, err := firestore.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package firestore // import "google.golang.org/api/firestore/v1"
@@ -77,6 +77,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "firestore:v1"
 const apiName = "firestore"
@@ -238,6 +239,80 @@ func NewProjectsLocationsService(s *Service) *ProjectsLocationsService {
 
 type ProjectsLocationsService struct {
 	s *Service
+}
+
+// Aggregation: Defines an aggregation that produces a single result.
+type Aggregation struct {
+	// Alias: Optional. Optional name of the field to store the result of
+	// the aggregation into. If not provided, Firestore will pick a default
+	// name following the format `field_`. For example: ``` AGGREGATE
+	// COUNT_UP_TO(1) AS count_up_to_1, COUNT_UP_TO(2), COUNT_UP_TO(3) AS
+	// count_up_to_3, COUNT(*) OVER ( ... ); ``` becomes: ``` AGGREGATE
+	// COUNT_UP_TO(1) AS count_up_to_1, COUNT_UP_TO(2) AS field_1,
+	// COUNT_UP_TO(3) AS count_up_to_3, COUNT(*) AS field_2 OVER ( ... );
+	// ``` Requires: * Must be unique across all aggregation aliases. *
+	// Conform to document field name limitations.
+	Alias string `json:"alias,omitempty"`
+
+	// Count: Count aggregator.
+	Count *Count `json:"count,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Alias") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Alias") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Aggregation) MarshalJSON() ([]byte, error) {
+	type NoMethod Aggregation
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AggregationResult: The result of a single bucket from a Firestore
+// aggregation query. The keys of `aggregate_fields` are the same for
+// all results in an aggregation query, unlike document queries which
+// can have different fields present for each result.
+type AggregationResult struct {
+	// AggregateFields: The result of the aggregation functions, ex:
+	// `COUNT(*) AS total_docs`. The key is the alias assigned to the
+	// aggregation function on input and the size of this map equals the
+	// number of aggregation functions in the query.
+	AggregateFields map[string]Value `json:"aggregateFields,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AggregateFields") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AggregateFields") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AggregationResult) MarshalJSON() ([]byte, error) {
+	type NoMethod AggregationResult
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // ArrayValue: An array value.
@@ -619,6 +694,8 @@ type CompositeFilter struct {
 	//   "OPERATOR_UNSPECIFIED" - Unspecified. This value must not be used.
 	//   "AND" - Documents are required to satisfy all of the combined
 	// filters.
+	//   "OR" - Documents are required to satisfy at least one of the
+	// combined filters.
 	Op string `json:"op,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Filters") to
@@ -640,6 +717,41 @@ type CompositeFilter struct {
 
 func (s *CompositeFilter) MarshalJSON() ([]byte, error) {
 	type NoMethod CompositeFilter
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// Count: Count of documents that match the query. The `COUNT(*)`
+// aggregation function operates on the entire document so it does not
+// require a field reference.
+type Count struct {
+	// UpTo: Optional. Optional constraint on the maximum number of
+	// documents to count. This provides a way to set an upper bound on the
+	// number of documents to scan, limiting latency, and cost. Unspecified
+	// is interpreted as no bound. High-Level Example: ``` AGGREGATE
+	// COUNT_UP_TO(1000) OVER ( SELECT * FROM k ); ``` Requires: * Must be
+	// greater than zero when present.
+	UpTo int64 `json:"upTo,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "UpTo") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "UpTo") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Count) MarshalJSON() ([]byte, error) {
+	type NoMethod Count
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1029,18 +1141,19 @@ type FieldFilter struct {
 	//   "ARRAY_CONTAINS" - The given `field` is an array that contains the
 	// given `value`.
 	//   "IN" - The given `field` is equal to at least one value in the
-	// given array. Requires: * That `value` is a non-empty `ArrayValue`
-	// with at most 10 values. * No other `IN` or `ARRAY_CONTAINS_ANY` or
-	// `NOT_IN`.
+	// given array. Requires: * That `value` is a non-empty `ArrayValue`,
+	// subject to disjunction limits. * No `NOT_IN` filters in the same
+	// query.
 	//   "ARRAY_CONTAINS_ANY" - The given `field` is an array that contains
 	// any of the values in the given array. Requires: * That `value` is a
-	// non-empty `ArrayValue` with at most 10 values. * No other `IN` or
-	// `ARRAY_CONTAINS_ANY` or `NOT_IN`.
+	// non-empty `ArrayValue`, subject to disjunction limits. * No other
+	// `ARRAY_CONTAINS_ANY` filters within the same disjunction. * No
+	// `NOT_IN` filters in the same query.
 	//   "NOT_IN" - The value of the `field` is not in the given array.
 	// Requires: * That `value` is a non-empty `ArrayValue` with at most 10
-	// values. * No other `IN`, `ARRAY_CONTAINS_ANY`, `NOT_IN`, `NOT_EQUAL`,
-	// `IS_NOT_NULL`, or `IS_NOT_NAN`. * That `field` comes first in the
-	// `order_by`.
+	// values. * No other `OR`, `IN`, `ARRAY_CONTAINS_ANY`, `NOT_IN`,
+	// `NOT_EQUAL`, `IS_NOT_NULL`, or `IS_NOT_NAN`. * That `field` comes
+	// first in the `order_by`.
 	Op string `json:"op,omitempty"`
 
 	// Value: The value to compare to.
@@ -1069,9 +1182,11 @@ func (s *FieldFilter) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// FieldReference: A reference to a field, such as `max(messages.time)
-// as max_time`.
+// FieldReference: A reference to a field in a document, ex:
+// `stats.operations`.
 type FieldReference struct {
+	// FieldPath: The relative path of the document being referenced.
+	// Requires: * Conform to document field name limitations.
 	FieldPath string `json:"fieldPath,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "FieldPath") to
@@ -1244,8 +1359,9 @@ type GoogleFirestoreAdminV1Database struct {
 	// as this database, App Engine configuration will impact this database.
 	// This includes disabling of the application & database, as well as
 	// disabling writes to the database.
-	//   "DISABLED" - Appengine has no affect on the ability of this
-	// database to serve requests.
+	//   "DISABLED" - App Engine has no effect on the ability of this
+	// database to serve requests. This is the default setting for databases
+	// created with the Firestore API.
 	AppEngineIntegrationMode string `json:"appEngineIntegrationMode,omitempty"`
 
 	// ConcurrencyMode: The concurrency control mode to use for this
@@ -1263,6 +1379,10 @@ type GoogleFirestoreAdminV1Database struct {
 	// mode for Cloud Datastore. This mode is also available for Cloud
 	// Firestore with Datastore Mode but is not recommended.
 	ConcurrencyMode string `json:"concurrencyMode,omitempty"`
+
+	// CreateTime: Output only. The timestamp at which this database was
+	// created.
+	CreateTime string `json:"createTime,omitempty"`
 
 	// Etag: This checksum is computed by the server based on the value of
 	// other fields, and may be sent on update and delete requests to ensure
@@ -1295,6 +1415,14 @@ type GoogleFirestoreAdminV1Database struct {
 	//   "FIRESTORE_NATIVE" - Firestore Native Mode
 	//   "DATASTORE_MODE" - Firestore in Datastore Mode.
 	Type string `json:"type,omitempty"`
+
+	// Uid: Output only. The system-generated UUID4 for this Database.
+	Uid string `json:"uid,omitempty"`
+
+	// UpdateTime: Output only. The timestamp at which this database was
+	// most recently updated. Note this only includes updates to the
+	// database resource and not data contained by the database.
+	UpdateTime string `json:"updateTime,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -1336,6 +1464,9 @@ type GoogleFirestoreAdminV1ExportDocumentsMetadata struct {
 	// operation still in progress.
 	EndTime string `json:"endTime,omitempty"`
 
+	// NamespaceIds: Which namespace ids are being exported.
+	NamespaceIds []string `json:"namespaceIds,omitempty"`
+
 	// OperationState: The state of the export operation.
 	//
 	// Possible values:
@@ -1354,7 +1485,7 @@ type GoogleFirestoreAdminV1ExportDocumentsMetadata struct {
 	// called google.longrunning.Operations.CancelOperation.
 	OperationState string `json:"operationState,omitempty"`
 
-	// OutputUriPrefix: Where the entities are being exported to.
+	// OutputUriPrefix: Where the documents are being exported to.
 	OutputUriPrefix string `json:"outputUriPrefix,omitempty"`
 
 	// ProgressBytes: The progress, in bytes, of this operation.
@@ -1395,6 +1526,13 @@ type GoogleFirestoreAdminV1ExportDocumentsRequest struct {
 	// CollectionIds: Which collection ids to export. Unspecified means all
 	// collections.
 	CollectionIds []string `json:"collectionIds,omitempty"`
+
+	// NamespaceIds: An empty list represents all namespaces. This is the
+	// preferred usage for databases that don't use namespaces. An empty
+	// string element represents the default namespace. This should be used
+	// if the database has data in non-default namespaces, but doesn't want
+	// to include them. Each namespace in this list must be unique.
+	NamespaceIds []string `json:"namespaceIds,omitempty"`
 
 	// OutputUriPrefix: The output URI. Currently only supports Google Cloud
 	// Storage URIs of the form: `gs://BUCKET_NAME[/NAMESPACE_PATH]`, where
@@ -1493,6 +1631,11 @@ type GoogleFirestoreAdminV1Field struct {
 	// all fields which do not have their own `Field` index configuration.
 	Name string `json:"name,omitempty"`
 
+	// TtlConfig: The TTL configuration for this `Field`. Setting or
+	// unsetting this will enable or disable the TTL for documents that have
+	// this `Field`.
+	TtlConfig *GoogleFirestoreAdminV1TtlConfig `json:"ttlConfig,omitempty"`
+
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
@@ -1564,6 +1707,9 @@ type GoogleFirestoreAdminV1FieldOperationMetadata struct {
 	// called google.longrunning.Operations.CancelOperation.
 	State string `json:"state,omitempty"`
 
+	// TtlConfigDelta: Describes the deltas of TTL configuration.
+	TtlConfigDelta *GoogleFirestoreAdminV1TtlConfigDelta `json:"ttlConfigDelta,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "EndTime") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
@@ -1600,6 +1746,9 @@ type GoogleFirestoreAdminV1ImportDocumentsMetadata struct {
 
 	// InputUriPrefix: The location of the documents being imported.
 	InputUriPrefix string `json:"inputUriPrefix,omitempty"`
+
+	// NamespaceIds: Which namespace ids are being imported.
+	NamespaceIds []string `json:"namespaceIds,omitempty"`
 
 	// OperationState: The state of the import operation.
 	//
@@ -1664,6 +1813,13 @@ type GoogleFirestoreAdminV1ImportDocumentsRequest struct {
 	// google.firestore.admin.v1.ExportDocumentsResponse.output_uri_prefix.
 	InputUriPrefix string `json:"inputUriPrefix,omitempty"`
 
+	// NamespaceIds: An empty list represents all namespaces. This is the
+	// preferred usage for databases that don't use namespaces. An empty
+	// string element represents the default namespace. This should be used
+	// if the database has data in non-default namespaces, but doesn't want
+	// to include them. Each namespace in this list must be unique.
+	NamespaceIds []string `json:"namespaceIds,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "CollectionIds") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
@@ -1690,15 +1846,25 @@ func (s *GoogleFirestoreAdminV1ImportDocumentsRequest) MarshalJSON() ([]byte, er
 // GoogleFirestoreAdminV1Index: Cloud Firestore indexes enable simple
 // and complex queries against documents in a database.
 type GoogleFirestoreAdminV1Index struct {
+	// ApiScope: The API scope supported by this index.
+	//
+	// Possible values:
+	//   "ANY_API" - The index can be used by both Firestore Native and
+	// Firestore in Datastore Mode query API. This is the default.
+	//   "DATASTORE_MODE_API" - The index can only be used by the Firestore
+	// in Datastore Mode query API.
+	ApiScope string `json:"apiScope,omitempty"`
+
 	// Fields: The fields supported by this index. For composite indexes,
-	// this is always 2 or more fields. The last field entry is always for
-	// the field path `__name__`. If, on creation, `__name__` was not
-	// specified as the last field, it will be added automatically with the
-	// same direction as that of the last field defined. If the final field
-	// in a composite index is not directional, the `__name__` will be
-	// ordered ASCENDING (unless explicitly specified). For single field
-	// indexes, this will always be exactly one entry with a field path
-	// equal to the field path of the associated field.
+	// this requires a minimum of 2 and a maximum of 100 fields. The last
+	// field entry is always for the field path `__name__`. If, on creation,
+	// `__name__` was not specified as the last field, it will be added
+	// automatically with the same direction as that of the last field
+	// defined. If the final field in a composite index is not directional,
+	// the `__name__` will be ordered ASCENDING (unless explicitly
+	// specified). For single field indexes, this will always be exactly one
+	// entry with a field path equal to the field path of the associated
+	// field.
 	Fields []*GoogleFirestoreAdminV1IndexField `json:"fields,omitempty"`
 
 	// Name: Output only. A server defined name for this index. The form of
@@ -1726,6 +1892,8 @@ type GoogleFirestoreAdminV1Index struct {
 	//   "COLLECTION_GROUP" - Indexes with a collection group query scope
 	// specified allow queries against all collections that has the
 	// collection id specified by the index.
+	//   "COLLECTION_RECURSIVE" - Include all the collections's ancestor in
+	// the index. Only available for Datastore Mode databases.
 	QueryScope string `json:"queryScope,omitempty"`
 
 	// State: Output only. The serving state of the index.
@@ -1751,7 +1919,7 @@ type GoogleFirestoreAdminV1Index struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Fields") to
+	// ForceSendFields is a list of field names (e.g. "ApiScope") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -1759,8 +1927,8 @@ type GoogleFirestoreAdminV1Index struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Fields") to include in API
-	// requests with the JSON null value. By default, fields with empty
+	// NullFields is a list of field names (e.g. "ApiScope") to include in
+	// API requests with the JSON null value. By default, fields with empty
 	// values are omitted from API requests. However, any field with an
 	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
@@ -2119,6 +2287,88 @@ func (s *GoogleFirestoreAdminV1Progress) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// GoogleFirestoreAdminV1TtlConfig: The TTL (time-to-live) configuration
+// for documents that have this `Field` set. Storing a timestamp value
+// into a TTL-enabled field will be treated as the document's absolute
+// expiration time. Timestamp values in the past indicate that the
+// document is eligible for immediate expiration. Using any other data
+// type or leaving the field absent will disable expiration for the
+// individual document.
+type GoogleFirestoreAdminV1TtlConfig struct {
+	// State: Output only. The state of the TTL configuration.
+	//
+	// Possible values:
+	//   "STATE_UNSPECIFIED" - The state is unspecified or unknown.
+	//   "CREATING" - The TTL is being applied. There is an active
+	// long-running operation to track the change. Newly written documents
+	// will have TTLs applied as requested. Requested TTLs on existing
+	// documents are still being processed. When TTLs on all existing
+	// documents have been processed, the state will move to 'ACTIVE'.
+	//   "ACTIVE" - The TTL is active for all documents.
+	//   "NEEDS_REPAIR" - The TTL configuration could not be enabled for all
+	// existing documents. Newly written documents will continue to have
+	// their TTL applied. The LRO returned when last attempting to enable
+	// TTL for this `Field` has failed, and may have more details.
+	State string `json:"state,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "State") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "State") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleFirestoreAdminV1TtlConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleFirestoreAdminV1TtlConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GoogleFirestoreAdminV1TtlConfigDelta: Information about an TTL
+// configuration change.
+type GoogleFirestoreAdminV1TtlConfigDelta struct {
+	// ChangeType: Specifies how the TTL configuration is changing.
+	//
+	// Possible values:
+	//   "CHANGE_TYPE_UNSPECIFIED" - The type of change is not specified or
+	// known.
+	//   "ADD" - The TTL config is being added.
+	//   "REMOVE" - The TTL config is being removed.
+	ChangeType string `json:"changeType,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ChangeType") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ChangeType") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GoogleFirestoreAdminV1TtlConfigDelta) MarshalJSON() ([]byte, error) {
+	type NoMethod GoogleFirestoreAdminV1TtlConfigDelta
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // GoogleFirestoreAdminV1UpdateDatabaseMetadata: Metadata related to the
 // update database operation.
 type GoogleFirestoreAdminV1UpdateDatabaseMetadata struct {
@@ -2291,6 +2541,10 @@ type ListCollectionIdsRequest struct {
 	// ListCollectionIdsResponse.
 	PageToken string `json:"pageToken,omitempty"`
 
+	// ReadTime: Reads documents as they were at the given time. This may
+	// not be older than 270 seconds.
+	ReadTime string `json:"readTime,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "PageSize") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
@@ -2355,7 +2609,8 @@ type ListDocumentsResponse struct {
 	// Documents: The Documents found.
 	Documents []*Document `json:"documents,omitempty"`
 
-	// NextPageToken: The next page token.
+	// NextPageToken: A token to retrieve the next page of documents. If
+	// this field is omitted, there are no subsequent pages.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -2652,6 +2907,10 @@ type PartitionQueryRequest struct {
 	// fewer than the number of workers or compute instances available.
 	PartitionCount int64 `json:"partitionCount,omitempty,string"`
 
+	// ReadTime: Reads documents as they were at the given time. This may
+	// not be older than 270 seconds.
+	ReadTime string `json:"readTime,omitempty"`
+
 	// StructuredQuery: A structured query. Query must specify collection
 	// with all descendants and be ordered by name ascending. Other filters,
 	// order bys, limits, offsets, and start/end cursors are not supported.
@@ -2915,6 +3174,97 @@ func (s *RollbackRequest) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// RunAggregationQueryRequest: The request for
+// Firestore.RunAggregationQuery.
+type RunAggregationQueryRequest struct {
+	// NewTransaction: Starts a new transaction as part of the query,
+	// defaulting to read-only. The new transaction ID will be returned as
+	// the first response in the stream.
+	NewTransaction *TransactionOptions `json:"newTransaction,omitempty"`
+
+	// ReadTime: Executes the query at the given timestamp. Requires: *
+	// Cannot be more than 270 seconds in the past.
+	ReadTime string `json:"readTime,omitempty"`
+
+	// StructuredAggregationQuery: An aggregation query.
+	StructuredAggregationQuery *StructuredAggregationQuery `json:"structuredAggregationQuery,omitempty"`
+
+	// Transaction: Run the aggregation within an already active
+	// transaction. The value here is the opaque transaction ID to execute
+	// the query in.
+	Transaction string `json:"transaction,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "NewTransaction") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "NewTransaction") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RunAggregationQueryRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod RunAggregationQueryRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// RunAggregationQueryResponse: The response for
+// Firestore.RunAggregationQuery.
+type RunAggregationQueryResponse struct {
+	// ReadTime: The time at which the aggregate result was computed. This
+	// is always monotonically increasing; in this case, the previous
+	// AggregationResult in the result stream are guaranteed not to have
+	// changed between their `read_time` and this one. If the query returns
+	// no results, a response with `read_time` and no `result` will be sent,
+	// and this represents the time at which the query was run.
+	ReadTime string `json:"readTime,omitempty"`
+
+	// Result: A single aggregation result. Not present when reporting
+	// partial progress.
+	Result *AggregationResult `json:"result,omitempty"`
+
+	// Transaction: The transaction that was started as part of this
+	// request. Only present on the first response when the request
+	// requested to start a new transaction.
+	Transaction string `json:"transaction,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "ReadTime") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ReadTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RunAggregationQueryResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod RunAggregationQueryResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // RunQueryRequest: The request for Firestore.RunQuery.
 type RunQueryRequest struct {
 	// NewTransaction: Starts a new transaction and reads the documents.
@@ -3055,40 +3405,102 @@ func (s *Status) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// StructuredAggregationQuery: Firestore query for running an
+// aggregation over a StructuredQuery.
+type StructuredAggregationQuery struct {
+	// Aggregations: Optional. Series of aggregations to apply over the
+	// results of the `structured_query`. Requires: * A minimum of one and
+	// maximum of five aggregations per query.
+	Aggregations []*Aggregation `json:"aggregations,omitempty"`
+
+	// StructuredQuery: Nested structured query.
+	StructuredQuery *StructuredQuery `json:"structuredQuery,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Aggregations") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Aggregations") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *StructuredAggregationQuery) MarshalJSON() ([]byte, error) {
+	type NoMethod StructuredAggregationQuery
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // StructuredQuery: A Firestore query.
 type StructuredQuery struct {
-	// EndAt: A end point for the query results.
+	// EndAt: A potential prefix of a position in the result set to end the
+	// query at. This is similar to `START_AT` but with it controlling the
+	// end position rather than the start position. Requires: * The number
+	// of values cannot be greater than the number of fields specified in
+	// the `ORDER BY` clause.
 	EndAt *Cursor `json:"endAt,omitempty"`
 
 	// From: The collections to query.
 	From []*CollectionSelector `json:"from,omitempty"`
 
 	// Limit: The maximum number of results to return. Applies after all
-	// other constraints. Must be >= 0 if specified.
+	// other constraints. Requires: * The value must be greater than or
+	// equal to zero if specified.
 	Limit int64 `json:"limit,omitempty"`
 
-	// Offset: The number of results to skip. Applies before limit, but
-	// after all other constraints. Must be >= 0 if specified.
+	// Offset: The number of documents to skip before returning the first
+	// result. This applies after the constraints specified by the `WHERE`,
+	// `START AT`, & `END AT` but before the `LIMIT` clause. Requires: * The
+	// value must be greater than or equal to zero if specified.
 	Offset int64 `json:"offset,omitempty"`
 
-	// OrderBy: The order to apply to the query results. Firestore
-	// guarantees a stable ordering through the following rules: * Any field
-	// required to appear in `order_by`, that is not already specified in
-	// `order_by`, is appended to the order in field name order by default.
-	// * If an order on `__name__` is not specified, it is appended by
-	// default. Fields are appended with the same sort direction as the last
-	// order specified, or 'ASCENDING' if no order was specified. For
-	// example: * `SELECT * FROM Foo ORDER BY A` becomes `SELECT * FROM Foo
-	// ORDER BY A, __name__` * `SELECT * FROM Foo ORDER BY A DESC` becomes
-	// `SELECT * FROM Foo ORDER BY A DESC, __name__ DESC` * `SELECT * FROM
-	// Foo WHERE A > 1` becomes `SELECT * FROM Foo WHERE A > 1 ORDER BY A,
-	// __name__`
+	// OrderBy: The order to apply to the query results. Firestore allows
+	// callers to provide a full ordering, a partial ordering, or no
+	// ordering at all. In all cases, Firestore guarantees a stable ordering
+	// through the following rules: * The `order_by` is required to
+	// reference all fields used with an inequality filter. * All fields
+	// that are required to be in the `order_by` but are not already present
+	// are appended in lexicographical ordering of the field name. * If an
+	// order on `__name__` is not specified, it is appended by default.
+	// Fields are appended with the same sort direction as the last order
+	// specified, or 'ASCENDING' if no order was specified. For example: *
+	// `ORDER BY a` becomes `ORDER BY a ASC, __name__ ASC` * `ORDER BY a
+	// DESC` becomes `ORDER BY a DESC, __name__ DESC` * `WHERE a > 1`
+	// becomes `WHERE a > 1 ORDER BY a ASC, __name__ ASC` * `WHERE __name__
+	// > ... AND a > 1` becomes `WHERE __name__ > ... AND a > 1 ORDER BY a
+	// ASC, __name__ ASC`
 	OrderBy []*Order `json:"orderBy,omitempty"`
 
-	// Select: The projection to return.
+	// Select: Optional sub-set of the fields to return. This acts as a
+	// DocumentMask over the documents returned from a query. When not set,
+	// assumes that the caller wants all fields returned.
 	Select *Projection `json:"select,omitempty"`
 
-	// StartAt: A starting point for the query results.
+	// StartAt: A potential prefix of a position in the result set to start
+	// the query at. The ordering of the result set is based on the `ORDER
+	// BY` clause of the original query. ``` SELECT * FROM k WHERE a = 1 AND
+	// b > 2 ORDER BY b ASC, __name__ ASC; ``` This query's results are
+	// ordered by `(b ASC, __name__ ASC)`. Cursors can reference either the
+	// full ordering or a prefix of the location, though it cannot reference
+	// more fields than what are in the provided `ORDER BY`. Continuing off
+	// the example above, attaching the following start cursors will have
+	// varying impact: - `START BEFORE (2, /k/123)`: start the query right
+	// before `a = 1 AND b > 2 AND __name__ > /k/123`. - `START AFTER (10)`:
+	// start the query right after `a = 1 AND b > 10`. Unlike `OFFSET` which
+	// requires scanning over the first N results to skip, a start cursor
+	// allows the query to begin at a logical position. This position is not
+	// required to match an actual result, it will scan forward from this
+	// position to find the next document. Requires: * The number of values
+	// cannot be greater than the number of fields specified in the `ORDER
+	// BY` clause.
 	StartAt *Cursor `json:"startAt,omitempty"`
 
 	// Where: The filter to apply.
@@ -3582,6 +3994,336 @@ func (s *WriteResult) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// method id "firestore.projects.databases.create":
+
+type ProjectsDatabasesCreateCall struct {
+	s                              *Service
+	parent                         string
+	googlefirestoreadminv1database *GoogleFirestoreAdminV1Database
+	urlParams_                     gensupport.URLParams
+	ctx_                           context.Context
+	header_                        http.Header
+}
+
+// Create: Create a database.
+//
+// - parent: A parent name of the form `projects/{project_id}`.
+func (r *ProjectsDatabasesService) Create(parent string, googlefirestoreadminv1database *GoogleFirestoreAdminV1Database) *ProjectsDatabasesCreateCall {
+	c := &ProjectsDatabasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.googlefirestoreadminv1database = googlefirestoreadminv1database
+	return c
+}
+
+// DatabaseId sets the optional parameter "databaseId": Required. The ID
+// to use for the database, which will become the final component of the
+// database's resource name. The value must be set to "(default)".
+func (c *ProjectsDatabasesCreateCall) DatabaseId(databaseId string) *ProjectsDatabasesCreateCall {
+	c.urlParams_.Set("databaseId", databaseId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsDatabasesCreateCall) Fields(s ...googleapi.Field) *ProjectsDatabasesCreateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsDatabasesCreateCall) Context(ctx context.Context) *ProjectsDatabasesCreateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsDatabasesCreateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsDatabasesCreateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googlefirestoreadminv1database)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/databases")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firestore.projects.databases.create" call.
+// Exactly one of *GoogleLongrunningOperation or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *GoogleLongrunningOperation.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsDatabasesCreateCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunningOperation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleLongrunningOperation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Create a database.",
+	//   "flatPath": "v1/projects/{projectsId}/databases",
+	//   "httpMethod": "POST",
+	//   "id": "firestore.projects.databases.create",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "databaseId": {
+	//       "description": "Required. The ID to use for the database, which will become the final component of the database's resource name. The value must be set to \"(default)\".",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "parent": {
+	//       "description": "Required. A parent name of the form `projects/{project_id}`",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}/databases",
+	//   "request": {
+	//     "$ref": "GoogleFirestoreAdminV1Database"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleLongrunningOperation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/datastore"
+	//   ]
+	// }
+
+}
+
+// method id "firestore.projects.databases.delete":
+
+type ProjectsDatabasesDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes a database.
+//
+//   - name: A name of the form
+//     `projects/{project_id}/databases/{database_id}`.
+func (r *ProjectsDatabasesService) Delete(name string) *ProjectsDatabasesDeleteCall {
+	c := &ProjectsDatabasesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// AllowMissing sets the optional parameter "allowMissing": If set to
+// true and the Database is not found, the request will succeed but no
+// action will be taken.
+func (c *ProjectsDatabasesDeleteCall) AllowMissing(allowMissing bool) *ProjectsDatabasesDeleteCall {
+	c.urlParams_.Set("allowMissing", fmt.Sprint(allowMissing))
+	return c
+}
+
+// Etag sets the optional parameter "etag": The current etag of the
+// Database. If an etag is provided and does not match the current etag
+// of the database, deletion will be blocked and a FAILED_PRECONDITION
+// error will be returned.
+func (c *ProjectsDatabasesDeleteCall) Etag(etag string) *ProjectsDatabasesDeleteCall {
+	c.urlParams_.Set("etag", etag)
+	return c
+}
+
+// ValidateOnly sets the optional parameter "validateOnly": If set,
+// validate the request and preview the response, but do not actually
+// delete the database.
+func (c *ProjectsDatabasesDeleteCall) ValidateOnly(validateOnly bool) *ProjectsDatabasesDeleteCall {
+	c.urlParams_.Set("validateOnly", fmt.Sprint(validateOnly))
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsDatabasesDeleteCall) Fields(s ...googleapi.Field) *ProjectsDatabasesDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsDatabasesDeleteCall) Context(ctx context.Context) *ProjectsDatabasesDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsDatabasesDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsDatabasesDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firestore.projects.databases.delete" call.
+// Exactly one of *GoogleLongrunningOperation or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *GoogleLongrunningOperation.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsDatabasesDeleteCall) Do(opts ...googleapi.CallOption) (*GoogleLongrunningOperation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &GoogleLongrunningOperation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes a database.",
+	//   "flatPath": "v1/projects/{projectsId}/databases/{databasesId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "firestore.projects.databases.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "allowMissing": {
+	//       "description": "If set to true and the Database is not found, the request will succeed but no action will be taken.",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     },
+	//     "etag": {
+	//       "description": "The current etag of the Database. If an etag is provided and does not match the current etag of the database, deletion will be blocked and a FAILED_PRECONDITION error will be returned.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "name": {
+	//       "description": "Required. A name of the form `projects/{project_id}/databases/{database_id}`",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/databases/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "validateOnly": {
+	//       "description": "If set, validate the request and preview the response, but do not actually delete the database.",
+	//       "location": "query",
+	//       "type": "boolean"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "GoogleLongrunningOperation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/datastore"
+	//   ]
+	// }
+
+}
+
 // method id "firestore.projects.databases.exportDocuments":
 
 type ProjectsDatabasesExportDocumentsCall struct {
@@ -3604,8 +4346,8 @@ type ProjectsDatabasesExportDocumentsCall struct {
 // For more details on export behavior and output format, refer to:
 // https://cloud.google.com/firestore/docs/manage-data/export-import
 //
-// - name: Database to export. Should be of the form:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - name: Database to export. Should be of the form:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesService) ExportDocuments(name string, googlefirestoreadminv1exportdocumentsrequest *GoogleFirestoreAdminV1ExportDocumentsRequest) *ProjectsDatabasesExportDocumentsCall {
 	c := &ProjectsDatabasesExportDocumentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3680,17 +4422,17 @@ func (c *ProjectsDatabasesExportDocumentsCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -3748,8 +4490,8 @@ type ProjectsDatabasesGetCall struct {
 
 // Get: Gets information about a database.
 //
-// - name: A name of the form
-//   `projects/{project_id}/databases/{database_id}`.
+//   - name: A name of the form
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesService) Get(name string) *ProjectsDatabasesGetCall {
 	c := &ProjectsDatabasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3831,17 +4573,17 @@ func (c *ProjectsDatabasesGetCall) Do(opts ...googleapi.CallOption) (*GoogleFire
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFirestoreAdminV1Database{
 		ServerResponse: googleapi.ServerResponse{
@@ -3901,8 +4643,8 @@ type ProjectsDatabasesImportDocumentsCall struct {
 // ImportDocuments operation is cancelled, it is possible that a subset
 // of the data has already been imported to Cloud Firestore.
 //
-// - name: Database to import into. Should be of the form:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - name: Database to import into. Should be of the form:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesService) ImportDocuments(name string, googlefirestoreadminv1importdocumentsrequest *GoogleFirestoreAdminV1ImportDocumentsRequest) *ProjectsDatabasesImportDocumentsCall {
 	c := &ProjectsDatabasesImportDocumentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3977,17 +4719,17 @@ func (c *ProjectsDatabasesImportDocumentsCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4129,17 +4871,17 @@ func (c *ProjectsDatabasesListCall) Do(opts ...googleapi.CallOption) (*GoogleFir
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFirestoreAdminV1ListDatabasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4194,8 +4936,8 @@ type ProjectsDatabasesPatchCall struct {
 
 // Patch: Updates a database.
 //
-// - name: The resource name of the Database. Format:
-//   `projects/{project}/databases/{database}`.
+//   - name: The resource name of the Database. Format:
+//     `projects/{project}/databases/{database}`.
 func (r *ProjectsDatabasesService) Patch(name string, googlefirestoreadminv1database *GoogleFirestoreAdminV1Database) *ProjectsDatabasesPatchCall {
 	c := &ProjectsDatabasesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4277,17 +5019,17 @@ func (c *ProjectsDatabasesPatchCall) Do(opts ...googleapi.CallOption) (*GoogleLo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4351,9 +5093,9 @@ type ProjectsDatabasesCollectionGroupsFieldsGetCall struct {
 
 // Get: Gets the metadata and configuration for a Field.
 //
-// - name: A name of the form
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/{col
-//   lection_id}/fields/{field_id}`.
+//   - name: A name of the form
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/{col
+//     lection_id}/fields/{field_id}`.
 func (r *ProjectsDatabasesCollectionGroupsFieldsService) Get(name string) *ProjectsDatabasesCollectionGroupsFieldsGetCall {
 	c := &ProjectsDatabasesCollectionGroupsFieldsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4435,17 +5177,17 @@ func (c *ProjectsDatabasesCollectionGroupsFieldsGetCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFirestoreAdminV1Field{
 		ServerResponse: googleapi.ServerResponse{
@@ -4504,9 +5246,9 @@ type ProjectsDatabasesCollectionGroupsFieldsListCall struct {
 // FirestoreAdmin.ListFields with the filter set to
 // `indexConfig.usesAncestorConfig:false` .
 //
-// - parent: A parent name of the form
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/{col
-//   lection_id}`.
+//   - parent: A parent name of the form
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/{col
+//     lection_id}`.
 func (r *ProjectsDatabasesCollectionGroupsFieldsService) List(parent string) *ProjectsDatabasesCollectionGroupsFieldsListCall {
 	c := &ProjectsDatabasesCollectionGroupsFieldsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4615,17 +5357,17 @@ func (c *ProjectsDatabasesCollectionGroupsFieldsListCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFirestoreAdminV1ListFieldsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4728,27 +5470,27 @@ type ProjectsDatabasesCollectionGroupsFieldsPatchCall struct {
 // `projects/{project_id}/databases/{database_id}/collectionGroups/__defa
 // ult__/fields/*`.
 //
-// - name: A field name of the form
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/{col
-//   lection_id}/fields/{field_path}` A field path may be a simple field
-//   name, e.g. `address` or a path to fields within map_value , e.g.
-//   `address.city`, or a special field path. The only valid special
-//   field is `*`, which represents any field. Field paths may be quoted
-//   using ` (backtick). The only character that needs to be escaped
-//   within a quoted field path is the backtick character itself,
-//   escaped using a backslash. Special characters in field paths that
-//   must be quoted include: `*`, `.`, ``` (backtick), `[`, `]`, as well
-//   as any ascii symbolic characters. Examples: (Note: Comments here
-//   are written in markdown syntax, so there is an additional layer of
-//   backticks to represent a code block) `\`address.city\`` represents
-//   a field named `address.city`, not the map key `city` in the field
-//   `address`. `\`*\`` represents a field named `*`, not any field. A
-//   special `Field` contains the default indexing settings for all
-//   fields. This field's resource name is:
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/__de
-//   fault__/fields/*` Indexes defined on this `Field` will be applied
-//   to all fields which do not have their own `Field` index
-//   configuration.
+//   - name: A field name of the form
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/{col
+//     lection_id}/fields/{field_path}` A field path may be a simple field
+//     name, e.g. `address` or a path to fields within map_value , e.g.
+//     `address.city`, or a special field path. The only valid special
+//     field is `*`, which represents any field. Field paths may be quoted
+//     using ` (backtick). The only character that needs to be escaped
+//     within a quoted field path is the backtick character itself,
+//     escaped using a backslash. Special characters in field paths that
+//     must be quoted include: `*`, `.`, ``` (backtick), `[`, `]`, as well
+//     as any ascii symbolic characters. Examples: (Note: Comments here
+//     are written in markdown syntax, so there is an additional layer of
+//     backticks to represent a code block) `\`address.city\“ represents
+//     a field named `address.city`, not the map key `city` in the field
+//     `address`. `\`*\“ represents a field named `*`, not any field. A
+//     special `Field` contains the default indexing settings for all
+//     fields. This field's resource name is:
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/__de
+//     fault__/fields/*` Indexes defined on this `Field` will be applied
+//     to all fields which do not have their own `Field` index
+//     configuration.
 func (r *ProjectsDatabasesCollectionGroupsFieldsService) Patch(name string, googlefirestoreadminv1field *GoogleFirestoreAdminV1Field) *ProjectsDatabasesCollectionGroupsFieldsPatchCall {
 	c := &ProjectsDatabasesCollectionGroupsFieldsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4831,17 +5573,17 @@ func (c *ProjectsDatabasesCollectionGroupsFieldsPatchCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4908,9 +5650,9 @@ type ProjectsDatabasesCollectionGroupsIndexesCreateCall struct {
 // the creation. The metadata for the operation will be the type
 // IndexOperationMetadata.
 //
-// - parent: A parent name of the form
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/{col
-//   lection_id}`.
+//   - parent: A parent name of the form
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/{col
+//     lection_id}`.
 func (r *ProjectsDatabasesCollectionGroupsIndexesService) Create(parent string, googlefirestoreadminv1index *GoogleFirestoreAdminV1Index) *ProjectsDatabasesCollectionGroupsIndexesCreateCall {
 	c := &ProjectsDatabasesCollectionGroupsIndexesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4985,17 +5727,17 @@ func (c *ProjectsDatabasesCollectionGroupsIndexesCreateCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5052,9 +5794,9 @@ type ProjectsDatabasesCollectionGroupsIndexesDeleteCall struct {
 
 // Delete: Deletes a composite index.
 //
-// - name: A name of the form
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/{col
-//   lection_id}/indexes/{index_id}`.
+//   - name: A name of the form
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/{col
+//     lection_id}/indexes/{index_id}`.
 func (r *ProjectsDatabasesCollectionGroupsIndexesService) Delete(name string) *ProjectsDatabasesCollectionGroupsIndexesDeleteCall {
 	c := &ProjectsDatabasesCollectionGroupsIndexesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5123,17 +5865,17 @@ func (c *ProjectsDatabasesCollectionGroupsIndexesDeleteCall) Do(opts ...googleap
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5188,9 +5930,9 @@ type ProjectsDatabasesCollectionGroupsIndexesGetCall struct {
 
 // Get: Gets a composite index.
 //
-// - name: A name of the form
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/{col
-//   lection_id}/indexes/{index_id}`.
+//   - name: A name of the form
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/{col
+//     lection_id}/indexes/{index_id}`.
 func (r *ProjectsDatabasesCollectionGroupsIndexesService) Get(name string) *ProjectsDatabasesCollectionGroupsIndexesGetCall {
 	c := &ProjectsDatabasesCollectionGroupsIndexesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5272,17 +6014,17 @@ func (c *ProjectsDatabasesCollectionGroupsIndexesGetCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFirestoreAdminV1Index{
 		ServerResponse: googleapi.ServerResponse{
@@ -5337,9 +6079,9 @@ type ProjectsDatabasesCollectionGroupsIndexesListCall struct {
 
 // List: Lists composite indexes.
 //
-// - parent: A parent name of the form
-//   `projects/{project_id}/databases/{database_id}/collectionGroups/{col
-//   lection_id}`.
+//   - parent: A parent name of the form
+//     `projects/{project_id}/databases/{database_id}/collectionGroups/{col
+//     lection_id}`.
 func (r *ProjectsDatabasesCollectionGroupsIndexesService) List(parent string) *ProjectsDatabasesCollectionGroupsIndexesListCall {
 	c := &ProjectsDatabasesCollectionGroupsIndexesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5445,17 +6187,17 @@ func (c *ProjectsDatabasesCollectionGroupsIndexesListCall) Do(opts ...googleapi.
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleFirestoreAdminV1ListIndexesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5549,8 +6291,8 @@ type ProjectsDatabasesDocumentsBatchGetCall struct {
 // are not guaranteed to be returned in the same order that they were
 // requested.
 //
-// - database: The database name. In the format:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - database: The database name. In the format:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesDocumentsService) BatchGet(database string, batchgetdocumentsrequest *BatchGetDocumentsRequest) *ProjectsDatabasesDocumentsBatchGetCall {
 	c := &ProjectsDatabasesDocumentsBatchGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.database = database
@@ -5625,17 +6367,17 @@ func (c *ProjectsDatabasesDocumentsBatchGetCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchGetDocumentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5698,8 +6440,8 @@ type ProjectsDatabasesDocumentsBatchWriteCall struct {
 // BatchWriteResponse for the success status of each write. If you
 // require an atomically applied set of writes, use Commit instead.
 //
-// - database: The database name. In the format:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - database: The database name. In the format:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesDocumentsService) BatchWrite(database string, batchwriterequest *BatchWriteRequest) *ProjectsDatabasesDocumentsBatchWriteCall {
 	c := &ProjectsDatabasesDocumentsBatchWriteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.database = database
@@ -5774,17 +6516,17 @@ func (c *ProjectsDatabasesDocumentsBatchWriteCall) Do(opts ...googleapi.CallOpti
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BatchWriteResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5842,8 +6584,8 @@ type ProjectsDatabasesDocumentsBeginTransactionCall struct {
 
 // BeginTransaction: Starts a new transaction.
 //
-// - database: The database name. In the format:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - database: The database name. In the format:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesDocumentsService) BeginTransaction(database string, begintransactionrequest *BeginTransactionRequest) *ProjectsDatabasesDocumentsBeginTransactionCall {
 	c := &ProjectsDatabasesDocumentsBeginTransactionCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.database = database
@@ -5918,17 +6660,17 @@ func (c *ProjectsDatabasesDocumentsBeginTransactionCall) Do(opts ...googleapi.Ca
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &BeginTransactionResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5986,8 +6728,8 @@ type ProjectsDatabasesDocumentsCommitCall struct {
 
 // Commit: Commits a transaction, while optionally updating documents.
 //
-// - database: The database name. In the format:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - database: The database name. In the format:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesDocumentsService) Commit(database string, commitrequest *CommitRequest) *ProjectsDatabasesDocumentsCommitCall {
 	c := &ProjectsDatabasesDocumentsCommitCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.database = database
@@ -6062,17 +6804,17 @@ func (c *ProjectsDatabasesDocumentsCommitCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &CommitResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6131,12 +6873,12 @@ type ProjectsDatabasesDocumentsCreateDocumentCall struct {
 
 // CreateDocument: Creates a new document.
 //
-// - collectionId: The collection ID, relative to `parent`, to list. For
-//   example: `chatrooms`.
-// - parent: The parent resource. For example:
-//   `projects/{project_id}/databases/{database_id}/documents` or
-//   `projects/{project_id}/databases/{database_id}/documents/chatrooms/{
-//   chatroom_id}`.
+//   - collectionId: The collection ID, relative to `parent`, to list. For
+//     example: `chatrooms`.
+//   - parent: The parent resource. For example:
+//     `projects/{project_id}/databases/{database_id}/documents` or
+//     `projects/{project_id}/databases/{database_id}/documents/chatrooms/{
+//     chatroom_id}`.
 func (r *ProjectsDatabasesDocumentsService) CreateDocument(parent string, collectionId string, document *Document) *ProjectsDatabasesDocumentsCreateDocumentCall {
 	c := &ProjectsDatabasesDocumentsCreateDocumentCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6229,17 +6971,17 @@ func (c *ProjectsDatabasesDocumentsCreateDocumentCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Document{
 		ServerResponse: googleapi.ServerResponse{
@@ -6314,9 +7056,9 @@ type ProjectsDatabasesDocumentsDeleteCall struct {
 
 // Delete: Deletes a document.
 //
-// - name: The resource name of the Document to delete. In the format:
-//   `projects/{project_id}/databases/{database_id}/documents/{document_p
-//   ath}`.
+//   - name: The resource name of the Document to delete. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`.
 func (r *ProjectsDatabasesDocumentsService) Delete(name string) *ProjectsDatabasesDocumentsDeleteCall {
 	c := &ProjectsDatabasesDocumentsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6402,17 +7144,17 @@ func (c *ProjectsDatabasesDocumentsDeleteCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -6478,9 +7220,9 @@ type ProjectsDatabasesDocumentsGetCall struct {
 
 // Get: Gets a single document.
 //
-// - name: The resource name of the Document to get. In the format:
-//   `projects/{project_id}/databases/{database_id}/documents/{document_p
-//   ath}`.
+//   - name: The resource name of the Document to get. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`.
 func (r *ProjectsDatabasesDocumentsService) Get(name string) *ProjectsDatabasesDocumentsGetCall {
 	c := &ProjectsDatabasesDocumentsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6585,17 +7327,17 @@ func (c *ProjectsDatabasesDocumentsGetCall) Do(opts ...googleapi.CallOption) (*D
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Document{
 		ServerResponse: googleapi.ServerResponse{
@@ -6669,15 +7411,17 @@ type ProjectsDatabasesDocumentsListCall struct {
 
 // List: Lists documents.
 //
-// - collectionId: The collection ID, relative to `parent`, to list. For
-//   example: `chatrooms` or `messages`.
-// - parent: The parent resource name. In the format:
-//   `projects/{project_id}/databases/{database_id}/documents` or
-//   `projects/{project_id}/databases/{database_id}/documents/{document_p
-//   ath}`. For example:
-//   `projects/my-project/databases/my-database/documents` or
-//   `projects/my-project/databases/my-database/documents/chatrooms/my-ch
-//   atroom`.
+//   - collectionId: Optional. The collection ID, relative to `parent`, to
+//     list. For example: `chatrooms` or `messages`. This is optional, and
+//     when not provided, Firestore will list documents from all
+//     collections under the provided `parent`.
+//   - parent: The parent resource name. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents` or
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`. For example:
+//     `projects/my-project/databases/my-database/documents` or
+//     `projects/my-project/databases/my-database/documents/chatrooms/my-ch
+//     atroom`.
 func (r *ProjectsDatabasesDocumentsService) List(parent string, collectionId string) *ProjectsDatabasesDocumentsListCall {
 	c := &ProjectsDatabasesDocumentsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6693,48 +7437,54 @@ func (c *ProjectsDatabasesDocumentsListCall) MaskFieldPaths(maskFieldPaths ...st
 	return c
 }
 
-// OrderBy sets the optional parameter "orderBy": The order to sort
-// results by. For example: `priority desc, name`.
+// OrderBy sets the optional parameter "orderBy": The optional ordering
+// of the documents to return. For example: `priority desc, __name__
+// desc`. This mirrors the `ORDER BY` used in Firestore queries but in a
+// string representation. When absent, documents are ordered based on
+// `__name__ ASC`.
 func (c *ProjectsDatabasesDocumentsListCall) OrderBy(orderBy string) *ProjectsDatabasesDocumentsListCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of documents to return.
+// of documents to return in a single response. Firestore may return
+// fewer than this value.
 func (c *ProjectsDatabasesDocumentsListCall) PageSize(pageSize int64) *ProjectsDatabasesDocumentsListCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
 }
 
-// PageToken sets the optional parameter "pageToken": The
-// `next_page_token` value returned from a previous List request, if
-// any.
+// PageToken sets the optional parameter "pageToken": A page token,
+// received from a previous `ListDocuments` response. Provide this to
+// retrieve the subsequent page. When paginating, all other parameters
+// (with the exception of `page_size`) must match the values set in the
+// request that generated the page token.
 func (c *ProjectsDatabasesDocumentsListCall) PageToken(pageToken string) *ProjectsDatabasesDocumentsListCall {
 	c.urlParams_.Set("pageToken", pageToken)
 	return c
 }
 
-// ReadTime sets the optional parameter "readTime": Reads documents as
-// they were at the given time. This may not be older than 270 seconds.
+// ReadTime sets the optional parameter "readTime": Perform the read at
+// the provided time. This may not be older than 270 seconds.
 func (c *ProjectsDatabasesDocumentsListCall) ReadTime(readTime string) *ProjectsDatabasesDocumentsListCall {
 	c.urlParams_.Set("readTime", readTime)
 	return c
 }
 
 // ShowMissing sets the optional parameter "showMissing": If the list
-// should show missing documents. A missing document is a document that
-// does not exist but has sub-documents. These documents will be
-// returned with a key but will not have fields, Document.create_time,
-// or Document.update_time set. Requests with `show_missing` may not
-// specify `where` or `order_by`.
+// should show missing documents. A document is missing if it does not
+// exist, but there are sub-documents nested underneath it. When true,
+// such missing documents will be returned with a key but will not have
+// fields, `create_time`, or `update_time` set. Requests with
+// `show_missing` may not specify `where` or `order_by`.
 func (c *ProjectsDatabasesDocumentsListCall) ShowMissing(showMissing bool) *ProjectsDatabasesDocumentsListCall {
 	c.urlParams_.Set("showMissing", fmt.Sprint(showMissing))
 	return c
 }
 
-// Transaction sets the optional parameter "transaction": Reads
-// documents in a transaction.
+// Transaction sets the optional parameter "transaction": Perform the
+// read as part of an already active transaction.
 func (c *ProjectsDatabasesDocumentsListCall) Transaction(transaction string) *ProjectsDatabasesDocumentsListCall {
 	c.urlParams_.Set("transaction", transaction)
 	return c
@@ -6816,17 +7566,17 @@ func (c *ProjectsDatabasesDocumentsListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDocumentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6850,7 +7600,7 @@ func (c *ProjectsDatabasesDocumentsListCall) Do(opts ...googleapi.CallOption) (*
 	//   ],
 	//   "parameters": {
 	//     "collectionId": {
-	//       "description": "Required. The collection ID, relative to `parent`, to list. For example: `chatrooms` or `messages`.",
+	//       "description": "Optional. The collection ID, relative to `parent`, to list. For example: `chatrooms` or `messages`. This is optional, and when not provided, Firestore will list documents from all collections under the provided `parent`.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -6862,18 +7612,18 @@ func (c *ProjectsDatabasesDocumentsListCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "The order to sort results by. For example: `priority desc, name`.",
+	//       "description": "Optional. The optional ordering of the documents to return. For example: `priority desc, __name__ desc`. This mirrors the `ORDER BY` used in Firestore queries but in a string representation. When absent, documents are ordered based on `__name__ ASC`.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "The maximum number of documents to return.",
+	//       "description": "Optional. The maximum number of documents to return in a single response. Firestore may return fewer than this value.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
 	//     },
 	//     "pageToken": {
-	//       "description": "The `next_page_token` value returned from a previous List request, if any.",
+	//       "description": "Optional. A page token, received from a previous `ListDocuments` response. Provide this to retrieve the subsequent page. When paginating, all other parameters (with the exception of `page_size`) must match the values set in the request that generated the page token.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -6885,18 +7635,18 @@ func (c *ProjectsDatabasesDocumentsListCall) Do(opts ...googleapi.CallOption) (*
 	//       "type": "string"
 	//     },
 	//     "readTime": {
-	//       "description": "Reads documents as they were at the given time. This may not be older than 270 seconds.",
+	//       "description": "Perform the read at the provided time. This may not be older than 270 seconds.",
 	//       "format": "google-datetime",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "showMissing": {
-	//       "description": "If the list should show missing documents. A missing document is a document that does not exist but has sub-documents. These documents will be returned with a key but will not have fields, Document.create_time, or Document.update_time set. Requests with `show_missing` may not specify `where` or `order_by`.",
+	//       "description": "If the list should show missing documents. A document is missing if it does not exist, but there are sub-documents nested underneath it. When true, such missing documents will be returned with a key but will not have fields, `create_time`, or `update_time` set. Requests with `show_missing` may not specify `where` or `order_by`.",
 	//       "location": "query",
 	//       "type": "boolean"
 	//     },
 	//     "transaction": {
-	//       "description": "Reads documents in a transaction.",
+	//       "description": "Perform the read as part of an already active transaction.",
 	//       "format": "byte",
 	//       "location": "query",
 	//       "type": "string"
@@ -6949,11 +7699,11 @@ type ProjectsDatabasesDocumentsListCollectionIdsCall struct {
 // ListCollectionIds: Lists all the collection IDs underneath a
 // document.
 //
-// - parent: The parent document. In the format:
-//   `projects/{project_id}/databases/{database_id}/documents/{document_p
-//   ath}`. For example:
-//   `projects/my-project/databases/my-database/documents/chatrooms/my-ch
-//   atroom`.
+//   - parent: The parent document. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`. For example:
+//     `projects/my-project/databases/my-database/documents/chatrooms/my-ch
+//     atroom`.
 func (r *ProjectsDatabasesDocumentsService) ListCollectionIds(parent string, listcollectionidsrequest *ListCollectionIdsRequest) *ProjectsDatabasesDocumentsListCollectionIdsCall {
 	c := &ProjectsDatabasesDocumentsListCollectionIdsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7028,17 +7778,17 @@ func (c *ProjectsDatabasesDocumentsListCollectionIdsCall) Do(opts ...googleapi.C
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListCollectionIdsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7118,15 +7868,17 @@ type ProjectsDatabasesDocumentsListDocumentsCall struct {
 
 // ListDocuments: Lists documents.
 //
-// - collectionId: The collection ID, relative to `parent`, to list. For
-//   example: `chatrooms` or `messages`.
-// - parent: The parent resource name. In the format:
-//   `projects/{project_id}/databases/{database_id}/documents` or
-//   `projects/{project_id}/databases/{database_id}/documents/{document_p
-//   ath}`. For example:
-//   `projects/my-project/databases/my-database/documents` or
-//   `projects/my-project/databases/my-database/documents/chatrooms/my-ch
-//   atroom`.
+//   - collectionId: Optional. The collection ID, relative to `parent`, to
+//     list. For example: `chatrooms` or `messages`. This is optional, and
+//     when not provided, Firestore will list documents from all
+//     collections under the provided `parent`.
+//   - parent: The parent resource name. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents` or
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`. For example:
+//     `projects/my-project/databases/my-database/documents` or
+//     `projects/my-project/databases/my-database/documents/chatrooms/my-ch
+//     atroom`.
 func (r *ProjectsDatabasesDocumentsService) ListDocuments(parent string, collectionId string) *ProjectsDatabasesDocumentsListDocumentsCall {
 	c := &ProjectsDatabasesDocumentsListDocumentsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7142,48 +7894,54 @@ func (c *ProjectsDatabasesDocumentsListDocumentsCall) MaskFieldPaths(maskFieldPa
 	return c
 }
 
-// OrderBy sets the optional parameter "orderBy": The order to sort
-// results by. For example: `priority desc, name`.
+// OrderBy sets the optional parameter "orderBy": The optional ordering
+// of the documents to return. For example: `priority desc, __name__
+// desc`. This mirrors the `ORDER BY` used in Firestore queries but in a
+// string representation. When absent, documents are ordered based on
+// `__name__ ASC`.
 func (c *ProjectsDatabasesDocumentsListDocumentsCall) OrderBy(orderBy string) *ProjectsDatabasesDocumentsListDocumentsCall {
 	c.urlParams_.Set("orderBy", orderBy)
 	return c
 }
 
 // PageSize sets the optional parameter "pageSize": The maximum number
-// of documents to return.
+// of documents to return in a single response. Firestore may return
+// fewer than this value.
 func (c *ProjectsDatabasesDocumentsListDocumentsCall) PageSize(pageSize int64) *ProjectsDatabasesDocumentsListDocumentsCall {
 	c.urlParams_.Set("pageSize", fmt.Sprint(pageSize))
 	return c
 }
 
-// PageToken sets the optional parameter "pageToken": The
-// `next_page_token` value returned from a previous List request, if
-// any.
+// PageToken sets the optional parameter "pageToken": A page token,
+// received from a previous `ListDocuments` response. Provide this to
+// retrieve the subsequent page. When paginating, all other parameters
+// (with the exception of `page_size`) must match the values set in the
+// request that generated the page token.
 func (c *ProjectsDatabasesDocumentsListDocumentsCall) PageToken(pageToken string) *ProjectsDatabasesDocumentsListDocumentsCall {
 	c.urlParams_.Set("pageToken", pageToken)
 	return c
 }
 
-// ReadTime sets the optional parameter "readTime": Reads documents as
-// they were at the given time. This may not be older than 270 seconds.
+// ReadTime sets the optional parameter "readTime": Perform the read at
+// the provided time. This may not be older than 270 seconds.
 func (c *ProjectsDatabasesDocumentsListDocumentsCall) ReadTime(readTime string) *ProjectsDatabasesDocumentsListDocumentsCall {
 	c.urlParams_.Set("readTime", readTime)
 	return c
 }
 
 // ShowMissing sets the optional parameter "showMissing": If the list
-// should show missing documents. A missing document is a document that
-// does not exist but has sub-documents. These documents will be
-// returned with a key but will not have fields, Document.create_time,
-// or Document.update_time set. Requests with `show_missing` may not
-// specify `where` or `order_by`.
+// should show missing documents. A document is missing if it does not
+// exist, but there are sub-documents nested underneath it. When true,
+// such missing documents will be returned with a key but will not have
+// fields, `create_time`, or `update_time` set. Requests with
+// `show_missing` may not specify `where` or `order_by`.
 func (c *ProjectsDatabasesDocumentsListDocumentsCall) ShowMissing(showMissing bool) *ProjectsDatabasesDocumentsListDocumentsCall {
 	c.urlParams_.Set("showMissing", fmt.Sprint(showMissing))
 	return c
 }
 
-// Transaction sets the optional parameter "transaction": Reads
-// documents in a transaction.
+// Transaction sets the optional parameter "transaction": Perform the
+// read as part of an already active transaction.
 func (c *ProjectsDatabasesDocumentsListDocumentsCall) Transaction(transaction string) *ProjectsDatabasesDocumentsListDocumentsCall {
 	c.urlParams_.Set("transaction", transaction)
 	return c
@@ -7265,17 +8023,17 @@ func (c *ProjectsDatabasesDocumentsListDocumentsCall) Do(opts ...googleapi.CallO
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDocumentsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7299,7 +8057,7 @@ func (c *ProjectsDatabasesDocumentsListDocumentsCall) Do(opts ...googleapi.CallO
 	//   ],
 	//   "parameters": {
 	//     "collectionId": {
-	//       "description": "Required. The collection ID, relative to `parent`, to list. For example: `chatrooms` or `messages`.",
+	//       "description": "Optional. The collection ID, relative to `parent`, to list. For example: `chatrooms` or `messages`. This is optional, and when not provided, Firestore will list documents from all collections under the provided `parent`.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -7311,18 +8069,18 @@ func (c *ProjectsDatabasesDocumentsListDocumentsCall) Do(opts ...googleapi.CallO
 	//       "type": "string"
 	//     },
 	//     "orderBy": {
-	//       "description": "The order to sort results by. For example: `priority desc, name`.",
+	//       "description": "Optional. The optional ordering of the documents to return. For example: `priority desc, __name__ desc`. This mirrors the `ORDER BY` used in Firestore queries but in a string representation. When absent, documents are ordered based on `__name__ ASC`.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "pageSize": {
-	//       "description": "The maximum number of documents to return.",
+	//       "description": "Optional. The maximum number of documents to return in a single response. Firestore may return fewer than this value.",
 	//       "format": "int32",
 	//       "location": "query",
 	//       "type": "integer"
 	//     },
 	//     "pageToken": {
-	//       "description": "The `next_page_token` value returned from a previous List request, if any.",
+	//       "description": "Optional. A page token, received from a previous `ListDocuments` response. Provide this to retrieve the subsequent page. When paginating, all other parameters (with the exception of `page_size`) must match the values set in the request that generated the page token.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7334,18 +8092,18 @@ func (c *ProjectsDatabasesDocumentsListDocumentsCall) Do(opts ...googleapi.CallO
 	//       "type": "string"
 	//     },
 	//     "readTime": {
-	//       "description": "Reads documents as they were at the given time. This may not be older than 270 seconds.",
+	//       "description": "Perform the read at the provided time. This may not be older than 270 seconds.",
 	//       "format": "google-datetime",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "showMissing": {
-	//       "description": "If the list should show missing documents. A missing document is a document that does not exist but has sub-documents. These documents will be returned with a key but will not have fields, Document.create_time, or Document.update_time set. Requests with `show_missing` may not specify `where` or `order_by`.",
+	//       "description": "If the list should show missing documents. A document is missing if it does not exist, but there are sub-documents nested underneath it. When true, such missing documents will be returned with a key but will not have fields, `create_time`, or `update_time` set. Requests with `show_missing` may not specify `where` or `order_by`.",
 	//       "location": "query",
 	//       "type": "boolean"
 	//     },
 	//     "transaction": {
-	//       "description": "Reads documents in a transaction.",
+	//       "description": "Perform the read as part of an already active transaction.",
 	//       "format": "byte",
 	//       "location": "query",
 	//       "type": "string"
@@ -7395,10 +8153,11 @@ type ProjectsDatabasesDocumentsListenCall struct {
 	header_       http.Header
 }
 
-// Listen: Listens to changes.
+// Listen: Listens to changes. This method is only available via gRPC or
+// WebChannel (not REST).
 //
-// - database: The database name. In the format:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - database: The database name. In the format:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesDocumentsService) Listen(database string, listenrequest *ListenRequest) *ProjectsDatabasesDocumentsListenCall {
 	c := &ProjectsDatabasesDocumentsListenCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.database = database
@@ -7473,17 +8232,17 @@ func (c *ProjectsDatabasesDocumentsListenCall) Do(opts ...googleapi.CallOption) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListenResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7497,7 +8256,7 @@ func (c *ProjectsDatabasesDocumentsListenCall) Do(opts ...googleapi.CallOption) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Listens to changes.",
+	//   "description": "Listens to changes. This method is only available via gRPC or WebChannel (not REST).",
 	//   "flatPath": "v1/projects/{projectsId}/databases/{databasesId}/documents:listen",
 	//   "httpMethod": "POST",
 	//   "id": "firestore.projects.databases.documents.listen",
@@ -7544,10 +8303,10 @@ type ProjectsDatabasesDocumentsPartitionQueryCall struct {
 // cursors are split points that can be used by RunQuery as starting/end
 // points for the query results.
 //
-// - parent: The parent resource name. In the format:
-//   `projects/{project_id}/databases/{database_id}/documents`. Document
-//   resource names are not supported; only database resource names can
-//   be specified.
+//   - parent: The parent resource name. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents`. Document
+//     resource names are not supported; only database resource names can
+//     be specified.
 func (r *ProjectsDatabasesDocumentsService) PartitionQuery(parent string, partitionqueryrequest *PartitionQueryRequest) *ProjectsDatabasesDocumentsPartitionQueryCall {
 	c := &ProjectsDatabasesDocumentsPartitionQueryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7622,17 +8381,17 @@ func (c *ProjectsDatabasesDocumentsPartitionQueryCall) Do(opts ...googleapi.Call
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PartitionQueryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7711,9 +8470,9 @@ type ProjectsDatabasesDocumentsPatchCall struct {
 
 // Patch: Updates or inserts a document.
 //
-// - name: The resource name of the document, for example
-//   `projects/{project_id}/databases/{database_id}/documents/{document_p
-//   ath}`.
+//   - name: The resource name of the document, for example
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`.
 func (r *ProjectsDatabasesDocumentsService) Patch(name string, document *Document) *ProjectsDatabasesDocumentsPatchCall {
 	c := &ProjectsDatabasesDocumentsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7821,17 +8580,17 @@ func (c *ProjectsDatabasesDocumentsPatchCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Document{
 		ServerResponse: googleapi.ServerResponse{
@@ -7912,8 +8671,8 @@ type ProjectsDatabasesDocumentsRollbackCall struct {
 
 // Rollback: Rolls back a transaction.
 //
-// - database: The database name. In the format:
-//   `projects/{project_id}/databases/{database_id}`.
+//   - database: The database name. In the format:
+//     `projects/{project_id}/databases/{database_id}`.
 func (r *ProjectsDatabasesDocumentsService) Rollback(database string, rollbackrequest *RollbackRequest) *ProjectsDatabasesDocumentsRollbackCall {
 	c := &ProjectsDatabasesDocumentsRollbackCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.database = database
@@ -7988,17 +8747,17 @@ func (c *ProjectsDatabasesDocumentsRollbackCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8043,6 +8802,160 @@ func (c *ProjectsDatabasesDocumentsRollbackCall) Do(opts ...googleapi.CallOption
 
 }
 
+// method id "firestore.projects.databases.documents.runAggregationQuery":
+
+type ProjectsDatabasesDocumentsRunAggregationQueryCall struct {
+	s                          *Service
+	parent                     string
+	runaggregationqueryrequest *RunAggregationQueryRequest
+	urlParams_                 gensupport.URLParams
+	ctx_                       context.Context
+	header_                    http.Header
+}
+
+// RunAggregationQuery: Runs an aggregation query. Rather than producing
+// Document results like Firestore.RunQuery, this API allows running an
+// aggregation to produce a series of AggregationResult server-side.
+// High-Level Example: ``` -- Return the number of documents in table
+// given a filter. SELECT COUNT(*) FROM ( SELECT * FROM k where a = true
+// ); ```
+//
+//   - parent: The parent resource name. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents` or
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`. For example:
+//     `projects/my-project/databases/my-database/documents` or
+//     `projects/my-project/databases/my-database/documents/chatrooms/my-ch
+//     atroom`.
+func (r *ProjectsDatabasesDocumentsService) RunAggregationQuery(parent string, runaggregationqueryrequest *RunAggregationQueryRequest) *ProjectsDatabasesDocumentsRunAggregationQueryCall {
+	c := &ProjectsDatabasesDocumentsRunAggregationQueryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.runaggregationqueryrequest = runaggregationqueryrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsDatabasesDocumentsRunAggregationQueryCall) Fields(s ...googleapi.Field) *ProjectsDatabasesDocumentsRunAggregationQueryCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsDatabasesDocumentsRunAggregationQueryCall) Context(ctx context.Context) *ProjectsDatabasesDocumentsRunAggregationQueryCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsDatabasesDocumentsRunAggregationQueryCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsDatabasesDocumentsRunAggregationQueryCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.runaggregationqueryrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}:runAggregationQuery")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firestore.projects.databases.documents.runAggregationQuery" call.
+// Exactly one of *RunAggregationQueryResponse or error will be non-nil.
+// Any non-2xx status code is an error. Response headers are in either
+// *RunAggregationQueryResponse.ServerResponse.Header or (if a response
+// was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsDatabasesDocumentsRunAggregationQueryCall) Do(opts ...googleapi.CallOption) (*RunAggregationQueryResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &RunAggregationQueryResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Runs an aggregation query. Rather than producing Document results like Firestore.RunQuery, this API allows running an aggregation to produce a series of AggregationResult server-side. High-Level Example: ``` -- Return the number of documents in table given a filter. SELECT COUNT(*) FROM ( SELECT * FROM k where a = true ); ```",
+	//   "flatPath": "v1/projects/{projectsId}/databases/{databasesId}/documents/{documentsId}/{documentsId1}:runAggregationQuery",
+	//   "httpMethod": "POST",
+	//   "id": "firestore.projects.databases.documents.runAggregationQuery",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Required. The parent resource name. In the format: `projects/{project_id}/databases/{database_id}/documents` or `projects/{project_id}/databases/{database_id}/documents/{document_path}`. For example: `projects/my-project/databases/my-database/documents` or `projects/my-project/databases/my-database/documents/chatrooms/my-chatroom`",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/databases/[^/]+/documents/[^/]+/.*$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}:runAggregationQuery",
+	//   "request": {
+	//     "$ref": "RunAggregationQueryRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "RunAggregationQueryResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/datastore"
+	//   ]
+	// }
+
+}
+
 // method id "firestore.projects.databases.documents.runQuery":
 
 type ProjectsDatabasesDocumentsRunQueryCall struct {
@@ -8056,13 +8969,13 @@ type ProjectsDatabasesDocumentsRunQueryCall struct {
 
 // RunQuery: Runs a query.
 //
-// - parent: The parent resource name. In the format:
-//   `projects/{project_id}/databases/{database_id}/documents` or
-//   `projects/{project_id}/databases/{database_id}/documents/{document_p
-//   ath}`. For example:
-//   `projects/my-project/databases/my-database/documents` or
-//   `projects/my-project/databases/my-database/documents/chatrooms/my-ch
-//   atroom`.
+//   - parent: The parent resource name. In the format:
+//     `projects/{project_id}/databases/{database_id}/documents` or
+//     `projects/{project_id}/databases/{database_id}/documents/{document_p
+//     ath}`. For example:
+//     `projects/my-project/databases/my-database/documents` or
+//     `projects/my-project/databases/my-database/documents/chatrooms/my-ch
+//     atroom`.
 func (r *ProjectsDatabasesDocumentsService) RunQuery(parent string, runqueryrequest *RunQueryRequest) *ProjectsDatabasesDocumentsRunQueryCall {
 	c := &ProjectsDatabasesDocumentsRunQueryCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8137,17 +9050,17 @@ func (c *ProjectsDatabasesDocumentsRunQueryCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &RunQueryResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8204,10 +9117,11 @@ type ProjectsDatabasesDocumentsWriteCall struct {
 }
 
 // Write: Streams batches of document updates and deletes, in order.
+// This method is only available via gRPC or WebChannel (not REST).
 //
-// - database: The database name. In the format:
-//   `projects/{project_id}/databases/{database_id}`. This is only
-//   required in the first message.
+//   - database: The database name. In the format:
+//     `projects/{project_id}/databases/{database_id}`. This is only
+//     required in the first message.
 func (r *ProjectsDatabasesDocumentsService) Write(database string, writerequest *WriteRequest) *ProjectsDatabasesDocumentsWriteCall {
 	c := &ProjectsDatabasesDocumentsWriteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.database = database
@@ -8282,17 +9196,17 @@ func (c *ProjectsDatabasesDocumentsWriteCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &WriteResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8306,7 +9220,7 @@ func (c *ProjectsDatabasesDocumentsWriteCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Streams batches of document updates and deletes, in order.",
+	//   "description": "Streams batches of document updates and deletes, in order. This method is only available via gRPC or WebChannel (not REST).",
 	//   "flatPath": "v1/projects/{projectsId}/databases/{databasesId}/documents:write",
 	//   "httpMethod": "POST",
 	//   "id": "firestore.projects.databases.documents.write",
@@ -8434,17 +9348,17 @@ func (c *ProjectsDatabasesOperationsCancelCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8573,17 +9487,17 @@ func (c *ProjectsDatabasesOperationsDeleteCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8722,17 +9636,17 @@ func (c *ProjectsDatabasesOperationsGetCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningOperation{
 		ServerResponse: googleapi.ServerResponse{
@@ -8787,14 +9701,7 @@ type ProjectsDatabasesOperationsListCall struct {
 
 // List: Lists operations that match the specified filter in the
 // request. If the server doesn't support this method, it returns
-// `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to
-// override the binding to use different resource name schemes, such as
-// `users/*/operations`. To override the binding, API services can add a
-// binding such as "/v1/{name=users/*}/operations" to their service
-// configuration. For backwards compatibility, the default name includes
-// the operations collection id, however overriding users must ensure
-// the name binding is the parent resource, without the operations
-// collection id.
+// `UNIMPLEMENTED`.
 //
 // - name: The name of the operation's parent resource.
 func (r *ProjectsDatabasesOperationsService) List(name string) *ProjectsDatabasesOperationsListCall {
@@ -8900,17 +9807,17 @@ func (c *ProjectsDatabasesOperationsListCall) Do(opts ...googleapi.CallOption) (
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleLongrunningListOperationsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8924,7 +9831,7 @@ func (c *ProjectsDatabasesOperationsListCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`. NOTE: the `name` binding allows API services to override the binding to use different resource name schemes, such as `users/*/operations`. To override the binding, API services can add a binding such as `\"/v1/{name=users/*}/operations\"` to their service configuration. For backwards compatibility, the default name includes the operations collection id, however overriding users must ensure the name binding is the parent resource, without the operations collection id.",
+	//   "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
 	//   "flatPath": "v1/projects/{projectsId}/databases/{databasesId}/operations",
 	//   "httpMethod": "GET",
 	//   "id": "firestore.projects.databases.operations.list",
@@ -9084,17 +9991,17 @@ func (c *ProjectsLocationsGetCall) Do(opts ...googleapi.CallOption) (*Location, 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Location{
 		ServerResponse: googleapi.ServerResponse{
@@ -9150,8 +10057,8 @@ type ProjectsLocationsListCall struct {
 // List: Lists information about the supported locations for this
 // service.
 //
-// - name: The resource that owns the locations collection, if
-//   applicable.
+//   - name: The resource that owns the locations collection, if
+//     applicable.
 func (r *ProjectsLocationsService) List(name string) *ProjectsLocationsListCall {
 	c := &ProjectsLocationsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9257,17 +10164,17 @@ func (c *ProjectsLocationsListCall) Do(opts ...googleapi.CallOption) (*ListLocat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListLocationsResponse{
 		ServerResponse: googleapi.ServerResponse{

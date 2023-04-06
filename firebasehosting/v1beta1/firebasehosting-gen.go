@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,35 +8,35 @@
 //
 // For product documentation, see: https://firebase.google.com/docs/hosting/
 //
-// Creating a client
+// # Creating a client
 //
 // Usage example:
 //
-//   import "google.golang.org/api/firebasehosting/v1beta1"
-//   ...
-//   ctx := context.Background()
-//   firebasehostingService, err := firebasehosting.NewService(ctx)
+//	import "google.golang.org/api/firebasehosting/v1beta1"
+//	...
+//	ctx := context.Background()
+//	firebasehostingService, err := firebasehosting.NewService(ctx)
 //
 // In this example, Google Application Default Credentials are used for authentication.
 //
 // For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
-// Other authentication options
+// # Other authentication options
 //
 // By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
 //
-//   firebasehostingService, err := firebasehosting.NewService(ctx, option.WithScopes(firebasehosting.FirebaseReadonlyScope))
+//	firebasehostingService, err := firebasehosting.NewService(ctx, option.WithScopes(firebasehosting.FirebaseReadonlyScope))
 //
 // To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
 //
-//   firebasehostingService, err := firebasehosting.NewService(ctx, option.WithAPIKey("AIza..."))
+//	firebasehostingService, err := firebasehosting.NewService(ctx, option.WithAPIKey("AIza..."))
 //
 // To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
 //
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   firebasehostingService, err := firebasehosting.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//	config := &oauth2.Config{...}
+//	// ...
+//	token, err := config.Exchange(ctx, ...)
+//	firebasehostingService, err := firebasehosting.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
 // See https://godoc.org/google.golang.org/api/option/ for details on options.
 package firebasehosting // import "google.golang.org/api/firebasehosting/v1beta1"
@@ -75,6 +75,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "firebasehosting:v1beta1"
 const apiName = "firebasehosting"
@@ -1377,6 +1378,10 @@ type Rewrite struct {
 	// function name exactly.
 	Function string `json:"function,omitempty"`
 
+	// FunctionRegion: Optional. Specify a Cloud region for rewritten
+	// Functions invocations. If not provided, defaults to us-central1.
+	FunctionRegion string `json:"functionRegion,omitempty"`
+
 	// Glob: The user-supplied glob
 	// (https://firebase.google.com/docs/hosting/full-config#glob_pattern_matching)
 	// to match against the request URL path.
@@ -1495,7 +1500,7 @@ func (s *ServingConfig) MarshalJSON() ([]byte, error) {
 // Site: A `Site` represents a Firebase Hosting site.
 type Site struct {
 	// AppId: Optional. The ID of a Web App
-	// (https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects.webApps#WebApp.FIELDS.app_id)
+	// (https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects.webApps#WebApp.FIELDS.app_id)
 	// associated with the Hosting site.
 	AppId string `json:"appId,omitempty"`
 
@@ -1508,9 +1513,9 @@ type Site struct {
 	// Name: Output only. The fully-qualified resource name of the Hosting
 	// site, in the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID
 	// PROJECT_IDENTIFIER: the Firebase project's `ProjectNumber`
-	// (https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects#FirebaseProject.FIELDS.project_number)
+	// (https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects#FirebaseProject.FIELDS.project_number)
 	// ***(recommended)*** or its `ProjectId`
-	// (https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects#FirebaseProject.FIELDS.project_id).
+	// (https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects#FirebaseProject.FIELDS.project_id).
 	// Learn more about using project identifiers in Google's AIP 2510
 	// standard (https://google.aip.dev/cloud/2510).
 	Name string `json:"name,omitempty"`
@@ -1881,17 +1886,17 @@ func (c *ProjectsOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -1950,10 +1955,10 @@ type ProjectsSitesCreateCall struct {
 // project. Note that Hosting sites can take several minutes to
 // propagate through Firebase systems.
 //
-// - parent: The Firebase project in which to create a Hosting site, in
-//   the format: projects/PROJECT_IDENTIFIER Refer to the `Site` `name`
-//   (../projects#Site.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values.
+//   - parent: The Firebase project in which to create a Hosting site, in
+//     the format: projects/PROJECT_IDENTIFIER Refer to the `Site` `name`
+//     (../projects#Site.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values.
 func (r *ProjectsSitesService) Create(parent string, site *Site) *ProjectsSitesCreateCall {
 	c := &ProjectsSitesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2037,17 +2042,17 @@ func (c *ProjectsSitesCreateCall) Do(opts ...googleapi.CallOption) (*Site, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Site{
 		ServerResponse: googleapi.ServerResponse{
@@ -2110,10 +2115,10 @@ type ProjectsSitesDeleteCall struct {
 // Delete: Deletes the specified Hosting Site from the specified parent
 // Firebase project.
 //
-// - name: The fully-qualified resource name for the Hosting site, in
-//   the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID Refer to the
-//   `Site` `name` (../projects#Site.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER values.
+//   - name: The fully-qualified resource name for the Hosting site, in
+//     the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID Refer to the
+//     `Site` `name` (../projects#Site.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER values.
 func (r *ProjectsSitesService) Delete(name string) *ProjectsSitesDeleteCall {
 	c := &ProjectsSitesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2182,17 +2187,17 @@ func (c *ProjectsSitesDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -2247,12 +2252,12 @@ type ProjectsSitesGetCall struct {
 
 // Get: Gets the specified Hosting Site.
 //
-// - name: The fully-qualified resource name for the Hosting site, in
-//   the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID Refer to the
-//   `Site` `name` (../projects#Site.FIELDS.name) field for details
-//   about PROJECT_IDENTIFIER values. Since a SITE_ID is a globally
-//   unique identifier, you can also use the unique sub-collection
-//   resource access pattern, in the format: projects/-/sites/SITE_ID.
+//   - name: The fully-qualified resource name for the Hosting site, in
+//     the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID Refer to the
+//     `Site` `name` (../projects#Site.FIELDS.name) field for details
+//     about PROJECT_IDENTIFIER values. Since a SITE_ID is a globally
+//     unique identifier, you can also use the unique sub-collection
+//     resource access pattern, in the format: projects/-/sites/SITE_ID.
 func (r *ProjectsSitesService) Get(nameid string) *ProjectsSitesGetCall {
 	c := &ProjectsSitesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -2334,17 +2339,17 @@ func (c *ProjectsSitesGetCall) Do(opts ...googleapi.CallOption) (*Site, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Site{
 		ServerResponse: googleapi.ServerResponse{
@@ -2401,8 +2406,8 @@ type ProjectsSitesGetConfigCall struct {
 
 // GetConfig: Gets the Hosting metadata for a specific site.
 //
-// - name: The site for which to get the SiteConfig, in the format:
-//   sites/ site-name/config.
+//   - name: The site for which to get the SiteConfig, in the format:
+//     sites/ site-name/config.
 func (r *ProjectsSitesService) GetConfig(name string) *ProjectsSitesGetConfigCall {
 	c := &ProjectsSitesGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -2484,17 +2489,17 @@ func (c *ProjectsSitesGetConfigCall) Do(opts ...googleapi.CallOption) (*SiteConf
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SiteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -2552,10 +2557,10 @@ type ProjectsSitesListCall struct {
 // List: Lists each Hosting Site associated with the specified parent
 // Firebase project.
 //
-// - parent: The Firebase project for which to list sites, in the
-//   format: projects/PROJECT_IDENTIFIER Refer to the `Site` `name`
-//   (../projects#Site.FIELDS.name) field for details about
-//   PROJECT_IDENTIFIER values.
+//   - parent: The Firebase project for which to list sites, in the
+//     format: projects/PROJECT_IDENTIFIER Refer to the `Site` `name`
+//     (../projects#Site.FIELDS.name) field for details about
+//     PROJECT_IDENTIFIER values.
 func (r *ProjectsSitesService) List(parent string) *ProjectsSitesListCall {
 	c := &ProjectsSitesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -2653,17 +2658,17 @@ func (c *ProjectsSitesListCall) Do(opts ...googleapi.CallOption) (*ListSitesResp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListSitesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -2752,14 +2757,14 @@ type ProjectsSitesPatchCall struct {
 
 // Patch: Updates attributes of the specified Hosting Site.
 //
-// - name: Output only. The fully-qualified resource name of the Hosting
-//   site, in the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID
-//   PROJECT_IDENTIFIER: the Firebase project's `ProjectNumber`
-//   (https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects#FirebaseProject.FIELDS.project_number)
-//   ***(recommended)*** or its `ProjectId`
-//   (https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects#FirebaseProject.FIELDS.project_id).
-//   Learn more about using project identifiers in Google's AIP 2510
-//   standard (https://google.aip.dev/cloud/2510).
+//   - name: Output only. The fully-qualified resource name of the Hosting
+//     site, in the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID
+//     PROJECT_IDENTIFIER: the Firebase project's `ProjectNumber`
+//     (https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects#FirebaseProject.FIELDS.project_number)
+//     ***(recommended)*** or its `ProjectId`
+//     (https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects#FirebaseProject.FIELDS.project_id).
+//     Learn more about using project identifiers in Google's AIP 2510
+//     standard (https://google.aip.dev/cloud/2510).
 func (r *ProjectsSitesService) Patch(nameid string, site *Site) *ProjectsSitesPatchCall {
 	c := &ProjectsSitesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.nameid = nameid
@@ -2841,17 +2846,17 @@ func (c *ProjectsSitesPatchCall) Do(opts ...googleapi.CallOption) (*Site, error)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Site{
 		ServerResponse: googleapi.ServerResponse{
@@ -2874,7 +2879,7 @@ func (c *ProjectsSitesPatchCall) Do(opts ...googleapi.CallOption) (*Site, error)
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Output only. The fully-qualified resource name of the Hosting site, in the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID PROJECT_IDENTIFIER: the Firebase project's [`ProjectNumber`](https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects#FirebaseProject.FIELDS.project_number) ***(recommended)*** or its [`ProjectId`](https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects#FirebaseProject.FIELDS.project_id). Learn more about using project identifiers in Google's [AIP 2510 standard](https://google.aip.dev/cloud/2510).",
+	//       "description": "Output only. The fully-qualified resource name of the Hosting site, in the format: projects/PROJECT_IDENTIFIER/sites/SITE_ID PROJECT_IDENTIFIER: the Firebase project's [`ProjectNumber`](https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects#FirebaseProject.FIELDS.project_number) ***(recommended)*** or its [`ProjectId`](https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects#FirebaseProject.FIELDS.project_id). Learn more about using project identifiers in Google's [AIP 2510 standard](https://google.aip.dev/cloud/2510).",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/sites/[^/]+$",
 	//       "required": true,
@@ -2915,8 +2920,8 @@ type ProjectsSitesUpdateConfigCall struct {
 
 // UpdateConfig: Sets the Hosting metadata for a specific site.
 //
-// - name: The site for which to update the SiteConfig, in the format:
-//   sites/ site-name/config.
+//   - name: The site for which to update the SiteConfig, in the format:
+//     sites/ site-name/config.
 func (r *ProjectsSitesService) UpdateConfig(name string, siteconfig *SiteConfig) *ProjectsSitesUpdateConfigCall {
 	c := &ProjectsSitesUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3001,17 +3006,17 @@ func (c *ProjectsSitesUpdateConfigCall) Do(opts ...googleapi.CallOption) (*SiteC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SiteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -3075,8 +3080,8 @@ type ProjectsSitesChannelsCreateCall struct {
 
 // Create: Creates a new channel in the specified site.
 //
-// - parent: The site in which to create this channel, in the format:
-//   sites/ SITE_ID.
+//   - parent: The site in which to create this channel, in the format:
+//     sites/ SITE_ID.
 func (r *ProjectsSitesChannelsService) Create(parent string, channel *Channel) *ProjectsSitesChannelsCreateCall {
 	c := &ProjectsSitesChannelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3158,17 +3163,17 @@ func (c *ProjectsSitesChannelsCreateCall) Do(opts ...googleapi.CallOption) (*Cha
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -3231,8 +3236,8 @@ type ProjectsSitesChannelsDeleteCall struct {
 // Delete: Deletes the specified channel of the specified site. The
 // `live` channel cannot be deleted.
 //
-// - name: The fully-qualified resource name for the channel, in the
-//   format: sites/SITE_ID/channels/CHANNEL_ID.
+//   - name: The fully-qualified resource name for the channel, in the
+//     format: sites/SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesChannelsService) Delete(name string) *ProjectsSitesChannelsDeleteCall {
 	c := &ProjectsSitesChannelsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3301,17 +3306,17 @@ func (c *ProjectsSitesChannelsDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -3367,8 +3372,8 @@ type ProjectsSitesChannelsGetCall struct {
 // Get: Retrieves information for the specified channel of the specified
 // site.
 //
-// - name: The fully-qualified resource name for the channel, in the
-//   format: sites/SITE_ID/channels/CHANNEL_ID.
+//   - name: The fully-qualified resource name for the channel, in the
+//     format: sites/SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesChannelsService) Get(name string) *ProjectsSitesChannelsGetCall {
 	c := &ProjectsSitesChannelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3450,17 +3455,17 @@ func (c *ProjectsSitesChannelsGetCall) Do(opts ...googleapi.CallOption) (*Channe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -3518,8 +3523,8 @@ type ProjectsSitesChannelsListCall struct {
 // List: Lists the channels for the specified site. All sites have a
 // default `live` channel.
 //
-// - parent: The site for which to list channels, in the format:
-//   sites/SITE_ID.
+//   - parent: The site for which to list channels, in the format:
+//     sites/SITE_ID.
 func (r *ProjectsSitesChannelsService) List(parent string) *ProjectsSitesChannelsListCall {
 	c := &ProjectsSitesChannelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3619,17 +3624,17 @@ func (c *ProjectsSitesChannelsListCall) Do(opts ...googleapi.CallOption) (*ListC
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListChannelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3719,8 +3724,8 @@ type ProjectsSitesChannelsPatchCall struct {
 // Patch: Updates information for the specified channel of the specified
 // site. Implicitly creates the channel if it doesn't already exist.
 //
-// - name: The fully-qualified resource name for the channel, in the
-//   format: sites/ SITE_ID/channels/CHANNEL_ID.
+//   - name: The fully-qualified resource name for the channel, in the
+//     format: sites/ SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesChannelsService) Patch(name string, channel *Channel) *ProjectsSitesChannelsPatchCall {
 	c := &ProjectsSitesChannelsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -3802,17 +3807,17 @@ func (c *ProjectsSitesChannelsPatchCall) Do(opts ...googleapi.CallOption) (*Chan
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -3877,9 +3882,9 @@ type ProjectsSitesChannelsReleasesCreateCall struct {
 // Create: Creates a new release, which makes the content of the
 // specified version actively display on the appropriate URL(s).
 //
-// - parent: The site or channel to which the release belongs, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel to which the release belongs, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesChannelsReleasesService) Create(parent string, release *Release) *ProjectsSitesChannelsReleasesCreateCall {
 	c := &ProjectsSitesChannelsReleasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -3964,17 +3969,17 @@ func (c *ProjectsSitesChannelsReleasesCreateCall) Do(opts ...googleapi.CallOptio
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Release{
 		ServerResponse: googleapi.ServerResponse{
@@ -4024,6 +4029,161 @@ func (c *ProjectsSitesChannelsReleasesCreateCall) Do(opts ...googleapi.CallOptio
 
 }
 
+// method id "firebasehosting.projects.sites.channels.releases.get":
+
+type ProjectsSitesChannelsReleasesGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets the specified release for a site or channel. When used to
+// get a release for a site, this can get releases for both the default
+// `live` channel and any active preview channels for the specified
+// site.
+//
+//   - name: The fully-qualified resource name for the Hosting release, in
+//     either of the following formats: -
+//     sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID -
+//     sites/SITE_ID/releases/RELEASE_ID.
+func (r *ProjectsSitesChannelsReleasesService) Get(name string) *ProjectsSitesChannelsReleasesGetCall {
+	c := &ProjectsSitesChannelsReleasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsSitesChannelsReleasesGetCall) Fields(s ...googleapi.Field) *ProjectsSitesChannelsReleasesGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsSitesChannelsReleasesGetCall) IfNoneMatch(entityTag string) *ProjectsSitesChannelsReleasesGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsSitesChannelsReleasesGetCall) Context(ctx context.Context) *ProjectsSitesChannelsReleasesGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsSitesChannelsReleasesGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsSitesChannelsReleasesGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebasehosting.projects.sites.channels.releases.get" call.
+// Exactly one of *Release or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Release.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsSitesChannelsReleasesGetCall) Do(opts ...googleapi.CallOption) (*Release, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Release{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the specified release for a site or channel. When used to get a release for a site, this can get releases for both the default `live` channel and any active preview channels for the specified site.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/sites/{sitesId}/channels/{channelsId}/releases/{releasesId}",
+	//   "httpMethod": "GET",
+	//   "id": "firebasehosting.projects.sites.channels.releases.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The fully-qualified resource name for the Hosting release, in either of the following formats: - sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID - sites/SITE_ID/releases/RELEASE_ID ",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/sites/[^/]+/channels/[^/]+/releases/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "Release"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/firebase",
+	//     "https://www.googleapis.com/auth/firebase.readonly"
+	//   ]
+	// }
+
+}
+
 // method id "firebasehosting.projects.sites.channels.releases.list":
 
 type ProjectsSitesChannelsReleasesListCall struct {
@@ -4040,9 +4200,9 @@ type ProjectsSitesChannelsReleasesListCall struct {
 // includes releases for both the default `live` channel and any active
 // preview channels for the specified site.
 //
-// - parent: The site or channel for which to list releases, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel for which to list releases, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesChannelsReleasesService) List(parent string) *ProjectsSitesChannelsReleasesListCall {
 	c := &ProjectsSitesChannelsReleasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4141,17 +4301,17 @@ func (c *ProjectsSitesChannelsReleasesListCall) Do(opts ...googleapi.CallOption)
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReleasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4240,8 +4400,8 @@ type ProjectsSitesDomainsCreateCall struct {
 
 // Create: Creates a domain mapping on the specified site.
 //
-// - parent: The parent to create the domain association for, in the
-//   format: sites/site-name.
+//   - parent: The parent to create the domain association for, in the
+//     format: sites/site-name.
 func (r *ProjectsSitesDomainsService) Create(parent string, domain *Domain) *ProjectsSitesDomainsCreateCall {
 	c := &ProjectsSitesDomainsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4316,17 +4476,17 @@ func (c *ProjectsSitesDomainsCreateCall) Do(opts ...googleapi.CallOption) (*Doma
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domain{
 		ServerResponse: googleapi.ServerResponse{
@@ -4452,17 +4612,17 @@ func (c *ProjectsSitesDomainsDeleteCall) Do(opts ...googleapi.CallOption) (*Empt
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -4599,17 +4759,17 @@ func (c *ProjectsSitesDomainsGetCall) Do(opts ...googleapi.CallOption) (*Domain,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domain{
 		ServerResponse: googleapi.ServerResponse{
@@ -4666,8 +4826,8 @@ type ProjectsSitesDomainsListCall struct {
 
 // List: Lists the domains for the specified site.
 //
-// - parent: The parent for which to list domains, in the format: sites/
-//   site-name.
+//   - parent: The parent for which to list domains, in the format: sites/
+//     site-name.
 func (r *ProjectsSitesDomainsService) List(parent string) *ProjectsSitesDomainsListCall {
 	c := &ProjectsSitesDomainsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4763,17 +4923,17 @@ func (c *ProjectsSitesDomainsListCall) Do(opts ...googleapi.CallOption) (*ListDo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDomainsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4863,8 +5023,8 @@ type ProjectsSitesDomainsUpdateCall struct {
 // Update: Updates the specified domain mapping, creating the mapping as
 // if it does not exist.
 //
-// - name: The name of the domain association to update or create, if an
-//   association doesn't already exist.
+//   - name: The name of the domain association to update or create, if an
+//     association doesn't already exist.
 func (r *ProjectsSitesDomainsService) Update(name string, domain *Domain) *ProjectsSitesDomainsUpdateCall {
 	c := &ProjectsSitesDomainsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -4939,17 +5099,17 @@ func (c *ProjectsSitesDomainsUpdateCall) Do(opts ...googleapi.CallOption) (*Doma
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domain{
 		ServerResponse: googleapi.ServerResponse{
@@ -5008,9 +5168,9 @@ type ProjectsSitesReleasesCreateCall struct {
 // Create: Creates a new release, which makes the content of the
 // specified version actively display on the appropriate URL(s).
 //
-// - parent: The site or channel to which the release belongs, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel to which the release belongs, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesReleasesService) Create(parent string, release *Release) *ProjectsSitesReleasesCreateCall {
 	c := &ProjectsSitesReleasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5095,17 +5255,17 @@ func (c *ProjectsSitesReleasesCreateCall) Do(opts ...googleapi.CallOption) (*Rel
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Release{
 		ServerResponse: googleapi.ServerResponse{
@@ -5155,6 +5315,161 @@ func (c *ProjectsSitesReleasesCreateCall) Do(opts ...googleapi.CallOption) (*Rel
 
 }
 
+// method id "firebasehosting.projects.sites.releases.get":
+
+type ProjectsSitesReleasesGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets the specified release for a site or channel. When used to
+// get a release for a site, this can get releases for both the default
+// `live` channel and any active preview channels for the specified
+// site.
+//
+//   - name: The fully-qualified resource name for the Hosting release, in
+//     either of the following formats: -
+//     sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID -
+//     sites/SITE_ID/releases/RELEASE_ID.
+func (r *ProjectsSitesReleasesService) Get(name string) *ProjectsSitesReleasesGetCall {
+	c := &ProjectsSitesReleasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsSitesReleasesGetCall) Fields(s ...googleapi.Field) *ProjectsSitesReleasesGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsSitesReleasesGetCall) IfNoneMatch(entityTag string) *ProjectsSitesReleasesGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsSitesReleasesGetCall) Context(ctx context.Context) *ProjectsSitesReleasesGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsSitesReleasesGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsSitesReleasesGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebasehosting.projects.sites.releases.get" call.
+// Exactly one of *Release or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Release.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsSitesReleasesGetCall) Do(opts ...googleapi.CallOption) (*Release, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Release{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the specified release for a site or channel. When used to get a release for a site, this can get releases for both the default `live` channel and any active preview channels for the specified site.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/sites/{sitesId}/releases/{releasesId}",
+	//   "httpMethod": "GET",
+	//   "id": "firebasehosting.projects.sites.releases.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The fully-qualified resource name for the Hosting release, in either of the following formats: - sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID - sites/SITE_ID/releases/RELEASE_ID ",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/sites/[^/]+/releases/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "Release"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/firebase",
+	//     "https://www.googleapis.com/auth/firebase.readonly"
+	//   ]
+	// }
+
+}
+
 // method id "firebasehosting.projects.sites.releases.list":
 
 type ProjectsSitesReleasesListCall struct {
@@ -5171,9 +5486,9 @@ type ProjectsSitesReleasesListCall struct {
 // includes releases for both the default `live` channel and any active
 // preview channels for the specified site.
 //
-// - parent: The site or channel for which to list releases, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel for which to list releases, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesReleasesService) List(parent string) *ProjectsSitesReleasesListCall {
 	c := &ProjectsSitesReleasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5272,17 +5587,17 @@ func (c *ProjectsSitesReleasesListCall) Do(opts ...googleapi.CallOption) (*ListR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReleasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5372,8 +5687,8 @@ type ProjectsSitesVersionsCloneCall struct {
 // Clone: Creates a new version on the specified target site using the
 // content of the specified version.
 //
-// - parent: The target site for the cloned version, in the format:
-//   sites/ SITE_ID.
+//   - parent: The target site for the cloned version, in the format:
+//     sites/ SITE_ID.
 func (r *ProjectsSitesVersionsService) Clone(parent string, cloneversionrequest *CloneVersionRequest) *ProjectsSitesVersionsCloneCall {
 	c := &ProjectsSitesVersionsCloneCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5448,17 +5763,17 @@ func (c *ProjectsSitesVersionsCloneCall) Do(opts ...googleapi.CallOption) (*Oper
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5516,8 +5831,8 @@ type ProjectsSitesVersionsCreateCall struct {
 
 // Create: Creates a new version for the specified site.
 //
-// - parent: The site in which to create the version, in the format:
-//   sites/ SITE_ID.
+//   - parent: The site in which to create the version, in the format:
+//     sites/ SITE_ID.
 func (r *ProjectsSitesVersionsService) Create(parent string, version *Version) *ProjectsSitesVersionsCreateCall {
 	c := &ProjectsSitesVersionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5608,17 +5923,17 @@ func (c *ProjectsSitesVersionsCreateCall) Do(opts ...googleapi.CallOption) (*Ver
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -5686,8 +6001,8 @@ type ProjectsSitesVersionsDeleteCall struct {
 
 // Delete: Deletes the specified version.
 //
-// - name: The fully-qualified resource name for the version, in the
-//   format: sites/SITE_ID/versions/VERSION_ID.
+//   - name: The fully-qualified resource name for the version, in the
+//     format: sites/SITE_ID/versions/VERSION_ID.
 func (r *ProjectsSitesVersionsService) Delete(name string) *ProjectsSitesVersionsDeleteCall {
 	c := &ProjectsSitesVersionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5756,17 +6071,17 @@ func (c *ProjectsSitesVersionsDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -5808,6 +6123,159 @@ func (c *ProjectsSitesVersionsDeleteCall) Do(opts ...googleapi.CallOption) (*Emp
 
 }
 
+// method id "firebasehosting.projects.sites.versions.get":
+
+type ProjectsSitesVersionsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Get the specified version that has been created for the
+// specified site. This can include versions that were created for the
+// default `live` channel or for any active preview channels for the
+// specified site.
+//
+//   - name: The fully-qualified resource name for the version, in the
+//     format: sites/SITE_ID/versions/VERSION_ID.
+func (r *ProjectsSitesVersionsService) Get(name string) *ProjectsSitesVersionsGetCall {
+	c := &ProjectsSitesVersionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsSitesVersionsGetCall) Fields(s ...googleapi.Field) *ProjectsSitesVersionsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsSitesVersionsGetCall) IfNoneMatch(entityTag string) *ProjectsSitesVersionsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsSitesVersionsGetCall) Context(ctx context.Context) *ProjectsSitesVersionsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsSitesVersionsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsSitesVersionsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebasehosting.projects.sites.versions.get" call.
+// Exactly one of *Version or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Version.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *ProjectsSitesVersionsGetCall) Do(opts ...googleapi.CallOption) (*Version, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Version{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get the specified version that has been created for the specified site. This can include versions that were created for the default `live` channel or for any active preview channels for the specified site.",
+	//   "flatPath": "v1beta1/projects/{projectsId}/sites/{sitesId}/versions/{versionsId}",
+	//   "httpMethod": "GET",
+	//   "id": "firebasehosting.projects.sites.versions.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The fully-qualified resource name for the version, in the format: sites/SITE_ID/versions/VERSION_ID",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/sites/[^/]+/versions/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "Version"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/firebase",
+	//     "https://www.googleapis.com/auth/firebase.readonly"
+	//   ]
+	// }
+
+}
+
 // method id "firebasehosting.projects.sites.versions.list":
 
 type ProjectsSitesVersionsListCall struct {
@@ -5823,9 +6291,9 @@ type ProjectsSitesVersionsListCall struct {
 // site. This list includes versions for both the default `live` channel
 // and any active preview channels for the specified site.
 //
-// - parent: The site or channel for which to list versions, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel for which to list versions, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *ProjectsSitesVersionsService) List(parent string) *ProjectsSitesVersionsListCall {
 	c := &ProjectsSitesVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5935,17 +6403,17 @@ func (c *ProjectsSitesVersionsListCall) Do(opts ...googleapi.CallOption) (*ListV
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6044,10 +6512,10 @@ type ProjectsSitesVersionsPatchCall struct {
 // `CREATED` to `FINALIZED`. Use `DeleteVersion` (delete) to set the
 // status of a version to `DELETED`.
 //
-// - name: The fully-qualified resource name for the version, in the
-//   format: sites/ SITE_ID/versions/VERSION_ID This name is provided in
-//   the response body when you call `CreateVersion`
-//   (sites.versions/create).
+//   - name: The fully-qualified resource name for the version, in the
+//     format: sites/ SITE_ID/versions/VERSION_ID This name is provided in
+//     the response body when you call `CreateVersion`
+//     (sites.versions/create).
 func (r *ProjectsSitesVersionsService) Patch(name string, version *Version) *ProjectsSitesVersionsPatchCall {
 	c := &ProjectsSitesVersionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6132,17 +6600,17 @@ func (c *ProjectsSitesVersionsPatchCall) Do(opts ...googleapi.CallOption) (*Vers
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -6207,8 +6675,8 @@ type ProjectsSitesVersionsPopulateFilesCall struct {
 // PopulateFiles:  Adds content files to the specified version. Each
 // file must be under 2 GB.
 //
-// - parent: The version to which to add files, in the format:
-//   sites/SITE_ID /versions/VERSION_ID.
+//   - parent: The version to which to add files, in the format:
+//     sites/SITE_ID /versions/VERSION_ID.
 func (r *ProjectsSitesVersionsService) PopulateFiles(parent string, populateversionfilesrequest *PopulateVersionFilesRequest) *ProjectsSitesVersionsPopulateFilesCall {
 	c := &ProjectsSitesVersionsPopulateFilesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6283,17 +6751,17 @@ func (c *ProjectsSitesVersionsPopulateFilesCall) Do(opts ...googleapi.CallOption
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PopulateVersionFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6352,8 +6820,8 @@ type ProjectsSitesVersionsFilesListCall struct {
 // List: Lists the remaining files to be uploaded for the specified
 // version.
 //
-// - parent: The version for which to list files, in the format:
-//   sites/SITE_ID /versions/VERSION_ID.
+//   - parent: The version for which to list files, in the format:
+//     sites/SITE_ID /versions/VERSION_ID.
 func (r *ProjectsSitesVersionsFilesService) List(parent string) *ProjectsSitesVersionsFilesListCall {
 	c := &ProjectsSitesVersionsFilesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6381,11 +6849,16 @@ func (c *ProjectsSitesVersionsFilesListCall) PageToken(pageToken string) *Projec
 // should be listed for the specified version.
 //
 // Possible values:
-//   "STATUS_UNSPECIFIED" - The default status; should not be
+//
+//	"STATUS_UNSPECIFIED" - The default status; should not be
+//
 // intentionally used.
-//   "EXPECTED" - The file has been included in the version and is
+//
+//	"EXPECTED" - The file has been included in the version and is
+//
 // expected to be uploaded in the near future.
-//   "ACTIVE" - The file has already been uploaded to Firebase Hosting.
+//
+//	"ACTIVE" - The file has already been uploaded to Firebase Hosting.
 func (c *ProjectsSitesVersionsFilesListCall) Status(status string) *ProjectsSitesVersionsFilesListCall {
 	c.urlParams_.Set("status", status)
 	return c
@@ -6466,17 +6939,17 @@ func (c *ProjectsSitesVersionsFilesListCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVersionFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6580,8 +7053,8 @@ type SitesGetConfigCall struct {
 
 // GetConfig: Gets the Hosting metadata for a specific site.
 //
-// - name: The site for which to get the SiteConfig, in the format:
-//   sites/ site-name/config.
+//   - name: The site for which to get the SiteConfig, in the format:
+//     sites/ site-name/config.
 func (r *SitesService) GetConfig(name string) *SitesGetConfigCall {
 	c := &SitesGetConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6663,17 +7136,17 @@ func (c *SitesGetConfigCall) Do(opts ...googleapi.CallOption) (*SiteConfig, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SiteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6730,8 +7203,8 @@ type SitesUpdateConfigCall struct {
 
 // UpdateConfig: Sets the Hosting metadata for a specific site.
 //
-// - name: The site for which to update the SiteConfig, in the format:
-//   sites/ site-name/config.
+//   - name: The site for which to update the SiteConfig, in the format:
+//     sites/ site-name/config.
 func (r *SitesService) UpdateConfig(name string, siteconfig *SiteConfig) *SitesUpdateConfigCall {
 	c := &SitesUpdateConfigCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -6816,17 +7289,17 @@ func (c *SitesUpdateConfigCall) Do(opts ...googleapi.CallOption) (*SiteConfig, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &SiteConfig{
 		ServerResponse: googleapi.ServerResponse{
@@ -6890,8 +7363,8 @@ type SitesChannelsCreateCall struct {
 
 // Create: Creates a new channel in the specified site.
 //
-// - parent: The site in which to create this channel, in the format:
-//   sites/ SITE_ID.
+//   - parent: The site in which to create this channel, in the format:
+//     sites/ SITE_ID.
 func (r *SitesChannelsService) Create(parent string, channel *Channel) *SitesChannelsCreateCall {
 	c := &SitesChannelsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -6973,17 +7446,17 @@ func (c *SitesChannelsCreateCall) Do(opts ...googleapi.CallOption) (*Channel, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -7046,8 +7519,8 @@ type SitesChannelsDeleteCall struct {
 // Delete: Deletes the specified channel of the specified site. The
 // `live` channel cannot be deleted.
 //
-// - name: The fully-qualified resource name for the channel, in the
-//   format: sites/SITE_ID/channels/CHANNEL_ID.
+//   - name: The fully-qualified resource name for the channel, in the
+//     format: sites/SITE_ID/channels/CHANNEL_ID.
 func (r *SitesChannelsService) Delete(name string) *SitesChannelsDeleteCall {
 	c := &SitesChannelsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7116,17 +7589,17 @@ func (c *SitesChannelsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -7182,8 +7655,8 @@ type SitesChannelsGetCall struct {
 // Get: Retrieves information for the specified channel of the specified
 // site.
 //
-// - name: The fully-qualified resource name for the channel, in the
-//   format: sites/SITE_ID/channels/CHANNEL_ID.
+//   - name: The fully-qualified resource name for the channel, in the
+//     format: sites/SITE_ID/channels/CHANNEL_ID.
 func (r *SitesChannelsService) Get(name string) *SitesChannelsGetCall {
 	c := &SitesChannelsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7265,17 +7738,17 @@ func (c *SitesChannelsGetCall) Do(opts ...googleapi.CallOption) (*Channel, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -7333,8 +7806,8 @@ type SitesChannelsListCall struct {
 // List: Lists the channels for the specified site. All sites have a
 // default `live` channel.
 //
-// - parent: The site for which to list channels, in the format:
-//   sites/SITE_ID.
+//   - parent: The site for which to list channels, in the format:
+//     sites/SITE_ID.
 func (r *SitesChannelsService) List(parent string) *SitesChannelsListCall {
 	c := &SitesChannelsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7434,17 +7907,17 @@ func (c *SitesChannelsListCall) Do(opts ...googleapi.CallOption) (*ListChannelsR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListChannelsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7534,8 +8007,8 @@ type SitesChannelsPatchCall struct {
 // Patch: Updates information for the specified channel of the specified
 // site. Implicitly creates the channel if it doesn't already exist.
 //
-// - name: The fully-qualified resource name for the channel, in the
-//   format: sites/ SITE_ID/channels/CHANNEL_ID.
+//   - name: The fully-qualified resource name for the channel, in the
+//     format: sites/ SITE_ID/channels/CHANNEL_ID.
 func (r *SitesChannelsService) Patch(name string, channel *Channel) *SitesChannelsPatchCall {
 	c := &SitesChannelsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -7617,17 +8090,17 @@ func (c *SitesChannelsPatchCall) Do(opts ...googleapi.CallOption) (*Channel, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Channel{
 		ServerResponse: googleapi.ServerResponse{
@@ -7692,9 +8165,9 @@ type SitesChannelsReleasesCreateCall struct {
 // Create: Creates a new release, which makes the content of the
 // specified version actively display on the appropriate URL(s).
 //
-// - parent: The site or channel to which the release belongs, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel to which the release belongs, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *SitesChannelsReleasesService) Create(parent string, release *Release) *SitesChannelsReleasesCreateCall {
 	c := &SitesChannelsReleasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7779,17 +8252,17 @@ func (c *SitesChannelsReleasesCreateCall) Do(opts ...googleapi.CallOption) (*Rel
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Release{
 		ServerResponse: googleapi.ServerResponse{
@@ -7839,6 +8312,161 @@ func (c *SitesChannelsReleasesCreateCall) Do(opts ...googleapi.CallOption) (*Rel
 
 }
 
+// method id "firebasehosting.sites.channels.releases.get":
+
+type SitesChannelsReleasesGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets the specified release for a site or channel. When used to
+// get a release for a site, this can get releases for both the default
+// `live` channel and any active preview channels for the specified
+// site.
+//
+//   - name: The fully-qualified resource name for the Hosting release, in
+//     either of the following formats: -
+//     sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID -
+//     sites/SITE_ID/releases/RELEASE_ID.
+func (r *SitesChannelsReleasesService) Get(name string) *SitesChannelsReleasesGetCall {
+	c := &SitesChannelsReleasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *SitesChannelsReleasesGetCall) Fields(s ...googleapi.Field) *SitesChannelsReleasesGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *SitesChannelsReleasesGetCall) IfNoneMatch(entityTag string) *SitesChannelsReleasesGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *SitesChannelsReleasesGetCall) Context(ctx context.Context) *SitesChannelsReleasesGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *SitesChannelsReleasesGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *SitesChannelsReleasesGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebasehosting.sites.channels.releases.get" call.
+// Exactly one of *Release or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Release.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *SitesChannelsReleasesGetCall) Do(opts ...googleapi.CallOption) (*Release, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Release{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the specified release for a site or channel. When used to get a release for a site, this can get releases for both the default `live` channel and any active preview channels for the specified site.",
+	//   "flatPath": "v1beta1/sites/{sitesId}/channels/{channelsId}/releases/{releasesId}",
+	//   "httpMethod": "GET",
+	//   "id": "firebasehosting.sites.channels.releases.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The fully-qualified resource name for the Hosting release, in either of the following formats: - sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID - sites/SITE_ID/releases/RELEASE_ID ",
+	//       "location": "path",
+	//       "pattern": "^sites/[^/]+/channels/[^/]+/releases/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "Release"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/firebase",
+	//     "https://www.googleapis.com/auth/firebase.readonly"
+	//   ]
+	// }
+
+}
+
 // method id "firebasehosting.sites.channels.releases.list":
 
 type SitesChannelsReleasesListCall struct {
@@ -7855,9 +8483,9 @@ type SitesChannelsReleasesListCall struct {
 // includes releases for both the default `live` channel and any active
 // preview channels for the specified site.
 //
-// - parent: The site or channel for which to list releases, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel for which to list releases, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *SitesChannelsReleasesService) List(parent string) *SitesChannelsReleasesListCall {
 	c := &SitesChannelsReleasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -7956,17 +8584,17 @@ func (c *SitesChannelsReleasesListCall) Do(opts ...googleapi.CallOption) (*ListR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReleasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8055,8 +8683,8 @@ type SitesDomainsCreateCall struct {
 
 // Create: Creates a domain mapping on the specified site.
 //
-// - parent: The parent to create the domain association for, in the
-//   format: sites/site-name.
+//   - parent: The parent to create the domain association for, in the
+//     format: sites/site-name.
 func (r *SitesDomainsService) Create(parent string, domain *Domain) *SitesDomainsCreateCall {
 	c := &SitesDomainsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8131,17 +8759,17 @@ func (c *SitesDomainsCreateCall) Do(opts ...googleapi.CallOption) (*Domain, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domain{
 		ServerResponse: googleapi.ServerResponse{
@@ -8267,17 +8895,17 @@ func (c *SitesDomainsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -8414,17 +9042,17 @@ func (c *SitesDomainsGetCall) Do(opts ...googleapi.CallOption) (*Domain, error) 
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domain{
 		ServerResponse: googleapi.ServerResponse{
@@ -8481,8 +9109,8 @@ type SitesDomainsListCall struct {
 
 // List: Lists the domains for the specified site.
 //
-// - parent: The parent for which to list domains, in the format: sites/
-//   site-name.
+//   - parent: The parent for which to list domains, in the format: sites/
+//     site-name.
 func (r *SitesDomainsService) List(parent string) *SitesDomainsListCall {
 	c := &SitesDomainsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8578,17 +9206,17 @@ func (c *SitesDomainsListCall) Do(opts ...googleapi.CallOption) (*ListDomainsRes
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListDomainsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8678,8 +9306,8 @@ type SitesDomainsUpdateCall struct {
 // Update: Updates the specified domain mapping, creating the mapping as
 // if it does not exist.
 //
-// - name: The name of the domain association to update or create, if an
-//   association doesn't already exist.
+//   - name: The name of the domain association to update or create, if an
+//     association doesn't already exist.
 func (r *SitesDomainsService) Update(name string, domain *Domain) *SitesDomainsUpdateCall {
 	c := &SitesDomainsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -8754,17 +9382,17 @@ func (c *SitesDomainsUpdateCall) Do(opts ...googleapi.CallOption) (*Domain, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Domain{
 		ServerResponse: googleapi.ServerResponse{
@@ -8823,9 +9451,9 @@ type SitesReleasesCreateCall struct {
 // Create: Creates a new release, which makes the content of the
 // specified version actively display on the appropriate URL(s).
 //
-// - parent: The site or channel to which the release belongs, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel to which the release belongs, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *SitesReleasesService) Create(parent string, release *Release) *SitesReleasesCreateCall {
 	c := &SitesReleasesCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -8910,17 +9538,17 @@ func (c *SitesReleasesCreateCall) Do(opts ...googleapi.CallOption) (*Release, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Release{
 		ServerResponse: googleapi.ServerResponse{
@@ -8970,6 +9598,161 @@ func (c *SitesReleasesCreateCall) Do(opts ...googleapi.CallOption) (*Release, er
 
 }
 
+// method id "firebasehosting.sites.releases.get":
+
+type SitesReleasesGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Gets the specified release for a site or channel. When used to
+// get a release for a site, this can get releases for both the default
+// `live` channel and any active preview channels for the specified
+// site.
+//
+//   - name: The fully-qualified resource name for the Hosting release, in
+//     either of the following formats: -
+//     sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID -
+//     sites/SITE_ID/releases/RELEASE_ID.
+func (r *SitesReleasesService) Get(name string) *SitesReleasesGetCall {
+	c := &SitesReleasesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *SitesReleasesGetCall) Fields(s ...googleapi.Field) *SitesReleasesGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *SitesReleasesGetCall) IfNoneMatch(entityTag string) *SitesReleasesGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *SitesReleasesGetCall) Context(ctx context.Context) *SitesReleasesGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *SitesReleasesGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *SitesReleasesGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebasehosting.sites.releases.get" call.
+// Exactly one of *Release or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Release.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *SitesReleasesGetCall) Do(opts ...googleapi.CallOption) (*Release, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Release{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the specified release for a site or channel. When used to get a release for a site, this can get releases for both the default `live` channel and any active preview channels for the specified site.",
+	//   "flatPath": "v1beta1/sites/{sitesId}/releases/{releasesId}",
+	//   "httpMethod": "GET",
+	//   "id": "firebasehosting.sites.releases.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The fully-qualified resource name for the Hosting release, in either of the following formats: - sites/SITE_ID/channels/CHANNEL_ID/releases/RELEASE_ID - sites/SITE_ID/releases/RELEASE_ID ",
+	//       "location": "path",
+	//       "pattern": "^sites/[^/]+/releases/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "Release"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/firebase",
+	//     "https://www.googleapis.com/auth/firebase.readonly"
+	//   ]
+	// }
+
+}
+
 // method id "firebasehosting.sites.releases.list":
 
 type SitesReleasesListCall struct {
@@ -8986,9 +9769,9 @@ type SitesReleasesListCall struct {
 // includes releases for both the default `live` channel and any active
 // preview channels for the specified site.
 //
-// - parent: The site or channel for which to list releases, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel for which to list releases, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *SitesReleasesService) List(parent string) *SitesReleasesListCall {
 	c := &SitesReleasesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9087,17 +9870,17 @@ func (c *SitesReleasesListCall) Do(opts ...googleapi.CallOption) (*ListReleasesR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListReleasesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9187,8 +9970,8 @@ type SitesVersionsCloneCall struct {
 // Clone: Creates a new version on the specified target site using the
 // content of the specified version.
 //
-// - parent: The target site for the cloned version, in the format:
-//   sites/ SITE_ID.
+//   - parent: The target site for the cloned version, in the format:
+//     sites/ SITE_ID.
 func (r *SitesVersionsService) Clone(parent string, cloneversionrequest *CloneVersionRequest) *SitesVersionsCloneCall {
 	c := &SitesVersionsCloneCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9263,17 +10046,17 @@ func (c *SitesVersionsCloneCall) Do(opts ...googleapi.CallOption) (*Operation, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -9331,8 +10114,8 @@ type SitesVersionsCreateCall struct {
 
 // Create: Creates a new version for the specified site.
 //
-// - parent: The site in which to create the version, in the format:
-//   sites/ SITE_ID.
+//   - parent: The site in which to create the version, in the format:
+//     sites/ SITE_ID.
 func (r *SitesVersionsService) Create(parent string, version *Version) *SitesVersionsCreateCall {
 	c := &SitesVersionsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9423,17 +10206,17 @@ func (c *SitesVersionsCreateCall) Do(opts ...googleapi.CallOption) (*Version, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -9501,8 +10284,8 @@ type SitesVersionsDeleteCall struct {
 
 // Delete: Deletes the specified version.
 //
-// - name: The fully-qualified resource name for the version, in the
-//   format: sites/SITE_ID/versions/VERSION_ID.
+//   - name: The fully-qualified resource name for the version, in the
+//     format: sites/SITE_ID/versions/VERSION_ID.
 func (r *SitesVersionsService) Delete(name string) *SitesVersionsDeleteCall {
 	c := &SitesVersionsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9571,17 +10354,17 @@ func (c *SitesVersionsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Empty{
 		ServerResponse: googleapi.ServerResponse{
@@ -9623,6 +10406,159 @@ func (c *SitesVersionsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, erro
 
 }
 
+// method id "firebasehosting.sites.versions.get":
+
+type SitesVersionsGetCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Get the specified version that has been created for the
+// specified site. This can include versions that were created for the
+// default `live` channel or for any active preview channels for the
+// specified site.
+//
+//   - name: The fully-qualified resource name for the version, in the
+//     format: sites/SITE_ID/versions/VERSION_ID.
+func (r *SitesVersionsService) Get(name string) *SitesVersionsGetCall {
+	c := &SitesVersionsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *SitesVersionsGetCall) Fields(s ...googleapi.Field) *SitesVersionsGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *SitesVersionsGetCall) IfNoneMatch(entityTag string) *SitesVersionsGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *SitesVersionsGetCall) Context(ctx context.Context) *SitesVersionsGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *SitesVersionsGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *SitesVersionsGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/"+internal.Version)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "firebasehosting.sites.versions.get" call.
+// Exactly one of *Version or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Version.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *SitesVersionsGetCall) Do(opts ...googleapi.CallOption) (*Version, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, gensupport.WrapError(&googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, gensupport.WrapError(err)
+	}
+	ret := &Version{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get the specified version that has been created for the specified site. This can include versions that were created for the default `live` channel or for any active preview channels for the specified site.",
+	//   "flatPath": "v1beta1/sites/{sitesId}/versions/{versionsId}",
+	//   "httpMethod": "GET",
+	//   "id": "firebasehosting.sites.versions.get",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The fully-qualified resource name for the version, in the format: sites/SITE_ID/versions/VERSION_ID",
+	//       "location": "path",
+	//       "pattern": "^sites/[^/]+/versions/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1beta1/{+name}",
+	//   "response": {
+	//     "$ref": "Version"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/firebase",
+	//     "https://www.googleapis.com/auth/firebase.readonly"
+	//   ]
+	// }
+
+}
+
 // method id "firebasehosting.sites.versions.list":
 
 type SitesVersionsListCall struct {
@@ -9638,9 +10574,9 @@ type SitesVersionsListCall struct {
 // site. This list includes versions for both the default `live` channel
 // and any active preview channels for the specified site.
 //
-// - parent: The site or channel for which to list versions, in either
-//   of the following formats: - sites/SITE_ID -
-//   sites/SITE_ID/channels/CHANNEL_ID.
+//   - parent: The site or channel for which to list versions, in either
+//     of the following formats: - sites/SITE_ID -
+//     sites/SITE_ID/channels/CHANNEL_ID.
 func (r *SitesVersionsService) List(parent string) *SitesVersionsListCall {
 	c := &SitesVersionsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -9750,17 +10686,17 @@ func (c *SitesVersionsListCall) Do(opts ...googleapi.CallOption) (*ListVersionsR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVersionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9859,10 +10795,10 @@ type SitesVersionsPatchCall struct {
 // `CREATED` to `FINALIZED`. Use `DeleteVersion` (delete) to set the
 // status of a version to `DELETED`.
 //
-// - name: The fully-qualified resource name for the version, in the
-//   format: sites/ SITE_ID/versions/VERSION_ID This name is provided in
-//   the response body when you call `CreateVersion`
-//   (sites.versions/create).
+//   - name: The fully-qualified resource name for the version, in the
+//     format: sites/ SITE_ID/versions/VERSION_ID This name is provided in
+//     the response body when you call `CreateVersion`
+//     (sites.versions/create).
 func (r *SitesVersionsService) Patch(name string, version *Version) *SitesVersionsPatchCall {
 	c := &SitesVersionsPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -9947,17 +10883,17 @@ func (c *SitesVersionsPatchCall) Do(opts ...googleapi.CallOption) (*Version, err
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Version{
 		ServerResponse: googleapi.ServerResponse{
@@ -10022,8 +10958,8 @@ type SitesVersionsPopulateFilesCall struct {
 // PopulateFiles:  Adds content files to the specified version. Each
 // file must be under 2 GB.
 //
-// - parent: The version to which to add files, in the format:
-//   sites/SITE_ID /versions/VERSION_ID.
+//   - parent: The version to which to add files, in the format:
+//     sites/SITE_ID /versions/VERSION_ID.
 func (r *SitesVersionsService) PopulateFiles(parent string, populateversionfilesrequest *PopulateVersionFilesRequest) *SitesVersionsPopulateFilesCall {
 	c := &SitesVersionsPopulateFilesCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10098,17 +11034,17 @@ func (c *SitesVersionsPopulateFilesCall) Do(opts ...googleapi.CallOption) (*Popu
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PopulateVersionFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10167,8 +11103,8 @@ type SitesVersionsFilesListCall struct {
 // List: Lists the remaining files to be uploaded for the specified
 // version.
 //
-// - parent: The version for which to list files, in the format:
-//   sites/SITE_ID /versions/VERSION_ID.
+//   - parent: The version for which to list files, in the format:
+//     sites/SITE_ID /versions/VERSION_ID.
 func (r *SitesVersionsFilesService) List(parent string) *SitesVersionsFilesListCall {
 	c := &SitesVersionsFilesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -10196,11 +11132,16 @@ func (c *SitesVersionsFilesListCall) PageToken(pageToken string) *SitesVersionsF
 // should be listed for the specified version.
 //
 // Possible values:
-//   "STATUS_UNSPECIFIED" - The default status; should not be
+//
+//	"STATUS_UNSPECIFIED" - The default status; should not be
+//
 // intentionally used.
-//   "EXPECTED" - The file has been included in the version and is
+//
+//	"EXPECTED" - The file has been included in the version and is
+//
 // expected to be uploaded in the near future.
-//   "ACTIVE" - The file has already been uploaded to Firebase Hosting.
+//
+//	"ACTIVE" - The file has already been uploaded to Firebase Hosting.
 func (c *SitesVersionsFilesListCall) Status(status string) *SitesVersionsFilesListCall {
 	c.urlParams_.Set("status", status)
 	return c
@@ -10281,17 +11222,17 @@ func (c *SitesVersionsFilesListCall) Do(opts ...googleapi.CallOption) (*ListVers
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ListVersionFilesResponse{
 		ServerResponse: googleapi.ServerResponse{
